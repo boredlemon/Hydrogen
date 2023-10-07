@@ -1,4 +1,5 @@
 # Cup - The Cup Programming Language
+This programming language was made by Coffee or Dolphin#6086 from Discord!
 
 ![Cup Logo](images/cup-logo.png)
 
