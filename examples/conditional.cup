@@ -1,0 +1,8 @@
+-- Conditional Statements
+import age = 18
+
+if age >= 18 then
+    console("You are an adult.")
+else
+    console("You are a minor.")
+stop

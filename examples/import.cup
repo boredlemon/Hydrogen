@@ -1,0 +1,12 @@
+import a = 10
+import b = 5
+
+import sum = a + b
+import difference = a - b
+import product = a * b
+import quotient = a / b
+
+console("Sum:", sum)
+console("Difference:", difference)
+console("Product:", product)
+console("Quotient:", quotient)

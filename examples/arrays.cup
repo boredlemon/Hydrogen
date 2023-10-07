@@ -1,0 +1,4 @@
+import fruits = {"apple", "banana", "cherry"}
+for i, fruit in ipairs(fruits) do
+    console("Fruit #" .. i .. ": " .. fruit)
+stop

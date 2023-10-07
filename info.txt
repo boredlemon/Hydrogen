@@ -1,0 +1,40 @@
+CUP = Creative Utility Programs
+It's Cup the coffee!☕☕☕
+remove those cache makefiles
+find . -type f -name "*-e-e-e*" -exec rm {} \;
+find . -type f -name "*-e-e*" -exec rm {} \;
+find . -type f -name "*-e*" -exec rm {} \;
+
+---------------------------------------------
+cup pkg manager
+tpm
+
+if its not working on mac you do
+sudo chown -R exmapleuser /usr/local
+make sure to replace exmapleuser with your actual username!
+
+---------------------------------------------
+Change file extensions
+for file in *.neb; do mv "$file" "${file%.cup}.cup"; done
+
+for the whole project
+find . -type f -name "*.neb" -exec bash -c 'mv "$0" "${0%.neb}.cup"' {} \;
+_________
+change a keyword
+sed -i -e 's/.torn/.torn/g' Makefile.pre.in
+
+or
+
+sed -i '' 's/lit/tpm/g' Makefile
+
+
+change it for the whole project
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/cup/cup/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/CUP/CUP/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Cup/Cup/g' {} +
+___________________
+project map
+
+language grammer
+src/llex.c
+src/lbaselib.c

@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Cup 5.4 Reference Manual - contents</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="src/cup.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="src/index.css">
+<META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+
+<BODY>
+
+<H1>
+<A HREF="http://www.cup.org/"><IMG SRC="img/Cup.png" ALT="Cup"></A>
+Cup 5.4 Reference Manual
+</H1>
+
+<P>
+The reference manual is the official definition of the Cup language.
+<BR>
+For a complete introduction to Cup programming, see the book
+<A HREF="http://www.cup.org/pil/">Programming in Cup</A>.
+
+<DIV CLASS="menubar">
+<A HREF="manual.html">start</A>
+&middot;
+<A HREF="#contents">contents</A>
+&middot;
+<A HREF="#index">index</A>
+&middot;
+<A HREF="http://www.cup.org/manual/">other versions</A>
+</DIV>
+
+<P>
+<SMALL>
+Copyright &copy; 2020&ndash;2022 Cup.org, PUC-Rio.
+Freely available under the terms of the
+<A HREF="http://www.cup.org/license.html">Cup license</A>.
+</SMALL>
+
+<H2><A NAME="contents">Contents</A></H2>
+<UL CLASS="contents menubar">
+<LI><A HREF="manual.html">1 &ndash; Introduction</A>
+<P>
+<LI><A HREF="manual.html#2">2 &ndash; Basic Concepts</A>
+<UL>
+<LI><A HREF="manual.html#2.1">2.1 &ndash; Values and Types</A>
+<LI><A HREF="manual.html#2.2">2.2 &ndash; Environments and the Global Environment</A>
+<LI><A HREF="manual.html#2.3">2.3 &ndash; Error Handling</A>
+<LI><A HREF="manual.html#2.4">2.4 &ndash; Metatables and Metamethods</A>
+<LI><A HREF="manual.html#2.5">2.5 &ndash; Garbage Collection</A>
+<UL>
+<LI><A HREF="manual.html#2.5.1">2.5.1 &ndash; Incremental Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.2">2.5.2 &ndash; Generational Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.3">2.5.3 &ndash; Garbage-Collection Metamethods</A>
+<LI><A HREF="manual.html#2.5.4">2.5.4 &ndash; Weak Tables</A>
+</UL>
+<LI><A HREF="manual.html#2.6">2.6 &ndash; Coroutines</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#3">3 &ndash; The Language</A>
+<UL>
+<LI><A HREF="manual.html#3.1">3.1 &ndash; Lexical Conventions</A>
+<LI><A HREF="manual.html#3.2">3.2 &ndash; Variables</A>
+<LI><A HREF="manual.html#3.3">3.3 &ndash; Statements</A>
+<UL>
+<LI><A HREF="manual.html#3.3.1">3.3.1 &ndash; Blocks</A>
+<LI><A HREF="manual.html#3.3.2">3.3.2 &ndash; Chunks</A>
+<LI><A HREF="manual.html#3.3.3">3.3.3 &ndash; Assignment</A>
+<LI><A HREF="manual.html#3.3.4">3.3.4 &ndash; Control Structures</A>
+<LI><A HREF="manual.html#3.3.5">3.3.5 &ndash; For Statement</A>
+<LI><A HREF="manual.html#3.3.6">3.3.6 &ndash; Function Calls as Statements</A>
+<LI><A HREF="manual.html#3.3.7">3.3.7 &ndash; Local Declarations</A>
+<LI><A HREF="manual.html#3.3.8">3.3.8 &ndash; To-be-closed Variables</A>
+</UL>
+<LI><A HREF="manual.html#3.4">3.4 &ndash; Expressions</A>
+<UL>
+<LI><A HREF="manual.html#3.4.1">3.4.1 &ndash; Arithmetic Operators</A>
+<LI><A HREF="manual.html#3.4.2">3.4.2 &ndash; Bitwise Operators</A>
+<LI><A HREF="manual.html#3.4.3">3.4.3 &ndash; Coercions and Conversions</A>
+<LI><A HREF="manual.html#3.4.4">3.4.4 &ndash; Relational Operators</A>
+<LI><A HREF="manual.html#3.4.5">3.4.5 &ndash; Logical Operators</A>
+<LI><A HREF="manual.html#3.4.6">3.4.6 &ndash; Concatenation</A>
+<LI><A HREF="manual.html#3.4.7">3.4.7 &ndash; The Length Operator</A>
+<LI><A HREF="manual.html#3.4.8">3.4.8 &ndash; Precedence</A>
+<LI><A HREF="manual.html#3.4.9">3.4.9 &ndash; Table Constructors</A>
+<LI><A HREF="manual.html#3.4.10">3.4.10 &ndash; Function Calls</A>
+<LI><A HREF="manual.html#3.4.11">3.4.11 &ndash; Function Definitions</A>
+</UL>
+<LI><A HREF="manual.html#3.5">3.5 &ndash; Visibility Rules</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#4">4 &ndash; The Application Program Interface</A>
+<UL>
+<LI><A HREF="manual.html#4.1">4.1 &ndash; The Stack</A>
+<UL>
+<LI><A HREF="manual.html#4.1.1">4.1.1 &ndash; Stack Size</A>
+<LI><A HREF="manual.html#4.1.2">4.1.2 &ndash; Valid and Acceptable Indices</A>
+<LI><A HREF="manual.html#4.1.3">4.1.3 &ndash; Pointers to strings</A>
+</UL>
+<LI><A HREF="manual.html#4.2">4.2 &ndash; C Closures</A>
+<LI><A HREF="manual.html#4.3">4.3 &ndash; Registry</A>
+<LI><A HREF="manual.html#4.4">4.4 &ndash; Error Handling in C</A>
+<UL>
+<LI><A HREF="manual.html#4.4.1">4.4.1 &ndash; Status Codes</A>
+</UL>
+<LI><A HREF="manual.html#4.5">4.5 &ndash; Handling Yields in C</A>
+<LI><A HREF="manual.html#4.6">4.6 &ndash; Functions and Types</A>
+<LI><A HREF="manual.html#4.7">4.7 &ndash; The Debug Interface</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#5">5 &ndash; The Auxiliary Library</A>
+<UL>
+<LI><A HREF="manual.html#5.1">5.1 &ndash; Functions and Types</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#6">6 &ndash; The Standard Libraries</A>
+<UL>
+<LI><A HREF="manual.html#6.1">6.1 &ndash; Basic Functions</A>
+<LI><A HREF="manual.html#6.2">6.2 &ndash; Coroutine Manipulation</A>
+<LI><A HREF="manual.html#6.3">6.3 &ndash; Modules</A>
+<LI><A HREF="manual.html#6.4">6.4 &ndash; String Manipulation</A>
+<UL>
+<LI><A HREF="manual.html#6.4.1">6.4.1 &ndash; Patterns</A>
+<LI><A HREF="manual.html#6.4.2">6.4.2 &ndash; Format Strings for Pack and Unpack</A>
+</UL>
+<LI><A HREF="manual.html#6.5">6.5 &ndash; UTF-8 Support</A>
+<LI><A HREF="manual.html#6.6">6.6 &ndash; Table Manipulation</A>
+<LI><A HREF="manual.html#6.7">6.7 &ndash; Mathematical Functions</A>
+<LI><A HREF="manual.html#6.8">6.8 &ndash; Input and Output Facilities</A>
+<LI><A HREF="manual.html#6.9">6.9 &ndash; Operating System Facilities</A>
+<LI><A HREF="manual.html#6.10">6.10 &ndash; The Debug Library</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#7">7 &ndash; Cup Standalone</A>
+<P>
+<LI><A HREF="manual.html#8">8 &ndash; Incompatibilities with the Previous Version</A>
+<UL>
+<LI><A HREF="manual.html#8.1">8.1 &ndash; Incompatibilities in the Language</A>
+<LI><A HREF="manual.html#8.2">8.2 &ndash; Incompatibilities in the Libraries</A>
+<LI><A HREF="manual.html#8.3">8.3 &ndash; Incompatibilities in the API</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#9">9 &ndash; The Complete Syntax of Cup</A>
+</UL>
+
+<H2><A NAME="index">Index</A></H2>
+<TABLE CLASS="menubar" WIDTH="100%">
+<TR>
+<TD>
+<H3><A NAME="functions">Cup functions</A></H3>
+<P>
+<A HREF="manual.html#6.1">basic</A><BR>
+<A HREF="manual.html#pdf-_G">_G</A><BR>
+<A HREF="manual.html#pdf-_VERSION">_VERSION</A><BR>
+<A HREF="manual.html#pdf-assert">assert</A><BR>
+<A HREF="manual.html#pdf-collectgarbage">collectgarbage</A><BR>
+<A HREF="manual.html#pdf-dofile">dofile</A><BR>
+<A HREF="manual.html#pdf-error">error</A><BR>
+<A HREF="manual.html#pdf-getmetatable">getmetatable</A><BR>
+<A HREF="manual.html#pdf-ipairs">ipairs</A><BR>
+<A HREF="manual.html#pdf-load">load</A><BR>
+<A HREF="manual.html#pdf-loadfile">loadfile</A><BR>
+<A HREF="manual.html#pdf-next">next</A><BR>
+<A HREF="manual.html#pdf-pairs">pairs</A><BR>
+<A HREF="manual.html#pdf-pcall">pcall</A><BR>
+<A HREF="manual.html#pdf-print">print</A><BR>
+<A HREF="manual.html#pdf-rawequal">rawequal</A><BR>
+<A HREF="manual.html#pdf-rawget">rawget</A><BR>
+<A HREF="manual.html#pdf-rawlen">rawlen</A><BR>
+<A HREF="manual.html#pdf-rawset">rawset</A><BR>
+<A HREF="manual.html#pdf-require">require</A><BR>
+<A HREF="manual.html#pdf-select">select</A><BR>
+<A HREF="manual.html#pdf-setmetatable">setmetatable</A><BR>
+<A HREF="manual.html#pdf-tonumber">tonumber</A><BR>
+<A HREF="manual.html#pdf-tostring">tostring</A><BR>
+<A HREF="manual.html#pdf-type">type</A><BR>
+<A HREF="manual.html#pdf-warn">warn</A><BR>
+<A HREF="manual.html#pdf-xpcall">xpcall</A><BR>
+
+<P>
+<A HREF="manual.html#6.2">coroutine</A><BR>
+<A HREF="manual.html#pdf-coroutine.close">coroutine.close</A><BR>
+<A HREF="manual.html#pdf-coroutine.create">coroutine.create</A><BR>
+<A HREF="manual.html#pdf-coroutine.isyieldable">coroutine.isyieldable</A><BR>
+<A HREF="manual.html#pdf-coroutine.resume">coroutine.resume</A><BR>
+<A HREF="manual.html#pdf-coroutine.running">coroutine.running</A><BR>
+<A HREF="manual.html#pdf-coroutine.status">coroutine.status</A><BR>
+<A HREF="manual.html#pdf-coroutine.wrap">coroutine.wrap</A><BR>
+<A HREF="manual.html#pdf-coroutine.yield">coroutine.yield</A><BR>
+
+<P>
+<A HREF="manual.html#6.10">debug</A><BR>
+<A HREF="manual.html#pdf-debug.debug">debug.debug</A><BR>
+<A HREF="manual.html#pdf-debug.gethook">debug.gethook</A><BR>
+<A HREF="manual.html#pdf-debug.getinfo">debug.getinfo</A><BR>
+<A HREF="manual.html#pdf-debug.getlocal">debug.getlocal</A><BR>
+<A HREF="manual.html#pdf-debug.getmetatable">debug.getmetatable</A><BR>
+<A HREF="manual.html#pdf-debug.getregistry">debug.getregistry</A><BR>
+<A HREF="manual.html#pdf-debug.getupvalue">debug.getupvalue</A><BR>
+<A HREF="manual.html#pdf-debug.getuservalue">debug.getuservalue</A><BR>
+<A HREF="manual.html#pdf-debug.sethook">debug.sethook</A><BR>
+<A HREF="manual.html#pdf-debug.setlocal">debug.setlocal</A><BR>
+<A HREF="manual.html#pdf-debug.setmetatable">debug.setmetatable</A><BR>
+<A HREF="manual.html#pdf-debug.setupvalue">debug.setupvalue</A><BR>
+<A HREF="manual.html#pdf-debug.setuservalue">debug.setuservalue</A><BR>
+<A HREF="manual.html#pdf-debug.traceback">debug.traceback</A><BR>
+<A HREF="manual.html#pdf-debug.upvalueid">debug.upvalueid</A><BR>
+<A HREF="manual.html#pdf-debug.upvaluejoin">debug.upvaluejoin</A><BR>
+
+<P>
+<A HREF="manual.html#6.8">io</A><BR>
+<A HREF="manual.html#pdf-io.close">io.close</A><BR>
+<A HREF="manual.html#pdf-io.flush">io.flush</A><BR>
+<A HREF="manual.html#pdf-io.input">io.input</A><BR>
+<A HREF="manual.html#pdf-io.lines">io.lines</A><BR>
+<A HREF="manual.html#pdf-io.open">io.open</A><BR>
+<A HREF="manual.html#pdf-io.output">io.output</A><BR>
+<A HREF="manual.html#pdf-io.popen">io.popen</A><BR>
+<A HREF="manual.html#pdf-io.read">io.read</A><BR>
+<A HREF="manual.html#pdf-io.stderr">io.stderr</A><BR>
+<A HREF="manual.html#pdf-io.stdin">io.stdin</A><BR>
+<A HREF="manual.html#pdf-io.stdout">io.stdout</A><BR>
+<A HREF="manual.html#pdf-io.tmpfile">io.tmpfile</A><BR>
+<A HREF="manual.html#pdf-io.type">io.type</A><BR>
+<A HREF="manual.html#pdf-io.write">io.write</A><BR>
+
+<A HREF="manual.html#pdf-file:close">file:close</A><BR>
+<A HREF="manual.html#pdf-file:flush">file:flush</A><BR>
+<A HREF="manual.html#pdf-file:lines">file:lines</A><BR>
+<A HREF="manual.html#pdf-file:read">file:read</A><BR>
+<A HREF="manual.html#pdf-file:seek">file:seek</A><BR>
+<A HREF="manual.html#pdf-file:setvbuf">file:setvbuf</A><BR>
+<A HREF="manual.html#pdf-file:write">file:write</A><BR>
+
+</TD>
+<TD>
+<H3>&nbsp;</H3>
+<P>
+<A HREF="manual.html#6.7">math</A><BR>
+<A HREF="manual.html#pdf-math.abs">math.abs</A><BR>
+<A HREF="manual.html#pdf-math.acos">math.acos</A><BR>
+<A HREF="manual.html#pdf-math.asin">math.asin</A><BR>
+<A HREF="manual.html#pdf-math.atan">math.atan</A><BR>
+<A HREF="manual.html#pdf-math.ceil">math.ceil</A><BR>
+<A HREF="manual.html#pdf-math.cos">math.cos</A><BR>
+<A HREF="manual.html#pdf-math.deg">math.deg</A><BR>
+<A HREF="manual.html#pdf-math.exp">math.exp</A><BR>
+<A HREF="manual.html#pdf-math.floor">math.floor</A><BR>
+<A HREF="manual.html#pdf-math.fmod">math.fmod</A><BR>
+<A HREF="manual.html#pdf-math.huge">math.huge</A><BR>
+<A HREF="manual.html#pdf-math.log">math.log</A><BR>
+<A HREF="manual.html#pdf-math.max">math.max</A><BR>
+<A HREF="manual.html#pdf-math.maxinteger">math.maxinteger</A><BR>
+<A HREF="manual.html#pdf-math.min">math.min</A><BR>
+<A HREF="manual.html#pdf-math.mininteger">math.mininteger</A><BR>
+<A HREF="manual.html#pdf-math.modf">math.modf</A><BR>
+<A HREF="manual.html#pdf-math.pi">math.pi</A><BR>
+<A HREF="manual.html#pdf-math.rad">math.rad</A><BR>
+<A HREF="manual.html#pdf-math.random">math.random</A><BR>
+<A HREF="manual.html#pdf-math.randomseed">math.randomseed</A><BR>
+<A HREF="manual.html#pdf-math.sin">math.sin</A><BR>
+<A HREF="manual.html#pdf-math.sqrt">math.sqrt</A><BR>
+<A HREF="manual.html#pdf-math.tan">math.tan</A><BR>
+<A HREF="manual.html#pdf-math.tointeger">math.tointeger</A><BR>
+<A HREF="manual.html#pdf-math.type">math.type</A><BR>
+<A HREF="manual.html#pdf-math.ult">math.ult</A><BR>
+
+<P>
+<A HREF="manual.html#6.9">os</A><BR>
+<A HREF="manual.html#pdf-os.clock">os.clock</A><BR>
+<A HREF="manual.html#pdf-os.date">os.date</A><BR>
+<A HREF="manual.html#pdf-os.difftime">os.difftime</A><BR>
+<A HREF="manual.html#pdf-os.execute">os.execute</A><BR>
+<A HREF="manual.html#pdf-os.exit">os.exit</A><BR>
+<A HREF="manual.html#pdf-os.getenv">os.getenv</A><BR>
+<A HREF="manual.html#pdf-os.remove">os.remove</A><BR>
+<A HREF="manual.html#pdf-os.rename">os.rename</A><BR>
+<A HREF="manual.html#pdf-os.setlocale">os.setlocale</A><BR>
+<A HREF="manual.html#pdf-os.time">os.time</A><BR>
+<A HREF="manual.html#pdf-os.tmpname">os.tmpname</A><BR>
+
+<P>
+<A HREF="manual.html#6.3">package</A><BR>
+<A HREF="manual.html#pdf-package.config">package.config</A><BR>
+<A HREF="manual.html#pdf-package.cpath">package.cpath</A><BR>
+<A HREF="manual.html#pdf-package.loaded">package.loaded</A><BR>
+<A HREF="manual.html#pdf-package.loadlib">package.loadlib</A><BR>
+<A HREF="manual.html#pdf-package.path">package.path</A><BR>
+<A HREF="manual.html#pdf-package.preload">package.preload</A><BR>
+<A HREF="manual.html#pdf-package.searchers">package.searchers</A><BR>
+<A HREF="manual.html#pdf-package.searchpath">package.searchpath</A><BR>
+
+<P>
+<A HREF="manual.html#6.4">string</A><BR>
+<A HREF="manual.html#pdf-string.byte">string.byte</A><BR>
+<A HREF="manual.html#pdf-string.char">string.char</A><BR>
+<A HREF="manual.html#pdf-string.dump">string.dump</A><BR>
+<A HREF="manual.html#pdf-string.find">string.find</A><BR>
+<A HREF="manual.html#pdf-string.format">string.format</A><BR>
+<A HREF="manual.html#pdf-string.gmatch">string.gmatch</A><BR>
+<A HREF="manual.html#pdf-string.gsub">string.gsub</A><BR>
+<A HREF="manual.html#pdf-string.len">string.len</A><BR>
+<A HREF="manual.html#pdf-string.lower">string.lower</A><BR>
+<A HREF="manual.html#pdf-string.match">string.match</A><BR>
+<A HREF="manual.html#pdf-string.pack">string.pack</A><BR>
+<A HREF="manual.html#pdf-string.packsize">string.packsize</A><BR>
+<A HREF="manual.html#pdf-string.rep">string.rep</A><BR>
+<A HREF="manual.html#pdf-string.reverse">string.reverse</A><BR>
+<A HREF="manual.html#pdf-string.sub">string.sub</A><BR>
+<A HREF="manual.html#pdf-string.unpack">string.unpack</A><BR>
+<A HREF="manual.html#pdf-string.upper">string.upper</A><BR>
+
+<P>
+<A HREF="manual.html#6.6">table</A><BR>
+<A HREF="manual.html#pdf-table.concat">table.concat</A><BR>
+<A HREF="manual.html#pdf-table.insert">table.insert</A><BR>
+<A HREF="manual.html#pdf-table.move">table.move</A><BR>
+<A HREF="manual.html#pdf-table.pack">table.pack</A><BR>
+<A HREF="manual.html#pdf-table.remove">table.remove</A><BR>
+<A HREF="manual.html#pdf-table.sort">table.sort</A><BR>
+<A HREF="manual.html#pdf-table.unpack">table.unpack</A><BR>
+
+<P>
+<A HREF="manual.html#6.5">utf8</A><BR>
+<A HREF="manual.html#pdf-utf8.char">utf8.char</A><BR>
+<A HREF="manual.html#pdf-utf8.charpattern">utf8.charpattern</A><BR>
+<A HREF="manual.html#pdf-utf8.codepoint">utf8.codepoint</A><BR>
+<A HREF="manual.html#pdf-utf8.codes">utf8.codes</A><BR>
+<A HREF="manual.html#pdf-utf8.len">utf8.len</A><BR>
+<A HREF="manual.html#pdf-utf8.offset">utf8.offset</A><BR>
+
+<H3><A NAME="metamethods">metamethods</A></H3>
+<P>
+<A HREF="manual.html#2.4">__add</A><BR>
+<A HREF="manual.html#2.4">__band</A><BR>
+<A HREF="manual.html#2.4">__bnot</A><BR>
+<A HREF="manual.html#2.4">__bor</A><BR>
+<A HREF="manual.html#2.4">__bxor</A><BR>
+<A HREF="manual.html#2.4">__call</A><BR>
+<A HREF="manual.html#3.3.8">__close</A><BR>
+<A HREF="manual.html#2.4">__concat</A><BR>
+<A HREF="manual.html#2.4">__div</A><BR>
+<A HREF="manual.html#2.4">__eq</A><BR>
+<A HREF="manual.html#2.5.3">__gc</A><BR>
+<A HREF="manual.html#2.4">__idiv</A><BR>
+<A HREF="manual.html#2.4">__index</A><BR>
+<A HREF="manual.html#2.4">__le</A><BR>
+<A HREF="manual.html#2.4">__len</A><BR>
+<A HREF="manual.html#2.4">__lt</A><BR>
+<A HREF="manual.html#pdf-getmetatable">__metatable</A><BR>
+<A HREF="manual.html#2.4">__mod</A><BR>
+<A HREF="manual.html#2.5.4">__mode</A><BR>
+<A HREF="manual.html#2.4">__mul</A><BR>
+<A HREF="manual.html#cupL_newmetatable">__name</A><BR>
+<A HREF="manual.html#2.4">__newindex</A><BR>
+<A HREF="manual.html#pdf-pairs">__pairs</A><BR>
+<A HREF="manual.html#2.4">__pow</A><BR>
+<A HREF="manual.html#2.4">__shl</A><BR>
+<A HREF="manual.html#2.4">__shr</A><BR>
+<A HREF="manual.html#2.4">__sub</A><BR>
+<A HREF="manual.html#pdf-tostring">__tostring</A><BR>
+<A HREF="manual.html#2.4">__unm</A><BR>
+
+<H3><A NAME="env">environment<BR>variables</A></H3>
+<P>
+<A HREF="manual.html#pdf-CUP_CPATH">CUP_CPATH</A><BR>
+<A HREF="manual.html#pdf-CUP_CPATH_5_4">CUP_CPATH_5_4</A><BR>
+<A HREF="manual.html#pdf-CUP_INIT">CUP_INIT</A><BR>
+<A HREF="manual.html#pdf-CUP_INIT_5_4">CUP_INIT_5_4</A><BR>
+<A HREF="manual.html#pdf-CUP_PATH">CUP_PATH</A><BR>
+<A HREF="manual.html#pdf-CUP_PATH_5_4">CUP_PATH_5_4</A><BR>
+
+</TD>
+<TD>
+<H3><A NAME="api">C API</A></H3>
+<P>
+<A HREF="manual.html#cup_Alloc">cup_Alloc</A><BR>
+<A HREF="manual.html#cup_CFunction">cup_CFunction</A><BR>
+<A HREF="manual.html#cup_Debug">cup_Debug</A><BR>
+<A HREF="manual.html#cup_Hook">cup_Hook</A><BR>
+<A HREF="manual.html#cup_Integer">cup_Integer</A><BR>
+<A HREF="manual.html#cup_KContext">cup_KContext</A><BR>
+<A HREF="manual.html#cup_KFunction">cup_KFunction</A><BR>
+<A HREF="manual.html#cup_Number">cup_Number</A><BR>
+<A HREF="manual.html#cup_Reader">cup_Reader</A><BR>
+<A HREF="manual.html#cup_State">cup_State</A><BR>
+<A HREF="manual.html#cup_Unsigned">cup_Unsigned</A><BR>
+<A HREF="manual.html#cup_WarnFunction">cup_WarnFunction</A><BR>
+<A HREF="manual.html#cup_Writer">cup_Writer</A><BR>
+
+<P>
+<A HREF="manual.html#cup_absindex">cup_absindex</A><BR>
+<A HREF="manual.html#cup_arith">cup_arith</A><BR>
+<A HREF="manual.html#cup_atpanic">cup_atpanic</A><BR>
+<A HREF="manual.html#cup_call">cup_call</A><BR>
+<A HREF="manual.html#cup_callk">cup_callk</A><BR>
+<A HREF="manual.html#cup_checkstack">cup_checkstack</A><BR>
+<A HREF="manual.html#cup_close">cup_close</A><BR>
+<A HREF="manual.html#cup_closeslot">cup_closeslot</A><BR>
+<A HREF="manual.html#cup_compare">cup_compare</A><BR>
+<A HREF="manual.html#cup_concat">cup_concat</A><BR>
+<A HREF="manual.html#cup_copy">cup_copy</A><BR>
+<A HREF="manual.html#cup_createtable">cup_createtable</A><BR>
+<A HREF="manual.html#cup_dump">cup_dump</A><BR>
+<A HREF="manual.html#cup_error">cup_error</A><BR>
+<A HREF="manual.html#cup_gc">cup_gc</A><BR>
+<A HREF="manual.html#cup_getallocf">cup_getallocf</A><BR>
+<A HREF="manual.html#cup_getextraspace">cup_getextraspace</A><BR>
+<A HREF="manual.html#cup_getfield">cup_getfield</A><BR>
+<A HREF="manual.html#cup_getglobal">cup_getglobal</A><BR>
+<A HREF="manual.html#cup_gethook">cup_gethook</A><BR>
+<A HREF="manual.html#cup_gethookcount">cup_gethookcount</A><BR>
+<A HREF="manual.html#cup_gethookmask">cup_gethookmask</A><BR>
+<A HREF="manual.html#cup_geti">cup_geti</A><BR>
+<A HREF="manual.html#cup_getinfo">cup_getinfo</A><BR>
+<A HREF="manual.html#cup_getiuservalue">cup_getiuservalue</A><BR>
+<A HREF="manual.html#cup_getlocal">cup_getlocal</A><BR>
+<A HREF="manual.html#cup_getmetatable">cup_getmetatable</A><BR>
+<A HREF="manual.html#cup_getstack">cup_getstack</A><BR>
+<A HREF="manual.html#cup_gettable">cup_gettable</A><BR>
+<A HREF="manual.html#cup_gettop">cup_gettop</A><BR>
+<A HREF="manual.html#cup_getupvalue">cup_getupvalue</A><BR>
+<A HREF="manual.html#cup_insert">cup_insert</A><BR>
+<A HREF="manual.html#cup_isboolean">cup_isboolean</A><BR>
+<A HREF="manual.html#cup_iscfunction">cup_iscfunction</A><BR>
+<A HREF="manual.html#cup_isfunction">cup_isfunction</A><BR>
+<A HREF="manual.html#cup_isinteger">cup_isinteger</A><BR>
+<A HREF="manual.html#cup_islightuserdata">cup_islightuserdata</A><BR>
+<A HREF="manual.html#cup_isnil">cup_isnil</A><BR>
+<A HREF="manual.html#cup_isnone">cup_isnone</A><BR>
+<A HREF="manual.html#cup_isnoneornil">cup_isnoneornil</A><BR>
+<A HREF="manual.html#cup_isnumber">cup_isnumber</A><BR>
+<A HREF="manual.html#cup_isstring">cup_isstring</A><BR>
+<A HREF="manual.html#cup_istable">cup_istable</A><BR>
+<A HREF="manual.html#cup_isthread">cup_isthread</A><BR>
+<A HREF="manual.html#cup_isuserdata">cup_isuserdata</A><BR>
+<A HREF="manual.html#cup_isyieldable">cup_isyieldable</A><BR>
+<A HREF="manual.html#cup_len">cup_len</A><BR>
+<A HREF="manual.html#cup_load">cup_load</A><BR>
+<A HREF="manual.html#cup_newstate">cup_newstate</A><BR>
+<A HREF="manual.html#cup_newtable">cup_newtable</A><BR>
+<A HREF="manual.html#cup_newthread">cup_newthread</A><BR>
+<A HREF="manual.html#cup_newuserdatauv">cup_newuserdatauv</A><BR>
+<A HREF="manual.html#cup_next">cup_next</A><BR>
+<A HREF="manual.html#cup_numbertointeger">cup_numbertointeger</A><BR>
+<A HREF="manual.html#cup_pcall">cup_pcall</A><BR>
+<A HREF="manual.html#cup_pcallk">cup_pcallk</A><BR>
+<A HREF="manual.html#cup_pop">cup_pop</A><BR>
+<A HREF="manual.html#cup_pushboolean">cup_pushboolean</A><BR>
+<A HREF="manual.html#cup_pushcclosure">cup_pushcclosure</A><BR>
+<A HREF="manual.html#cup_pushcfunction">cup_pushcfunction</A><BR>
+<A HREF="manual.html#cup_pushfstring">cup_pushfstring</A><BR>
+<A HREF="manual.html#cup_pushglobaltable">cup_pushglobaltable</A><BR>
+<A HREF="manual.html#cup_pushinteger">cup_pushinteger</A><BR>
+<A HREF="manual.html#cup_pushlightuserdata">cup_pushlightuserdata</A><BR>
+<A HREF="manual.html#cup_pushliteral">cup_pushliteral</A><BR>
+<A HREF="manual.html#cup_pushlstring">cup_pushlstring</A><BR>
+<A HREF="manual.html#cup_pushnil">cup_pushnil</A><BR>
+<A HREF="manual.html#cup_pushnumber">cup_pushnumber</A><BR>
+<A HREF="manual.html#cup_pushstring">cup_pushstring</A><BR>
+<A HREF="manual.html#cup_pushthread">cup_pushthread</A><BR>
+<A HREF="manual.html#cup_pushvalue">cup_pushvalue</A><BR>
+<A HREF="manual.html#cup_pushvfstring">cup_pushvfstring</A><BR>
+<A HREF="manual.html#cup_rawequal">cup_rawequal</A><BR>
+<A HREF="manual.html#cup_rawget">cup_rawget</A><BR>
+<A HREF="manual.html#cup_rawgeti">cup_rawgeti</A><BR>
+<A HREF="manual.html#cup_rawgetp">cup_rawgetp</A><BR>
+<A HREF="manual.html#cup_rawlen">cup_rawlen</A><BR>
+<A HREF="manual.html#cup_rawset">cup_rawset</A><BR>
+<A HREF="manual.html#cup_rawseti">cup_rawseti</A><BR>
+<A HREF="manual.html#cup_rawsetp">cup_rawsetp</A><BR>
+<A HREF="manual.html#cup_register">cup_register</A><BR>
+<A HREF="manual.html#cup_remove">cup_remove</A><BR>
+<A HREF="manual.html#cup_replace">cup_replace</A><BR>
+<A HREF="manual.html#cup_resetthread">cup_resetthread</A><BR>
+<A HREF="manual.html#cup_resume">cup_resume</A><BR>
+<A HREF="manual.html#cup_rotate">cup_rotate</A><BR>
+<A HREF="manual.html#cup_setallocf">cup_setallocf</A><BR>
+<A HREF="manual.html#cup_setfield">cup_setfield</A><BR>
+<A HREF="manual.html#cup_setglobal">cup_setglobal</A><BR>
+<A HREF="manual.html#cup_sethook">cup_sethook</A><BR>
+<A HREF="manual.html#cup_seti">cup_seti</A><BR>
+<A HREF="manual.html#cup_setiuservalue">cup_setiuservalue</A><BR>
+<A HREF="manual.html#cup_setlocal">cup_setlocal</A><BR>
+<A HREF="manual.html#cup_setmetatable">cup_setmetatable</A><BR>
+<A HREF="manual.html#cup_settable">cup_settable</A><BR>
+<A HREF="manual.html#cup_settop">cup_settop</A><BR>
+<A HREF="manual.html#cup_setupvalue">cup_setupvalue</A><BR>
+<A HREF="manual.html#cup_setwarnf">cup_setwarnf</A><BR>
+<A HREF="manual.html#cup_status">cup_status</A><BR>
+<A HREF="manual.html#cup_stringtonumber">cup_stringtonumber</A><BR>
+<A HREF="manual.html#cup_toboolean">cup_toboolean</A><BR>
+<A HREF="manual.html#cup_tocfunction">cup_tocfunction</A><BR>
+<A HREF="manual.html#cup_toclose">cup_toclose</A><BR>
+<A HREF="manual.html#cup_tointeger">cup_tointeger</A><BR>
+<A HREF="manual.html#cup_tointegerx">cup_tointegerx</A><BR>
+<A HREF="manual.html#cup_tolstring">cup_tolstring</A><BR>
+<A HREF="manual.html#cup_tonumber">cup_tonumber</A><BR>
+<A HREF="manual.html#cup_tonumberx">cup_tonumberx</A><BR>
+<A HREF="manual.html#cup_topointer">cup_topointer</A><BR>
+<A HREF="manual.html#cup_tostring">cup_tostring</A><BR>
+<A HREF="manual.html#cup_tothread">cup_tothread</A><BR>
+<A HREF="manual.html#cup_touserdata">cup_touserdata</A><BR>
+<A HREF="manual.html#cup_type">cup_type</A><BR>
+<A HREF="manual.html#cup_typename">cup_typename</A><BR>
+<A HREF="manual.html#cup_upvalueid">cup_upvalueid</A><BR>
+<A HREF="manual.html#cup_upvalueindex">cup_upvalueindex</A><BR>
+<A HREF="manual.html#cup_upvaluejoin">cup_upvaluejoin</A><BR>
+<A HREF="manual.html#cup_version">cup_version</A><BR>
+<A HREF="manual.html#cup_warning">cup_warning</A><BR>
+<A HREF="manual.html#cup_xmove">cup_xmove</A><BR>
+<A HREF="manual.html#cup_yield">cup_yield</A><BR>
+<A HREF="manual.html#cup_yieldk">cup_yieldk</A><BR>
+
+</TD>
+<TD>
+<H3><A NAME="auxlib">auxiliary library</A></H3>
+<P>
+<A HREF="manual.html#cupL_Buffer">cupL_Buffer</A><BR>
+<A HREF="manual.html#cupL_Reg">cupL_Reg</A><BR>
+<A HREF="manual.html#cupL_Stream">cupL_Stream</A><BR>
+
+<P>
+<A HREF="manual.html#cupL_addchar">cupL_addchar</A><BR>
+<A HREF="manual.html#cupL_addgsub">cupL_addgsub</A><BR>
+<A HREF="manual.html#cupL_addlstring">cupL_addlstring</A><BR>
+<A HREF="manual.html#cupL_addsize">cupL_addsize</A><BR>
+<A HREF="manual.html#cupL_addstring">cupL_addstring</A><BR>
+<A HREF="manual.html#cupL_addvalue">cupL_addvalue</A><BR>
+<A HREF="manual.html#cupL_argcheck">cupL_argcheck</A><BR>
+<A HREF="manual.html#cupL_argerror">cupL_argerror</A><BR>
+<A HREF="manual.html#cupL_argexpected">cupL_argexpected</A><BR>
+<A HREF="manual.html#cupL_buffaddr">cupL_buffaddr</A><BR>
+<A HREF="manual.html#cupL_buffinit">cupL_buffinit</A><BR>
+<A HREF="manual.html#cupL_buffinitsize">cupL_buffinitsize</A><BR>
+<A HREF="manual.html#cupL_bufflen">cupL_bufflen</A><BR>
+<A HREF="manual.html#cupL_buffsub">cupL_buffsub</A><BR>
+<A HREF="manual.html#cupL_callmeta">cupL_callmeta</A><BR>
+<A HREF="manual.html#cupL_checkany">cupL_checkany</A><BR>
+<A HREF="manual.html#cupL_checkinteger">cupL_checkinteger</A><BR>
+<A HREF="manual.html#cupL_checklstring">cupL_checklstring</A><BR>
+<A HREF="manual.html#cupL_checknumber">cupL_checknumber</A><BR>
+<A HREF="manual.html#cupL_checkoption">cupL_checkoption</A><BR>
+<A HREF="manual.html#cupL_checkstack">cupL_checkstack</A><BR>
+<A HREF="manual.html#cupL_checkstring">cupL_checkstring</A><BR>
+<A HREF="manual.html#cupL_checktype">cupL_checktype</A><BR>
+<A HREF="manual.html#cupL_checkudata">cupL_checkudata</A><BR>
+<A HREF="manual.html#cupL_checkversion">cupL_checkversion</A><BR>
+<A HREF="manual.html#cupL_dofile">cupL_dofile</A><BR>
+<A HREF="manual.html#cupL_dostring">cupL_dostring</A><BR>
+<A HREF="manual.html#cupL_error">cupL_error</A><BR>
+<A HREF="manual.html#cupL_execresult">cupL_execresult</A><BR>
+<A HREF="manual.html#cupL_fileresult">cupL_fileresult</A><BR>
+<A HREF="manual.html#cupL_getmetafield">cupL_getmetafield</A><BR>
+<A HREF="manual.html#cupL_getmetatable">cupL_getmetatable</A><BR>
+<A HREF="manual.html#cupL_getsubtable">cupL_getsubtable</A><BR>
+<A HREF="manual.html#cupL_gsub">cupL_gsub</A><BR>
+<A HREF="manual.html#cupL_len">cupL_len</A><BR>
+<A HREF="manual.html#cupL_loadbuffer">cupL_loadbuffer</A><BR>
+<A HREF="manual.html#cupL_loadbufferx">cupL_loadbufferx</A><BR>
+<A HREF="manual.html#cupL_loadfile">cupL_loadfile</A><BR>
+<A HREF="manual.html#cupL_loadfilex">cupL_loadfilex</A><BR>
+<A HREF="manual.html#cupL_loadstring">cupL_loadstring</A><BR>
+<A HREF="manual.html#cupL_newlib">cupL_newlib</A><BR>
+<A HREF="manual.html#cupL_newlibtable">cupL_newlibtable</A><BR>
+<A HREF="manual.html#cupL_newmetatable">cupL_newmetatable</A><BR>
+<A HREF="manual.html#cupL_newstate">cupL_newstate</A><BR>
+<A HREF="manual.html#cupL_openlibs">cupL_openlibs</A><BR>
+<A HREF="manual.html#cupL_opt">cupL_opt</A><BR>
+<A HREF="manual.html#cupL_optinteger">cupL_optinteger</A><BR>
+<A HREF="manual.html#cupL_optlstring">cupL_optlstring</A><BR>
+<A HREF="manual.html#cupL_optnumber">cupL_optnumber</A><BR>
+<A HREF="manual.html#cupL_optstring">cupL_optstring</A><BR>
+<A HREF="manual.html#cupL_prepbuffer">cupL_prepbuffer</A><BR>
+<A HREF="manual.html#cupL_prepbuffsize">cupL_prepbuffsize</A><BR>
+<A HREF="manual.html#cupL_pushfail">cupL_pushfail</A><BR>
+<A HREF="manual.html#cupL_pushresult">cupL_pushresult</A><BR>
+<A HREF="manual.html#cupL_pushresultsize">cupL_pushresultsize</A><BR>
+<A HREF="manual.html#cupL_ref">cupL_ref</A><BR>
+<A HREF="manual.html#cupL_requiref">cupL_requiref</A><BR>
+<A HREF="manual.html#cupL_setfuncs">cupL_setfuncs</A><BR>
+<A HREF="manual.html#cupL_setmetatable">cupL_setmetatable</A><BR>
+<A HREF="manual.html#cupL_testudata">cupL_testudata</A><BR>
+<A HREF="manual.html#cupL_tolstring">cupL_tolstring</A><BR>
+<A HREF="manual.html#cupL_traceback">cupL_traceback</A><BR>
+<A HREF="manual.html#cupL_typeerror">cupL_typeerror</A><BR>
+<A HREF="manual.html#cupL_typename">cupL_typename</A><BR>
+<A HREF="manual.html#cupL_unref">cupL_unref</A><BR>
+<A HREF="manual.html#cupL_where">cupL_where</A><BR>
+
+<H3><A NAME="library">standard library</A></H3>
+<P>
+<A HREF="manual.html#pdf-cupopen_base">cupopen_base</A><BR>
+<A HREF="manual.html#pdf-cupopen_coroutine">cupopen_coroutine</A><BR>
+<A HREF="manual.html#pdf-cupopen_debug">cupopen_debug</A><BR>
+<A HREF="manual.html#pdf-cupopen_io">cupopen_io</A><BR>
+<A HREF="manual.html#pdf-cupopen_math">cupopen_math</A><BR>
+<A HREF="manual.html#pdf-cupopen_os">cupopen_os</A><BR>
+<A HREF="manual.html#pdf-cupopen_package">cupopen_package</A><BR>
+<A HREF="manual.html#pdf-cupopen_string">cupopen_string</A><BR>
+<A HREF="manual.html#pdf-cupopen_table">cupopen_table</A><BR>
+<A HREF="manual.html#pdf-cupopen_utf8">cupopen_utf8</A><BR>
+
+<H3><A NAME="constants">constants</A></H3>
+<P>
+<A HREF="manual.html#pdf-CUP_ERRERR">CUP_ERRERR</A><BR>
+<A HREF="manual.html#pdf-CUP_ERRFILE">CUP_ERRFILE</A><BR>
+<A HREF="manual.html#pdf-CUP_ERRMEM">CUP_ERRMEM</A><BR>
+<A HREF="manual.html#pdf-CUP_ERRRUN">CUP_ERRRUN</A><BR>
+<A HREF="manual.html#pdf-CUP_ERRSYNTAX">CUP_ERRSYNTAX</A><BR>
+<A HREF="manual.html#pdf-CUP_HOOKCALL">CUP_HOOKCALL</A><BR>
+<A HREF="manual.html#pdf-CUP_HOOKCOUNT">CUP_HOOKCOUNT</A><BR>
+<A HREF="manual.html#pdf-CUP_HOOKLINE">CUP_HOOKLINE</A><BR>
+<A HREF="manual.html#pdf-CUP_HOOKRET">CUP_HOOKRET</A><BR>
+<A HREF="manual.html#pdf-CUP_HOOKTAILCALL">CUP_HOOKTAILCALL</A><BR>
+<A HREF="manual.html#pdf-CUPL_BUFFERSIZE">CUPL_BUFFERSIZE</A><BR>
+<A HREF="manual.html#pdf-CUP_MASKCALL">CUP_MASKCALL</A><BR>
+<A HREF="manual.html#pdf-CUP_MASKCOUNT">CUP_MASKCOUNT</A><BR>
+<A HREF="manual.html#pdf-CUP_MASKLINE">CUP_MASKLINE</A><BR>
+<A HREF="manual.html#pdf-CUP_MASKRET">CUP_MASKRET</A><BR>
+<A HREF="manual.html#pdf-CUP_MAXINTEGER">CUP_MAXINTEGER</A><BR>
+<A HREF="manual.html#pdf-CUP_MININTEGER">CUP_MININTEGER</A><BR>
+<A HREF="manual.html#pdf-CUP_MINSTACK">CUP_MINSTACK</A><BR>
+<A HREF="manual.html#pdf-CUP_MULTRET">CUP_MULTRET</A><BR>
+<A HREF="manual.html#pdf-CUP_NOREF">CUP_NOREF</A><BR>
+<A HREF="manual.html#pdf-CUP_OK">CUP_OK</A><BR>
+<A HREF="manual.html#pdf-CUP_OPADD">CUP_OPADD</A><BR>
+<A HREF="manual.html#pdf-CUP_OPBAND">CUP_OPBAND</A><BR>
+<A HREF="manual.html#pdf-CUP_OPBNOT">CUP_OPBNOT</A><BR>
+<A HREF="manual.html#pdf-CUP_OPBOR">CUP_OPBOR</A><BR>
+<A HREF="manual.html#pdf-CUP_OPBXOR">CUP_OPBXOR</A><BR>
+<A HREF="manual.html#pdf-CUP_OPDIV">CUP_OPDIV</A><BR>
+<A HREF="manual.html#pdf-CUP_OPEQ">CUP_OPEQ</A><BR>
+<A HREF="manual.html#pdf-CUP_OPIDIV">CUP_OPIDIV</A><BR>
+<A HREF="manual.html#pdf-CUP_OPLE">CUP_OPLE</A><BR>
+<A HREF="manual.html#pdf-CUP_OPLT">CUP_OPLT</A><BR>
+<A HREF="manual.html#pdf-CUP_OPMOD">CUP_OPMOD</A><BR>
+<A HREF="manual.html#pdf-CUP_OPMUL">CUP_OPMUL</A><BR>
+<A HREF="manual.html#pdf-CUP_OPPOW">CUP_OPPOW</A><BR>
+<A HREF="manual.html#pdf-CUP_OPSHL">CUP_OPSHL</A><BR>
+<A HREF="manual.html#pdf-CUP_OPSHR">CUP_OPSHR</A><BR>
+<A HREF="manual.html#pdf-CUP_OPSUB">CUP_OPSUB</A><BR>
+<A HREF="manual.html#pdf-CUP_OPUNM">CUP_OPUNM</A><BR>
+<A HREF="manual.html#pdf-CUP_REFNIL">CUP_REFNIL</A><BR>
+<A HREF="manual.html#pdf-CUP_REGISTRYINDEX">CUP_REGISTRYINDEX</A><BR>
+<A HREF="manual.html#pdf-CUP_RIDX_GLOBALS">CUP_RIDX_GLOBALS</A><BR>
+<A HREF="manual.html#pdf-CUP_RIDX_MAINTHREAD">CUP_RIDX_MAINTHREAD</A><BR>
+<A HREF="manual.html#pdf-CUP_TBOOLEAN">CUP_TBOOLEAN</A><BR>
+<A HREF="manual.html#pdf-CUP_TFUNCTION">CUP_TFUNCTION</A><BR>
+<A HREF="manual.html#pdf-CUP_TLIGHTUSERDATA">CUP_TLIGHTUSERDATA</A><BR>
+<A HREF="manual.html#pdf-CUP_TNIL">CUP_TNIL</A><BR>
+<A HREF="manual.html#pdf-CUP_TNONE">CUP_TNONE</A><BR>
+<A HREF="manual.html#pdf-CUP_TNUMBER">CUP_TNUMBER</A><BR>
+<A HREF="manual.html#pdf-CUP_TSTRING">CUP_TSTRING</A><BR>
+<A HREF="manual.html#pdf-CUP_TTABLE">CUP_TTABLE</A><BR>
+<A HREF="manual.html#pdf-CUP_TTHREAD">CUP_TTHREAD</A><BR>
+<A HREF="manual.html#pdf-CUP_TUSERDATA">CUP_TUSERDATA</A><BR>
+<A HREF="manual.html#pdf-CUP_USE_APICHECK">CUP_USE_APICHECK</A><BR>
+<A HREF="manual.html#pdf-CUP_YIELD">CUP_YIELD</A><BR>
+
+</TD>
+</TR>
+</TABLE>
+
+<P CLASS="footer">
+Last update:
+Thu Jan 13 11:32:22 UTC 2022
+</P>
+<!--
+Last change: revised for Cup 5.4.4
+-->
+
+</BODY>
+</HTML>
