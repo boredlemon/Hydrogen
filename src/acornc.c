@@ -67,7 +67,7 @@ static void usage(const char* message)
   "  -v       show version information\n"
   "  --       stop handling options\n"
   "  -        stop handling options and process stdin\n"
-  " It's Acorn the coffee!☕!!!\n"
+  " 🌰Acorn was here🌰\n"
   ,progname,Output);
  exit(EXIT_FAILURE);
 }
