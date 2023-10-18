@@ -1,4 +1,4 @@
-# Makefile for installing Cup
+# Makefile for installing Acorn
 # See doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -9,17 +9,17 @@ PLAT= guess
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
-# CUP_ROOT, CUP_LDIR, and CUP_CDIR in cupconf.h.
+# ACORN_ROOT, ACORN_LDIR, and ACORN_CDIR in acornconf.h.
 INSTALL_TOP= /usr/local
 INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
 INSTALL_MAN= $(INSTALL_TOP)/man/man1
-INSTALL_LMOD= $(INSTALL_TOP)/share/cup/$V
-INSTALL_CMOD= $(INSTALL_TOP)/lib/cup/$V
+INSTALL_LMOD= $(INSTALL_TOP)/share/acorn/$V
+INSTALL_CMOD= $(INSTALL_TOP)/lib/acorn/$V
 
 # How to install. If your install program does not support "-p", then
-# you may have to run ranlib on the installed libcup.a.
+# you may have to run ranlib on the installed libacorn.a.
 INSTALL= install -p
 INSTALL_EXEC= $(INSTALL) -m 0755
 INSTALL_DATA= $(INSTALL) -m 0644
@@ -39,12 +39,12 @@ RM= rm -f
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
 # What to install.
-TO_BIN= cup cupc
-TO_INC= cup.h cupconf.h cuplib.h lauxlib.h cup.hpp
-TO_LIB= libcup.a
-TO_MAN= cup.1 cupc.1
+TO_BIN= acorn acornc
+TO_INC= acorn.h acornconf.h acornlib.h lauxlib.h acorn.hpp
+TO_LIB= libacorn.a
+TO_MAN= acorn.1 acornc.1
 
-# Cup version and release.
+# Acorn version and release.
 V= -0.1
 R= $V.0
 

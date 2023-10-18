@@ -1,14 +1,14 @@
 /*
 ** $Id: lzio.h $
 ** Buffered streams
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 
 #ifndef lzio_h
 #define lzio_h
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lmem.h"
 
@@ -17,7 +17,7 @@
 
 typedef struct Zio ZIO;
 
-#define zgetc(z)  (((z)->n--)>0 ?  cast_uchar(*(z)->p++) : cupZ_fill(z))
+#define zgetc(z)  (((z)->n--)>0 ?  cast_uchar(*(z)->p++) : acornZ_fill(z))
 
 
 typedef struct Mbuffer {
@@ -26,27 +26,27 @@ typedef struct Mbuffer {
   size_t buffsize;
 } Mbuffer;
 
-#define cupZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
+#define acornZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
 
-#define cupZ_buffer(buff)	((buff)->buffer)
-#define cupZ_sizebuffer(buff)	((buff)->buffsize)
-#define cupZ_bufflen(buff)	((buff)->n)
+#define acornZ_buffer(buff)	((buff)->buffer)
+#define acornZ_sizebuffer(buff)	((buff)->buffsize)
+#define acornZ_bufflen(buff)	((buff)->n)
 
-#define cupZ_buffremove(buff,i)	((buff)->n -= (i))
-#define cupZ_resetbuffer(buff) ((buff)->n = 0)
+#define acornZ_buffremove(buff,i)	((buff)->n -= (i))
+#define acornZ_resetbuffer(buff) ((buff)->n = 0)
 
 
-#define cupZ_resizebuffer(L, buff, size) \
-	((buff)->buffer = cupM_reallocvchar(L, (buff)->buffer, \
+#define acornZ_resizebuffer(L, buff, size) \
+	((buff)->buffer = acornM_reallocvchar(L, (buff)->buffer, \
 				(buff)->buffsize, size), \
 	(buff)->buffsize = size)
 
-#define cupZ_freebuffer(L, buff)	cupZ_resizebuffer(L, buff, 0)
+#define acornZ_freebuffer(L, buff)	acornZ_resizebuffer(L, buff, 0)
 
 
-CUPI_FUNC void cupZ_init (cup_State *L, ZIO *z, cup_Reader reader,
+ACORNI_FUNC void acornZ_init (acorn_State *L, ZIO *z, acorn_Reader reader,
                                         void *data);
-CUPI_FUNC size_t cupZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
+ACORNI_FUNC size_t acornZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 
 
 
@@ -55,12 +55,12 @@ CUPI_FUNC size_t cupZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 struct Zio {
   size_t n;			/* bytes still unread */
   const char *p;		/* current position in buffer */
-  cup_Reader reader;		/* reader function */
+  acorn_Reader reader;		/* reader function */
   void *data;			/* additional data */
-  cup_State *L;			/* Cup state (for reader) */
+  acorn_State *L;			/* Acorn state (for reader) */
 };
 
 
-CUPI_FUNC int cupZ_fill (ZIO *z);
+ACORNI_FUNC int acornZ_fill (ZIO *z);
 
 #endif

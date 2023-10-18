@@ -1,18 +1,18 @@
 /*
 ** $Id: lmem.c $
 ** Interface to Memory Manager
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #define lmem_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
 
 #include <stddef.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -76,7 +76,7 @@ static void *firsttry (global_State *g, void *block, size_t os, size_t ns) {
 #define MINSIZEARRAY	4
 
 
-void *cupM_growaux_ (cup_State *L, void *block, int nelems, int *psize,
+void *acornM_growaux_ (acorn_State *L, void *block, int nelems, int *psize,
                      int size_elems, int limit, const char *what) {
   void *newblock;
   int size = *psize;
@@ -84,7 +84,7 @@ void *cupM_growaux_ (cup_State *L, void *block, int nelems, int *psize,
     return block;  /* nothing to be done */
   if (size >= limit / 2) {  /* cannot double it? */
     if (l_unlikely(size >= limit))  /* cannot grow even a little? */
-      cupG_runerror(L, "too many %s (limit is %d)", what, limit);
+      acornG_runerror(L, "too many %s (limit is %d)", what, limit);
     size = limit;  /* still have at least one free place */
   }
   else {
@@ -92,9 +92,9 @@ void *cupM_growaux_ (cup_State *L, void *block, int nelems, int *psize,
     if (size < MINSIZEARRAY)
       size = MINSIZEARRAY;  /* minimum size */
   }
-  cup_assert(nelems + 1 <= size && size <= limit);
+  acorn_assert(nelems + 1 <= size && size <= limit);
   /* 'limit' ensures that multiplication will not overflow */
-  newblock = cupM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
+  newblock = acornM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
                                          cast_sizet(size) * size_elems);
   *psize = size;  /* update only when everything else is OK */
   return newblock;
@@ -107,13 +107,13 @@ void *cupM_growaux_ (cup_State *L, void *block, int nelems, int *psize,
 ** to its number of elements, the only option is to raise an
 ** error.
 */
-void *cupM_shrinkvector_ (cup_State *L, void *block, int *size,
+void *acornM_shrinkvector_ (acorn_State *L, void *block, int *size,
                           int final_n, int size_elem) {
   void *newblock;
   size_t oldsize = cast_sizet((*size) * size_elem);
   size_t newsize = cast_sizet(final_n * size_elem);
-  cup_assert(newsize <= oldsize);
-  newblock = cupM_saferealloc_(L, block, oldsize, newsize);
+  acorn_assert(newsize <= oldsize);
+  newblock = acornM_saferealloc_(L, block, oldsize, newsize);
   *size = final_n;
   return newblock;
 }
@@ -121,17 +121,17 @@ void *cupM_shrinkvector_ (cup_State *L, void *block, int *size,
 /* }================================================================== */
 
 
-l_noret cupM_toobig (cup_State *L) {
-  cupG_runerror(L, "memory allocation error: block too big");
+l_noret acornM_toobig (acorn_State *L) {
+  acornG_runerror(L, "memory allocation error: block too big");
 }
 
 
 /*
 ** Free memory
 */
-void cupM_free_ (cup_State *L, void *block, size_t osize) {
+void acornM_free_ (acorn_State *L, void *block, size_t osize) {
   global_State *g = G(L);
-  cup_assert((osize == 0) == (block == NULL));
+  acorn_assert((osize == 0) == (block == NULL));
   (*g->frealloc)(g->ud, block, osize, 0);
   g->GCdebt -= osize;
 }
@@ -145,11 +145,11 @@ void cupM_free_ (cup_State *L, void *block, size_t osize) {
 ** when 'gcstopem' is true, because then the interpreter is in the
 ** middle of a collection step.
 */
-static void *tryagain (cup_State *L, void *block,
+static void *tryagain (acorn_State *L, void *block,
                        size_t osize, size_t nsize) {
   global_State *g = G(L);
   if (completestate(g) && !g->gcstopem) {
-    cupC_fullgc(L, 1);  /* try to free some memory... */
+    acornC_fullgc(L, 1);  /* try to free some memory... */
     return (*g->frealloc)(g->ud, block, osize, nsize);  /* try again */
   }
   else return NULL;  /* cannot free any memory without a full state */
@@ -159,32 +159,32 @@ static void *tryagain (cup_State *L, void *block,
 /*
 ** Generic allocation routine.
 */
-void *cupM_realloc_ (cup_State *L, void *block, size_t osize, size_t nsize) {
+void *acornM_realloc_ (acorn_State *L, void *block, size_t osize, size_t nsize) {
   void *newblock;
   global_State *g = G(L);
-  cup_assert((osize == 0) == (block == NULL));
+  acorn_assert((osize == 0) == (block == NULL));
   newblock = firsttry(g, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0)) {
     newblock = tryagain(L, block, osize, nsize);
     if (newblock == NULL)  /* still no memory? */
       return NULL;  /* do not update 'GCdebt' */
   }
-  cup_assert((nsize == 0) == (newblock == NULL));
+  acorn_assert((nsize == 0) == (newblock == NULL));
   g->GCdebt = (g->GCdebt + nsize) - osize;
   return newblock;
 }
 
 
-void *cupM_saferealloc_ (cup_State *L, void *block, size_t osize,
+void *acornM_saferealloc_ (acorn_State *L, void *block, size_t osize,
                                                     size_t nsize) {
-  void *newblock = cupM_realloc_(L, block, osize, nsize);
+  void *newblock = acornM_realloc_(L, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0))  /* allocation failed? */
-    cupM_error(L);
+    acornM_error(L);
   return newblock;
 }
 
 
-void *cupM_malloc_ (cup_State *L, size_t size, int tag) {
+void *acornM_malloc_ (acorn_State *L, size_t size, int tag) {
   if (size == 0)
     return NULL;  /* that's all */
   else {
@@ -193,7 +193,7 @@ void *cupM_malloc_ (cup_State *L, size_t size, int tag) {
     if (l_unlikely(newblock == NULL)) {
       newblock = tryagain(L, NULL, tag, size);
       if (newblock == NULL)
-        cupM_error(L);
+        acornM_error(L);
     }
     g->GCdebt += size;
     return newblock;

@@ -1,7 +1,7 @@
 /*
 ** $Id: lauxlib.h $
-** Auxiliary functions for building Cup libraries
-** See Copyright Notice in cup.h
+** Auxiliary functions for building Acorn libraries
+** See Copyright Notice in acorn.h
 */
 
 
@@ -12,110 +12,110 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "cupconf.h"
-#include "cup.h"
+#include "acornconf.h"
+#include "acorn.h"
 
 
 /* global table */
-#define CUP_GNAME	"_G"
+#define ACORN_GNAME	"_G"
 
 
-typedef struct cupL_Buffer cupL_Buffer;
+typedef struct acornL_Buffer acornL_Buffer;
 
 
-/* extra error code for 'cupL_loadfilex' */
-#define CUP_ERRFILE     (CUP_ERRERR+1)
+/* extra error code for 'acornL_loadfilex' */
+#define ACORN_ERRFILE     (ACORN_ERRERR+1)
 
 
 /* key, in the registry, for table of loaded modules */
-#define CUP_LOADED_TABLE	"_LOADED"
+#define ACORN_LOADED_TABLE	"_LOADED"
 
 
 /* key, in the registry, for table of preloaded loaders */
-#define CUP_PRELOAD_TABLE	"_PRELOAD"
+#define ACORN_PRELOAD_TABLE	"_PRELOAD"
 
 
-typedef struct cupL_Reg {
+typedef struct acornL_Reg {
   const char *name;
-  cup_CFunction func;
-} cupL_Reg;
+  acorn_CFunction func;
+} acornL_Reg;
 
 
-#define CUPL_NUMSIZES	(sizeof(cup_Integer)*16 + sizeof(cup_Number))
+#define ACORNL_NUMSIZES	(sizeof(acorn_Integer)*16 + sizeof(acorn_Number))
 
-CUPLIB_API void (cupL_checkversion_) (cup_State *L, cup_Number ver, size_t sz);
-#define cupL_checkversion(L)  \
-	  cupL_checkversion_(L, CUP_VERSION_NUM, CUPL_NUMSIZES)
+ACORNLIB_API void (acornL_checkversion_) (acorn_State *L, acorn_Number ver, size_t sz);
+#define acornL_checkversion(L)  \
+	  acornL_checkversion_(L, ACORN_VERSION_NUM, ACORNL_NUMSIZES)
 
-CUPLIB_API int (cupL_getmetafield) (cup_State *L, int obj, const char *e);
-CUPLIB_API int (cupL_callmeta) (cup_State *L, int obj, const char *e);
-CUPLIB_API const char *(cupL_tolstring) (cup_State *L, int idx, size_t *len);
-CUPLIB_API int (cupL_argerror) (cup_State *L, int arg, const char *extramsg);
-CUPLIB_API int (cupL_typeerror) (cup_State *L, int arg, const char *tname);
-CUPLIB_API const char *(cupL_checklstring) (cup_State *L, int arg,
+ACORNLIB_API int (acornL_getmetafield) (acorn_State *L, int obj, const char *e);
+ACORNLIB_API int (acornL_callmeta) (acorn_State *L, int obj, const char *e);
+ACORNLIB_API const char *(acornL_tolstring) (acorn_State *L, int idx, size_t *len);
+ACORNLIB_API int (acornL_argerror) (acorn_State *L, int arg, const char *extramsg);
+ACORNLIB_API int (acornL_typeerror) (acorn_State *L, int arg, const char *tname);
+ACORNLIB_API const char *(acornL_checklstring) (acorn_State *L, int arg,
                                                           size_t *l);
-CUPLIB_API const char *(cupL_optlstring) (cup_State *L, int arg,
+ACORNLIB_API const char *(acornL_optlstring) (acorn_State *L, int arg,
                                           const char *def, size_t *l);
-CUPLIB_API cup_Number (cupL_checknumber) (cup_State *L, int arg);
-CUPLIB_API cup_Number (cupL_optnumber) (cup_State *L, int arg, cup_Number def);
+ACORNLIB_API acorn_Number (acornL_checknumber) (acorn_State *L, int arg);
+ACORNLIB_API acorn_Number (acornL_optnumber) (acorn_State *L, int arg, acorn_Number def);
 
-CUPLIB_API cup_Integer (cupL_checkinteger) (cup_State *L, int arg);
-CUPLIB_API cup_Integer (cupL_optinteger) (cup_State *L, int arg,
-                                          cup_Integer def);
+ACORNLIB_API acorn_Integer (acornL_checkinteger) (acorn_State *L, int arg);
+ACORNLIB_API acorn_Integer (acornL_optinteger) (acorn_State *L, int arg,
+                                          acorn_Integer def);
 
-CUPLIB_API void (cupL_checkstack) (cup_State *L, int sz, const char *msg);
-CUPLIB_API void (cupL_checktype) (cup_State *L, int arg, int t);
-CUPLIB_API void (cupL_checkany) (cup_State *L, int arg);
+ACORNLIB_API void (acornL_checkstack) (acorn_State *L, int sz, const char *msg);
+ACORNLIB_API void (acornL_checktype) (acorn_State *L, int arg, int t);
+ACORNLIB_API void (acornL_checkany) (acorn_State *L, int arg);
 
-CUPLIB_API int   (cupL_newmetatable) (cup_State *L, const char *tname);
-CUPLIB_API void  (cupL_setmetatable) (cup_State *L, const char *tname);
-CUPLIB_API void *(cupL_testudata) (cup_State *L, int ud, const char *tname);
-CUPLIB_API void *(cupL_checkudata) (cup_State *L, int ud, const char *tname);
+ACORNLIB_API int   (acornL_newmetatable) (acorn_State *L, const char *tname);
+ACORNLIB_API void  (acornL_setmetatable) (acorn_State *L, const char *tname);
+ACORNLIB_API void *(acornL_testudata) (acorn_State *L, int ud, const char *tname);
+ACORNLIB_API void *(acornL_checkudata) (acorn_State *L, int ud, const char *tname);
 
-CUPLIB_API void (cupL_where) (cup_State *L, int lvl);
-CUPLIB_API int (cupL_error) (cup_State *L, const char *fmt, ...);
+ACORNLIB_API void (acornL_where) (acorn_State *L, int lvl);
+ACORNLIB_API int (acornL_error) (acorn_State *L, const char *fmt, ...);
 
-CUPLIB_API int (cupL_checkoption) (cup_State *L, int arg, const char *def,
+ACORNLIB_API int (acornL_checkoption) (acorn_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-CUPLIB_API int (cupL_fileresult) (cup_State *L, int stat, const char *fname);
-CUPLIB_API int (cupL_execresult) (cup_State *L, int stat);
+ACORNLIB_API int (acornL_fileresult) (acorn_State *L, int stat, const char *fname);
+ACORNLIB_API int (acornL_execresult) (acorn_State *L, int stat);
 
 
 /* predefined references */
-#define CUP_NOREF       (-2)
-#define CUP_REFNIL      (-1)
+#define ACORN_NOREF       (-2)
+#define ACORN_REFNIL      (-1)
 
-CUPLIB_API int (cupL_ref) (cup_State *L, int t);
-CUPLIB_API void (cupL_unref) (cup_State *L, int t, int ref);
+ACORNLIB_API int (acornL_ref) (acorn_State *L, int t);
+ACORNLIB_API void (acornL_unref) (acorn_State *L, int t, int ref);
 
-CUPLIB_API int (cupL_loadfilex) (cup_State *L, const char *filename,
+ACORNLIB_API int (acornL_loadfilex) (acorn_State *L, const char *filename,
                                                const char *mode);
 
-#define cupL_loadfile(L,f)	cupL_loadfilex(L,f,NULL)
+#define acornL_loadfile(L,f)	acornL_loadfilex(L,f,NULL)
 
-CUPLIB_API int (cupL_loadbufferx) (cup_State *L, const char *buff, size_t sz,
+ACORNLIB_API int (acornL_loadbufferx) (acorn_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-CUPLIB_API int (cupL_loadstring) (cup_State *L, const char *s);
+ACORNLIB_API int (acornL_loadstring) (acorn_State *L, const char *s);
 
-CUPLIB_API cup_State *(cupL_newstate) (void);
+ACORNLIB_API acorn_State *(acornL_newstate) (void);
 
-CUPLIB_API cup_Integer (cupL_len) (cup_State *L, int idx);
+ACORNLIB_API acorn_Integer (acornL_len) (acorn_State *L, int idx);
 
-CUPLIB_API void (cupL_addgsub) (cupL_Buffer *b, const char *s,
+ACORNLIB_API void (acornL_addgsub) (acornL_Buffer *b, const char *s,
                                      const char *p, const char *r);
-CUPLIB_API const char *(cupL_gsub) (cup_State *L, const char *s,
+ACORNLIB_API const char *(acornL_gsub) (acorn_State *L, const char *s,
                                     const char *p, const char *r);
 
-CUPLIB_API void (cupL_setfuncs) (cup_State *L, const cupL_Reg *l, int nup);
+ACORNLIB_API void (acornL_setfuncs) (acorn_State *L, const acornL_Reg *l, int nup);
 
-CUPLIB_API int (cupL_getsubtable) (cup_State *L, int idx, const char *fname);
+ACORNLIB_API int (acornL_getsubtable) (acorn_State *L, int idx, const char *fname);
 
-CUPLIB_API void (cupL_traceback) (cup_State *L, cup_State *L1,
+ACORNLIB_API void (acornL_traceback) (acorn_State *L, acorn_State *L1,
                                   const char *msg, int level);
 
-CUPLIB_API void (cupL_requiref) (cup_State *L, const char *modname,
-                                 cup_CFunction openf, int glb);
+ACORNLIB_API void (acornL_requiref) (acorn_State *L, const char *modname,
+                                 acorn_CFunction openf, int glb);
 
 /*
 ** ===============================================================
@@ -124,58 +124,58 @@ CUPLIB_API void (cupL_requiref) (cup_State *L, const char *modname,
 */
 
 
-#define cupL_newlibtable(L,l)	\
-  cup_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#define acornL_newlibtable(L,l)	\
+  acorn_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
-#define cupL_newlib(L,l)  \
-  (cupL_checkversion(L), cupL_newlibtable(L,l), cupL_setfuncs(L,l,0))
+#define acornL_newlib(L,l)  \
+  (acornL_checkversion(L), acornL_newlibtable(L,l), acornL_setfuncs(L,l,0))
 
-#define cupL_argcheck(L, cond,arg,extramsg)	\
-	((void)(cupi_likely(cond) || cupL_argerror(L, (arg), (extramsg))))
+#define acornL_argcheck(L, cond,arg,extramsg)	\
+	((void)(acorni_likely(cond) || acornL_argerror(L, (arg), (extramsg))))
 
-#define cupL_argexpected(L,cond,arg,tname)	\
-	((void)(cupi_likely(cond) || cupL_typeerror(L, (arg), (tname))))
+#define acornL_argexpected(L,cond,arg,tname)	\
+	((void)(acorni_likely(cond) || acornL_typeerror(L, (arg), (tname))))
 
-#define cupL_checkstring(L,n)	(cupL_checklstring(L, (n), NULL))
-#define cupL_optstring(L,n,d)	(cupL_optlstring(L, (n), (d), NULL))
+#define acornL_checkstring(L,n)	(acornL_checklstring(L, (n), NULL))
+#define acornL_optstring(L,n,d)	(acornL_optlstring(L, (n), (d), NULL))
 
-#define cupL_typename(L,i)	cup_typename(L, cup_type(L,(i)))
+#define acornL_typename(L,i)	acorn_typename(L, acorn_type(L,(i)))
 
-#define cupL_dofile(L, fn) \
-	(cupL_loadfile(L, fn) || cup_pcall(L, 0, CUP_MULTRET, 0))
+#define acornL_dofile(L, fn) \
+	(acornL_loadfile(L, fn) || acorn_pcall(L, 0, ACORN_MULTRET, 0))
 
-#define cupL_dostring(L, s) \
-	(cupL_loadstring(L, s) || cup_pcall(L, 0, CUP_MULTRET, 0))
+#define acornL_dostring(L, s) \
+	(acornL_loadstring(L, s) || acorn_pcall(L, 0, ACORN_MULTRET, 0))
 
-#define cupL_getmetatable(L,n)	(cup_getfield(L, CUP_REGISTRYINDEX, (n)))
+#define acornL_getmetatable(L,n)	(acorn_getfield(L, ACORN_REGISTRYINDEX, (n)))
 
-#define cupL_opt(L,f,n,d)	(cup_isnoneornil(L,(n)) ? (d) : f(L,(n)))
+#define acornL_opt(L,f,n,d)	(acorn_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
-#define cupL_loadbuffer(L,s,sz,n)	cupL_loadbufferx(L,s,sz,n,NULL)
+#define acornL_loadbuffer(L,s,sz,n)	acornL_loadbufferx(L,s,sz,n,NULL)
 
 
 /*
-** Perform arithmetic operations on cup_Integer values with wrap-around
-** semantics, as the Cup core does.
+** Perform arithmetic operations on acorn_Integer values with wrap-around
+** semantics, as the Acorn core does.
 */
-#define cupL_intop(op,v1,v2)  \
-	((cup_Integer)((cup_Unsigned)(v1) op (cup_Unsigned)(v2)))
+#define acornL_intop(op,v1,v2)  \
+	((acorn_Integer)((acorn_Unsigned)(v1) op (acorn_Unsigned)(v2)))
 
 
 /* push the value used to represent failure/error */
-#define cupL_pushfail(L)	cup_pushnil(L)
+#define acornL_pushfail(L)	acorn_pushnil(L)
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if !defined(cup_assert)
+#if !defined(acorn_assert)
 
-#if defined CUPI_ASSERT
+#if defined ACORNI_ASSERT
   #include <assert.h>
-  #define cup_assert(c)		assert(c)
+  #define acorn_assert(c)		assert(c)
 #else
-  #define cup_assert(c)		((void)0)
+  #define acorn_assert(c)		((void)0)
 #endif
 
 #endif
@@ -188,40 +188,40 @@ CUPLIB_API void (cupL_requiref) (cup_State *L, const char *modname,
 ** =======================================================
 */
 
-struct cupL_Buffer {
+struct acornL_Buffer {
   char *b;  /* buffer address */
   size_t size;  /* buffer size */
   size_t n;  /* number of characters in buffer */
-  cup_State *L;
+  acorn_State *L;
   union {
-    CUPI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[CUPL_BUFFERSIZE];  /* initial buffer */
+    ACORNI_MAXALIGN;  /* ensure maximum alignment for buffer */
+    char b[ACORNL_BUFFERSIZE];  /* initial buffer */
   } init;
 };
 
 
-#define cupL_bufflen(bf)	((bf)->n)
-#define cupL_buffaddr(bf)	((bf)->b)
+#define acornL_bufflen(bf)	((bf)->n)
+#define acornL_buffaddr(bf)	((bf)->b)
 
 
-#define cupL_addchar(B,c) \
-  ((void)((B)->n < (B)->size || cupL_prepbuffsize((B), 1)), \
+#define acornL_addchar(B,c) \
+  ((void)((B)->n < (B)->size || acornL_prepbuffsize((B), 1)), \
    ((B)->b[(B)->n++] = (c)))
 
-#define cupL_addsize(B,s)	((B)->n += (s))
+#define acornL_addsize(B,s)	((B)->n += (s))
 
-#define cupL_buffsub(B,s)	((B)->n -= (s))
+#define acornL_buffsub(B,s)	((B)->n -= (s))
 
-CUPLIB_API void (cupL_buffinit) (cup_State *L, cupL_Buffer *B);
-CUPLIB_API char *(cupL_prepbuffsize) (cupL_Buffer *B, size_t sz);
-CUPLIB_API void (cupL_addlstring) (cupL_Buffer *B, const char *s, size_t l);
-CUPLIB_API void (cupL_addstring) (cupL_Buffer *B, const char *s);
-CUPLIB_API void (cupL_addvalue) (cupL_Buffer *B);
-CUPLIB_API void (cupL_pushresult) (cupL_Buffer *B);
-CUPLIB_API void (cupL_pushresultsize) (cupL_Buffer *B, size_t sz);
-CUPLIB_API char *(cupL_buffinitsize) (cup_State *L, cupL_Buffer *B, size_t sz);
+ACORNLIB_API void (acornL_buffinit) (acorn_State *L, acornL_Buffer *B);
+ACORNLIB_API char *(acornL_prepbuffsize) (acornL_Buffer *B, size_t sz);
+ACORNLIB_API void (acornL_addlstring) (acornL_Buffer *B, const char *s, size_t l);
+ACORNLIB_API void (acornL_addstring) (acornL_Buffer *B, const char *s);
+ACORNLIB_API void (acornL_addvalue) (acornL_Buffer *B);
+ACORNLIB_API void (acornL_pushresult) (acornL_Buffer *B);
+ACORNLIB_API void (acornL_pushresultsize) (acornL_Buffer *B, size_t sz);
+ACORNLIB_API char *(acornL_buffinitsize) (acorn_State *L, acornL_Buffer *B, size_t sz);
 
-#define cupL_prepbuffer(B)	cupL_prepbuffsize(B, CUPL_BUFFERSIZE)
+#define acornL_prepbuffer(B)	acornL_prepbuffsize(B, ACORNL_BUFFERSIZE)
 
 /* }====================================================== */
 
@@ -234,18 +234,18 @@ CUPLIB_API char *(cupL_buffinitsize) (cup_State *L, cupL_Buffer *B, size_t sz);
 */
 
 /*
-** A file handle is a userdata with metatable 'CUP_FILEHANDLE' and
-** initial structure 'cupL_Stream' (it may contain other fields
+** A file handle is a userdata with metatable 'ACORN_FILEHANDLE' and
+** initial structure 'acornL_Stream' (it may contain other fields
 ** after that initial structure).
 */
 
-#define CUP_FILEHANDLE          "FILE*"
+#define ACORN_FILEHANDLE          "FILE*"
 
 
-typedef struct cupL_Stream {
+typedef struct acornL_Stream {
   FILE *f;  /* stream (NULL for incompletely created streams) */
-  cup_CFunction closef;  /* to close stream (NULL for closed streams) */
-} cupL_Stream;
+  acorn_CFunction closef;  /* to close stream (NULL for closed streams) */
+} acornL_Stream;
 
 /* }====================================================== */
 
@@ -256,18 +256,18 @@ typedef struct cupL_Stream {
 */
 
 /* print a string */
-#if !defined(cup_writestring)
-#define cup_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+#if !defined(acorn_writestring)
+#define acorn_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #endif
 
 /* print a newline and flush the output */
-#if !defined(cup_writeline)
-#define cup_writeline()        (cup_writestring("\n", 1), fflush(stdout))
+#if !defined(acorn_writeline)
+#define acorn_writeline()        (acorn_writestring("\n", 1), fflush(stdout))
 #endif
 
 /* print an error message */
-#if !defined(cup_writestringerror)
-#define cup_writestringerror(s,p) \
+#if !defined(acorn_writestringerror)
+#define acorn_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
 #endif
 
@@ -279,17 +279,17 @@ typedef struct cupL_Stream {
 ** Compatibility with deprecated conversions
 ** =============================================================
 */
-#if defined(CUP_COMPAT_APIINTCASTS)
+#if defined(ACORN_COMPAT_APIINTCASTS)
 
-#define cupL_checkunsigned(L,a)	((cup_Unsigned)cupL_checkinteger(L,a))
-#define cupL_optunsigned(L,a,d)	\
-	((cup_Unsigned)cupL_optinteger(L,a,(cup_Integer)(d)))
+#define acornL_checkunsigned(L,a)	((acorn_Unsigned)acornL_checkinteger(L,a))
+#define acornL_optunsigned(L,a,d)	\
+	((acorn_Unsigned)acornL_optinteger(L,a,(acorn_Integer)(d)))
 
-#define cupL_checkint(L,n)	((int)cupL_checkinteger(L, (n)))
-#define cupL_optint(L,n,d)	((int)cupL_optinteger(L, (n), (d)))
+#define acornL_checkint(L,n)	((int)acornL_checkinteger(L, (n)))
+#define acornL_optint(L,n,d)	((int)acornL_optinteger(L, (n), (d)))
 
-#define cupL_checklong(L,n)	((long)cupL_checkinteger(L, (n)))
-#define cupL_optlong(L,n,d)	((long)cupL_optinteger(L, (n), (d)))
+#define acornL_checklong(L,n)	((long)acornL_checkinteger(L, (n)))
+#define acornL_optlong(L,n,d)	((long)acornL_optinteger(L, (n), (d)))
 
 #endif
 /* }============================================================ */

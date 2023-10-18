@@ -1,23 +1,23 @@
 /*
 ** $Id: lctype.c $
-** 'ctype' functions for Cup
-** See Copyright Notice in cup.h
+** 'ctype' functions for Acorn
+** See Copyright Notice in acorn.h
 */
 
 #define lctype_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
 
 #include "lctype.h"
 
-#if !CUP_USE_CTYPE	/* { */
+#if !ACORN_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (CUP_UCID)		/* accept UniCode IDentifiers? */
+#if defined (ACORN_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-CUPI_DDEF const lu_byte cupi_ctype_[UCHAR_MAX + 2] = {
+ACORNI_DDEF const lu_byte acorni_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

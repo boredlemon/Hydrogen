@@ -1,7 +1,7 @@
 /*
 ** $Id: lfunc.h $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lfunc_h
@@ -23,7 +23,7 @@
 
 
 /*
-** maximum number of upvalues in a closure (both C and Cup). (Value
+** maximum number of upvalues in a closure (both C and Acorn). (Value
 ** must fit in a VM register.)
 */
 #define MAXUPVAL	255
@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-CUPI_FUNC Proto *cupF_newproto (cup_State *L);
-CUPI_FUNC CClosure *cupF_newCclosure (cup_State *L, int nupvals);
-CUPI_FUNC LClosure *cupF_newLclosure (cup_State *L, int nupvals);
-CUPI_FUNC void cupF_initupvals (cup_State *L, LClosure *cl);
-CUPI_FUNC UpVal *cupF_findupval (cup_State *L, StkId level);
-CUPI_FUNC void cupF_newtbcupval (cup_State *L, StkId level);
-CUPI_FUNC void cupF_closeupval (cup_State *L, StkId level);
-CUPI_FUNC void cupF_close (cup_State *L, StkId level, int status, int yy);
-CUPI_FUNC void cupF_unlinkupval (UpVal *uv);
-CUPI_FUNC void cupF_freeproto (cup_State *L, Proto *f);
-CUPI_FUNC const char *cupF_getlocalname (const Proto *func, int local_number,
+ACORNI_FUNC Proto *acornF_newproto (acorn_State *L);
+ACORNI_FUNC CClosure *acornF_newCclosure (acorn_State *L, int nupvals);
+ACORNI_FUNC LClosure *acornF_newLclosure (acorn_State *L, int nupvals);
+ACORNI_FUNC void acornF_initupvals (acorn_State *L, LClosure *cl);
+ACORNI_FUNC UpVal *acornF_findupval (acorn_State *L, StkId level);
+ACORNI_FUNC void acornF_newtbacornval (acorn_State *L, StkId level);
+ACORNI_FUNC void acornF_closeupval (acorn_State *L, StkId level);
+ACORNI_FUNC void acornF_close (acorn_State *L, StkId level, int status, int yy);
+ACORNI_FUNC void acornF_unlinkupval (UpVal *uv);
+ACORNI_FUNC void acornF_freeproto (acorn_State *L, Proto *f);
+ACORNI_FUNC const char *acornF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

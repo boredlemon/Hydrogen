@@ -1,18 +1,18 @@
 /*
 ** $Id: lstring.c $
-** String table (keeps all strings handled by Cup)
-** See Copyright Notice in cup.h
+** String table (keeps all strings handled by Acorn)
+** See Copyright Notice in acorn.h
 */
 
 #define lstring_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
 
 #include <string.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -25,22 +25,22 @@
 /*
 ** Maximum size for string table.
 */
-#define MAXSTRTB	cast_int(cupM_limitN(MAX_INT, TString*))
+#define MAXSTRTB	cast_int(acornM_limitN(MAX_INT, TString*))
 
 
 /*
 ** equality for long strings
 */
-int cupS_eqlngstr (TString *a, TString *b) {
+int acornS_eqlngstr (TString *a, TString *b) {
   size_t len = a->u.lnglen;
-  cup_assert(a->tt == CUP_VLNGSTR && b->tt == CUP_VLNGSTR);
+  acorn_assert(a->tt == ACORN_VLNGSTR && b->tt == ACORN_VLNGSTR);
   return (a == b) ||  /* same instance or... */
     ((len == b->u.lnglen) &&  /* equal length and ... */
      (memcmp(getstr(a), getstr(b), len) == 0));  /* equal contents */
 }
 
 
-unsigned int cupS_hash (const char *str, size_t l, unsigned int seed) {
+unsigned int acornS_hash (const char *str, size_t l, unsigned int seed) {
   unsigned int h = seed ^ cast_uint(l);
   for (; l > 0; l--)
     h ^= ((h<<5) + (h>>2) + cast_byte(str[l - 1]));
@@ -48,11 +48,11 @@ unsigned int cupS_hash (const char *str, size_t l, unsigned int seed) {
 }
 
 
-unsigned int cupS_hashlongstr (TString *ts) {
-  cup_assert(ts->tt == CUP_VLNGSTR);
+unsigned int acornS_hashlongstr (TString *ts) {
+  acorn_assert(ts->tt == ACORN_VLNGSTR);
   if (ts->extra == 0) {  /* no hash? */
     size_t len = ts->u.lnglen;
-    ts->hash = cupS_hash(getstr(ts), len, ts->hash);
+    ts->hash = acornS_hash(getstr(ts), len, ts->hash);
     ts->extra = 1;  /* now it has its hash */
   }
   return ts->hash;
@@ -82,13 +82,13 @@ static void tablerehash (TString **vect, int osize, int nsize) {
 ** (This can degrade performance, but any non-zero size should work
 ** correctly.)
 */
-void cupS_resize (cup_State *L, int nsize) {
+void acornS_resize (acorn_State *L, int nsize) {
   stringtable *tb = &G(L)->strt;
   int osize = tb->size;
   TString **newvect;
   if (nsize < osize)  /* shrinking table? */
     tablerehash(tb->hash, osize, nsize);  /* depopulate shrinking part */
-  newvect = cupM_reallocvector(L, tb->hash, osize, nsize, TString*);
+  newvect = acornM_reallocvector(L, tb->hash, osize, nsize, TString*);
   if (l_unlikely(newvect == NULL)) {  /* reallocation failed? */
     if (nsize < osize)  /* was it shrinking table? */
       tablerehash(tb->hash, nsize, osize);  /* restore to original size */
@@ -107,7 +107,7 @@ void cupS_resize (cup_State *L, int nsize) {
 ** Clear API string cache. (Entries cannot be empty, so fill them with
 ** a non-collectable string.)
 */
-void cupS_clearcache (global_State *g) {
+void acornS_clearcache (global_State *g) {
   int i, j;
   for (i = 0; i < STRCACHE_N; i++)
     for (j = 0; j < STRCACHE_M; j++) {
@@ -120,16 +120,16 @@ void cupS_clearcache (global_State *g) {
 /*
 ** Initialize the string table and the string cache
 */
-void cupS_init (cup_State *L) {
+void acornS_init (acorn_State *L) {
   global_State *g = G(L);
   int i, j;
   stringtable *tb = &G(L)->strt;
-  tb->hash = cupM_newvector(L, MINSTRTABSIZE, TString*);
+  tb->hash = acornM_newvector(L, MINSTRTABSIZE, TString*);
   tablerehash(tb->hash, 0, MINSTRTABSIZE);  /* clear array */
   tb->size = MINSTRTABSIZE;
   /* pre-create memory-error message */
-  g->memerrmsg = cupS_newliteral(L, MEMERRMSG);
-  cupC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
+  g->memerrmsg = acornS_newliteral(L, MEMERRMSG);
+  acornC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
   for (i = 0; i < STRCACHE_N; i++)  /* fill cache with valid strings */
     for (j = 0; j < STRCACHE_M; j++)
       g->strcache[i][j] = g->memerrmsg;
@@ -140,12 +140,12 @@ void cupS_init (cup_State *L) {
 /*
 ** creates a new string object
 */
-static TString *createstrobj (cup_State *L, size_t l, int tag, unsigned int h) {
+static TString *createstrobj (acorn_State *L, size_t l, int tag, unsigned int h) {
   TString *ts;
   GCObject *o;
   size_t totalsize;  /* total size of TString object */
   totalsize = sizelstring(l);
-  o = cupC_newobj(L, tag, totalsize);
+  o = acornC_newobj(L, tag, totalsize);
   ts = gco2ts(o);
   ts->hash = h;
   ts->extra = 0;
@@ -154,14 +154,14 @@ static TString *createstrobj (cup_State *L, size_t l, int tag, unsigned int h) {
 }
 
 
-TString *cupS_createlngstrobj (cup_State *L, size_t l) {
-  TString *ts = createstrobj(L, l, CUP_VLNGSTR, G(L)->seed);
+TString *acornS_createlngstrobj (acorn_State *L, size_t l) {
+  TString *ts = createstrobj(L, l, ACORN_VLNGSTR, G(L)->seed);
   ts->u.lnglen = l;
   return ts;
 }
 
 
-void cupS_remove (cup_State *L, TString *ts) {
+void acornS_remove (acorn_State *L, TString *ts) {
   stringtable *tb = &G(L)->strt;
   TString **p = &tb->hash[lmod(ts->hash, tb->size)];
   while (*p != ts)  /* find previous element */
@@ -171,27 +171,27 @@ void cupS_remove (cup_State *L, TString *ts) {
 }
 
 
-static void growstrtab (cup_State *L, stringtable *tb) {
+static void growstrtab (acorn_State *L, stringtable *tb) {
   if (l_unlikely(tb->nuse == MAX_INT)) {  /* too many strings? */
-    cupC_fullgc(L, 1);  /* try to free some... */
+    acornC_fullgc(L, 1);  /* try to free some... */
     if (tb->nuse == MAX_INT)  /* still too many? */
-      cupM_error(L);  /* cannot even create a message... */
+      acornM_error(L);  /* cannot even create a message... */
   }
   if (tb->size <= MAXSTRTB / 2)  /* can grow string table? */
-    cupS_resize(L, tb->size * 2);
+    acornS_resize(L, tb->size * 2);
 }
 
 
 /*
 ** Checks whether short string exists and reuses it or creates a new one.
 */
-static TString *internshrstr (cup_State *L, const char *str, size_t l) {
+static TString *internshrstr (acorn_State *L, const char *str, size_t l) {
   TString *ts;
   global_State *g = G(L);
   stringtable *tb = &g->strt;
-  unsigned int h = cupS_hash(str, l, g->seed);
+  unsigned int h = acornS_hash(str, l, g->seed);
   TString **list = &tb->hash[lmod(h, tb->size)];
-  cup_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
+  acorn_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
   for (ts = *list; ts != NULL; ts = ts->u.hnext) {
     if (l == ts->shrlen && (memcmp(str, getstr(ts), l * sizeof(char)) == 0)) {
       /* found! */
@@ -205,7 +205,7 @@ static TString *internshrstr (cup_State *L, const char *str, size_t l) {
     growstrtab(L, tb);
     list = &tb->hash[lmod(h, tb->size)];  /* rehash with new size */
   }
-  ts = createstrobj(L, l, CUP_VSHRSTR, h);
+  ts = createstrobj(L, l, ACORN_VSHRSTR, h);
   memcpy(getstr(ts), str, l * sizeof(char));
   ts->shrlen = cast_byte(l);
   ts->u.hnext = *list;
@@ -218,14 +218,14 @@ static TString *internshrstr (cup_State *L, const char *str, size_t l) {
 /*
 ** new string (with explicit length)
 */
-TString *cupS_newlstr (cup_State *L, const char *str, size_t l) {
-  if (l <= CUPI_MAXSHORTLEN)  /* short string? */
+TString *acornS_newlstr (acorn_State *L, const char *str, size_t l) {
+  if (l <= ACORNI_MAXSHORTLEN)  /* short string? */
     return internshrstr(L, str, l);
   else {
     TString *ts;
     if (l_unlikely(l >= (MAX_SIZE - sizeof(TString))/sizeof(char)))
-      cupM_toobig(L);
-    ts = cupS_createlngstrobj(L, l);
+      acornM_toobig(L);
+    ts = acornS_createlngstrobj(L, l);
     memcpy(getstr(ts), str, l * sizeof(char));
     return ts;
   }
@@ -238,7 +238,7 @@ TString *cupS_newlstr (cup_State *L, const char *str, size_t l) {
 ** only zero-terminated strings, so it is safe to use 'strcmp' to
 ** check hits.
 */
-TString *cupS_new (cup_State *L, const char *str) {
+TString *acornS_new (acorn_State *L, const char *str) {
   unsigned int i = point2uint(str) % STRCACHE_N;  /* hash */
   int j;
   TString **p = G(L)->strcache[i];
@@ -250,18 +250,18 @@ TString *cupS_new (cup_State *L, const char *str) {
   for (j = STRCACHE_M - 1; j > 0; j--)
     p[j] = p[j - 1];  /* move out last element */
   /* new element is first in the list */
-  p[0] = cupS_newlstr(L, str, strlen(str));
+  p[0] = acornS_newlstr(L, str, strlen(str));
   return p[0];
 }
 
 
-Udata *cupS_newudata (cup_State *L, size_t s, int nuvalue) {
+Udata *acornS_newudata (acorn_State *L, size_t s, int nuvalue) {
   Udata *u;
   int i;
   GCObject *o;
   if (l_unlikely(s > MAX_SIZE - udatamemoffset(nuvalue)))
-    cupM_toobig(L);
-  o = cupC_newobj(L, CUP_VUSERDATA, sizeudata(nuvalue, s));
+    acornM_toobig(L);
+  o = acornC_newobj(L, ACORN_VUSERDATA, sizeudata(nuvalue, s));
   u = gco2u(o);
   u->len = s;
   u->nuvalue = nuvalue;

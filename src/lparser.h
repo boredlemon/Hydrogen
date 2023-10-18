@@ -1,7 +1,7 @@
 /*
 ** $Id: lparser.h $
-** Cup Parser
-** See Copyright Notice in cup.h
+** Acorn Parser
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lparser_h
@@ -68,8 +68,8 @@ typedef enum {
 typedef struct expdesc {
   expkind k;
   union {
-    cup_Integer ival;    /* for VKINT */
-    cup_Number nval;  /* for VKFLT */
+    acorn_Integer ival;    /* for VKINT */
+    acorn_Number nval;  /* for VKFLT */
     TString *strval;  /* for VKSTR */
     int info;  /* for generic use */
     struct {  /* for indexed variables */
@@ -163,8 +163,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-CUPI_FUNC int cupY_nvarstack (FuncState *fs);
-CUPI_FUNC LClosure *cupY_parser (cup_State *L, ZIO *z, Mbuffer *buff,
+ACORNI_FUNC int acornY_nvarstack (FuncState *fs);
+ACORNI_FUNC LClosure *acornY_parser (acorn_State *L, ZIO *z, Mbuffer *buff,
                                  Dyndata *dyd, const char *name, int firstchar);
 
 

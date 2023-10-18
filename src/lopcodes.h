@@ -1,7 +1,7 @@
 /*
 ** $Id: lopcodes.h $
-** Opcodes for Cup virtual machine
-** See Copyright Notice in cup.h
+** Opcodes for Acorn virtual machine
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lopcodes_h
@@ -200,7 +200,7 @@ typedef enum {
 ------------------------------------------------------------------------*/
 OP_MOVE,/*	A B	R[A] := R[B]					*/
 OP_LOADI,/*	A sBx	R[A] := sBx					*/
-OP_LOADF,/*	A sBx	R[A] := (cup_Number)sBx				*/
+OP_LOADF,/*	A sBx	R[A] := (acorn_Number)sBx				*/
 OP_LOADK,/*	A Bx	R[A] := K[Bx]					*/
 OP_LOADKX,/*	A	R[A] := K[extra arg]				*/
 OP_LOADFALSE,/*	A	R[A] := false					*/
@@ -378,14 +378,14 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 ** bit 7: instruction is an MM instruction (call a metamethod)
 */
 
-CUPI_DDEC(const lu_byte cupP_opmodes[NUM_OPCODES];)
+ACORNI_DDEC(const lu_byte acornP_opmodes[NUM_OPCODES];)
 
-#define getOpMode(m)	(cast(enum OpMode, cupP_opmodes[m] & 7))
-#define testAMode(m)	(cupP_opmodes[m] & (1 << 3))
-#define testTMode(m)	(cupP_opmodes[m] & (1 << 4))
-#define testITMode(m)	(cupP_opmodes[m] & (1 << 5))
-#define testOTMode(m)	(cupP_opmodes[m] & (1 << 6))
-#define testMMMode(m)	(cupP_opmodes[m] & (1 << 7))
+#define getOpMode(m)	(cast(enum OpMode, acornP_opmodes[m] & 7))
+#define testAMode(m)	(acornP_opmodes[m] & (1 << 3))
+#define testTMode(m)	(acornP_opmodes[m] & (1 << 4))
+#define testITMode(m)	(acornP_opmodes[m] & (1 << 5))
+#define testOTMode(m)	(acornP_opmodes[m] & (1 << 6))
+#define testMMMode(m)	(acornP_opmodes[m] & (1 << 7))
 
 /* "out top" (set top for next instruction) */
 #define isOT(i)  \

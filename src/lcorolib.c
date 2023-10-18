@@ -1,26 +1,26 @@
 /*
 ** $Id: lcorolib.c $
 ** Coroutine Library
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #define lcorolib_c
-#define CUP_LIB
+#define ACORN_LIB
 
 #include "lprefix.h"
 
 
 #include <stdlib.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lauxlib.h"
-#include "cuplib.h"
+#include "acornlib.h"
 
 
-static cup_State *getco (cup_State *L) {
-  cup_State *co = cup_tothread(L, 1);
-  cupL_argexpected(L, co, 1, "thread");
+static acorn_State *getco (acorn_State *L) {
+  acorn_State *co = acorn_tothread(L, 1);
+  acornL_argexpected(L, co, 1, "thread");
   return co;
 }
 
@@ -29,88 +29,88 @@ static cup_State *getco (cup_State *L) {
 ** Resumes a coroutine. Returns the number of results for non-error
 ** cases or -1 for errors.
 */
-static int auxresume (cup_State *L, cup_State *co, int narg) {
+static int auxresume (acorn_State *L, acorn_State *co, int narg) {
   int status, nres;
-  if (l_unlikely(!cup_checkstack(co, narg))) {
-    cup_pushliteral(L, "too many arguments to resume");
+  if (l_unlikely(!acorn_checkstack(co, narg))) {
+    acorn_pushliteral(L, "too many arguments to resume");
     return -1;  /* error flag */
   }
-  cup_xmove(L, co, narg);
-  status = cup_resume(co, L, narg, &nres);
-  if (l_likely(status == CUP_OK || status == CUP_YIELD)) {
-    if (l_unlikely(!cup_checkstack(L, nres + 1))) {
-      cup_pop(co, nres);  /* remove results anyway */
-      cup_pushliteral(L, "too many results to resume");
+  acorn_xmove(L, co, narg);
+  status = acorn_resume(co, L, narg, &nres);
+  if (l_likely(status == ACORN_OK || status == ACORN_YIELD)) {
+    if (l_unlikely(!acorn_checkstack(L, nres + 1))) {
+      acorn_pop(co, nres);  /* remove results anyway */
+      acorn_pushliteral(L, "too many results to resume");
       return -1;  /* error flag */
     }
-    cup_xmove(co, L, nres);  /* move yielded values */
+    acorn_xmove(co, L, nres);  /* move yielded values */
     return nres;
   }
   else {
-    cup_xmove(co, L, 1);  /* move error message */
+    acorn_xmove(co, L, 1);  /* move error message */
     return -1;  /* error flag */
   }
 }
 
 
-static int cupB_coresume (cup_State *L) {
-  cup_State *co = getco(L);
+static int acornB_coresume (acorn_State *L) {
+  acorn_State *co = getco(L);
   int r;
-  r = auxresume(L, co, cup_gettop(L) - 1);
+  r = auxresume(L, co, acorn_gettop(L) - 1);
   if (l_unlikely(r < 0)) {
-    cup_pushboolean(L, 0);
-    cup_insert(L, -2);
+    acorn_pushboolean(L, 0);
+    acorn_insert(L, -2);
     return 2;  /* return false + error message */
   }
   else {
-    cup_pushboolean(L, 1);
-    cup_insert(L, -(r + 1));
+    acorn_pushboolean(L, 1);
+    acorn_insert(L, -(r + 1));
     return r + 1;  /* return true + 'resume' returns */
   }
 }
 
 
-static int cupB_auxwrap (cup_State *L) {
-  cup_State *co = cup_tothread(L, cup_upvalueindex(1));
-  int r = auxresume(L, co, cup_gettop(L));
+static int acornB_auxwrap (acorn_State *L) {
+  acorn_State *co = acorn_tothread(L, acorn_upvalueindex(1));
+  int r = auxresume(L, co, acorn_gettop(L));
   if (l_unlikely(r < 0)) {  /* error? */
-    int stat = cup_status(co);
-    if (stat != CUP_OK && stat != CUP_YIELD) {  /* error in the coroutine? */
-      stat = cup_resetthread(co);  /* close its tbc variables */
-      cup_assert(stat != CUP_OK);
-      cup_xmove(co, L, 1);  /* move error message to the caller */
+    int stat = acorn_status(co);
+    if (stat != ACORN_OK && stat != ACORN_YIELD) {  /* error in the coroutine? */
+      stat = acorn_resetthread(co);  /* close its tbc variables */
+      acorn_assert(stat != ACORN_OK);
+      acorn_xmove(co, L, 1);  /* move error message to the caller */
     }
-    if (stat != CUP_ERRMEM &&  /* not a memory error and ... */
-        cup_type(L, -1) == CUP_TSTRING) {  /* ... error object is a string? */
-      cupL_where(L, 1);  /* add extra info, if available */
-      cup_insert(L, -2);
-      cup_concat(L, 2);
+    if (stat != ACORN_ERRMEM &&  /* not a memory error and ... */
+        acorn_type(L, -1) == ACORN_TSTRING) {  /* ... error object is a string? */
+      acornL_where(L, 1);  /* add extra info, if available */
+      acorn_insert(L, -2);
+      acorn_concat(L, 2);
     }
-    return cup_error(L);  /* propagate error */
+    return acorn_error(L);  /* propagate error */
   }
   return r;
 }
 
 
-static int cupB_cocreate (cup_State *L) {
-  cup_State *NL;
-  cupL_checktype(L, 1, CUP_TFUNCTION);
-  NL = cup_newthread(L);
-  cup_pushvalue(L, 1);  /* move function to top */
-  cup_xmove(L, NL, 1);  /* move function from L to NL */
+static int acornB_cocreate (acorn_State *L) {
+  acorn_State *NL;
+  acornL_checktype(L, 1, ACORN_TFUNCTION);
+  NL = acorn_newthread(L);
+  acorn_pushvalue(L, 1);  /* move function to top */
+  acorn_xmove(L, NL, 1);  /* move function from L to NL */
   return 1;
 }
 
 
-static int cupB_cowrap (cup_State *L) {
-  cupB_cocreate(L);
-  cup_pushcclosure(L, cupB_auxwrap, 1);
+static int acornB_cowrap (acorn_State *L) {
+  acornB_cocreate(L);
+  acorn_pushcclosure(L, acornB_auxwrap, 1);
   return 1;
 }
 
 
-static int cupB_yield (cup_State *L) {
-  return cup_yield(L, cup_gettop(L));
+static int acornB_yield (acorn_State *L) {
+  return acorn_yield(L, acorn_gettop(L));
 }
 
 
@@ -124,17 +124,17 @@ static const char *const statname[] =
   {"running", "dead", "suspended", "normal"};
 
 
-static int auxstatus (cup_State *L, cup_State *co) {
+static int auxstatus (acorn_State *L, acorn_State *co) {
   if (L == co) return COS_RUN;
   else {
-    switch (cup_status(co)) {
-      case CUP_YIELD:
+    switch (acorn_status(co)) {
+      case ACORN_YIELD:
         return COS_YIELD;
-      case CUP_OK: {
-        cup_Debug ar;
-        if (cup_getstack(co, 0, &ar))  /* does it have frames? */
+      case ACORN_OK: {
+        acorn_Debug ar;
+        if (acorn_getstack(co, 0, &ar))  /* does it have frames? */
           return COS_NORM;  /* it is running */
-        else if (cup_gettop(co) == 0)
+        else if (acorn_gettop(co) == 0)
             return COS_DEAD;
         else
           return COS_YIELD;  /* initial state */
@@ -146,65 +146,65 @@ static int auxstatus (cup_State *L, cup_State *co) {
 }
 
 
-static int cupB_costatus (cup_State *L) {
-  cup_State *co = getco(L);
-  cup_pushstring(L, statname[auxstatus(L, co)]);
+static int acornB_costatus (acorn_State *L) {
+  acorn_State *co = getco(L);
+  acorn_pushstring(L, statname[auxstatus(L, co)]);
   return 1;
 }
 
 
-static int cupB_yieldable (cup_State *L) {
-  cup_State *co = cup_isnone(L, 1) ? L : getco(L);
-  cup_pushboolean(L, cup_isyieldable(co));
+static int acornB_yieldable (acorn_State *L) {
+  acorn_State *co = acorn_isnone(L, 1) ? L : getco(L);
+  acorn_pushboolean(L, acorn_isyieldable(co));
   return 1;
 }
 
 
-static int cupB_corunning (cup_State *L) {
-  int ismain = cup_pushthread(L);
-  cup_pushboolean(L, ismain);
+static int acornB_corunning (acorn_State *L) {
+  int ismain = acorn_pushthread(L);
+  acorn_pushboolean(L, ismain);
   return 2;
 }
 
 
-static int cupB_close (cup_State *L) {
-  cup_State *co = getco(L);
+static int acornB_close (acorn_State *L) {
+  acorn_State *co = getco(L);
   int status = auxstatus(L, co);
   switch (status) {
     case COS_DEAD: case COS_YIELD: {
-      status = cup_resetthread(co);
-      if (status == CUP_OK) {
-        cup_pushboolean(L, 1);
+      status = acorn_resetthread(co);
+      if (status == ACORN_OK) {
+        acorn_pushboolean(L, 1);
         return 1;
       }
       else {
-        cup_pushboolean(L, 0);
-        cup_xmove(co, L, 1);  /* move error message */
+        acorn_pushboolean(L, 0);
+        acorn_xmove(co, L, 1);  /* move error message */
         return 2;
       }
     }
     default:  /* normal or running coroutine */
-      return cupL_error(L, "cannot close a %s coroutine", statname[status]);
+      return acornL_error(L, "cannot close a %s coroutine", statname[status]);
   }
 }
 
 
-static const cupL_Reg co_funcs[] = {
-  {"create", cupB_cocreate},
-  {"resume", cupB_coresume},
-  {"running", cupB_corunning},
-  {"status", cupB_costatus},
-  {"wrap", cupB_cowrap},
-  {"yield", cupB_yield},
-  {"isyieldable", cupB_yieldable},
-  {"close", cupB_close},
+static const acornL_Reg co_funcs[] = {
+  {"create", acornB_cocreate},
+  {"resume", acornB_coresume},
+  {"running", acornB_corunning},
+  {"status", acornB_costatus},
+  {"wrap", acornB_cowrap},
+  {"yield", acornB_yield},
+  {"isyieldable", acornB_yieldable},
+  {"close", acornB_close},
   {NULL, NULL}
 };
 
 
 
-CUPMOD_API int cupopen_coroutine (cup_State *L) {
-  cupL_newlib(L, co_funcs);
+ACORNMOD_API int acornopen_coroutine (acorn_State *L) {
+  acornL_newlib(L, co_funcs);
   return 1;
 }
 

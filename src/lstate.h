@@ -1,13 +1,13 @@
 /*
 ** $Id: lstate.h $
 ** Global State
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lstate_h
 #define lstate_h
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lobject.h"
 #include "ltm.h"
@@ -15,7 +15,7 @@
 
 
 /*
-** Some notes about garbage-collected objects: All objects in Cup must
+** Some notes about garbage-collected objects: All objects in Acorn must
 ** be kept somehow accessible until being freed, so all objects always
 ** belong to one (and only one) of these lists, using field 'next' of
 ** the 'CommonHeader' for the link:
@@ -28,7 +28,7 @@
 **
 ** For the generational collector, some of these lists have marks for
 ** generations. Each mark points to the first element in the list for
-** that particular generation; that generation Cupes until the next mark.
+** that particular generation; that generation Acornes until the next mark.
 **
 ** 'allgc' -> 'survival': new objects;
 ** 'survival' -> 'old': objects that survived one collection;
@@ -41,7 +41,7 @@
 ** 'finobjrold' -> NULL: really old       """".
 **
 ** All lists can contain elements older than their main ages, due
-** to 'cupC_checkfinalizer' and 'udata2finalize', which move
+** to 'acornC_checkfinalizer' and 'udata2finalize', which move
 ** objects between the normal lists and the "marked for finalization"
 ** lists. Moreover, barriers can age young objects in young lists as
 ** OLD0, which then become OLD1. However, a list never contains
@@ -68,7 +68,7 @@
 ** 'gray': regular gray objects, still waiting to be visited.
 ** 'grayagain': objects that must be revisited at the atomic phase.
 **   That includes
-**   - black objects Cupt in a write barrier;
+**   - black objects Acornt in a write barrier;
 **   - all kinds of weak tables during propagation phase;
 **   - all threads.
 ** 'weak': tables with weak values to be cleared;
@@ -114,11 +114,11 @@
 
 
 
-struct cup_longjmp;  /* defined in ldo.c */
+struct acorn_longjmp;  /* defined in ldo.c */
 
 
 /*
-** Atomic type (relative to signals) to better ensure that 'cup_sethook'
+** Atomic type (relative to signals) to better ensure that 'acorn_sethook'
 ** is thread safe
 */
 #if !defined(l_signalT)
@@ -137,7 +137,7 @@ struct cup_longjmp;  /* defined in ldo.c */
 #define EXTRA_STACK   5
 
 
-#define BASIC_STACK_SIZE        (2*CUP_MINSTACK)
+#define BASIC_STACK_SIZE        (2*ACORN_MINSTACK)
 
 #define stacksize(th)	cast_int((th)->stack_last - (th)->stack)
 
@@ -157,7 +157,7 @@ typedef struct stringtable {
 /*
 ** Information about a call.
 ** About union 'u':
-** - field 'l' is used only for Cup functions;
+** - field 'l' is used only for Acorn functions;
 ** - field 'c' is used only for C functions.
 ** About union 'u2':
 ** - field 'funcidx' is used only by C functions while doing a
@@ -174,15 +174,15 @@ typedef struct CallInfo {
   StkId	top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
-    struct {  /* only for Cup functions */
+    struct {  /* only for Acorn functions */
       const Instruction *savedpc;
       volatile l_signalT trap;
       int nextraargs;  /* # of extra arguments in vararg functions */
     } l;
     struct {  /* only for C functions */
-      cup_KFunction k;  /* continuation in case of yields */
+      acorn_KFunction k;  /* continuation in case of yields */
       ptrdiff_t old_errfunc;
-      cup_KContext ctx;  /* context info. in case of yields */
+      acorn_KContext ctx;  /* context info. in case of yields */
     } c;
   } u;
   union {
@@ -204,7 +204,7 @@ typedef struct CallInfo {
 */
 #define CIST_OAH	(1<<0)	/* original value of 'allowhook' */
 #define CIST_C		(1<<1)	/* call is running a C function */
-#define CIST_FRESH	(1<<2)	/* call is on a fresh "cupV_execute" frame */
+#define CIST_FRESH	(1<<2)	/* call is on a fresh "acornV_execute" frame */
 #define CIST_HOOKED	(1<<3)	/* call is running a debug hook */
 #define CIST_YPCALL	(1<<4)	/* doing a yieldable protected call */
 #define CIST_TAIL	(1<<5)	/* call was tail called */
@@ -214,7 +214,7 @@ typedef struct CallInfo {
 #define CIST_CLSRET	(1<<9)  /* function is closing tbc variables */
 /* Bits 10-12 are used for CIST_RECST (see below) */
 #define CIST_RECST	10
-#if defined(CUP_COMPAT_LT_LE)
+#if defined(ACORN_COMPAT_LT_LE)
 #define CIST_LEQ	(1<<13)  /* using __lt for __le */
 #endif
 
@@ -222,7 +222,7 @@ typedef struct CallInfo {
 /*
 ** Field CIST_RECST stores the "recover status", used to keep the error
 ** status while closing to-be-closed variables in coroutines, so that
-** Cup can correctly resume after an yield from a __close method called
+** Acorn can correctly resume after an yield from a __close method called
 ** because of an error.  (Three bits are enough for error status.)
 */
 #define getcistrecst(ci)     (((ci)->callstatus >> CIST_RECST) & 7)
@@ -232,11 +232,11 @@ typedef struct CallInfo {
                                                   | ((st) << CIST_RECST)))
 
 
-/* active function is a Cup function */
-#define isCup(ci)	(!((ci)->callstatus & CIST_C))
+/* active function is a Acorn function */
+#define isAcorn(ci)	(!((ci)->callstatus & CIST_C))
 
-/* call is running Cup code (not a hook) */
-#define isCupcode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
+/* call is running Acorn code (not a hook) */
+#define isAcorncode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
 
 /* assume that CIST_OAH has offset 0 and that 'v' is strictly 0/1 */
 #define setoah(st,v)	((st) = ((st) & ~CIST_OAH) | (v))
@@ -247,7 +247,7 @@ typedef struct CallInfo {
 ** 'global state', shared by all threads of this state
 */
 typedef struct global_State {
-  cup_Alloc frealloc;  /* function to reallocate memory */
+  acorn_Alloc frealloc;  /* function to reallocate memory */
   void *ud;         /* auxiliary data to 'frealloc' */
   l_mem totalbytes;  /* number of bytes currently allocated - GCdebt */
   l_mem GCdebt;  /* bytes allocated not yet compensated by the collector */
@@ -286,14 +286,14 @@ typedef struct global_State {
   GCObject *finobjsur;  /* list of survival objects with finalizers */
   GCObject *finobjold1;  /* list of old1 objects with finalizers */
   GCObject *finobjrold;  /* list of really old objects with finalizers */
-  struct cup_State *twups;  /* list of threads with open upvalues */
-  cup_CFunction panic;  /* to be called in unprotected errors */
-  struct cup_State *mainthread;
+  struct acorn_State *twups;  /* list of threads with open upvalues */
+  acorn_CFunction panic;  /* to be called in unprotected errors */
+  struct acorn_State *mainthread;
   TString *memerrmsg;  /* message for memory-allocation errors */
   TString *tmname[TM_N];  /* array with tag-method names */
-  struct Table *mt[CUP_NUMTAGS];  /* metatables for basic types */
+  struct Table *mt[ACORN_NUMTAGS];  /* metatables for basic types */
   TString *strcache[STRCACHE_N][STRCACHE_M];  /* cache for strings in API */
-  cup_WarnFunction warnf;  /* warning function */
+  acorn_WarnFunction warnf;  /* warning function */
   void *ud_warn;         /* auxiliary data to 'warnf' */
 } global_State;
 
@@ -301,7 +301,7 @@ typedef struct global_State {
 /*
 ** 'per thread' state
 */
-struct cup_State {
+struct acorn_State {
   CommonHeader;
   lu_byte status;
   lu_byte allowhook;
@@ -314,10 +314,10 @@ struct cup_State {
   UpVal *openupval;  /* list of open upvalues in this stack */
   StkId tbclist;  /* list of to-be-closed variables */
   GCObject *gclist;
-  struct cup_State *twups;  /* list of threads with open upvalues */
-  struct cup_longjmp *errorJmp;  /* current error recover point */
-  CallInfo base_ci;  /* CallInfo for first level (C calling Cup) */
-  volatile cup_Hook hook;
+  struct acorn_State *twups;  /* list of threads with open upvalues */
+  struct acorn_longjmp *errorJmp;  /* current error recover point */
+  CallInfo base_ci;  /* CallInfo for first level (C calling Acorn) */
+  volatile acorn_Hook hook;
   ptrdiff_t errfunc;  /* current error handling function (stack index) */
   l_uint32 nCcalls;  /* number of nested (non-yieldable | C)  calls */
   int oldpc;  /* last pc traced */
@@ -352,7 +352,7 @@ union GCUnion {
   union Closure cl;
   struct Table h;
   struct Proto p;
-  struct cup_State th;  /* thread */
+  struct acorn_State th;  /* thread */
   struct UpVal upv;
 };
 
@@ -366,38 +366,38 @@ union GCUnion {
 
 /* macros to convert a GCObject into a specific value */
 #define gco2ts(o)  \
-	check_exp(novariant((o)->tt) == CUP_TSTRING, &((cast_u(o))->ts))
-#define gco2u(o)  check_exp((o)->tt == CUP_VUSERDATA, &((cast_u(o))->u))
-#define gco2lcl(o)  check_exp((o)->tt == CUP_VLCL, &((cast_u(o))->cl.l))
-#define gco2ccl(o)  check_exp((o)->tt == CUP_VCCL, &((cast_u(o))->cl.c))
+	check_exp(novariant((o)->tt) == ACORN_TSTRING, &((cast_u(o))->ts))
+#define gco2u(o)  check_exp((o)->tt == ACORN_VUSERDATA, &((cast_u(o))->u))
+#define gco2lcl(o)  check_exp((o)->tt == ACORN_VLCL, &((cast_u(o))->cl.l))
+#define gco2ccl(o)  check_exp((o)->tt == ACORN_VCCL, &((cast_u(o))->cl.c))
 #define gco2cl(o)  \
-	check_exp(novariant((o)->tt) == CUP_TFUNCTION, &((cast_u(o))->cl))
-#define gco2t(o)  check_exp((o)->tt == CUP_VTABLE, &((cast_u(o))->h))
-#define gco2p(o)  check_exp((o)->tt == CUP_VPROTO, &((cast_u(o))->p))
-#define gco2th(o)  check_exp((o)->tt == CUP_VTHREAD, &((cast_u(o))->th))
-#define gco2upv(o)	check_exp((o)->tt == CUP_VUPVAL, &((cast_u(o))->upv))
+	check_exp(novariant((o)->tt) == ACORN_TFUNCTION, &((cast_u(o))->cl))
+#define gco2t(o)  check_exp((o)->tt == ACORN_VTABLE, &((cast_u(o))->h))
+#define gco2p(o)  check_exp((o)->tt == ACORN_VPROTO, &((cast_u(o))->p))
+#define gco2th(o)  check_exp((o)->tt == ACORN_VTHREAD, &((cast_u(o))->th))
+#define gco2upv(o)	check_exp((o)->tt == ACORN_VUPVAL, &((cast_u(o))->upv))
 
 
 /*
-** macro to convert a Cup object into a GCObject
-** (The access to 'tt' tries to ensure that 'v' is actually a Cup object.)
+** macro to convert a Acorn object into a GCObject
+** (The access to 'tt' tries to ensure that 'v' is actually a Acorn object.)
 */
-#define obj2gco(v)	check_exp((v)->tt >= CUP_TSTRING, &(cast_u(v)->gc))
+#define obj2gco(v)	check_exp((v)->tt >= ACORN_TSTRING, &(cast_u(v)->gc))
 
 
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	cast(lu_mem, (g)->totalbytes + (g)->GCdebt)
 
-CUPI_FUNC void cupE_setdebt (global_State *g, l_mem debt);
-CUPI_FUNC void cupE_freethread (cup_State *L, cup_State *L1);
-CUPI_FUNC CallInfo *cupE_extendCI (cup_State *L);
-CUPI_FUNC void cupE_freeCI (cup_State *L);
-CUPI_FUNC void cupE_shrinkCI (cup_State *L);
-CUPI_FUNC void cupE_checkcstack (cup_State *L);
-CUPI_FUNC void cupE_incCstack (cup_State *L);
-CUPI_FUNC void cupE_warning (cup_State *L, const char *msg, int tocont);
-CUPI_FUNC void cupE_warnerror (cup_State *L, const char *where);
-CUPI_FUNC int cupE_resetthread (cup_State *L, int status);
+ACORNI_FUNC void acornE_setdebt (global_State *g, l_mem debt);
+ACORNI_FUNC void acornE_freethread (acorn_State *L, acorn_State *L1);
+ACORNI_FUNC CallInfo *acornE_extendCI (acorn_State *L);
+ACORNI_FUNC void acornE_freeCI (acorn_State *L);
+ACORNI_FUNC void acornE_shrinkCI (acorn_State *L);
+ACORNI_FUNC void acornE_checkcstack (acorn_State *L);
+ACORNI_FUNC void acornE_incCstack (acorn_State *L);
+ACORNI_FUNC void acornE_warning (acorn_State *L, const char *msg, int tocont);
+ACORNI_FUNC void acornE_warnerror (acorn_State *L, const char *where);
+ACORNI_FUNC int acornE_resetthread (acorn_State *L, int status);
 
 
 #endif

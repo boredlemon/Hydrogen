@@ -1,12 +1,18 @@
-CUP = Creative Utility Programs
-It's Cup the coffee!☕☕☕
+ACORN = Creative Utility Programs
+It's Acorn the coffee!☕☕☕
 remove those cache makefiles
 find . -type f -name "*-e-e-e*" -exec rm {} \;
 find . -type f -name "*-e-e*" -exec rm {} \;
 find . -type f -name "*-e*" -exec rm {} \;
 
+A - Advanced
+C - Code
+O - Optimization and
+R - Resourceful
+N - Network
+
 ---------------------------------------------
-cup pkg manager
+acorn pkg manager
 tpm
 
 if its not working on mac you do
@@ -15,10 +21,10 @@ make sure to replace exmapleuser with your actual username!
 
 ---------------------------------------------
 Change file extensions
-for file in *.neb; do mv "$file" "${file%.cup}.cup"; done
+for file in *.neb; do mv "$file" "${file%.acorn}.acorn"; done
 
 for the whole project
-find . -type f -name "*.neb" -exec bash -c 'mv "$0" "${0%.neb}.cup"' {} \;
+find . -type f -name "*.cup" -exec bash -c 'mv "$0" "${0%.cup}.acn"' {} \;
 _________
 change a keyword
 sed -i -e 's/.torn/.torn/g' Makefile.pre.in
@@ -29,9 +35,9 @@ sed -i '' 's/lit/tpm/g' Makefile
 
 
 change it for the whole project
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/cup/cup/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/CUP/CUP/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Cup/Cup/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/acorn/acorn/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/ACORN/ACORN/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Acorn/Acorn/g' {} +
 ___________________
 project map
 

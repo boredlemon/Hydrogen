@@ -1,7 +1,7 @@
 /*
 ** $Id: lobject.h $
-** Type definitions for Cup objects
-** See Copyright Notice in cup.h
+** Type definitions for Acorn objects
+** See Copyright Notice in acorn.h
 */
 
 
@@ -13,27 +13,27 @@
 
 
 #include "llimits.h"
-#include "cup.h"
+#include "acorn.h"
 
 
 /*
 ** Extra types for collectable non-values
 */
-#define CUP_TUPVAL	CUP_NUMTYPES  /* upvalues */
-#define CUP_TPROTO	(CUP_NUMTYPES+1)  /* function prototypes */
-#define CUP_TDEADKEY	(CUP_NUMTYPES+2)  /* removed keys in tables */
+#define ACORN_TUPVAL	ACORN_NUMTYPES  /* upvalues */
+#define ACORN_TPROTO	(ACORN_NUMTYPES+1)  /* function prototypes */
+#define ACORN_TDEADKEY	(ACORN_NUMTYPES+2)  /* removed keys in tables */
 
 
 
 /*
-** number of all possible types (including CUP_TNONE but excluding DEADKEY)
+** number of all possible types (including ACORN_TNONE but excluding DEADKEY)
 */
-#define CUP_TOTALTYPES		(CUP_TPROTO + 2)
+#define ACORN_TOTALTYPES		(ACORN_TPROTO + 2)
 
 
 /*
 ** tags for Tagged Values have the following use of bits:
-** bits 0-3: actual tag (a CUP_T* constant)
+** bits 0-3: actual tag (a ACORN_T* constant)
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
@@ -44,19 +44,19 @@
 
 
 /*
-** Union of all Cup values
+** Union of all Acorn values
 */
 typedef union Value {
   struct GCObject *gc;    /* collectable objects */
   void *p;         /* light userdata */
-  cup_CFunction f; /* light C functions */
-  cup_Integer i;   /* integer numbers */
-  cup_Number n;    /* float numbers */
+  acorn_CFunction f; /* light C functions */
+  acorn_Integer i;   /* integer numbers */
+  acorn_Number n;    /* float numbers */
 } Value;
 
 
 /*
-** Tagged Values. This is the basic representation of values in Cup:
+** Tagged Values. This is the basic representation of values in Acorn:
 ** an actual value plus a tag with its type.
 */
 
@@ -102,7 +102,7 @@ typedef struct TValue {
 ** macros using this one to be used where L is not available.
 */
 #define checkliveness(L,obj) \
-	((void)L, cup_longassert(!iscollectable(obj) || \
+	((void)L, acorn_longassert(!iscollectable(obj) || \
 		(righttt(obj) && (L == NULL || !isdead(G(L),gcvalue(obj))))))
 
 
@@ -116,7 +116,7 @@ typedef struct TValue {
 #define setobj(L,obj1,obj2) \
 	{ TValue *io1=(obj1); const TValue *io2=(obj2); \
           io1->value_ = io2->value_; settt_(io1, io2->tt_); \
-	  checkliveness(L,io1); cup_assert(!isnonstrictnil(io1)); }
+	  checkliveness(L,io1); acorn_assert(!isnonstrictnil(io1)); }
 
 /*
 ** Different types of assignments, according to source and destination.
@@ -136,7 +136,7 @@ typedef struct TValue {
 
 
 /*
-** Entries in a Cup stack. Field 'tbclist' forms a list of all
+** Entries in a Acorn stack. Field 'tbclist' forms a list of all
 ** to-be-closed variables active in this stack. Dummy entries are
 ** used when the distance between two tbc variables does not fit
 ** in an unsigned short. They are represented by delta==0, and
@@ -167,27 +167,27 @@ typedef StackValue *StkId;
 */
 
 /* Standard nil */
-#define CUP_VNIL	makevariant(CUP_TNIL, 0)
+#define ACORN_VNIL	makevariant(ACORN_TNIL, 0)
 
 /* Empty slot (which might be different from a slot containing nil) */
-#define CUP_VEMPTY	makevariant(CUP_TNIL, 1)
+#define ACORN_VEMPTY	makevariant(ACORN_TNIL, 1)
 
 /* Value returned for a key not found in a table (absent key) */
-#define CUP_VABSTKEY	makevariant(CUP_TNIL, 2)
+#define ACORN_VABSTKEY	makevariant(ACORN_TNIL, 2)
 
 
 /* macro to test for (any kind of) nil */
-#define ttisnil(v)		checktype((v), CUP_TNIL)
+#define ttisnil(v)		checktype((v), ACORN_TNIL)
 
 
 /* macro to test for a standard nil */
-#define ttisstrictnil(o)	checktag((o), CUP_VNIL)
+#define ttisstrictnil(o)	checktag((o), ACORN_VNIL)
 
 
-#define setnilvalue(obj) settt_(obj, CUP_VNIL)
+#define setnilvalue(obj) settt_(obj, ACORN_VNIL)
 
 
-#define isabstkey(v)		checktag((v), CUP_VABSTKEY)
+#define isabstkey(v)		checktag((v), ACORN_VABSTKEY)
 
 
 /*
@@ -205,11 +205,11 @@ typedef StackValue *StkId;
 
 
 /* macro defining a value corresponding to an absent key */
-#define ABSTKEYCONSTANT		{NULL}, CUP_VABSTKEY
+#define ABSTKEYCONSTANT		{NULL}, ACORN_VABSTKEY
 
 
 /* mark an entry as empty */
-#define setempty(v)		settt_(v, CUP_VEMPTY)
+#define setempty(v)		settt_(v, ACORN_VEMPTY)
 
 
 
@@ -223,19 +223,19 @@ typedef StackValue *StkId;
 */
 
 
-#define CUP_VFALSE	makevariant(CUP_TBOOLEAN, 0)
-#define CUP_VTRUE	makevariant(CUP_TBOOLEAN, 1)
+#define ACORN_VFALSE	makevariant(ACORN_TBOOLEAN, 0)
+#define ACORN_VTRUE	makevariant(ACORN_TBOOLEAN, 1)
 
-#define ttisboolean(o)		checktype((o), CUP_TBOOLEAN)
-#define ttisfalse(o)		checktag((o), CUP_VFALSE)
-#define ttistrue(o)		checktag((o), CUP_VTRUE)
+#define ttisboolean(o)		checktype((o), ACORN_TBOOLEAN)
+#define ttisfalse(o)		checktag((o), ACORN_VFALSE)
+#define ttistrue(o)		checktag((o), ACORN_VTRUE)
 
 
 #define l_isfalse(o)	(ttisfalse(o) || ttisnil(o))
 
 
-#define setbfvalue(obj)		settt_(obj, CUP_VFALSE)
-#define setbtvalue(obj)		settt_(obj, CUP_VTRUE)
+#define setbfvalue(obj)		settt_(obj, ACORN_VFALSE)
+#define setbtvalue(obj)		settt_(obj, ACORN_VTRUE)
 
 /* }================================================================== */
 
@@ -246,15 +246,15 @@ typedef StackValue *StkId;
 ** ===================================================================
 */
 
-#define CUP_VTHREAD		makevariant(CUP_TTHREAD, 0)
+#define ACORN_VTHREAD		makevariant(ACORN_TTHREAD, 0)
 
-#define ttisthread(o)		checktag((o), ctb(CUP_VTHREAD))
+#define ttisthread(o)		checktag((o), ctb(ACORN_VTHREAD))
 
 #define thvalue(o)	check_exp(ttisthread(o), gco2th(val_(o).gc))
 
 #define setthvalue(L,obj,x) \
-  { TValue *io = (obj); cup_State *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(CUP_VTHREAD)); \
+  { TValue *io = (obj); acorn_State *x_ = (x); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(ACORN_VTHREAD)); \
     checkliveness(L,io); }
 
 #define setthvalue2s(L,o,t)	setthvalue(L,s2v(o),t)
@@ -307,12 +307,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for numbers */
-#define CUP_VNUMINT	makevariant(CUP_TNUMBER, 0)  /* integer numbers */
-#define CUP_VNUMFLT	makevariant(CUP_TNUMBER, 1)  /* float numbers */
+#define ACORN_VNUMINT	makevariant(ACORN_TNUMBER, 0)  /* integer numbers */
+#define ACORN_VNUMFLT	makevariant(ACORN_TNUMBER, 1)  /* float numbers */
 
-#define ttisnumber(o)		checktype((o), CUP_TNUMBER)
-#define ttisfloat(o)		checktag((o), CUP_VNUMFLT)
-#define ttisinteger(o)		checktag((o), CUP_VNUMINT)
+#define ttisnumber(o)		checktype((o), ACORN_TNUMBER)
+#define ttisfloat(o)		checktag((o), ACORN_VNUMFLT)
+#define ttisinteger(o)		checktag((o), ACORN_VNUMINT)
 
 #define nvalue(o)	check_exp(ttisnumber(o), \
 	(ttisinteger(o) ? cast_num(ivalue(o)) : fltvalue(o)))
@@ -323,16 +323,16 @@ typedef struct GCObject {
 #define ivalueraw(v)	((v).i)
 
 #define setfltvalue(obj,x) \
-  { TValue *io=(obj); val_(io).n=(x); settt_(io, CUP_VNUMFLT); }
+  { TValue *io=(obj); val_(io).n=(x); settt_(io, ACORN_VNUMFLT); }
 
 #define chgfltvalue(obj,x) \
-  { TValue *io=(obj); cup_assert(ttisfloat(io)); val_(io).n=(x); }
+  { TValue *io=(obj); acorn_assert(ttisfloat(io)); val_(io).n=(x); }
 
 #define setivalue(obj,x) \
-  { TValue *io=(obj); val_(io).i=(x); settt_(io, CUP_VNUMINT); }
+  { TValue *io=(obj); val_(io).i=(x); settt_(io, ACORN_VNUMINT); }
 
 #define chgivalue(obj,x) \
-  { TValue *io=(obj); cup_assert(ttisinteger(io)); val_(io).i=(x); }
+  { TValue *io=(obj); acorn_assert(ttisinteger(io)); val_(io).i=(x); }
 
 /* }================================================================== */
 
@@ -344,12 +344,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for strings */
-#define CUP_VSHRSTR	makevariant(CUP_TSTRING, 0)  /* short strings */
-#define CUP_VLNGSTR	makevariant(CUP_TSTRING, 1)  /* long strings */
+#define ACORN_VSHRSTR	makevariant(ACORN_TSTRING, 0)  /* short strings */
+#define ACORN_VLNGSTR	makevariant(ACORN_TSTRING, 1)  /* long strings */
 
-#define ttisstring(o)		checktype((o), CUP_TSTRING)
-#define ttisshrstring(o)	checktag((o), ctb(CUP_VSHRSTR))
-#define ttislngstring(o)	checktag((o), ctb(CUP_VLNGSTR))
+#define ttisstring(o)		checktype((o), ACORN_TSTRING)
+#define ttisshrstring(o)	checktag((o), ctb(ACORN_VSHRSTR))
+#define ttislngstring(o)	checktag((o), ctb(ACORN_VLNGSTR))
 
 #define tsvalueraw(v)	(gco2ts((v).gc))
 
@@ -390,11 +390,11 @@ typedef struct TString {
 #define getstr(ts)  ((ts)->contents)
 
 
-/* get the actual string (array of bytes) from a Cup value */
+/* get the actual string (array of bytes) from a Acorn value */
 #define svalue(o)       getstr(tsvalue(o))
 
 /* get string length from 'TString *s' */
-#define tsslen(s)	((s)->tt == CUP_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
+#define tsslen(s)	((s)->tt == ACORN_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
 
 /* get string length from 'TValue *o' */
 #define vslen(o)	tsslen(tsvalue(o))
@@ -413,12 +413,12 @@ typedef struct TString {
 ** Light userdata should be a variant of userdata, but for compatibility
 ** reasons they are also different types.
 */
-#define CUP_VLIGHTUSERDATA	makevariant(CUP_TLIGHTUSERDATA, 0)
+#define ACORN_VLIGHTUSERDATA	makevariant(ACORN_TLIGHTUSERDATA, 0)
 
-#define CUP_VUSERDATA		makevariant(CUP_TUSERDATA, 0)
+#define ACORN_VUSERDATA		makevariant(ACORN_TUSERDATA, 0)
 
-#define ttislightuserdata(o)	checktag((o), CUP_VLIGHTUSERDATA)
-#define ttisfulluserdata(o)	checktag((o), ctb(CUP_VUSERDATA))
+#define ttislightuserdata(o)	checktag((o), ACORN_VLIGHTUSERDATA)
+#define ttisfulluserdata(o)	checktag((o), ctb(ACORN_VUSERDATA))
 
 #define pvalue(o)	check_exp(ttislightuserdata(o), val_(o).p)
 #define uvalue(o)	check_exp(ttisfulluserdata(o), gco2u(val_(o).gc))
@@ -426,18 +426,18 @@ typedef struct TString {
 #define pvalueraw(v)	((v).p)
 
 #define setpvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, CUP_VLIGHTUSERDATA); }
+  { TValue *io=(obj); val_(io).p=(x); settt_(io, ACORN_VLIGHTUSERDATA); }
 
 #define setuvalue(L,obj,x) \
   { TValue *io = (obj); Udata *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(CUP_VUSERDATA)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(ACORN_VUSERDATA)); \
     checkliveness(L,io); }
 
 
 /* Ensures that addresses after this type are always fully aligned. */
 typedef union UValue {
   TValue uv;
-  CUPI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
+  ACORNI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
 } UValue;
 
 
@@ -469,7 +469,7 @@ typedef struct Udata0 {
   unsigned short nuvalue;  /* number of user values */
   size_t len;  /* number of bytes */
   struct Table *metatable;
-  union {CUPI_MAXALIGN;} bindata;
+  union {ACORNI_MAXALIGN;} bindata;
 } Udata0;
 
 
@@ -493,7 +493,7 @@ typedef struct Udata0 {
 ** ===================================================================
 */
 
-#define CUP_VPROTO	makevariant(CUP_TPROTO, 0)
+#define ACORN_VPROTO	makevariant(ACORN_TPROTO, 0)
 
 
 /*
@@ -522,8 +522,8 @@ typedef struct LocVar {
 ** Associates the absolute line source for a given instruction ('pc').
 ** The array 'lineinfo' gives, for each instruction, the difference in
 ** lines from the previous instruction. When that difference does not
-** fit into a byte, Cup saves the absolute line for that instruction.
-** (Cup also saves the absolute line periodically, to speed up the
+** fit into a byte, Acorn saves the absolute line for that instruction.
+** (Acorn also saves the absolute line periodically, to speed up the
 ** computation of a line number: we can use binary search in the
 ** absolute-line array, but we must traverse the 'lineinfo' array
 ** linearly to compute a line.)
@@ -570,18 +570,18 @@ typedef struct Proto {
 ** ===================================================================
 */
 
-#define CUP_VUPVAL	makevariant(CUP_TUPVAL, 0)
+#define ACORN_VUPVAL	makevariant(ACORN_TUPVAL, 0)
 
 
 /* Variant tags for functions */
-#define CUP_VLCL	makevariant(CUP_TFUNCTION, 0)  /* Cup closure */
-#define CUP_VLCF	makevariant(CUP_TFUNCTION, 1)  /* light C function */
-#define CUP_VCCL	makevariant(CUP_TFUNCTION, 2)  /* C closure */
+#define ACORN_VLCL	makevariant(ACORN_TFUNCTION, 0)  /* Acorn closure */
+#define ACORN_VLCF	makevariant(ACORN_TFUNCTION, 1)  /* light C function */
+#define ACORN_VCCL	makevariant(ACORN_TFUNCTION, 2)  /* C closure */
 
-#define ttisfunction(o)		checktype(o, CUP_TFUNCTION)
-#define ttisLclosure(o)		checktag((o), ctb(CUP_VLCL))
-#define ttislcf(o)		checktag((o), CUP_VLCF)
-#define ttisCclosure(o)		checktag((o), ctb(CUP_VCCL))
+#define ttisfunction(o)		checktype(o, ACORN_TFUNCTION)
+#define ttisLclosure(o)		checktag((o), ctb(ACORN_VLCL))
+#define ttislcf(o)		checktag((o), ACORN_VLCF)
+#define ttisCclosure(o)		checktag((o), ctb(ACORN_VCCL))
 #define ttisclosure(o)         (ttisLclosure(o) || ttisCclosure(o))
 
 
@@ -596,22 +596,22 @@ typedef struct Proto {
 
 #define setclLvalue(L,obj,x) \
   { TValue *io = (obj); LClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(CUP_VLCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(ACORN_VLCL)); \
     checkliveness(L,io); }
 
 #define setclLvalue2s(L,o,cl)	setclLvalue(L,s2v(o),cl)
 
 #define setfvalue(obj,x) \
-  { TValue *io=(obj); val_(io).f=(x); settt_(io, CUP_VLCF); }
+  { TValue *io=(obj); val_(io).f=(x); settt_(io, ACORN_VLCF); }
 
 #define setclCvalue(L,obj,x) \
   { TValue *io = (obj); CClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(CUP_VCCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(ACORN_VCCL)); \
     checkliveness(L,io); }
 
 
 /*
-** Upvalues for Cup closures
+** Upvalues for Acorn closures
 */
 typedef struct UpVal {
   CommonHeader;
@@ -633,7 +633,7 @@ typedef struct UpVal {
 
 typedef struct CClosure {
   ClosureHeader;
-  cup_CFunction f;
+  acorn_CFunction f;
   TValue upvalue[1];  /* list of upvalues */
 } CClosure;
 
@@ -662,15 +662,15 @@ typedef union Closure {
 ** ===================================================================
 */
 
-#define CUP_VTABLE	makevariant(CUP_TTABLE, 0)
+#define ACORN_VTABLE	makevariant(ACORN_TTABLE, 0)
 
-#define ttistable(o)		checktag((o), ctb(CUP_VTABLE))
+#define ttistable(o)		checktag((o), ctb(ACORN_VTABLE))
 
 #define hvalue(o)	check_exp(ttistable(o), gco2t(val_(o).gc))
 
 #define sethvalue(L,obj,x) \
   { TValue *io = (obj); Table *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(CUP_VTABLE)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(ACORN_VTABLE)); \
     checkliveness(L,io); }
 
 #define sethvalue2s(L,o,h)	sethvalue(L,s2v(o),h)
@@ -740,13 +740,13 @@ typedef struct Table {
 #define keytt(node)		((node)->u.key_tt)
 #define keyval(node)		((node)->u.key_val)
 
-#define keyisnil(node)		(keytt(node) == CUP_TNIL)
-#define keyisinteger(node)	(keytt(node) == CUP_VNUMINT)
+#define keyisnil(node)		(keytt(node) == ACORN_TNIL)
+#define keyisinteger(node)	(keytt(node) == ACORN_VNUMINT)
 #define keyival(node)		(keyval(node).i)
-#define keyisshrstr(node)	(keytt(node) == ctb(CUP_VSHRSTR))
+#define keyisshrstr(node)	(keytt(node) == ctb(ACORN_VSHRSTR))
 #define keystrval(node)		(gco2ts(keyval(node).gc))
 
-#define setnilkey(node)		(keytt(node) = CUP_TNIL)
+#define setnilkey(node)		(keytt(node) = ACORN_TNIL)
 
 #define keyiscollectable(n)	(keytt(n) & BIT_ISCOLLECTABLE)
 
@@ -760,8 +760,8 @@ typedef struct Table {
 ** be found when searched in a special way. ('next' needs that to find
 ** keys removed from a table during a traversal.)
 */
-#define setdeadkey(node)	(keytt(node) = CUP_TDEADKEY)
-#define keyisdead(node)		(keytt(node) == CUP_TDEADKEY)
+#define setdeadkey(node)	(keytt(node) = ACORN_TDEADKEY)
+#define keyisdead(node)		(keytt(node) == ACORN_TDEADKEY)
 
 /* }================================================================== */
 
@@ -778,22 +778,22 @@ typedef struct Table {
 #define sizenode(t)	(twoto((t)->lsizenode))
 
 
-/* size of buffer for 'cupO_utf8esc' function */
+/* size of buffer for 'acornO_utf8esc' function */
 #define UTF8BUFFSZ	8
 
-CUPI_FUNC int cupO_utf8esc (char *buff, unsigned long x);
-CUPI_FUNC int cupO_ceillog2 (unsigned int x);
-CUPI_FUNC int cupO_rawarith (cup_State *L, int op, const TValue *p1,
+ACORNI_FUNC int acornO_utf8esc (char *buff, unsigned long x);
+ACORNI_FUNC int acornO_ceillog2 (unsigned int x);
+ACORNI_FUNC int acornO_rawarith (acorn_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
-CUPI_FUNC void cupO_arith (cup_State *L, int op, const TValue *p1,
+ACORNI_FUNC void acornO_arith (acorn_State *L, int op, const TValue *p1,
                            const TValue *p2, StkId res);
-CUPI_FUNC size_t cupO_str2num (const char *s, TValue *o);
-CUPI_FUNC int cupO_hexavalue (int c);
-CUPI_FUNC void cupO_tostring (cup_State *L, TValue *obj);
-CUPI_FUNC const char *cupO_pushvfstring (cup_State *L, const char *fmt,
+ACORNI_FUNC size_t acornO_str2num (const char *s, TValue *o);
+ACORNI_FUNC int acornO_hexavalue (int c);
+ACORNI_FUNC void acornO_tostring (acorn_State *L, TValue *obj);
+ACORNI_FUNC const char *acornO_pushvfstring (acorn_State *L, const char *fmt,
                                                        va_list argp);
-CUPI_FUNC const char *cupO_pushfstring (cup_State *L, const char *fmt, ...);
-CUPI_FUNC void cupO_chunkid (char *out, const char *source, size_t srclen);
+ACORNI_FUNC const char *acornO_pushfstring (acorn_State *L, const char *fmt, ...);
+ACORNI_FUNC void acornO_chunkid (char *out, const char *source, size_t srclen);
 
 
 #endif

@@ -1,7 +1,7 @@
 /*
 ** $Id: lgc.h $
 ** Garbage Collector
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lgc_h
@@ -99,7 +99,7 @@
 #define nw2black(x)  \
 	check_exp(!iswhite(x), l_setbit((x)->marked, BLACKBIT))
 
-#define cupC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
+#define acornC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
 
 
 /* object age in generational mode */
@@ -122,11 +122,11 @@
 
 
 /* Default Values for GC parameters */
-#define CUPI_GENMAJORMUL         100
-#define CUPI_GENMINORMUL         20
+#define ACORNI_GENMAJORMUL         100
+#define ACORNI_GENMINORMUL         20
 
 /* wait memory to double before starting new cycle */
-#define CUPI_GCPAUSE    200
+#define ACORNI_GCPAUSE    200
 
 /*
 ** some gc parameters are stored divided by 4 to allow a maximum value
@@ -135,15 +135,15 @@
 #define getgcparam(p)	((p) * 4)
 #define setgcparam(p,v)	((p) = (v) / 4)
 
-#define CUPI_GCMUL      100
+#define ACORNI_GCMUL      100
 
 /* how much to allocate before next GC step (log2) */
-#define CUPI_GCSTEPSIZE 13      /* 8 KB */
+#define ACORNI_GCSTEPSIZE 13      /* 8 KB */
 
 
 /*
 ** Check whether the declared GC mode is generational. While in
-** generational mode, the collector can Cup temporarily to incremental
+** generational mode, the collector can Acorn temporarily to incremental
 ** mode to improve performance. This is signaled by 'g->lastatomic != 0'.
 */
 #define isdecGCmodegen(g)	(g->gckind == KGC_GEN || g->lastatomic != 0)
@@ -154,7 +154,7 @@
 */
 #define GCSTPUSR	1  /* bit true when GC stopped by user */
 #define GCSTPGC		2  /* bit true when GC stopped by itself */
-#define GCSTPCLS	4  /* bit true when closing Cup state */
+#define GCSTPCLS	4  /* bit true when closing Acorn state */
 #define gcrunning(g)	((g)->gcstp == 0)
 
 
@@ -164,36 +164,36 @@
 ** 'condchangemem' is used only for heavy tests (forcing a full
 ** GC cycle on every opportunity)
 */
-#define cupC_condGC(L,pre,pos) \
-	{ if (G(L)->GCdebt > 0) { pre; cupC_step(L); pos;}; \
+#define acornC_condGC(L,pre,pos) \
+	{ if (G(L)->GCdebt > 0) { pre; acornC_step(L); pos;}; \
 	  condchangemem(L,pre,pos); }
 
 /* more often than not, 'pre'/'pos' are empty */
-#define cupC_checkGC(L)		cupC_condGC(L,(void)0,(void)0)
+#define acornC_checkGC(L)		acornC_condGC(L,(void)0,(void)0)
 
 
-#define cupC_barrier(L,p,v) (  \
+#define acornC_barrier(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
-	cupC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
+	acornC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
 
-#define cupC_barrierback(L,p,v) (  \
+#define acornC_barrierback(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
-	cupC_barrierback_(L,p) : cast_void(0))
+	acornC_barrierback_(L,p) : cast_void(0))
 
-#define cupC_objbarrier(L,p,o) (  \
+#define acornC_objbarrier(L,p,o) (  \
 	(isblack(p) && iswhite(o)) ? \
-	cupC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
+	acornC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
 
-CUPI_FUNC void cupC_fix (cup_State *L, GCObject *o);
-CUPI_FUNC void cupC_freeallobjects (cup_State *L);
-CUPI_FUNC void cupC_step (cup_State *L);
-CUPI_FUNC void cupC_runtilstate (cup_State *L, int statesmask);
-CUPI_FUNC void cupC_fullgc (cup_State *L, int isemergency);
-CUPI_FUNC GCObject *cupC_newobj (cup_State *L, int tt, size_t sz);
-CUPI_FUNC void cupC_barrier_ (cup_State *L, GCObject *o, GCObject *v);
-CUPI_FUNC void cupC_barrierback_ (cup_State *L, GCObject *o);
-CUPI_FUNC void cupC_checkfinalizer (cup_State *L, GCObject *o, Table *mt);
-CUPI_FUNC void cupC_changemode (cup_State *L, int newmode);
+ACORNI_FUNC void acornC_fix (acorn_State *L, GCObject *o);
+ACORNI_FUNC void acornC_freeallobjects (acorn_State *L);
+ACORNI_FUNC void acornC_step (acorn_State *L);
+ACORNI_FUNC void acornC_runtilstate (acorn_State *L, int statesmask);
+ACORNI_FUNC void acornC_fullgc (acorn_State *L, int isemergency);
+ACORNI_FUNC GCObject *acornC_newobj (acorn_State *L, int tt, size_t sz);
+ACORNI_FUNC void acornC_barrier_ (acorn_State *L, GCObject *o, GCObject *v);
+ACORNI_FUNC void acornC_barrierback_ (acorn_State *L, GCObject *o);
+ACORNI_FUNC void acornC_checkfinalizer (acorn_State *L, GCObject *o, Table *mt);
+ACORNI_FUNC void acornC_changemode (acorn_State *L, int newmode);
 
 
 #endif

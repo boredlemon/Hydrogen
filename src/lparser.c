@@ -1,11 +1,11 @@
 /*
 ** $Id: lparser.c $
-** Cup Parser
-** See Copyright Notice in cup.h
+** Acorn Parser
+** See Copyright Notice in acorn.h
 */
 
 #define lparser_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
@@ -13,7 +13,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lcode.h"
 #include "ldebug.h"
@@ -66,21 +66,21 @@ static void expr (LexState *ls, expdesc *v);
 
 
 static l_noret error_expected (LexState *ls, int token) {
-  cupX_syntaxerror(ls,
-      cupO_pushfstring(ls->L, "%s expected", cupX_token2str(ls, token)));
+  acornX_syntaxerror(ls,
+      acornO_pushfstring(ls->L, "%s expected", acornX_token2str(ls, token)));
 }
 
 
 static l_noret errorlimit (FuncState *fs, int limit, const char *what) {
-  cup_State *L = fs->ls->L;
+  acorn_State *L = fs->ls->L;
   const char *msg;
   int line = fs->f->linedefined;
   const char *where = (line == 0)
                       ? "main function"
-                      : cupO_pushfstring(L, "function at line %d", line);
-  msg = cupO_pushfstring(L, "too many %s (limit is %d) in %s",
+                      : acornO_pushfstring(L, "function at line %d", line);
+  msg = acornO_pushfstring(L, "too many %s (limit is %d) in %s",
                              what, limit, where);
-  cupX_syntaxerror(fs->ls, msg);
+  acornX_syntaxerror(fs->ls, msg);
 }
 
 
@@ -94,7 +94,7 @@ static void checklimit (FuncState *fs, int v, int l, const char *what) {
 */
 static int testnext (LexState *ls, int c) {
   if (ls->t.token == c) {
-    cupX_next(ls);
+    acornX_next(ls);
     return 1;
   }
   else return 0;
@@ -115,11 +115,11 @@ static void check (LexState *ls, int c) {
 */
 static void checknext (LexState *ls, int c) {
   check(ls, c);
-  cupX_next(ls);
+  acornX_next(ls);
 }
 
 
-#define check_condition(ls,c,msg)	{ if (!(c)) cupX_syntaxerror(ls, msg); }
+#define check_condition(ls,c,msg)	{ if (!(c)) acornX_syntaxerror(ls, msg); }
 
 
 /*
@@ -132,9 +132,9 @@ static void check_match (LexState *ls, int what, int who, int where) {
     if (where == ls->linenumber)  /* all in the same line? */
       error_expected(ls, what);  /* do not need a complex message */
     else {
-      cupX_syntaxerror(ls, cupO_pushfstring(ls->L,
+      acornX_syntaxerror(ls, acornO_pushfstring(ls->L,
              "%s expected (to close %s at line %d)",
-              cupX_token2str(ls, what), cupX_token2str(ls, who), where));
+              acornX_token2str(ls, what), acornX_token2str(ls, who), where));
     }
   }
 }
@@ -144,7 +144,7 @@ static TString *str_checkname (LexState *ls) {
   TString *ts;
   check(ls, TK_NAME);
   ts = ls->t.seminfo.ts;
-  cupX_next(ls);
+  acornX_next(ls);
   return ts;
 }
 
@@ -175,13 +175,13 @@ static void codename (LexState *ls, expdesc *e) {
 static int registerlocalvar (LexState *ls, FuncState *fs, TString *varname) {
   Proto *f = fs->f;
   int oldsize = f->sizelocvars;
-  cupM_growvector(ls->L, f->locvars, fs->ndebugvars, f->sizelocvars,
+  acornM_growvector(ls->L, f->locvars, fs->ndebugvars, f->sizelocvars,
                   LocVar, SHRT_MAX, "local variables");
   while (oldsize < f->sizelocvars)
     f->locvars[oldsize++].varname = NULL;
   f->locvars[fs->ndebugvars].varname = varname;
   f->locvars[fs->ndebugvars].startpc = fs->pc;
-  cupC_objbarrier(ls->L, f, varname);
+  acornC_objbarrier(ls->L, f, varname);
   return fs->ndebugvars++;
 }
 
@@ -191,13 +191,13 @@ static int registerlocalvar (LexState *ls, FuncState *fs, TString *varname) {
 ** in the function.
 */
 static int new_localvar (LexState *ls, TString *name) {
-  cup_State *L = ls->L;
+  acorn_State *L = ls->L;
   FuncState *fs = ls->fs;
   Dyndata *dyd = ls->dyd;
   Vardesc *var;
   checklimit(fs, dyd->actvar.n + 1 - fs->firstlocal,
                  MAXVARS, "local variables");
-  cupM_growvector(L, dyd->actvar.arr, dyd->actvar.n + 1,
+  acornM_growvector(L, dyd->actvar.arr, dyd->actvar.n + 1,
                   dyd->actvar.size, Vardesc, USHRT_MAX, "local variables");
   var = &dyd->actvar.arr[dyd->actvar.n++];
   var->vd.kind = VDKREG;  /* default */
@@ -207,7 +207,7 @@ static int new_localvar (LexState *ls, TString *name) {
 
 #define new_localvarliteral(ls,v) \
     new_localvar(ls,  \
-      cupX_newstring(ls, "" v, (sizeof(v)/sizeof(char)) - 1));
+      acornX_newstring(ls, "" v, (sizeof(v)/sizeof(char)) - 1));
 
 
 
@@ -240,7 +240,7 @@ static int reglevel (FuncState *fs, int nvar) {
 ** Return the number of variables in the register stack for the given
 ** function.
 */
-int cupY_nvarstack (FuncState *fs) {
+int acornY_nvarstack (FuncState *fs) {
   return reglevel(fs, fs->nactvar);
 }
 
@@ -254,7 +254,7 @@ static LocVar *localdebuginfo (FuncState *fs, int vidx) {
     return NULL;  /* no debug info. for constants */
   else {
     int idx = vd->vd.pidx;
-    cup_assert(idx < fs->ndebugvars);
+    acorn_assert(idx < fs->ndebugvars);
     return &fs->f->locvars[idx];
   }
 }
@@ -298,9 +298,9 @@ static void check_readonly (LexState *ls, expdesc *e) {
       return;  /* other cases cannot be read-only */
   }
   if (varname) {
-    const char *msg = cupO_pushfstring(ls->L,
+    const char *msg = acornO_pushfstring(ls->L,
        "attempt to assign to const variable '%s'", getstr(varname));
-    cupK_semerror(ls, msg);  /* error */
+    acornK_semerror(ls, msg);  /* error */
   }
 }
 
@@ -310,7 +310,7 @@ static void check_readonly (LexState *ls, expdesc *e) {
 */
 static void adjustlocalvars (LexState *ls, int nvars) {
   FuncState *fs = ls->fs;
-  int reglevel = cupY_nvarstack(fs);
+  int reglevel = acornY_nvarstack(fs);
   int i;
   for (i = 0; i < nvars; i++) {
     int vidx = fs->nactvar++;
@@ -349,11 +349,11 @@ static int searchupvalue (FuncState *fs, TString *name) {
 }
 
 
-static Upvaldesc *allocupvalue (FuncState *fs) {
+static Upvaldesc *alloacornvalue (FuncState *fs) {
   Proto *f = fs->f;
   int oldsize = f->sizeupvalues;
   checklimit(fs, fs->nups + 1, MAXUPVAL, "upvalues");
-  cupM_growvector(fs->ls->L, f->upvalues, fs->nups, f->sizeupvalues,
+  acornM_growvector(fs->ls->L, f->upvalues, fs->nups, f->sizeupvalues,
                   Upvaldesc, MAXUPVAL, "upvalues");
   while (oldsize < f->sizeupvalues)
     f->upvalues[oldsize++].name = NULL;
@@ -362,22 +362,22 @@ static Upvaldesc *allocupvalue (FuncState *fs) {
 
 
 static int newupvalue (FuncState *fs, TString *name, expdesc *v) {
-  Upvaldesc *up = allocupvalue(fs);
+  Upvaldesc *up = alloacornvalue(fs);
   FuncState *prev = fs->prev;
   if (v->k == VLOCAL) {
     up->instack = 1;
     up->idx = v->u.var.ridx;
     up->kind = getlocalvardesc(prev, v->u.var.vidx)->vd.kind;
-    cup_assert(eqstr(name, getlocalvardesc(prev, v->u.var.vidx)->vd.name));
+    acorn_assert(eqstr(name, getlocalvardesc(prev, v->u.var.vidx)->vd.name));
   }
   else {
     up->instack = 0;
     up->idx = cast_byte(v->u.info);
     up->kind = prev->f->upvalues[v->u.info].kind;
-    cup_assert(eqstr(name, prev->f->upvalues[v->u.info].name));
+    acorn_assert(eqstr(name, prev->f->upvalues[v->u.info].name));
   }
   up->name = name;
-  cupC_objbarrier(fs->ls->L, fs->f, name);
+  acornC_objbarrier(fs->ls->L, fs->f, name);
   return fs->nups - 1;
 }
 
@@ -467,9 +467,9 @@ static void singlevar (LexState *ls, expdesc *var) {
   if (var->k == VVOID) {  /* global name? */
     expdesc key;
     singlevaraux(fs, ls->envn, var, 1);  /* get environment variable */
-    cup_assert(var->k != VVOID);  /* this one must exist */
+    acorn_assert(var->k != VVOID);  /* this one must exist */
     codestring(&key, varname);  /* key is variable name */
-    cupK_indexed(fs, var, &key);  /* env[varname] */
+    acornK_indexed(fs, var, &key);  /* env[varname] */
   }
 }
 
@@ -485,22 +485,22 @@ static void adjust_assign (LexState *ls, int nvars, int nexps, expdesc *e) {
     int extra = needed + 1;  /* discount last expression itself */
     if (extra < 0)
       extra = 0;
-    cupK_setreturns(fs, e, extra);  /* last exp. provides the difference */
+    acornK_setreturns(fs, e, extra);  /* last exp. provides the difference */
   }
   else {
     if (e->k != VVOID)  /* at least one expression? */
-      cupK_exp2nextreg(fs, e);  /* close last expression */
+      acornK_exp2nextreg(fs, e);  /* close last expression */
     if (needed > 0)  /* missing values? */
-      cupK_nil(fs, fs->freereg, needed);  /* complete with nils */
+      acornK_nil(fs, fs->freereg, needed);  /* complete with nils */
   }
   if (needed > 0)
-    cupK_reserveregs(fs, needed);  /* registers for extra values */
+    acornK_reserveregs(fs, needed);  /* registers for extra values */
   else  /* adding 'needed' is actually a subtraction */
     fs->freereg += needed;  /* remove extra values */
 }
 
 
-#define enterlevel(ls)	cupE_incCstack(ls->L)
+#define enterlevel(ls)	acornE_incCstack(ls->L)
 
 
 #define leavelevel(ls) ((ls)->L->nCcalls--)
@@ -513,8 +513,8 @@ static void adjust_assign (LexState *ls, int nvars, int nexps, expdesc *e) {
 static l_noret jumpscopeerror (LexState *ls, Labeldesc *gt) {
   const char *varname = getstr(getlocalvardesc(ls->fs, gt->nactvar)->vd.name);
   const char *msg = "<goto %s> at line %d jumps into the scope of local '%s'";
-  msg = cupO_pushfstring(ls->L, msg, getstr(gt->name), gt->line, varname);
-  cupK_semerror(ls, msg);  /* raise the error */
+  msg = acornO_pushfstring(ls->L, msg, getstr(gt->name), gt->line, varname);
+  acornK_semerror(ls, msg);  /* raise the error */
 }
 
 
@@ -527,10 +527,10 @@ static void solvegoto (LexState *ls, int g, Labeldesc *label) {
   int i;
   Labellist *gl = &ls->dyd->gt;  /* list of goto's */
   Labeldesc *gt = &gl->arr[g];  /* goto to be resolved */
-  cup_assert(eqstr(gt->name, label->name));
+  acorn_assert(eqstr(gt->name, label->name));
   if (l_unlikely(gt->nactvar < label->nactvar))  /* enter some scope? */
     jumpscopeerror(ls, gt);
-  cupK_patchlist(ls->fs, gt->pc, label->pc);
+  acornK_patchlist(ls->fs, gt->pc, label->pc);
   for (i = g; i < gl->n - 1; i++)  /* remove goto from pending list */
     gl->arr[i] = gl->arr[i + 1];
   gl->n--;
@@ -559,7 +559,7 @@ static Labeldesc *findlabel (LexState *ls, TString *name) {
 static int newlabelentry (LexState *ls, Labellist *l, TString *name,
                           int line, int pc) {
   int n = l->n;
-  cupM_growvector(ls->L, l->arr, n, l->size,
+  acornM_growvector(ls->L, l->arr, n, l->size,
                   Labeldesc, SHRT_MAX, "labels/gotos");
   l->arr[n].name = name;
   l->arr[n].line = line;
@@ -608,13 +608,13 @@ static int createlabel (LexState *ls, TString *name, int line,
                         int last) {
   FuncState *fs = ls->fs;
   Labellist *ll = &ls->dyd->label;
-  int l = newlabelentry(ls, ll, name, line, cupK_getlabel(fs));
+  int l = newlabelentry(ls, ll, name, line, acornK_getlabel(fs));
   if (last) {  /* label is last no-op statement in the block? */
     /* assume that locals are already out of scope */
     ll->arr[l].nactvar = fs->bl->nactvar;
   }
   if (solvegotos(ls, &ll->arr[l])) {  /* need close? */
-    cupK_codeABC(fs, OP_CLOSE, cupY_nvarstack(fs), 0, 0);
+    acornK_codeABC(fs, OP_CLOSE, acornY_nvarstack(fs), 0, 0);
     return 1;
   }
   return 0;
@@ -647,7 +647,7 @@ static void enterblock (FuncState *fs, BlockCnt *bl, lu_byte isloop) {
   bl->insidetbc = (fs->bl != NULL && fs->bl->insidetbc);
   bl->previous = fs->bl;
   fs->bl = bl;
-  cup_assert(fs->freereg == cupY_nvarstack(fs));
+  acorn_assert(fs->freereg == acornY_nvarstack(fs));
 }
 
 
@@ -656,15 +656,15 @@ static void enterblock (FuncState *fs, BlockCnt *bl, lu_byte isloop) {
 */
 static l_noret undefgoto (LexState *ls, Labeldesc *gt) {
   const char *msg;
-  if (eqstr(gt->name, cupS_newliteral(ls->L, "break"))) {
+  if (eqstr(gt->name, acornS_newliteral(ls->L, "break"))) {
     msg = "break outside loop at line %d";
-    msg = cupO_pushfstring(ls->L, msg, gt->line);
+    msg = acornO_pushfstring(ls->L, msg, gt->line);
   }
   else {
     msg = "no visible label '%s' for <goto> at line %d";
-    msg = cupO_pushfstring(ls->L, msg, getstr(gt->name), gt->line);
+    msg = acornO_pushfstring(ls->L, msg, getstr(gt->name), gt->line);
   }
-  cupK_semerror(ls, msg);
+  acornK_semerror(ls, msg);
 }
 
 
@@ -674,12 +674,12 @@ static void leaveblock (FuncState *fs) {
   int hasclose = 0;
   int stklevel = reglevel(fs, bl->nactvar);  /* level outside the block */
   if (bl->isloop)  /* fix pending breaks? */
-    hasclose = createlabel(ls, cupS_newliteral(ls->L, "break"), 0, 0);
+    hasclose = createlabel(ls, acornS_newliteral(ls->L, "break"), 0, 0);
   if (!hasclose && bl->previous && bl->upval)
-    cupK_codeABC(fs, OP_CLOSE, stklevel, 0, 0);
+    acornK_codeABC(fs, OP_CLOSE, stklevel, 0, 0);
   fs->bl = bl->previous;
   removevars(fs, bl->nactvar);
-  cup_assert(bl->nactvar == fs->nactvar);
+  acorn_assert(bl->nactvar == fs->nactvar);
   fs->freereg = stklevel;  /* free registers */
   ls->dyd->label.n = bl->firstlabel;  /* remove local labels */
   if (bl->previous)  /* inner block? */
@@ -696,17 +696,17 @@ static void leaveblock (FuncState *fs) {
 */
 static Proto *addprototype (LexState *ls) {
   Proto *clp;
-  cup_State *L = ls->L;
+  acorn_State *L = ls->L;
   FuncState *fs = ls->fs;
   Proto *f = fs->f;  /* prototype of current function */
   if (fs->np >= f->sizep) {
     int oldsize = f->sizep;
-    cupM_growvector(L, f->p, fs->np, f->sizep, Proto *, MAXARG_Bx, "functions");
+    acornM_growvector(L, f->p, fs->np, f->sizep, Proto *, MAXARG_Bx, "functions");
     while (oldsize < f->sizep)
       f->p[oldsize++] = NULL;
   }
-  f->p[fs->np++] = clp = cupF_newproto(L);
-  cupC_objbarrier(L, f, clp);
+  f->p[fs->np++] = clp = acornF_newproto(L);
+  acornC_objbarrier(L, f, clp);
   return clp;
 }
 
@@ -720,8 +720,8 @@ static Proto *addprototype (LexState *ls) {
 */
 static void codeclosure (LexState *ls, expdesc *v) {
   FuncState *fs = ls->fs->prev;
-  init_exp(v, VRELOC, cupK_codeABx(fs, OP_CLOSURE, 0, fs->np - 1));
-  cupK_exp2nextreg(fs, v);  /* fix it at the last register */
+  init_exp(v, VRELOC, acornK_codeABx(fs, OP_CLOSURE, 0, fs->np - 1));
+  acornK_exp2nextreg(fs, v);  /* fix it at the last register */
 }
 
 
@@ -746,30 +746,30 @@ static void open_func (LexState *ls, FuncState *fs, BlockCnt *bl) {
   fs->firstlabel = ls->dyd->label.n;
   fs->bl = NULL;
   f->source = ls->source;
-  cupC_objbarrier(ls->L, f, f->source);
+  acornC_objbarrier(ls->L, f, f->source);
   f->maxstacksize = 2;  /* registers 0/1 are always valid */
   enterblock(fs, bl, 0);
 }
 
 
 static void close_func (LexState *ls) {
-  cup_State *L = ls->L;
+  acorn_State *L = ls->L;
   FuncState *fs = ls->fs;
   Proto *f = fs->f;
-  cupK_ret(fs, cupY_nvarstack(fs), 0);  /* final return */
+  acornK_ret(fs, acornY_nvarstack(fs), 0);  /* final return */
   leaveblock(fs);
-  cup_assert(fs->bl == NULL);
-  cupK_finish(fs);
-  cupM_shrinkvector(L, f->code, f->sizecode, fs->pc, Instruction);
-  cupM_shrinkvector(L, f->lineinfo, f->sizelineinfo, fs->pc, ls_byte);
-  cupM_shrinkvector(L, f->abslineinfo, f->sizeabslineinfo,
+  acorn_assert(fs->bl == NULL);
+  acornK_finish(fs);
+  acornM_shrinkvector(L, f->code, f->sizecode, fs->pc, Instruction);
+  acornM_shrinkvector(L, f->lineinfo, f->sizelineinfo, fs->pc, ls_byte);
+  acornM_shrinkvector(L, f->abslineinfo, f->sizeabslineinfo,
                        fs->nabslineinfo, AbsLineInfo);
-  cupM_shrinkvector(L, f->k, f->sizek, fs->nk, TValue);
-  cupM_shrinkvector(L, f->p, f->sizep, fs->np, Proto *);
-  cupM_shrinkvector(L, f->locvars, f->sizelocvars, fs->ndebugvars, LocVar);
-  cupM_shrinkvector(L, f->upvalues, f->sizeupvalues, fs->nups, Upvaldesc);
+  acornM_shrinkvector(L, f->k, f->sizek, fs->nk, TValue);
+  acornM_shrinkvector(L, f->p, f->sizep, fs->np, Proto *);
+  acornM_shrinkvector(L, f->locvars, f->sizelocvars, fs->ndebugvars, LocVar);
+  acornM_shrinkvector(L, f->upvalues, f->sizeupvalues, fs->nups, Upvaldesc);
   ls->fs = fs->prev;
-  cupC_checkGC(L);
+  acornC_checkGC(L);
 }
 
 
@@ -811,18 +811,18 @@ static void fieldsel (LexState *ls, expdesc *v) {
   /* fieldsel -> ['.' | ':'] NAME */
   FuncState *fs = ls->fs;
   expdesc key;
-  cupK_exp2anyregup(fs, v);
-  cupX_next(ls);  /* skip the dot or colon */
+  acornK_exp2anyregup(fs, v);
+  acornX_next(ls);  /* skip the dot or colon */
   codename(ls, &key);
-  cupK_indexed(fs, v, &key);
+  acornK_indexed(fs, v, &key);
 }
 
 
 static void yindex (LexState *ls, expdesc *v) {
   /* index -> '[' expr ']' */
-  cupX_next(ls);  /* skip the '[' */
+  acornX_next(ls);  /* skip the '[' */
   expr(ls, v);
-  cupK_exp2val(ls->fs, v);
+  acornK_exp2val(ls->fs, v);
   checknext(ls, ']');
 }
 
@@ -857,19 +857,19 @@ static void recfield (LexState *ls, ConsControl *cc) {
   cc->nh++;
   checknext(ls, '=');
   tab = *cc->t;
-  cupK_indexed(fs, &tab, &key);
+  acornK_indexed(fs, &tab, &key);
   expr(ls, &val);
-  cupK_storevar(fs, &tab, &val);
+  acornK_storevar(fs, &tab, &val);
   fs->freereg = reg;  /* free registers */
 }
 
 
 static void closelistfield (FuncState *fs, ConsControl *cc) {
   if (cc->v.k == VVOID) return;  /* there is no list item */
-  cupK_exp2nextreg(fs, &cc->v);
+  acornK_exp2nextreg(fs, &cc->v);
   cc->v.k = VVOID;
   if (cc->tostore == LFIELDS_PER_FLUSH) {
-    cupK_setlist(fs, cc->t->u.info, cc->na, cc->tostore);  /* flush */
+    acornK_setlist(fs, cc->t->u.info, cc->na, cc->tostore);  /* flush */
     cc->na += cc->tostore;
     cc->tostore = 0;  /* no more items pending */
   }
@@ -879,14 +879,14 @@ static void closelistfield (FuncState *fs, ConsControl *cc) {
 static void lastlistfield (FuncState *fs, ConsControl *cc) {
   if (cc->tostore == 0) return;
   if (hasmultret(cc->v.k)) {
-    cupK_setmultret(fs, &cc->v);
-    cupK_setlist(fs, cc->t->u.info, cc->na, CUP_MULTRET);
+    acornK_setmultret(fs, &cc->v);
+    acornK_setlist(fs, cc->t->u.info, cc->na, ACORN_MULTRET);
     cc->na--;  /* do not count last expression (unknown number of elements) */
   }
   else {
     if (cc->v.k != VVOID)
-      cupK_exp2nextreg(fs, &cc->v);
-    cupK_setlist(fs, cc->t->u.info, cc->na, cc->tostore);
+      acornK_exp2nextreg(fs, &cc->v);
+    acornK_setlist(fs, cc->t->u.info, cc->na, cc->tostore);
   }
   cc->na += cc->tostore;
 }
@@ -903,7 +903,7 @@ static void field (LexState *ls, ConsControl *cc) {
   /* field -> listfield | recfield */
   switch(ls->t.token) {
     case TK_NAME: {  /* may be 'listfield' or 'recfield' */
-      if (cupX_lookahead(ls) != '=')  /* expression? */
+      if (acornX_lookahead(ls) != '=')  /* expression? */
         listfield(ls, cc);
       else
         recfield(ls, cc);
@@ -926,24 +926,24 @@ static void constructor (LexState *ls, expdesc *t) {
      sep -> ',' | ';' */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  int pc = cupK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
+  int pc = acornK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
   ConsControl cc;
-  cupK_code(fs, 0);  /* space for extra arg. */
+  acornK_code(fs, 0);  /* space for extra arg. */
   cc.na = cc.nh = cc.tostore = 0;
   cc.t = t;
   init_exp(t, VNONRELOC, fs->freereg);  /* table will be at stack top */
-  cupK_reserveregs(fs, 1);
+  acornK_reserveregs(fs, 1);
   init_exp(&cc.v, VVOID, 0);  /* no value (yet) */
   checknext(ls, '{');
   do {
-    cup_assert(cc.v.k == VVOID || cc.tostore > 0);
+    acorn_assert(cc.v.k == VVOID || cc.tostore > 0);
     if (ls->t.token == '}') break;
     closelistfield(fs, &cc);
     field(ls, &cc);
   } while (testnext(ls, ',') || testnext(ls, ';'));
   check_match(ls, '}', '{', line);
   lastlistfield(fs, &cc);
-  cupK_settablesize(fs, pc, t->u.info, cc.na, cc.nh);
+  acornK_settablesize(fs, pc, t->u.info, cc.na, cc.nh);
 }
 
 /* }====================================================================== */
@@ -951,7 +951,7 @@ static void constructor (LexState *ls, expdesc *t) {
 
 static void setvararg (FuncState *fs, int nparams) {
   fs->f->is_vararg = 1;
-  cupK_codeABC(fs, OP_VARARGPREP, nparams, 0, 0);
+  acornK_codeABC(fs, OP_VARARGPREP, nparams, 0, 0);
 }
 
 
@@ -970,11 +970,11 @@ static void parlist (LexState *ls) {
           break;
         }
         case TK_DOTS: {
-          cupX_next(ls);
+          acornX_next(ls);
           isvararg = 1;
           break;
         }
-        default: cupX_syntaxerror(ls, "<name> or '...' expected");
+        default: acornX_syntaxerror(ls, "<name> or '...' expected");
       }
     } while (!isvararg && testnext(ls, ','));
   }
@@ -982,7 +982,7 @@ static void parlist (LexState *ls) {
   f->numparams = cast_byte(fs->nactvar);
   if (isvararg)
     setvararg(fs, f->numparams);  /* declared vararg */
-  cupK_reserveregs(fs, fs->nactvar);  /* reserve registers for parameters */
+  acornK_reserveregs(fs, fs->nactvar);  /* reserve registers for parameters */
 }
 
 
@@ -1013,7 +1013,7 @@ static int explist (LexState *ls, expdesc *v) {
   int n = 1;  /* at least one expression */
   expr(ls, v);
   while (testnext(ls, ',')) {
-    cupK_exp2nextreg(ls->fs, v);
+    acornK_exp2nextreg(ls->fs, v);
     expr(ls, v);
     n++;
   }
@@ -1027,13 +1027,13 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
   int base, nparams;
   switch (ls->t.token) {
     case '(': {  /* funcargs -> '(' [ explist ] ')' */
-      cupX_next(ls);
+      acornX_next(ls);
       if (ls->t.token == ')')  /* arg list is empty? */
         args.k = VVOID;
       else {
         explist(ls, &args);
         if (hasmultret(args.k))
-          cupK_setmultret(fs, &args);
+          acornK_setmultret(fs, &args);
       }
       check_match(ls, ')', '(', line);
       break;
@@ -1044,24 +1044,24 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
     }
     case TK_STRING: {  /* funcargs -> STRING */
       codestring(&args, ls->t.seminfo.ts);
-      cupX_next(ls);  /* must use 'seminfo' before 'next' */
+      acornX_next(ls);  /* must use 'seminfo' before 'next' */
       break;
     }
     default: {
-      cupX_syntaxerror(ls, "function arguments expected");
+      acornX_syntaxerror(ls, "function arguments expected");
     }
   }
-  cup_assert(f->k == VNONRELOC);
+  acorn_assert(f->k == VNONRELOC);
   base = f->u.info;  /* base register for call */
   if (hasmultret(args.k))
-    nparams = CUP_MULTRET;  /* open call */
+    nparams = ACORN_MULTRET;  /* open call */
   else {
     if (args.k != VVOID)
-      cupK_exp2nextreg(fs, &args);  /* close last argument */
+      acornK_exp2nextreg(fs, &args);  /* close last argument */
     nparams = fs->freereg - (base+1);
   }
-  init_exp(f, VCALL, cupK_codeABC(fs, OP_CALL, base, nparams+1, 2));
-  cupK_fixline(fs, line);
+  init_exp(f, VCALL, acornK_codeABC(fs, OP_CALL, base, nparams+1, 2));
+  acornK_fixline(fs, line);
   fs->freereg = base+1;  /* call remove function and arguments and leaves
                             (unless changed) one result */
 }
@@ -1081,10 +1081,10 @@ static void primaryexp (LexState *ls, expdesc *v) {
   switch (ls->t.token) {
     case '(': {
       int line = ls->linenumber;
-      cupX_next(ls);
+      acornX_next(ls);
       expr(ls, v);
       check_match(ls, ')', '(', line);
-      cupK_dischargevars(ls->fs, v);
+      acornK_dischargevars(ls->fs, v);
       return;
     }
     case TK_NAME: {
@@ -1092,7 +1092,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
       return;
     }
     default: {
-      cupX_syntaxerror(ls, "unexpected symbol");
+      acornX_syntaxerror(ls, "unexpected symbol");
     }
   }
 }
@@ -1112,21 +1112,21 @@ static void suffixedexp (LexState *ls, expdesc *v) {
       }
       case '[': {  /* '[' exp ']' */
         expdesc key;
-        cupK_exp2anyregup(fs, v);
+        acornK_exp2anyregup(fs, v);
         yindex(ls, &key);
-        cupK_indexed(fs, v, &key);
+        acornK_indexed(fs, v, &key);
         break;
       }
       case ':': {  /* ':' NAME funcargs */
         expdesc key;
-        cupX_next(ls);
+        acornX_next(ls);
         codename(ls, &key);
-        cupK_self(fs, v, &key);
+        acornK_self(fs, v, &key);
         funcargs(ls, v, line);
         break;
       }
       case '(': case TK_STRING: case '{': {  /* funcargs */
-        cupK_exp2nextreg(fs, v);
+        acornK_exp2nextreg(fs, v);
         funcargs(ls, v, line);
         break;
       }
@@ -1170,7 +1170,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       FuncState *fs = ls->fs;
       check_condition(ls, fs->f->is_vararg,
                       "cannot use '...' outside a vararg function");
-      init_exp(v, VVARARG, cupK_codeABC(fs, OP_VARARG, 0, 0, 1));
+      init_exp(v, VVARARG, acornK_codeABC(fs, OP_VARARG, 0, 0, 1));
       break;
     }
     case '{': {  /* constructor */
@@ -1178,7 +1178,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       return;
     }
     case TK_FUNCTION: {
-      cupX_next(ls);
+      acornX_next(ls);
       body(ls, v, 0, ls->linenumber);
       return;
     }
@@ -1187,7 +1187,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       return;
     }
   }
-  cupX_next(ls);
+  acornX_next(ls);
 }
 
 
@@ -1263,9 +1263,9 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
   uop = getunopr(ls->t.token);
   if (uop != OPR_NOUNOPR) {  /* prefix (unary) operator? */
     int line = ls->linenumber;
-    cupX_next(ls);  /* skip operator */
+    acornX_next(ls);  /* skip operator */
     subexpr(ls, v, UNARY_PRIORITY);
-    cupK_prefix(ls->fs, uop, v, line);
+    acornK_prefix(ls->fs, uop, v, line);
   }
   else simpleexp(ls, v);
   /* expand while operators have priorities higher than 'limit' */
@@ -1274,11 +1274,11 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
     expdesc v2;
     BinOpr nextop;
     int line = ls->linenumber;
-    cupX_next(ls);  /* skip operator */
-    cupK_infix(ls->fs, op, v);
+    acornX_next(ls);  /* skip operator */
+    acornK_infix(ls->fs, op, v);
     /* read sub-expression with higher priority */
     nextop = subexpr(ls, &v2, priority[op].right);
-    cupK_posfix(ls->fs, op, v, &v2, line);
+    acornK_posfix(ls->fs, op, v, &v2, line);
     op = nextop;
   }
   leavelevel(ls);
@@ -1357,10 +1357,10 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
   if (conflict) {
     /* copy upvalue/local value to a temporary (in position 'extra') */
     if (v->k == VLOCAL)
-      cupK_codeABC(fs, OP_MOVE, extra, v->u.var.ridx, 0);
+      acornK_codeABC(fs, OP_MOVE, extra, v->u.var.ridx, 0);
     else
-      cupK_codeABC(fs, OP_GETUPVAL, extra, v->u.info, 0);
-    cupK_reserveregs(fs, 1);
+      acornK_codeABC(fs, OP_GETUPVAL, extra, v->u.info, 0);
+    acornK_reserveregs(fs, 1);
   }
 }
 
@@ -1392,13 +1392,13 @@ static void restassign (LexState *ls, struct LHS_assign *lh, int nvars) {
     if (nexps != nvars)
       adjust_assign(ls, nvars, nexps, &e);
     else {
-      cupK_setoneret(ls->fs, &e);  /* close last expression */
-      cupK_storevar(ls->fs, &lh->v, &e);
+      acornK_setoneret(ls->fs, &e);  /* close last expression */
+      acornK_storevar(ls->fs, &lh->v, &e);
       return;  /* avoid default */
     }
   }
   init_exp(&e, VNONRELOC, ls->fs->freereg-1);  /* default assignment */
-  cupK_storevar(ls->fs, &lh->v, &e);
+  acornK_storevar(ls->fs, &lh->v, &e);
 }
 
 
@@ -1407,7 +1407,7 @@ static int cond (LexState *ls) {
   expdesc v;
   expr(ls, &v);  /* read condition */
   if (v.k == VNIL) v.k = VFALSE;  /* 'falses' are all equal here */
-  cupK_Cupiftrue(ls->fs, &v);
+  acornK_Acorniftrue(ls->fs, &v);
   return v.f;
 }
 
@@ -1419,14 +1419,14 @@ static void gotostat (LexState *ls) {
   Labeldesc *lb = findlabel(ls, name);
   if (lb == NULL)  /* no label? */
     /* forward jump; will be resolved when the label is declared */
-    newgotoentry(ls, name, line, cupK_jump(fs));
+    newgotoentry(ls, name, line, acornK_jump(fs));
   else {  /* found a label */
     /* backward jump; will be resolved here */
     int lblevel = reglevel(fs, lb->nactvar);  /* label level */
-    if (cupY_nvarstack(fs) > lblevel)  /* leaving the scope of a variable? */
-      cupK_codeABC(fs, OP_CLOSE, lblevel, 0, 0);
+    if (acornY_nvarstack(fs) > lblevel)  /* leaving the scope of a variable? */
+      acornK_codeABC(fs, OP_CLOSE, lblevel, 0, 0);
     /* create jump and link it to the label */
-    cupK_patchlist(fs, cupK_jump(fs), lb->pc);
+    acornK_patchlist(fs, acornK_jump(fs), lb->pc);
   }
 }
 
@@ -1436,8 +1436,8 @@ static void gotostat (LexState *ls) {
 */
 static void breakstat (LexState *ls) {
   int line = ls->linenumber;
-  cupX_next(ls);  /* skip break */
-  newgotoentry(ls, cupS_newliteral(ls->L, "break"), line, cupK_jump(ls->fs));
+  acornX_next(ls);  /* skip break */
+  newgotoentry(ls, acornS_newliteral(ls->L, "break"), line, acornK_jump(ls->fs));
 }
 
 
@@ -1448,8 +1448,8 @@ static void checkrepeated (LexState *ls, TString *name) {
   Labeldesc *lb = findlabel(ls, name);
   if (l_unlikely(lb != NULL)) {  /* already defined? */
     const char *msg = "label '%s' already defined on line %d";
-    msg = cupO_pushfstring(ls->L, msg, getstr(name), lb->line);
-    cupK_semerror(ls, msg);  /* error */
+    msg = acornO_pushfstring(ls->L, msg, getstr(name), lb->line);
+    acornK_semerror(ls, msg);  /* error */
   }
 }
 
@@ -1470,16 +1470,16 @@ static void whilestat (LexState *ls, int line) {
   int whileinit;
   int condexit;
   BlockCnt bl;
-  cupX_next(ls);  /* skip WHILE */
-  whileinit = cupK_getlabel(fs);
+  acornX_next(ls);  /* skip WHILE */
+  whileinit = acornK_getlabel(fs);
   condexit = cond(ls);
   enterblock(fs, &bl, 1);
   checknext(ls, TK_DO);
   block(ls);
-  cupK_jumpto(fs, whileinit);
+  acornK_jumpto(fs, whileinit);
   check_match(ls, TK_END, TK_WHILE, line);
   leaveblock(fs);
-  cupK_patchtohere(fs, condexit);  /* false conditions finish the loop */
+  acornK_patchtohere(fs, condexit);  /* false conditions finish the loop */
 }
 
 
@@ -1487,23 +1487,23 @@ static void repeatstat (LexState *ls, int line) {
   /* repeatstat -> REPEAT block UNTIL cond */
   int condexit;
   FuncState *fs = ls->fs;
-  int repeat_init = cupK_getlabel(fs);
+  int repeat_init = acornK_getlabel(fs);
   BlockCnt bl1, bl2;
   enterblock(fs, &bl1, 1);  /* loop block */
   enterblock(fs, &bl2, 0);  /* scope block */
-  cupX_next(ls);  /* skip REPEAT */
+  acornX_next(ls);  /* skip REPEAT */
   statlist(ls);
   check_match(ls, TK_UNTIL, TK_REPEAT, line);
   condexit = cond(ls);  /* read condition (inside scope block) */
   leaveblock(fs);  /* finish scope */
   if (bl2.upval) {  /* upvalues? */
-    int exit = cupK_jump(fs);  /* normal exit must jump over fix */
-    cupK_patchtohere(fs, condexit);  /* repetition must close upvalues */
-    cupK_codeABC(fs, OP_CLOSE, reglevel(fs, bl2.nactvar), 0, 0);
-    condexit = cupK_jump(fs);  /* repeat after closing upvalues */
-    cupK_patchtohere(fs, exit);  /* normal exit comes to here */
+    int exit = acornK_jump(fs);  /* normal exit must jump over fix */
+    acornK_patchtohere(fs, condexit);  /* repetition must close upvalues */
+    acornK_codeABC(fs, OP_CLOSE, reglevel(fs, bl2.nactvar), 0, 0);
+    condexit = acornK_jump(fs);  /* repeat after closing upvalues */
+    acornK_patchtohere(fs, exit);  /* normal exit comes to here */
   }
-  cupK_patchlist(fs, condexit, repeat_init);  /* close the loop */
+  acornK_patchlist(fs, condexit, repeat_init);  /* close the loop */
   leaveblock(fs);  /* finish loop */
 }
 
@@ -1516,14 +1516,14 @@ static void repeatstat (LexState *ls, int line) {
 static void exp1 (LexState *ls) {
   expdesc e;
   expr(ls, &e);
-  cupK_exp2nextreg(ls->fs, &e);
-  cup_assert(e.k == VNONRELOC);
+  acornK_exp2nextreg(ls->fs, &e);
+  acorn_assert(e.k == VNONRELOC);
 }
 
 
 /*
 ** Fix for instruction at position 'pc' to jump to 'dest'.
-** (Jump addresses are relative in Cup). 'back' true means
+** (Jump addresses are relative in Acorn). 'back' true means
 ** a back jump.
 */
 static void fixforjump (FuncState *fs, int pc, int dest, int back) {
@@ -1532,7 +1532,7 @@ static void fixforjump (FuncState *fs, int pc, int dest, int back) {
   if (back)
     offset = -offset;
   if (l_unlikely(offset > MAXARG_Bx))
-    cupX_syntaxerror(fs->ls, "control structure too long");
+    acornX_syntaxerror(fs->ls, "control structure too long");
   SETARG_Bx(*jmp, offset);
 }
 
@@ -1548,20 +1548,20 @@ static void forbody (LexState *ls, int base, int line, int nvars, int isgen) {
   FuncState *fs = ls->fs;
   int prep, endfor;
   checknext(ls, TK_DO);
-  prep = cupK_codeABx(fs, forprep[isgen], base, 0);
+  prep = acornK_codeABx(fs, forprep[isgen], base, 0);
   enterblock(fs, &bl, 0);  /* scope for declared variables */
   adjustlocalvars(ls, nvars);
-  cupK_reserveregs(fs, nvars);
+  acornK_reserveregs(fs, nvars);
   block(ls);
   leaveblock(fs);  /* end of scope for declared variables */
-  fixforjump(fs, prep, cupK_getlabel(fs), 0);
+  fixforjump(fs, prep, acornK_getlabel(fs), 0);
   if (isgen) {  /* generic for? */
-    cupK_codeABC(fs, OP_TFORCALL, base, 0, nvars);
-    cupK_fixline(fs, line);
+    acornK_codeABC(fs, OP_TFORCALL, base, 0, nvars);
+    acornK_fixline(fs, line);
   }
-  endfor = cupK_codeABx(fs, forloop[isgen], base, 0);
+  endfor = acornK_codeABx(fs, forloop[isgen], base, 0);
   fixforjump(fs, endfor, prep + 1, 1);
-  cupK_fixline(fs, line);
+  acornK_fixline(fs, line);
 }
 
 
@@ -1580,8 +1580,8 @@ static void fornum (LexState *ls, TString *varname, int line) {
   if (testnext(ls, ','))
     exp1(ls);  /* optional step */
   else {  /* default step = 1 */
-    cupK_int(fs, fs->freereg, 1);
-    cupK_reserveregs(fs, 1);
+    acornK_int(fs, fs->freereg, 1);
+    acornK_reserveregs(fs, 1);
   }
   adjustlocalvars(ls, 3);  /* control variables */
   forbody(ls, base, line, 1, 0);
@@ -1611,7 +1611,7 @@ static void forlist (LexState *ls, TString *indexname) {
   adjust_assign(ls, 4, explist(ls, &e), &e);
   adjustlocalvars(ls, 4);  /* control variables */
   marktobeclosed(fs);  /* last control var. must be closed */
-  cupK_checkstack(fs, 3);  /* extra space to call generator */
+  acornK_checkstack(fs, 3);  /* extra space to call generator */
   forbody(ls, base, line, nvars - 4, 1);
 }
 
@@ -1622,12 +1622,12 @@ static void forstat (LexState *ls, int line) {
   TString *varname;
   BlockCnt bl;
   enterblock(fs, &bl, 1);  /* scope for loop and control variables */
-  cupX_next(ls);  /* skip 'for' */
+  acornX_next(ls);  /* skip 'for' */
   varname = str_checkname(ls);  /* first variable name */
   switch (ls->t.token) {
     case '=': fornum(ls, varname, line); break;
     case ',': case TK_IN: forlist(ls, varname); break;
-    default: cupX_syntaxerror(ls, "'=' or 'in' expected");
+    default: acornX_syntaxerror(ls, "'=' or 'in' expected");
   }
   check_match(ls, TK_END, TK_FOR, line);
   leaveblock(fs);  /* loop scope ('break' jumps to this point) */
@@ -1640,25 +1640,25 @@ static void test_then_block (LexState *ls, int *escapelist) {
   FuncState *fs = ls->fs;
   expdesc v;
   int jf;  /* instruction to skip 'then' code (if condition is false) */
-  cupX_next(ls);  /* skip IF or ELSEIF */
+  acornX_next(ls);  /* skip IF or ELSEIF */
   expr(ls, &v);  /* read condition */
   checknext(ls, TK_THEN);
   if (ls->t.token == TK_BREAK) {  /* 'if x then break' ? */
     int line = ls->linenumber;
-    cupK_Cupiffalse(ls->fs, &v);  /* will jump if condition is true */
-    cupX_next(ls);  /* skip 'break' */
+    acornK_Acorniffalse(ls->fs, &v);  /* will jump if condition is true */
+    acornX_next(ls);  /* skip 'break' */
     enterblock(fs, &bl, 0);  /* must enter block before 'goto' */
-    newgotoentry(ls, cupS_newliteral(ls->L, "break"), line, v.t);
+    newgotoentry(ls, acornS_newliteral(ls->L, "break"), line, v.t);
     while (testnext(ls, ';')) {}  /* skip semicolons */
     if (block_follow(ls, 0)) {  /* jump is the entire block? */
       leaveblock(fs);
       return;  /* and that is it */
     }
     else  /* must skip over 'then' part if condition is false */
-      jf = cupK_jump(fs);
+      jf = acornK_jump(fs);
   }
   else {  /* regular case (not a break) */
-    cupK_Cupiftrue(ls->fs, &v);  /* skip over block if condition is false */
+    acornK_Acorniftrue(ls->fs, &v);  /* skip over block if condition is false */
     enterblock(fs, &bl, 0);
     jf = v.f;
   }
@@ -1666,8 +1666,8 @@ static void test_then_block (LexState *ls, int *escapelist) {
   leaveblock(fs);
   if (ls->t.token == TK_ELSE ||
       ls->t.token == TK_ELSEIF)  /* followed by 'else'/'elseif'? */
-    cupK_concat(fs, escapelist, cupK_jump(fs));  /* must jump over it */
-  cupK_patchtohere(fs, jf);
+    acornK_concat(fs, escapelist, acornK_jump(fs));  /* must jump over it */
+  acornK_patchtohere(fs, jf);
 }
 
 
@@ -1681,7 +1681,7 @@ static void ifstat (LexState *ls, int line) {
   if (testnext(ls, TK_ELSE))
     block(ls);  /* 'else' part */
   check_match(ls, TK_END, TK_IF, line);
-  cupK_patchtohere(fs, escapelist);  /* patch escape list to 'if' end */
+  acornK_patchtohere(fs, escapelist);  /* patch escape list to 'if' end */
 }
 
 
@@ -1707,8 +1707,8 @@ static int getlocalattribute (LexState *ls) {
     else if (strcmp(attr, "close") == 0)
       return RDKTOCLOSE;  /* to-be-closed variable */
     else
-      cupK_semerror(ls,
-        cupO_pushfstring(ls->L, "unknown attribute '%s'", attr));
+      acornK_semerror(ls,
+        acornO_pushfstring(ls->L, "unknown attribute '%s'", attr));
   }
   return VDKREG;  /* regular variable */
 }
@@ -1717,7 +1717,7 @@ static int getlocalattribute (LexState *ls) {
 static void checktoclose (FuncState *fs, int level) {
   if (level != -1) {  /* is there a to-be-closed variable? */
     marktobeclosed(fs);
-    cupK_codeABC(fs, OP_TBC, reglevel(fs, level), 0, 0);
+    acornK_codeABC(fs, OP_TBC, reglevel(fs, level), 0, 0);
   }
 }
 
@@ -1737,7 +1737,7 @@ static void localstat (LexState *ls) {
     getlocalvardesc(fs, vidx)->vd.kind = kind;
     if (kind == RDKTOCLOSE) {  /* to-be-closed? */
       if (toclose != -1)  /* one already present? */
-        cupK_semerror(ls, "multiple to-be-closed variables in local list");
+        acornK_semerror(ls, "multiple to-be-closed variables in local list");
       toclose = fs->nactvar + nvars;
     }
     nvars++;
@@ -1751,7 +1751,7 @@ static void localstat (LexState *ls) {
   var = getlocalvardesc(fs, vidx);  /* get last variable */
   if (nvars == nexps &&  /* no adjustments? */
       var->vd.kind == RDKCONST &&  /* last variable is const? */
-      cupK_exp2const(fs, &e, &var->k)) {  /* compile-time constant? */
+      acornK_exp2const(fs, &e, &var->k)) {  /* compile-time constant? */
     var->vd.kind = RDKCTC;  /* variable is a compile-time constant */
     adjustlocalvars(ls, nvars - 1);  /* exclude last variable */
     fs->nactvar++;  /* but count it */
@@ -1782,12 +1782,12 @@ static void funcstat (LexState *ls, int line) {
   /* funcstat -> FUNCTION funcname body */
   int ismethod;
   expdesc v, b;
-  cupX_next(ls);  /* skip FUNCTION */
+  acornX_next(ls);  /* skip FUNCTION */
   ismethod = funcname(ls, &v);
   body(ls, &b, ismethod, line);
   check_readonly(ls, &v);
-  cupK_storevar(ls->fs, &v, &b);
-  cupK_fixline(ls->fs, line);  /* definition "happens" in the first line */
+  acornK_storevar(ls->fs, &v, &b);
+  acornK_fixline(ls->fs, line);  /* definition "happens" in the first line */
 }
 
 
@@ -1814,29 +1814,29 @@ static void retstat (LexState *ls) {
   FuncState *fs = ls->fs;
   expdesc e;
   int nret;  /* number of values being returned */
-  int first = cupY_nvarstack(fs);  /* first slot to be returned */
+  int first = acornY_nvarstack(fs);  /* first slot to be returned */
   if (block_follow(ls, 1) || ls->t.token == ';')
     nret = 0;  /* return no values */
   else {
     nret = explist(ls, &e);  /* optional return values */
     if (hasmultret(e.k)) {
-      cupK_setmultret(fs, &e);
+      acornK_setmultret(fs, &e);
       if (e.k == VCALL && nret == 1 && !fs->bl->insidetbc) {  /* tail call? */
         SET_OPCODE(getinstruction(fs,&e), OP_TAILCALL);
-        cup_assert(GETARG_A(getinstruction(fs,&e)) == cupY_nvarstack(fs));
+        acorn_assert(GETARG_A(getinstruction(fs,&e)) == acornY_nvarstack(fs));
       }
-      nret = CUP_MULTRET;  /* return all values */
+      nret = ACORN_MULTRET;  /* return all values */
     }
     else {
       if (nret == 1)  /* only one single value? */
-        first = cupK_exp2anyreg(fs, &e);  /* can use original slot */
-      else {  /* values must Cup to the top of the stack */
-        cupK_exp2nextreg(fs, &e);
-        cup_assert(nret == fs->freereg - first);
+        first = acornK_exp2anyreg(fs, &e);  /* can use original slot */
+      else {  /* values must Acorn to the top of the stack */
+        acornK_exp2nextreg(fs, &e);
+        acorn_assert(nret == fs->freereg - first);
       }
     }
   }
-  cupK_ret(fs, first, nret);
+  acornK_ret(fs, first, nret);
   testnext(ls, ';');  /* skip optional semicolon */
 }
 
@@ -1846,7 +1846,7 @@ static void statement (LexState *ls) {
   enterlevel(ls);
   switch (ls->t.token) {
     case ';': {  /* stat -> ';' (empty statement) */
-      cupX_next(ls);  /* skip ';' */
+      acornX_next(ls);  /* skip ';' */
       break;
     }
     case TK_IF: {  /* stat -> ifstat */
@@ -1858,7 +1858,7 @@ static void statement (LexState *ls) {
       break;
     }
     case TK_DO: {  /* stat -> DO block END */
-      cupX_next(ls);  /* skip DO */
+      acornX_next(ls);  /* skip DO */
       block(ls);
       check_match(ls, TK_END, TK_DO, line);
       break;
@@ -1876,7 +1876,7 @@ static void statement (LexState *ls) {
       break;
     }
     case TK_LOCAL: {  /* stat -> localstat */
-      cupX_next(ls);  /* skip LOCAL */
+      acornX_next(ls);  /* skip LOCAL */
       if (testnext(ls, TK_FUNCTION))  /* local function? */
         localfunc(ls);
       else
@@ -1884,12 +1884,12 @@ static void statement (LexState *ls) {
       break;
     }
     case TK_DBCOLON: {  /* stat -> label */
-      cupX_next(ls);  /* skip double colon */
+      acornX_next(ls);  /* skip double colon */
       labelstat(ls, str_checkname(ls), line);
       break;
     }
     case TK_RETURN: {  /* stat -> retstat */
-      cupX_next(ls);  /* skip RETURN */
+      acornX_next(ls);  /* skip RETURN */
       retstat(ls);
       break;
     }
@@ -1898,7 +1898,7 @@ static void statement (LexState *ls) {
       break;
     }
     case TK_goto: {  /* stat -> 'goto' NAME */
-      cupX_next(ls);  /* skip 'goto' */
+      acornX_next(ls);  /* skip 'goto' */
       gotostat(ls);
       break;
     }
@@ -1907,9 +1907,9 @@ static void statement (LexState *ls) {
       break;
     }
   }
-  cup_assert(ls->fs->f->maxstacksize >= ls->fs->freereg &&
-             ls->fs->freereg >= cupY_nvarstack(ls->fs));
-  ls->fs->freereg = cupY_nvarstack(ls->fs);  /* free registers */
+  acorn_assert(ls->fs->f->maxstacksize >= ls->fs->freereg &&
+             ls->fs->freereg >= acornY_nvarstack(ls->fs));
+  ls->fs->freereg = acornY_nvarstack(ls->fs);  /* free registers */
   leavelevel(ls);
 }
 
@@ -1918,48 +1918,48 @@ static void statement (LexState *ls) {
 
 /*
 ** compiles the main function, which is a regular vararg function with an
-** upvalue named CUP_ENV
+** upvalue named ACORN_ENV
 */
 static void mainfunc (LexState *ls, FuncState *fs) {
   BlockCnt bl;
   Upvaldesc *env;
   open_func(ls, fs, &bl);
   setvararg(fs, 0);  /* main function is always declared vararg */
-  env = allocupvalue(fs);  /* ...set environment upvalue */
+  env = alloacornvalue(fs);  /* ...set environment upvalue */
   env->instack = 1;
   env->idx = 0;
   env->kind = VDKREG;
   env->name = ls->envn;
-  cupC_objbarrier(ls->L, fs->f, env->name);
-  cupX_next(ls);  /* read first token */
+  acornC_objbarrier(ls->L, fs->f, env->name);
+  acornX_next(ls);  /* read first token */
   statlist(ls);  /* parse main body */
   check(ls, TK_EOS);
   close_func(ls);
 }
 
 
-LClosure *cupY_parser (cup_State *L, ZIO *z, Mbuffer *buff,
+LClosure *acornY_parser (acorn_State *L, ZIO *z, Mbuffer *buff,
                        Dyndata *dyd, const char *name, int firstchar) {
   LexState lexstate;
   FuncState funcstate;
-  LClosure *cl = cupF_newLclosure(L, 1);  /* create main closure */
+  LClosure *cl = acornF_newLclosure(L, 1);  /* create main closure */
   setclLvalue2s(L, L->top, cl);  /* anchor it (to avoid being collected) */
-  cupD_inctop(L);
-  lexstate.h = cupH_new(L);  /* create table for scanner */
+  acornD_inctop(L);
+  lexstate.h = acornH_new(L);  /* create table for scanner */
   sethvalue2s(L, L->top, lexstate.h);  /* anchor it */
-  cupD_inctop(L);
-  funcstate.f = cl->p = cupF_newproto(L);
-  cupC_objbarrier(L, cl, cl->p);
-  funcstate.f->source = cupS_new(L, name);  /* create and anchor TString */
-  cupC_objbarrier(L, funcstate.f, funcstate.f->source);
+  acornD_inctop(L);
+  funcstate.f = cl->p = acornF_newproto(L);
+  acornC_objbarrier(L, cl, cl->p);
+  funcstate.f->source = acornS_new(L, name);  /* create and anchor TString */
+  acornC_objbarrier(L, funcstate.f, funcstate.f->source);
   lexstate.buff = buff;
   lexstate.dyd = dyd;
   dyd->actvar.n = dyd->gt.n = dyd->label.n = 0;
-  cupX_setinput(L, &lexstate, z, funcstate.f->source, firstchar);
+  acornX_setinput(L, &lexstate, z, funcstate.f->source, firstchar);
   mainfunc(&lexstate, &funcstate);
-  cup_assert(!funcstate.prev && funcstate.nups == 1 && !lexstate.fs);
+  acorn_assert(!funcstate.prev && funcstate.nups == 1 && !lexstate.fs);
   /* all scopes should be correctly finished */
-  cup_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0);
+  acorn_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0);
   L->top--;  /* remove scanner's table */
   return cl;  /* closure is on the stack, too */
 }

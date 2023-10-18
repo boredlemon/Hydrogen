@@ -1,7 +1,7 @@
 /*
 ** $Id: lapi.h $
-** Auxiliary functions from Cup API
-** See Copyright Notice in cup.h
+** Auxiliary functions from Acorn API
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lapi_h
@@ -23,7 +23,7 @@
 ** increases its stack space ('L->ci->top').
 */
 #define adjustresults(L,nres) \
-    { if ((nres) <= CUP_MULTRET && L->ci->top < L->top) L->ci->top = L->top; }
+    { if ((nres) <= ACORN_MULTRET && L->ci->top < L->top) L->ci->top = L->top; }
 
 
 /* Ensure the stack has at least 'n' elements */
@@ -40,7 +40,7 @@
 ** variables to be closed, have an extra check.
 */
 
-#define hastocloseCfunc(n)	((n) < CUP_MULTRET)
+#define hastocloseCfunc(n)	((n) < ACORN_MULTRET)
 
 /* Map [-1, inf) (range of 'nresults') into (-inf, -2] */
 #define codeNresults(n)		(-(n) - 3)

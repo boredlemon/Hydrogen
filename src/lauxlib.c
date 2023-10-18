@@ -1,11 +1,11 @@
 /*
 ** $Id: lauxlib.c $
-** Auxiliary functions for building Cup libraries
-** See Copyright Notice in cup.h
+** Auxiliary functions for building Acorn libraries
+** See Copyright Notice in acorn.h
 */
 
 #define lauxlib_c
-#define CUP_LIB
+#define ACORN_LIB
 
 #include "lprefix.h"
 
@@ -18,11 +18,11 @@
 
 
 /*
-** This file uses only the official API of Cup.
+** This file uses only the official API of Acorn.
 ** Any function declared here could be written as an application function.
 */
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lauxlib.h"
 
@@ -47,27 +47,27 @@
 
 /*
 ** Search for 'objidx' in table at index -1. ('objidx' must be an
-** absolute index.) Return 1 + string at top if it found a Cupod name.
+** absolute index.) Return 1 + string at top if it found a Acornod name.
 */
-static int findfield (cup_State *L, int objidx, int level) {
-  if (level == 0 || !cup_istable(L, -1))
+static int findfield (acorn_State *L, int objidx, int level) {
+  if (level == 0 || !acorn_istable(L, -1))
     return 0;  /* not found */
-  cup_pushnil(L);  /* start 'next' loop */
-  while (cup_next(L, -2)) {  /* for each pair in table */
-    if (cup_type(L, -2) == CUP_TSTRING) {  /* ignore non-string keys */
-      if (cup_rawequal(L, objidx, -1)) {  /* found object? */
-        cup_pop(L, 1);  /* remove value (but keep name) */
+  acorn_pushnil(L);  /* start 'next' loop */
+  while (acorn_next(L, -2)) {  /* for each pair in table */
+    if (acorn_type(L, -2) == ACORN_TSTRING) {  /* ignore non-string keys */
+      if (acorn_rawequal(L, objidx, -1)) {  /* found object? */
+        acorn_pop(L, 1);  /* remove value (but keep name) */
         return 1;
       }
       else if (findfield(L, objidx, level - 1)) {  /* try recursively */
         /* stack: lib_name, lib_table, field_name (top) */
-        cup_pushliteral(L, ".");  /* place '.' between the two names */
-        cup_replace(L, -3);  /* (in the slot occupied by table) */
-        cup_concat(L, 3);  /* lib_name.field_name */
+        acorn_pushliteral(L, ".");  /* place '.' between the two names */
+        acorn_replace(L, -3);  /* (in the slot ocacornied by table) */
+        acorn_concat(L, 3);  /* lib_name.field_name */
         return 1;
       }
     }
-    cup_pop(L, 1);  /* remove value */
+    acorn_pop(L, 1);  /* remove value */
   }
   return 0;  /* not found */
 }
@@ -76,91 +76,91 @@ static int findfield (cup_State *L, int objidx, int level) {
 /*
 ** Search for a name for a function in all loaded modules
 */
-static int pushglobalfuncname (cup_State *L, cup_Debug *ar) {
-  int top = cup_gettop(L);
-  cup_getinfo(L, "f", ar);  /* push function */
-  cup_getfield(L, CUP_REGISTRYINDEX, CUP_LOADED_TABLE);
+static int pushglobalfuncname (acorn_State *L, acorn_Debug *ar) {
+  int top = acorn_gettop(L);
+  acorn_getinfo(L, "f", ar);  /* push function */
+  acorn_getfield(L, ACORN_REGISTRYINDEX, ACORN_LOADED_TABLE);
   if (findfield(L, top + 1, 2)) {
-    const char *name = cup_tostring(L, -1);
-    if (strncmp(name, CUP_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
-      cup_pushstring(L, name + 3);  /* push name without prefix */
-      cup_remove(L, -2);  /* remove original name */
+    const char *name = acorn_tostring(L, -1);
+    if (strncmp(name, ACORN_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
+      acorn_pushstring(L, name + 3);  /* push name without prefix */
+      acorn_remove(L, -2);  /* remove original name */
     }
-    cup_copy(L, -1, top + 1);  /* copy name to proper place */
-    cup_settop(L, top + 1);  /* remove table "loaded" and name copy */
+    acorn_copy(L, -1, top + 1);  /* copy name to proper place */
+    acorn_settop(L, top + 1);  /* remove table "loaded" and name copy */
     return 1;
   }
   else {
-    cup_settop(L, top);  /* remove function and global table */
+    acorn_settop(L, top);  /* remove function and global table */
     return 0;
   }
 }
 
 
-static void pushfuncname (cup_State *L, cup_Debug *ar) {
+static void pushfuncname (acorn_State *L, acorn_Debug *ar) {
   if (pushglobalfuncname(L, ar)) {  /* try first a global name */
-    cup_pushfstring(L, "function '%s'", cup_tostring(L, -1));
-    cup_remove(L, -2);  /* remove name */
+    acorn_pushfstring(L, "function '%s'", acorn_tostring(L, -1));
+    acorn_remove(L, -2);  /* remove name */
   }
   else if (*ar->namewhat != '\0')  /* is there a name from code? */
-    cup_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
+    acorn_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
   else if (*ar->what == 'm')  /* main? */
-      cup_pushliteral(L, "main chunk");
-  else if (*ar->what != 'C')  /* for Cup functions, use <file:line> */
-    cup_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
+      acorn_pushliteral(L, "main chunk");
+  else if (*ar->what != 'C')  /* for Acorn functions, use <file:line> */
+    acorn_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
   else  /* nothing left... */
-    cup_pushliteral(L, "?");
+    acorn_pushliteral(L, "?");
 }
 
 
-static int lastlevel (cup_State *L) {
-  cup_Debug ar;
+static int lastlevel (acorn_State *L) {
+  acorn_Debug ar;
   int li = 1, le = 1;
   /* find an upper bound */
-  while (cup_getstack(L, le, &ar)) { li = le; le *= 2; }
+  while (acorn_getstack(L, le, &ar)) { li = le; le *= 2; }
   /* do a binary search */
   while (li < le) {
     int m = (li + le)/2;
-    if (cup_getstack(L, m, &ar)) li = m + 1;
+    if (acorn_getstack(L, m, &ar)) li = m + 1;
     else le = m;
   }
   return le - 1;
 }
 
 
-CUPLIB_API void cupL_traceback (cup_State *L, cup_State *L1,
+ACORNLIB_API void acornL_traceback (acorn_State *L, acorn_State *L1,
                                 const char *msg, int level) {
-  cupL_Buffer b;
-  cup_Debug ar;
+  acornL_Buffer b;
+  acorn_Debug ar;
   int last = lastlevel(L1);
   int limit2show = (last - level > LEVELS1 + LEVELS2) ? LEVELS1 : -1;
-  cupL_buffinit(L, &b);
+  acornL_buffinit(L, &b);
   if (msg) {
-    cupL_addstring(&b, msg);
-    cupL_addchar(&b, '\n');
+    acornL_addstring(&b, msg);
+    acornL_addchar(&b, '\n');
   }
-  cupL_addstring(&b, "stack traceback:");
-  while (cup_getstack(L1, level++, &ar)) {
+  acornL_addstring(&b, "stack traceback:");
+  while (acorn_getstack(L1, level++, &ar)) {
     if (limit2show-- == 0) {  /* too many levels? */
       int n = last - level - LEVELS2 + 1;  /* number of levels to skip */
-      cup_pushfstring(L, "\n\t...\t(skipping %d levels)", n);
-      cupL_addvalue(&b);  /* add warning about skip */
+      acorn_pushfstring(L, "\n\t...\t(skipping %d levels)", n);
+      acornL_addvalue(&b);  /* add warning about skip */
       level += n;  /* and skip to last levels */
     }
     else {
-      cup_getinfo(L1, "Slnt", &ar);
+      acorn_getinfo(L1, "Slnt", &ar);
       if (ar.currentline <= 0)
-        cup_pushfstring(L, "\n\t%s: in ", ar.short_src);
+        acorn_pushfstring(L, "\n\t%s: in ", ar.short_src);
       else
-        cup_pushfstring(L, "\n\t%s:%d: in ", ar.short_src, ar.currentline);
-      cupL_addvalue(&b);
+        acorn_pushfstring(L, "\n\t%s:%d: in ", ar.short_src, ar.currentline);
+      acornL_addvalue(&b);
       pushfuncname(L, &ar);
-      cupL_addvalue(&b);
+      acornL_addvalue(&b);
       if (ar.istailcall)
-        cupL_addstring(&b, "\n\t(...tail calls...)");
+        acornL_addstring(&b, "\n\t(...tail calls...)");
     }
   }
-  cupL_pushresult(&b);
+  acornL_pushresult(&b);
 }
 
 /* }====================================================== */
@@ -172,89 +172,89 @@ CUPLIB_API void cupL_traceback (cup_State *L, cup_State *L1,
 ** =======================================================
 */
 
-CUPLIB_API int cupL_argerror (cup_State *L, int arg, const char *extramsg) {
-  cup_Debug ar;
-  if (!cup_getstack(L, 0, &ar))  /* no stack frame? */
-    return cupL_error(L, "bad argument #%d (%s)", arg, extramsg);
-  cup_getinfo(L, "n", &ar);
+ACORNLIB_API int acornL_argerror (acorn_State *L, int arg, const char *extramsg) {
+  acorn_Debug ar;
+  if (!acorn_getstack(L, 0, &ar))  /* no stack frame? */
+    return acornL_error(L, "bad argument #%d (%s)", arg, extramsg);
+  acorn_getinfo(L, "n", &ar);
   if (strcmp(ar.namewhat, "method") == 0) {
     arg--;  /* do not count 'self' */
     if (arg == 0)  /* error is in the self argument itself? */
-      return cupL_error(L, "calling '%s' on bad self (%s)",
+      return acornL_error(L, "calling '%s' on bad self (%s)",
                            ar.name, extramsg);
   }
   if (ar.name == NULL)
-    ar.name = (pushglobalfuncname(L, &ar)) ? cup_tostring(L, -1) : "?";
-  return cupL_error(L, "bad argument #%d to '%s' (%s)",
+    ar.name = (pushglobalfuncname(L, &ar)) ? acorn_tostring(L, -1) : "?";
+  return acornL_error(L, "bad argument #%d to '%s' (%s)",
                         arg, ar.name, extramsg);
 }
 
 
-CUPLIB_API int cupL_typeerror (cup_State *L, int arg, const char *tname) {
+ACORNLIB_API int acornL_typeerror (acorn_State *L, int arg, const char *tname) {
   const char *msg;
   const char *typearg;  /* name for the type of the actual argument */
-  if (cupL_getmetafield(L, arg, "__name") == CUP_TSTRING)
-    typearg = cup_tostring(L, -1);  /* use the given type name */
-  else if (cup_type(L, arg) == CUP_TLIGHTUSERDATA)
+  if (acornL_getmetafield(L, arg, "__name") == ACORN_TSTRING)
+    typearg = acorn_tostring(L, -1);  /* use the given type name */
+  else if (acorn_type(L, arg) == ACORN_TLIGHTUSERDATA)
     typearg = "light userdata";  /* special name for messages */
   else
-    typearg = cupL_typename(L, arg);  /* standard name */
-  msg = cup_pushfstring(L, "%s expected, Cupt %s", tname, typearg);
-  return cupL_argerror(L, arg, msg);
+    typearg = acornL_typename(L, arg);  /* standard name */
+  msg = acorn_pushfstring(L, "%s expected, Acornt %s", tname, typearg);
+  return acornL_argerror(L, arg, msg);
 }
 
 
-static void tag_error (cup_State *L, int arg, int tag) {
-  cupL_typeerror(L, arg, cup_typename(L, tag));
+static void tag_error (acorn_State *L, int arg, int tag) {
+  acornL_typeerror(L, arg, acorn_typename(L, tag));
 }
 
 
 /*
-** The use of 'cup_pushfstring' ensures this function does not
+** The use of 'acorn_pushfstring' ensures this function does not
 ** need reserved stack space when called.
 */
-CUPLIB_API void cupL_where (cup_State *L, int level) {
-  cup_Debug ar;
-  if (cup_getstack(L, level, &ar)) {  /* check function at level */
-    cup_getinfo(L, "Sl", &ar);  /* get info about it */
+ACORNLIB_API void acornL_where (acorn_State *L, int level) {
+  acorn_Debug ar;
+  if (acorn_getstack(L, level, &ar)) {  /* check function at level */
+    acorn_getinfo(L, "Sl", &ar);  /* get info about it */
     if (ar.currentline > 0) {  /* is there info? */
-      cup_pushfstring(L, "%s:%d: ", ar.short_src, ar.currentline);
+      acorn_pushfstring(L, "%s:%d: ", ar.short_src, ar.currentline);
       return;
     }
   }
-  cup_pushfstring(L, "");  /* else, no information available... */
+  acorn_pushfstring(L, "");  /* else, no information available... */
 }
 
 
 /*
-** Again, the use of 'cup_pushvfstring' ensures this function does
+** Again, the use of 'acorn_pushvfstring' ensures this function does
 ** not need reserved stack space when called. (At worst, it generates
 ** an error with "stack overflow" instead of the given message.)
 */
-CUPLIB_API int cupL_error (cup_State *L, const char *fmt, ...) {
+ACORNLIB_API int acornL_error (acorn_State *L, const char *fmt, ...) {
   va_list argp;
   va_start(argp, fmt);
-  cupL_where(L, 1);
-  cup_pushvfstring(L, fmt, argp);
+  acornL_where(L, 1);
+  acorn_pushvfstring(L, fmt, argp);
   va_end(argp);
-  cup_concat(L, 2);
-  return cup_error(L);
+  acorn_concat(L, 2);
+  return acorn_error(L);
 }
 
 
-CUPLIB_API int cupL_fileresult (cup_State *L, int stat, const char *fname) {
-  int en = errno;  /* calls to Cup API may change this value */
+ACORNLIB_API int acornL_fileresult (acorn_State *L, int stat, const char *fname) {
+  int en = errno;  /* calls to Acorn API may change this value */
   if (stat) {
-    cup_pushboolean(L, 1);
+    acorn_pushboolean(L, 1);
     return 1;
   }
   else {
-    cupL_pushfail(L);
+    acornL_pushfail(L);
     if (fname)
-      cup_pushfstring(L, "%s: %s", fname, strerror(en));
+      acorn_pushfstring(L, "%s: %s", fname, strerror(en));
     else
-      cup_pushstring(L, strerror(en));
-    cup_pushinteger(L, en);
+      acorn_pushstring(L, strerror(en));
+    acorn_pushinteger(L, en);
     return 3;
   }
 }
@@ -262,7 +262,7 @@ CUPLIB_API int cupL_fileresult (cup_State *L, int stat, const char *fname) {
 
 #if !defined(l_inspectstat)	/* { */
 
-#if defined(CUP_USE_POSIX)
+#if defined(ACORN_USE_POSIX)
 
 #include <sys/wait.h>
 
@@ -282,18 +282,18 @@ CUPLIB_API int cupL_fileresult (cup_State *L, int stat, const char *fname) {
 #endif				/* } */
 
 
-CUPLIB_API int cupL_execresult (cup_State *L, int stat) {
+ACORNLIB_API int acornL_execresult (acorn_State *L, int stat) {
   if (stat != 0 && errno != 0)  /* error with an 'errno'? */
-    return cupL_fileresult(L, 0, NULL);
+    return acornL_fileresult(L, 0, NULL);
   else {
     const char *what = "exit";  /* type of termination */
     l_inspectstat(stat, what);  /* interpret result */
     if (*what == 'e' && stat == 0)  /* successful termination? */
-      cup_pushboolean(L, 1);
+      acorn_pushboolean(L, 1);
     else
-      cupL_pushfail(L);
-    cup_pushstring(L, what);
-    cup_pushinteger(L, stat);
+      acornL_pushfail(L);
+    acorn_pushstring(L, what);
+    acorn_pushinteger(L, stat);
     return 3;  /* return true/fail,what,code */
   }
 }
@@ -308,33 +308,33 @@ CUPLIB_API int cupL_execresult (cup_State *L, int stat) {
 ** =======================================================
 */
 
-CUPLIB_API int cupL_newmetatable (cup_State *L, const char *tname) {
-  if (cupL_getmetatable(L, tname) != CUP_TNIL)  /* name already in use? */
+ACORNLIB_API int acornL_newmetatable (acorn_State *L, const char *tname) {
+  if (acornL_getmetatable(L, tname) != ACORN_TNIL)  /* name already in use? */
     return 0;  /* leave previous value on top, but return 0 */
-  cup_pop(L, 1);
-  cup_createtable(L, 0, 2);  /* create metatable */
-  cup_pushstring(L, tname);
-  cup_setfield(L, -2, "__name");  /* metatable.__name = tname */
-  cup_pushvalue(L, -1);
-  cup_setfield(L, CUP_REGISTRYINDEX, tname);  /* registry.name = metatable */
+  acorn_pop(L, 1);
+  acorn_createtable(L, 0, 2);  /* create metatable */
+  acorn_pushstring(L, tname);
+  acorn_setfield(L, -2, "__name");  /* metatable.__name = tname */
+  acorn_pushvalue(L, -1);
+  acorn_setfield(L, ACORN_REGISTRYINDEX, tname);  /* registry.name = metatable */
   return 1;
 }
 
 
-CUPLIB_API void cupL_setmetatable (cup_State *L, const char *tname) {
-  cupL_getmetatable(L, tname);
-  cup_setmetatable(L, -2);
+ACORNLIB_API void acornL_setmetatable (acorn_State *L, const char *tname) {
+  acornL_getmetatable(L, tname);
+  acorn_setmetatable(L, -2);
 }
 
 
-CUPLIB_API void *cupL_testudata (cup_State *L, int ud, const char *tname) {
-  void *p = cup_touserdata(L, ud);
+ACORNLIB_API void *acornL_testudata (acorn_State *L, int ud, const char *tname) {
+  void *p = acorn_touserdata(L, ud);
   if (p != NULL) {  /* value is a userdata? */
-    if (cup_getmetatable(L, ud)) {  /* does it have a metatable? */
-      cupL_getmetatable(L, tname);  /* get correct metatable */
-      if (!cup_rawequal(L, -1, -2))  /* not the same? */
+    if (acorn_getmetatable(L, ud)) {  /* does it have a metatable? */
+      acornL_getmetatable(L, tname);  /* get correct metatable */
+      if (!acorn_rawequal(L, -1, -2))  /* not the same? */
         p = NULL;  /* value is a userdata with wrong metatable */
-      cup_pop(L, 2);  /* remove both metatables */
+      acorn_pop(L, 2);  /* remove both metatables */
       return p;
     }
   }
@@ -342,9 +342,9 @@ CUPLIB_API void *cupL_testudata (cup_State *L, int ud, const char *tname) {
 }
 
 
-CUPLIB_API void *cupL_checkudata (cup_State *L, int ud, const char *tname) {
-  void *p = cupL_testudata(L, ud, tname);
-  cupL_argexpected(L, p != NULL, ud, tname);
+ACORNLIB_API void *acornL_checkudata (acorn_State *L, int ud, const char *tname) {
+  void *p = acornL_testudata(L, ud, tname);
+  acornL_argexpected(L, p != NULL, ud, tname);
   return p;
 }
 
@@ -357,16 +357,16 @@ CUPLIB_API void *cupL_checkudata (cup_State *L, int ud, const char *tname) {
 ** =======================================================
 */
 
-CUPLIB_API int cupL_checkoption (cup_State *L, int arg, const char *def,
+ACORNLIB_API int acornL_checkoption (acorn_State *L, int arg, const char *def,
                                  const char *const lst[]) {
-  const char *name = (def) ? cupL_optstring(L, arg, def) :
-                             cupL_checkstring(L, arg);
+  const char *name = (def) ? acornL_optstring(L, arg, def) :
+                             acornL_checkstring(L, arg);
   int i;
   for (i=0; lst[i]; i++)
     if (strcmp(lst[i], name) == 0)
       return i;
-  return cupL_argerror(L, arg,
-                       cup_pushfstring(L, "invalid option '%s'", name));
+  return acornL_argerror(L, arg,
+                       acorn_pushfstring(L, "invalid option '%s'", name));
 }
 
 
@@ -374,74 +374,74 @@ CUPLIB_API int cupL_checkoption (cup_State *L, int arg, const char *def,
 ** Ensures the stack has at least 'space' extra slots, raising an error
 ** if it cannot fulfill the request. (The error handling needs a few
 ** extra slots to format the error message. In case of an error without
-** this extra space, Cup will generate the same 'stack overflow' error,
+** this extra space, Acorn will generate the same 'stack overflow' error,
 ** but without 'msg'.)
 */
-CUPLIB_API void cupL_checkstack (cup_State *L, int space, const char *msg) {
-  if (l_unlikely(!cup_checkstack(L, space))) {
+ACORNLIB_API void acornL_checkstack (acorn_State *L, int space, const char *msg) {
+  if (l_unlikely(!acorn_checkstack(L, space))) {
     if (msg)
-      cupL_error(L, "stack overflow (%s)", msg);
+      acornL_error(L, "stack overflow (%s)", msg);
     else
-      cupL_error(L, "stack overflow");
+      acornL_error(L, "stack overflow");
   }
 }
 
 
-CUPLIB_API void cupL_checktype (cup_State *L, int arg, int t) {
-  if (l_unlikely(cup_type(L, arg) != t))
+ACORNLIB_API void acornL_checktype (acorn_State *L, int arg, int t) {
+  if (l_unlikely(acorn_type(L, arg) != t))
     tag_error(L, arg, t);
 }
 
 
-CUPLIB_API void cupL_checkany (cup_State *L, int arg) {
-  if (l_unlikely(cup_type(L, arg) == CUP_TNONE))
-    cupL_argerror(L, arg, "value expected");
+ACORNLIB_API void acornL_checkany (acorn_State *L, int arg) {
+  if (l_unlikely(acorn_type(L, arg) == ACORN_TNONE))
+    acornL_argerror(L, arg, "value expected");
 }
 
 
-CUPLIB_API const char *cupL_checklstring (cup_State *L, int arg, size_t *len) {
-  const char *s = cup_tolstring(L, arg, len);
-  if (l_unlikely(!s)) tag_error(L, arg, CUP_TSTRING);
+ACORNLIB_API const char *acornL_checklstring (acorn_State *L, int arg, size_t *len) {
+  const char *s = acorn_tolstring(L, arg, len);
+  if (l_unlikely(!s)) tag_error(L, arg, ACORN_TSTRING);
   return s;
 }
 
 
-CUPLIB_API const char *cupL_optlstring (cup_State *L, int arg,
+ACORNLIB_API const char *acornL_optlstring (acorn_State *L, int arg,
                                         const char *def, size_t *len) {
-  if (cup_isnoneornil(L, arg)) {
+  if (acorn_isnoneornil(L, arg)) {
     if (len)
       *len = (def ? strlen(def) : 0);
     return def;
   }
-  else return cupL_checklstring(L, arg, len);
+  else return acornL_checklstring(L, arg, len);
 }
 
 
-CUPLIB_API cup_Number cupL_checknumber (cup_State *L, int arg) {
+ACORNLIB_API acorn_Number acornL_checknumber (acorn_State *L, int arg) {
   int isnum;
-  cup_Number d = cup_tonumberx(L, arg, &isnum);
+  acorn_Number d = acorn_tonumberx(L, arg, &isnum);
   if (l_unlikely(!isnum))
-    tag_error(L, arg, CUP_TNUMBER);
+    tag_error(L, arg, ACORN_TNUMBER);
   return d;
 }
 
 
-CUPLIB_API cup_Number cupL_optnumber (cup_State *L, int arg, cup_Number def) {
-  return cupL_opt(L, cupL_checknumber, arg, def);
+ACORNLIB_API acorn_Number acornL_optnumber (acorn_State *L, int arg, acorn_Number def) {
+  return acornL_opt(L, acornL_checknumber, arg, def);
 }
 
 
-static void interror (cup_State *L, int arg) {
-  if (cup_isnumber(L, arg))
-    cupL_argerror(L, arg, "number has no integer representation");
+static void interror (acorn_State *L, int arg) {
+  if (acorn_isnumber(L, arg))
+    acornL_argerror(L, arg, "number has no integer representation");
   else
-    tag_error(L, arg, CUP_TNUMBER);
+    tag_error(L, arg, ACORN_TNUMBER);
 }
 
 
-CUPLIB_API cup_Integer cupL_checkinteger (cup_State *L, int arg) {
+ACORNLIB_API acorn_Integer acornL_checkinteger (acorn_State *L, int arg) {
   int isnum;
-  cup_Integer d = cup_tointegerx(L, arg, &isnum);
+  acorn_Integer d = acorn_tointegerx(L, arg, &isnum);
   if (l_unlikely(!isnum)) {
     interror(L, arg);
   }
@@ -449,9 +449,9 @@ CUPLIB_API cup_Integer cupL_checkinteger (cup_State *L, int arg) {
 }
 
 
-CUPLIB_API cup_Integer cupL_optinteger (cup_State *L, int arg,
-                                                      cup_Integer def) {
-  return cupL_opt(L, cupL_checkinteger, arg, def);
+ACORNLIB_API acorn_Integer acornL_optinteger (acorn_State *L, int arg,
+                                                      acorn_Integer def) {
+  return acornL_opt(L, acornL_checkinteger, arg, def);
 }
 
 /* }====================================================== */
@@ -470,14 +470,14 @@ typedef struct UBox {
 } UBox;
 
 
-static void *resizebox (cup_State *L, int idx, size_t newsize) {
+static void *resizebox (acorn_State *L, int idx, size_t newsize) {
   void *ud;
-  cup_Alloc allocf = cup_getallocf(L, &ud);
-  UBox *box = (UBox *)cup_touserdata(L, idx);
+  acorn_Alloc allocf = acorn_getallocf(L, &ud);
+  UBox *box = (UBox *)acorn_touserdata(L, idx);
   void *temp = allocf(ud, box->box, box->bsize, newsize);
   if (l_unlikely(temp == NULL && newsize > 0)) {  /* allocation error? */
-    cup_pushliteral(L, "not enough memory");
-    cup_error(L);  /* raise a memory error */
+    acorn_pushliteral(L, "not enough memory");
+    acorn_error(L);  /* raise a memory error */
   }
   box->box = temp;
   box->bsize = newsize;
@@ -485,26 +485,26 @@ static void *resizebox (cup_State *L, int idx, size_t newsize) {
 }
 
 
-static int boxgc (cup_State *L) {
+static int boxgc (acorn_State *L) {
   resizebox(L, 1, 0);
   return 0;
 }
 
 
-static const cupL_Reg boxmt[] = {  /* box metamethods */
+static const acornL_Reg boxmt[] = {  /* box metamethods */
   {"__gc", boxgc},
   {"__close", boxgc},
   {NULL, NULL}
 };
 
 
-static void newbox (cup_State *L) {
-  UBox *box = (UBox *)cup_newuserdatauv(L, sizeof(UBox), 0);
+static void newbox (acorn_State *L) {
+  UBox *box = (UBox *)acorn_newuserdatauv(L, sizeof(UBox), 0);
   box->box = NULL;
   box->bsize = 0;
-  if (cupL_newmetatable(L, "_UBOX*"))  /* creating metatable? */
-    cupL_setfuncs(L, boxmt, 0);  /* set its metamethods */
-  cup_setmetatable(L, -2);
+  if (acornL_newmetatable(L, "_UBOX*"))  /* creating metatable? */
+    acornL_setfuncs(L, boxmt, 0);  /* set its metamethods */
+  acorn_setmetatable(L, -2);
 }
 
 
@@ -520,18 +520,18 @@ static void newbox (cup_State *L) {
 ** cannot be NULL) or it is a placeholder for the buffer.
 */
 #define checkbufferlevel(B,idx)  \
-  cup_assert(buffonstack(B) ? cup_touserdata(B->L, idx) != NULL  \
-                            : cup_touserdata(B->L, idx) == (void*)B)
+  acorn_assert(buffonstack(B) ? acorn_touserdata(B->L, idx) != NULL  \
+                            : acorn_touserdata(B->L, idx) == (void*)B)
 
 
 /*
 ** Compute new size for buffer 'B', enough to accommodate extra 'sz'
 ** bytes.
 */
-static size_t newbuffsize (cupL_Buffer *B, size_t sz) {
+static size_t newbuffsize (acornL_Buffer *B, size_t sz) {
   size_t newsize = B->size * 2;  /* double buffer size */
   if (l_unlikely(MAX_SIZET - sz < B->n))  /* overflow in (B->n + sz)? */
-    return cupL_error(B->L, "buffer too large");
+    return acornL_error(B->L, "buffer too large");
   if (newsize < B->n + sz)  /* double is not big enough? */
     newsize = B->n + sz;
   return newsize;
@@ -543,22 +543,22 @@ static size_t newbuffsize (cupL_Buffer *B, size_t sz) {
 ** 'B'. 'boxidx' is the relative position in the stack where is the
 ** buffer's box or its placeholder.
 */
-static char *prepbuffsize (cupL_Buffer *B, size_t sz, int boxidx) {
+static char *prepbuffsize (acornL_Buffer *B, size_t sz, int boxidx) {
   checkbufferlevel(B, boxidx);
   if (B->size - B->n >= sz)  /* enough space? */
     return B->b + B->n;
   else {
-    cup_State *L = B->L;
+    acorn_State *L = B->L;
     char *newbuff;
     size_t newsize = newbuffsize(B, sz);
     /* create larger buffer */
     if (buffonstack(B))  /* buffer already has a box? */
       newbuff = (char *)resizebox(L, boxidx, newsize);  /* resize it */
     else {  /* no box yet */
-      cup_remove(L, boxidx);  /* remove placeholder */
+      acorn_remove(L, boxidx);  /* remove placeholder */
       newbox(L);  /* create a new box */
-      cup_insert(L, boxidx);  /* move box to its intended position */
-      cup_toclose(L, boxidx);
+      acorn_insert(L, boxidx);  /* move box to its intended position */
+      acorn_toclose(L, boxidx);
       newbuff = (char *)resizebox(L, boxidx, newsize);
       memcpy(newbuff, B->b, B->n * sizeof(char));  /* copy original content */
     }
@@ -571,72 +571,72 @@ static char *prepbuffsize (cupL_Buffer *B, size_t sz, int boxidx) {
 /*
 ** returns a pointer to a free area with at least 'sz' bytes
 */
-CUPLIB_API char *cupL_prepbuffsize (cupL_Buffer *B, size_t sz) {
+ACORNLIB_API char *acornL_prepbuffsize (acornL_Buffer *B, size_t sz) {
   return prepbuffsize(B, sz, -1);
 }
 
 
-CUPLIB_API void cupL_addlstring (cupL_Buffer *B, const char *s, size_t l) {
+ACORNLIB_API void acornL_addlstring (acornL_Buffer *B, const char *s, size_t l) {
   if (l > 0) {  /* avoid 'memcpy' when 's' can be NULL */
     char *b = prepbuffsize(B, l, -1);
     memcpy(b, s, l * sizeof(char));
-    cupL_addsize(B, l);
+    acornL_addsize(B, l);
   }
 }
 
 
-CUPLIB_API void cupL_addstring (cupL_Buffer *B, const char *s) {
-  cupL_addlstring(B, s, strlen(s));
+ACORNLIB_API void acornL_addstring (acornL_Buffer *B, const char *s) {
+  acornL_addlstring(B, s, strlen(s));
 }
 
 
-CUPLIB_API void cupL_pushresult (cupL_Buffer *B) {
-  cup_State *L = B->L;
+ACORNLIB_API void acornL_pushresult (acornL_Buffer *B) {
+  acorn_State *L = B->L;
   checkbufferlevel(B, -1);
-  cup_pushlstring(L, B->b, B->n);
+  acorn_pushlstring(L, B->b, B->n);
   if (buffonstack(B))
-    cup_closeslot(L, -2);  /* close the box */
-  cup_remove(L, -2);  /* remove box or placeholder from the stack */
+    acorn_closeslot(L, -2);  /* close the box */
+  acorn_remove(L, -2);  /* remove box or placeholder from the stack */
 }
 
 
-CUPLIB_API void cupL_pushresultsize (cupL_Buffer *B, size_t sz) {
-  cupL_addsize(B, sz);
-  cupL_pushresult(B);
+ACORNLIB_API void acornL_pushresultsize (acornL_Buffer *B, size_t sz) {
+  acornL_addsize(B, sz);
+  acornL_pushresult(B);
 }
 
 
 /*
-** 'cupL_addvalue' is the only function in the Buffer system where the
+** 'acornL_addvalue' is the only function in the Buffer system where the
 ** box (if existent) is not on the top of the stack. So, instead of
-** calling 'cupL_addlstring', it replicates the code using -2 as the
+** calling 'acornL_addlstring', it replicates the code using -2 as the
 ** last argument to 'prepbuffsize', signaling that the box is (or will
 ** be) bellow the string being added to the buffer. (Box creation can
 ** trigger an emergency GC, so we should not remove the string from the
 ** stack before we have the space guaranteed.)
 */
-CUPLIB_API void cupL_addvalue (cupL_Buffer *B) {
-  cup_State *L = B->L;
+ACORNLIB_API void acornL_addvalue (acornL_Buffer *B) {
+  acorn_State *L = B->L;
   size_t len;
-  const char *s = cup_tolstring(L, -1, &len);
+  const char *s = acorn_tolstring(L, -1, &len);
   char *b = prepbuffsize(B, len, -2);
   memcpy(b, s, len * sizeof(char));
-  cupL_addsize(B, len);
-  cup_pop(L, 1);  /* pop string */
+  acornL_addsize(B, len);
+  acorn_pop(L, 1);  /* pop string */
 }
 
 
-CUPLIB_API void cupL_buffinit (cup_State *L, cupL_Buffer *B) {
+ACORNLIB_API void acornL_buffinit (acorn_State *L, acornL_Buffer *B) {
   B->L = L;
   B->b = B->init.b;
   B->n = 0;
-  B->size = CUPL_BUFFERSIZE;
-  cup_pushlightuserdata(L, (void*)B);  /* push placeholder */
+  B->size = ACORNL_BUFFERSIZE;
+  acorn_pushlightuserdata(L, (void*)B);  /* push placeholder */
 }
 
 
-CUPLIB_API char *cupL_buffinitsize (cup_State *L, cupL_Buffer *B, size_t sz) {
-  cupL_buffinit(L, B);
+ACORNLIB_API char *acornL_buffinitsize (acorn_State *L, acornL_Buffer *B, size_t sz) {
+  acornL_buffinit(L, B);
   return prepbuffsize(B, sz, -1);
 }
 
@@ -650,49 +650,49 @@ CUPLIB_API char *cupL_buffinitsize (cup_State *L, cupL_Buffer *B, size_t sz) {
 */
 
 /* index of free-list header (after the predefined values) */
-#define freelist	(CUP_RIDX_LAST + 1)
+#define freelist	(ACORN_RIDX_LAST + 1)
 
 /*
 ** The previously freed references form a linked list:
 ** t[freelist] is the index of a first free index, or zero if list is
 ** empty; t[t[freelist]] is the index of the second element; etc.
 */
-CUPLIB_API int cupL_ref (cup_State *L, int t) {
+ACORNLIB_API int acornL_ref (acorn_State *L, int t) {
   int ref;
-  if (cup_isnil(L, -1)) {
-    cup_pop(L, 1);  /* remove from stack */
-    return CUP_REFNIL;  /* 'nil' has a unique fixed reference */
+  if (acorn_isnil(L, -1)) {
+    acorn_pop(L, 1);  /* remove from stack */
+    return ACORN_REFNIL;  /* 'nil' has a unique fixed reference */
   }
-  t = cup_absindex(L, t);
-  if (cup_rawgeti(L, t, freelist) == CUP_TNIL) {  /* first access? */
+  t = acorn_absindex(L, t);
+  if (acorn_rawgeti(L, t, freelist) == ACORN_TNIL) {  /* first access? */
     ref = 0;  /* list is empty */
-    cup_pushinteger(L, 0);  /* initialize as an empty list */
-    cup_rawseti(L, t, freelist);  /* ref = t[freelist] = 0 */
+    acorn_pushinteger(L, 0);  /* initialize as an empty list */
+    acorn_rawseti(L, t, freelist);  /* ref = t[freelist] = 0 */
   }
   else {  /* already initialized */
-    cup_assert(cup_isinteger(L, -1));
-    ref = (int)cup_tointeger(L, -1);  /* ref = t[freelist] */
+    acorn_assert(acorn_isinteger(L, -1));
+    ref = (int)acorn_tointeger(L, -1);  /* ref = t[freelist] */
   }
-  cup_pop(L, 1);  /* remove element from stack */
+  acorn_pop(L, 1);  /* remove element from stack */
   if (ref != 0) {  /* any free element? */
-    cup_rawgeti(L, t, ref);  /* remove it from list */
-    cup_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
+    acorn_rawgeti(L, t, ref);  /* remove it from list */
+    acorn_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
   }
   else  /* no free elements */
-    ref = (int)cup_rawlen(L, t) + 1;  /* get a new reference */
-  cup_rawseti(L, t, ref);
+    ref = (int)acorn_rawlen(L, t) + 1;  /* get a new reference */
+  acorn_rawseti(L, t, ref);
   return ref;
 }
 
 
-CUPLIB_API void cupL_unref (cup_State *L, int t, int ref) {
+ACORNLIB_API void acornL_unref (acorn_State *L, int t, int ref) {
   if (ref >= 0) {
-    t = cup_absindex(L, t);
-    cup_rawgeti(L, t, freelist);
-    cup_assert(cup_isinteger(L, -1));
-    cup_rawseti(L, t, ref);  /* t[ref] = t[freelist] */
-    cup_pushinteger(L, ref);
-    cup_rawseti(L, t, freelist);  /* t[freelist] = ref */
+    t = acorn_absindex(L, t);
+    acorn_rawgeti(L, t, freelist);
+    acorn_assert(acorn_isinteger(L, -1));
+    acorn_rawseti(L, t, ref);  /* t[ref] = t[freelist] */
+    acorn_pushinteger(L, ref);
+    acorn_rawseti(L, t, freelist);  /* t[freelist] = ref */
   }
 }
 
@@ -712,7 +712,7 @@ typedef struct LoadF {
 } LoadF;
 
 
-static const char *getF (cup_State *L, void *ud, size_t *size) {
+static const char *getF (acorn_State *L, void *ud, size_t *size) {
   LoadF *lf = (LoadF *)ud;
   (void)L;  /* not used */
   if (lf->n > 0) {  /* are there pre-read characters to be read? */
@@ -730,12 +730,12 @@ static const char *getF (cup_State *L, void *ud, size_t *size) {
 }
 
 
-static int errfile (cup_State *L, const char *what, int fnameindex) {
+static int errfile (acorn_State *L, const char *what, int fnameindex) {
   const char *serr = strerror(errno);
-  const char *filename = cup_tostring(L, fnameindex) + 1;
-  cup_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
-  cup_remove(L, fnameindex);
-  return CUP_ERRFILE;
+  const char *filename = acorn_tostring(L, fnameindex) + 1;
+  acorn_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
+  acorn_remove(L, fnameindex);
+  return ACORN_ERRFILE;
 }
 
 
@@ -773,38 +773,38 @@ static int skipcomment (LoadF *lf, int *cp) {
 }
 
 
-CUPLIB_API int cupL_loadfilex (cup_State *L, const char *filename,
+ACORNLIB_API int acornL_loadfilex (acorn_State *L, const char *filename,
                                              const char *mode) {
   LoadF lf;
   int status, readstatus;
   int c;
-  int fnameindex = cup_gettop(L) + 1;  /* index of filename on the stack */
+  int fnameindex = acorn_gettop(L) + 1;  /* index of filename on the stack */
   if (filename == NULL) {
-    cup_pushliteral(L, "=stdin");
+    acorn_pushliteral(L, "=stdin");
     lf.f = stdin;
   }
   else {
-    cup_pushfstring(L, "@%s", filename);
+    acorn_pushfstring(L, "@%s", filename);
     lf.f = fopen(filename, "r");
     if (lf.f == NULL) return errfile(L, "open", fnameindex);
   }
   if (skipcomment(&lf, &c))  /* read initial portion */
     lf.buff[lf.n++] = '\n';  /* add line to correct line numbers */
-  if (c == CUP_SIGNATURE[0] && filename) {  /* binary file? */
+  if (c == ACORN_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     skipcomment(&lf, &c);  /* re-read initial portion */
   }
   if (c != EOF)
     lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
-  status = cup_load(L, getF, &lf, cup_tostring(L, -1), mode);
+  status = acorn_load(L, getF, &lf, acorn_tostring(L, -1), mode);
   readstatus = ferror(lf.f);
   if (filename) fclose(lf.f);  /* close file (even in case of errors) */
   if (readstatus) {
-    cup_settop(L, fnameindex);  /* ignore results from 'cup_load' */
+    acorn_settop(L, fnameindex);  /* ignore results from 'acorn_load' */
     return errfile(L, "read", fnameindex);
   }
-  cup_remove(L, fnameindex);
+  acorn_remove(L, fnameindex);
   return status;
 }
 
@@ -815,7 +815,7 @@ typedef struct LoadS {
 } LoadS;
 
 
-static const char *getS (cup_State *L, void *ud, size_t *size) {
+static const char *getS (acorn_State *L, void *ud, size_t *size) {
   LoadS *ls = (LoadS *)ud;
   (void)L;  /* not used */
   if (ls->size == 0) return NULL;
@@ -825,97 +825,97 @@ static const char *getS (cup_State *L, void *ud, size_t *size) {
 }
 
 
-CUPLIB_API int cupL_loadbufferx (cup_State *L, const char *buff, size_t size,
+ACORNLIB_API int acornL_loadbufferx (acorn_State *L, const char *buff, size_t size,
                                  const char *name, const char *mode) {
   LoadS ls;
   ls.s = buff;
   ls.size = size;
-  return cup_load(L, getS, &ls, name, mode);
+  return acorn_load(L, getS, &ls, name, mode);
 }
 
 
-CUPLIB_API int cupL_loadstring (cup_State *L, const char *s) {
-  return cupL_loadbuffer(L, s, strlen(s), s);
+ACORNLIB_API int acornL_loadstring (acorn_State *L, const char *s) {
+  return acornL_loadbuffer(L, s, strlen(s), s);
 }
 
 /* }====================================================== */
 
 
 
-CUPLIB_API int cupL_getmetafield (cup_State *L, int obj, const char *event) {
-  if (!cup_getmetatable(L, obj))  /* no metatable? */
-    return CUP_TNIL;
+ACORNLIB_API int acornL_getmetafield (acorn_State *L, int obj, const char *event) {
+  if (!acorn_getmetatable(L, obj))  /* no metatable? */
+    return ACORN_TNIL;
   else {
     int tt;
-    cup_pushstring(L, event);
-    tt = cup_rawget(L, -2);
-    if (tt == CUP_TNIL)  /* is metafield nil? */
-      cup_pop(L, 2);  /* remove metatable and metafield */
+    acorn_pushstring(L, event);
+    tt = acorn_rawget(L, -2);
+    if (tt == ACORN_TNIL)  /* is metafield nil? */
+      acorn_pop(L, 2);  /* remove metatable and metafield */
     else
-      cup_remove(L, -2);  /* remove only metatable */
+      acorn_remove(L, -2);  /* remove only metatable */
     return tt;  /* return metafield type */
   }
 }
 
 
-CUPLIB_API int cupL_callmeta (cup_State *L, int obj, const char *event) {
-  obj = cup_absindex(L, obj);
-  if (cupL_getmetafield(L, obj, event) == CUP_TNIL)  /* no metafield? */
+ACORNLIB_API int acornL_callmeta (acorn_State *L, int obj, const char *event) {
+  obj = acorn_absindex(L, obj);
+  if (acornL_getmetafield(L, obj, event) == ACORN_TNIL)  /* no metafield? */
     return 0;
-  cup_pushvalue(L, obj);
-  cup_call(L, 1, 1);
+  acorn_pushvalue(L, obj);
+  acorn_call(L, 1, 1);
   return 1;
 }
 
 
-CUPLIB_API cup_Integer cupL_len (cup_State *L, int idx) {
-  cup_Integer l;
+ACORNLIB_API acorn_Integer acornL_len (acorn_State *L, int idx) {
+  acorn_Integer l;
   int isnum;
-  cup_len(L, idx);
-  l = cup_tointegerx(L, -1, &isnum);
+  acorn_len(L, idx);
+  l = acorn_tointegerx(L, -1, &isnum);
   if (l_unlikely(!isnum))
-    cupL_error(L, "object length is not an integer");
-  cup_pop(L, 1);  /* remove object */
+    acornL_error(L, "object length is not an integer");
+  acorn_pop(L, 1);  /* remove object */
   return l;
 }
 
 
-CUPLIB_API const char *cupL_tolstring (cup_State *L, int idx, size_t *len) {
-  idx = cup_absindex(L,idx);
-  if (cupL_callmeta(L, idx, "__tostring")) {  /* metafield? */
-    if (!cup_isstring(L, -1))
-      cupL_error(L, "'__tostring' must return a string");
+ACORNLIB_API const char *acornL_tolstring (acorn_State *L, int idx, size_t *len) {
+  idx = acorn_absindex(L,idx);
+  if (acornL_callmeta(L, idx, "__tostring")) {  /* metafield? */
+    if (!acorn_isstring(L, -1))
+      acornL_error(L, "'__tostring' must return a string");
   }
   else {
-    switch (cup_type(L, idx)) {
-      case CUP_TNUMBER: {
-        if (cup_isinteger(L, idx))
-          cup_pushfstring(L, "%I", (CUPI_UACINT)cup_tointeger(L, idx));
+    switch (acorn_type(L, idx)) {
+      case ACORN_TNUMBER: {
+        if (acorn_isinteger(L, idx))
+          acorn_pushfstring(L, "%I", (ACORNI_UACINT)acorn_tointeger(L, idx));
         else
-          cup_pushfstring(L, "%f", (CUPI_UACNUMBER)cup_tonumber(L, idx));
+          acorn_pushfstring(L, "%f", (ACORNI_UACNUMBER)acorn_tonumber(L, idx));
         break;
       }
-      case CUP_TSTRING:
-        cup_pushvalue(L, idx);
+      case ACORN_TSTRING:
+        acorn_pushvalue(L, idx);
         break;
-      case CUP_TBOOLEAN:
-        cup_pushstring(L, (cup_toboolean(L, idx) ? "true" : "false"));
+      case ACORN_TBOOLEAN:
+        acorn_pushstring(L, (acorn_toboolean(L, idx) ? "true" : "false"));
         break;
-      case CUP_TNIL:
-        cup_pushliteral(L, "nil");
+      case ACORN_TNIL:
+        acorn_pushliteral(L, "nil");
         break;
       default: {
-        int tt = cupL_getmetafield(L, idx, "__name");  /* try name */
-        const char *kind = (tt == CUP_TSTRING) ? cup_tostring(L, -1) :
-                                                 cupL_typename(L, idx);
-        cup_pushfstring(L, "%s: %p", kind, cup_topointer(L, idx));
-        if (tt != CUP_TNIL)
-          cup_remove(L, -2);  /* remove '__name' */
+        int tt = acornL_getmetafield(L, idx, "__name");  /* try name */
+        const char *kind = (tt == ACORN_TSTRING) ? acorn_tostring(L, -1) :
+                                                 acornL_typename(L, idx);
+        acorn_pushfstring(L, "%s: %p", kind, acorn_topointer(L, idx));
+        if (tt != ACORN_TNIL)
+          acorn_remove(L, -2);  /* remove '__name' */
         break;
       }
     }
   }
-  return cup_tolstring(L, -1, len);
+  return acorn_tolstring(L, -1, len);
 }
 
 
@@ -924,20 +924,20 @@ CUPLIB_API const char *cupL_tolstring (cup_State *L, int idx, size_t *len) {
 ** function gets the 'nup' elements at the top as upvalues.
 ** Returns with only the table at the stack.
 */
-CUPLIB_API void cupL_setfuncs (cup_State *L, const cupL_Reg *l, int nup) {
-  cupL_checkstack(L, nup, "too many upvalues");
+ACORNLIB_API void acornL_setfuncs (acorn_State *L, const acornL_Reg *l, int nup) {
+  acornL_checkstack(L, nup, "too many upvalues");
   for (; l->name != NULL; l++) {  /* fill the table with given functions */
     if (l->func == NULL)  /* place holder? */
-      cup_pushboolean(L, 0);
+      acorn_pushboolean(L, 0);
     else {
       int i;
       for (i = 0; i < nup; i++)  /* copy upvalues to the top */
-        cup_pushvalue(L, -nup);
-      cup_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+        acorn_pushvalue(L, -nup);
+      acorn_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
     }
-    cup_setfield(L, -(nup + 2), l->name);
+    acorn_setfield(L, -(nup + 2), l->name);
   }
-  cup_pop(L, nup);  /* remove upvalues */
+  acorn_pop(L, nup);  /* remove upvalues */
 }
 
 
@@ -945,15 +945,15 @@ CUPLIB_API void cupL_setfuncs (cup_State *L, const cupL_Reg *l, int nup) {
 ** ensure that stack[idx][fname] has a table and push that table
 ** into the stack
 */
-CUPLIB_API int cupL_getsubtable (cup_State *L, int idx, const char *fname) {
-  if (cup_getfield(L, idx, fname) == CUP_TTABLE)
+ACORNLIB_API int acornL_getsubtable (acorn_State *L, int idx, const char *fname) {
+  if (acorn_getfield(L, idx, fname) == ACORN_TTABLE)
     return 1;  /* table already there */
   else {
-    cup_pop(L, 1);  /* remove previous result */
-    idx = cup_absindex(L, idx);
-    cup_newtable(L);
-    cup_pushvalue(L, -1);  /* copy to be left at top */
-    cup_setfield(L, idx, fname);  /* assign new table to field */
+    acorn_pop(L, 1);  /* remove previous result */
+    idx = acorn_absindex(L, idx);
+    acorn_newtable(L);
+    acorn_pushvalue(L, -1);  /* copy to be left at top */
+    acorn_setfield(L, idx, fname);  /* assign new table to field */
     return 0;  /* false, because did not find table there */
   }
 }
@@ -965,46 +965,46 @@ CUPLIB_API int cupL_getsubtable (cup_State *L, int idx, const char *fname) {
 ** if 'glb' is true, also registers the result in the global table.
 ** Leaves resulting module on the top.
 */
-CUPLIB_API void cupL_requiref (cup_State *L, const char *modname,
-                               cup_CFunction openf, int glb) {
-  cupL_getsubtable(L, CUP_REGISTRYINDEX, CUP_LOADED_TABLE);
-  cup_getfield(L, -1, modname);  /* LOADED[modname] */
-  if (!cup_toboolean(L, -1)) {  /* package not already loaded? */
-    cup_pop(L, 1);  /* remove field */
-    cup_pushcfunction(L, openf);
-    cup_pushstring(L, modname);  /* argument to open function */
-    cup_call(L, 1, 1);  /* call 'openf' to open module */
-    cup_pushvalue(L, -1);  /* make copy of module (call result) */
-    cup_setfield(L, -3, modname);  /* LOADED[modname] = module */
+ACORNLIB_API void acornL_requiref (acorn_State *L, const char *modname,
+                               acorn_CFunction openf, int glb) {
+  acornL_getsubtable(L, ACORN_REGISTRYINDEX, ACORN_LOADED_TABLE);
+  acorn_getfield(L, -1, modname);  /* LOADED[modname] */
+  if (!acorn_toboolean(L, -1)) {  /* package not already loaded? */
+    acorn_pop(L, 1);  /* remove field */
+    acorn_pushcfunction(L, openf);
+    acorn_pushstring(L, modname);  /* argument to open function */
+    acorn_call(L, 1, 1);  /* call 'openf' to open module */
+    acorn_pushvalue(L, -1);  /* make copy of module (call result) */
+    acorn_setfield(L, -3, modname);  /* LOADED[modname] = module */
   }
-  cup_remove(L, -2);  /* remove LOADED table */
+  acorn_remove(L, -2);  /* remove LOADED table */
   if (glb) {
-    cup_pushvalue(L, -1);  /* copy of module */
-    cup_setglobal(L, modname);  /* _G[modname] = module */
+    acorn_pushvalue(L, -1);  /* copy of module */
+    acorn_setglobal(L, modname);  /* _G[modname] = module */
   }
 }
 
 
-CUPLIB_API void cupL_addgsub (cupL_Buffer *b, const char *s,
+ACORNLIB_API void acornL_addgsub (acornL_Buffer *b, const char *s,
                                      const char *p, const char *r) {
   const char *wild;
   size_t l = strlen(p);
   while ((wild = strstr(s, p)) != NULL) {
-    cupL_addlstring(b, s, wild - s);  /* push prefix */
-    cupL_addstring(b, r);  /* push replacement in place of pattern */
+    acornL_addlstring(b, s, wild - s);  /* push prefix */
+    acornL_addstring(b, r);  /* push replacement in place of pattern */
     s = wild + l;  /* continue after 'p' */
   }
-  cupL_addstring(b, s);  /* push last suffix */
+  acornL_addstring(b, s);  /* push last suffix */
 }
 
 
-CUPLIB_API const char *cupL_gsub (cup_State *L, const char *s,
+ACORNLIB_API const char *acornL_gsub (acorn_State *L, const char *s,
                                   const char *p, const char *r) {
-  cupL_Buffer b;
-  cupL_buffinit(L, &b);
-  cupL_addgsub(&b, s, p, r);
-  cupL_pushresult(&b);
-  return cup_tostring(L, -1);
+  acornL_Buffer b;
+  acornL_buffinit(L, &b);
+  acornL_addgsub(&b, s, p, r);
+  acornL_pushresult(&b);
+  return acorn_tostring(L, -1);
 }
 
 
@@ -1019,12 +1019,12 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 }
 
 
-static int panic (cup_State *L) {
-  const char *msg = cup_tostring(L, -1);
+static int panic (acorn_State *L) {
+  const char *msg = acorn_tostring(L, -1);
   if (msg == NULL) msg = "error object is not a string";
-  cup_writestringerror("PANIC: unprotected error in call to Cup API (%s)\n",
+  acorn_writestringerror("PANIC: unprotected error in call to Acorn API (%s)\n",
                         msg);
-  return 0;  /* return to Cup to abort */
+  return 0;  /* return to Acorn to abort */
 }
 
 
@@ -1043,21 +1043,21 @@ static void warnfcont (void *ud, const char *message, int tocont);
 ** Check whether message is a control message. If so, execute the
 ** control or ignore it if unknown.
 */
-static int checkcontrol (cup_State *L, const char *message, int tocont) {
+static int checkcontrol (acorn_State *L, const char *message, int tocont) {
   if (tocont || *(message++) != '@')  /* not a control message? */
     return 0;
   else {
     if (strcmp(message, "off") == 0)
-      cup_setwarnf(L, warnfoff, L);  /* turn warnings off */
+      acorn_setwarnf(L, warnfoff, L);  /* turn warnings off */
     else if (strcmp(message, "on") == 0)
-      cup_setwarnf(L, warnfon, L);   /* turn warnings on */
+      acorn_setwarnf(L, warnfon, L);   /* turn warnings on */
     return 1;  /* it was a control message */
   }
 }
 
 
 static void warnfoff (void *ud, const char *message, int tocont) {
-  checkcontrol((cup_State *)ud, message, tocont);
+  checkcontrol((acorn_State *)ud, message, tocont);
 }
 
 
@@ -1066,41 +1066,41 @@ static void warnfoff (void *ud, const char *message, int tocont) {
 ** if needed and setting the next warn function.
 */
 static void warnfcont (void *ud, const char *message, int tocont) {
-  cup_State *L = (cup_State *)ud;
-  cup_writestringerror("%s", message);  /* write message */
+  acorn_State *L = (acorn_State *)ud;
+  acorn_writestringerror("%s", message);  /* write message */
   if (tocont)  /* not the last part? */
-    cup_setwarnf(L, warnfcont, L);  /* to be continued */
+    acorn_setwarnf(L, warnfcont, L);  /* to be continued */
   else {  /* last part */
-    cup_writestringerror("%s", "\n");  /* finish message with end-of-line */
-    cup_setwarnf(L, warnfon, L);  /* next call is a new message */
+    acorn_writestringerror("%s", "\n");  /* finish message with end-of-line */
+    acorn_setwarnf(L, warnfon, L);  /* next call is a new message */
   }
 }
 
 
 static void warnfon (void *ud, const char *message, int tocont) {
-  if (checkcontrol((cup_State *)ud, message, tocont))  /* control message? */
+  if (checkcontrol((acorn_State *)ud, message, tocont))  /* control message? */
     return;  /* nothing else to be done */
-  cup_writestringerror("%s", "Cup warning: ");  /* start a new warning */
+  acorn_writestringerror("%s", "Acorn warning: ");  /* start a new warning */
   warnfcont(ud, message, tocont);  /* finish processing */
 }
 
 
-CUPLIB_API cup_State *cupL_newstate (void) {
-  cup_State *L = cup_newstate(l_alloc, NULL);
+ACORNLIB_API acorn_State *acornL_newstate (void) {
+  acorn_State *L = acorn_newstate(l_alloc, NULL);
   if (l_likely(L)) {
-    cup_atpanic(L, &panic);
-    cup_setwarnf(L, warnfoff, L);  /* default is warnings off */
+    acorn_atpanic(L, &panic);
+    acorn_setwarnf(L, warnfoff, L);  /* default is warnings off */
   }
   return L;
 }
 
 
-CUPLIB_API void cupL_checkversion_ (cup_State *L, cup_Number ver, size_t sz) {
-  cup_Number v = cup_version(L);
-  if (sz != CUPL_NUMSIZES)  /* check numeric types */
-    cupL_error(L, "core and library have incompatible numeric types");
+ACORNLIB_API void acornL_checkversion_ (acorn_State *L, acorn_Number ver, size_t sz) {
+  acorn_Number v = acorn_version(L);
+  if (sz != ACORNL_NUMSIZES)  /* check numeric types */
+    acornL_error(L, "core and library have incompatible numeric types");
   else if (v != ver)
-    cupL_error(L, "version mismatch: app. needs %f, Cup core provides %f",
-                  (CUPI_UACNUMBER)ver, (CUPI_UACNUMBER)v);
+    acornL_error(L, "version mismatch: app. needs %f, Acorn core provides %f",
+                  (ACORNI_UACNUMBER)ver, (ACORNI_UACNUMBER)v);
 }
 

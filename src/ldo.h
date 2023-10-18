@@ -1,7 +1,7 @@
 /*
 ** $Id: ldo.h $
-** Stack and Call structure of Cup
-** See Copyright Notice in cup.h
+** Stack and Call structure of Acorn
+** See Copyright Notice in acorn.h
 */
 
 #ifndef ldo_h
@@ -22,13 +22,13 @@
 ** 'condmovestack' is used in heavy tests to force a stack reallocation
 ** at every check.
 */
-#define cupD_checkstackaux(L,n,pre,pos)  \
+#define acornD_checkstackaux(L,n,pre,pos)  \
 	if (l_unlikely(L->stack_last - L->top <= (n))) \
-	  { pre; cupD_growstack(L, n, 1); pos; } \
+	  { pre; acornD_growstack(L, n, 1); pos; } \
         else { condmovestack(L,pre,pos); }
 
 /* In general, 'pre'/'pos' are empty (nothing to save) */
-#define cupD_checkstack(L,n)	cupD_checkstackaux(L,n,(void)0,(void)0)
+#define acornD_checkstack(L,n)	acornD_checkstackaux(L,n,(void)0,(void)0)
 
 
 
@@ -38,42 +38,42 @@
 
 /* macro to check stack size, preserving 'p' */
 #define checkstackGCp(L,n,p)  \
-  cupD_checkstackaux(L, n, \
+  acornD_checkstackaux(L, n, \
     ptrdiff_t t__ = savestack(L, p);  /* save 'p' */ \
-    cupC_checkGC(L),  /* stack grow uses memory */ \
+    acornC_checkGC(L),  /* stack grow uses memory */ \
     p = restorestack(L, t__))  /* 'pos' part: restore 'p' */
 
 
 /* macro to check stack size and GC */
 #define checkstackGC(L,fsize)  \
-	cupD_checkstackaux(L, (fsize), cupC_checkGC(L), (void)0)
+	acornD_checkstackaux(L, (fsize), acornC_checkGC(L), (void)0)
 
 
 /* type of protected functions, to be ran by 'runprotected' */
-typedef void (*Pfunc) (cup_State *L, void *ud);
+typedef void (*Pfunc) (acorn_State *L, void *ud);
 
-CUPI_FUNC void cupD_seterrorobj (cup_State *L, int errcode, StkId oldtop);
-CUPI_FUNC int cupD_protectedparser (cup_State *L, ZIO *z, const char *name,
+ACORNI_FUNC void acornD_seterrorobj (acorn_State *L, int errcode, StkId oldtop);
+ACORNI_FUNC int acornD_protectedparser (acorn_State *L, ZIO *z, const char *name,
                                                   const char *mode);
-CUPI_FUNC void cupD_hook (cup_State *L, int event, int line,
+ACORNI_FUNC void acornD_hook (acorn_State *L, int event, int line,
                                         int fTransfer, int nTransfer);
-CUPI_FUNC void cupD_hookcall (cup_State *L, CallInfo *ci);
-CUPI_FUNC int cupD_pretailcall (cup_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
-CUPI_FUNC CallInfo *cupD_precall (cup_State *L, StkId func, int nResults);
-CUPI_FUNC void cupD_call (cup_State *L, StkId func, int nResults);
-CUPI_FUNC void cupD_callnoyield (cup_State *L, StkId func, int nResults);
-CUPI_FUNC StkId cupD_tryfuncTM (cup_State *L, StkId func);
-CUPI_FUNC int cupD_closeprotected (cup_State *L, ptrdiff_t level, int status);
-CUPI_FUNC int cupD_pcall (cup_State *L, Pfunc func, void *u,
+ACORNI_FUNC void acornD_hookcall (acorn_State *L, CallInfo *ci);
+ACORNI_FUNC int acornD_pretailcall (acorn_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
+ACORNI_FUNC CallInfo *acornD_precall (acorn_State *L, StkId func, int nResults);
+ACORNI_FUNC void acornD_call (acorn_State *L, StkId func, int nResults);
+ACORNI_FUNC void acornD_callnoyield (acorn_State *L, StkId func, int nResults);
+ACORNI_FUNC StkId acornD_tryfuncTM (acorn_State *L, StkId func);
+ACORNI_FUNC int acornD_closeprotected (acorn_State *L, ptrdiff_t level, int status);
+ACORNI_FUNC int acornD_pcall (acorn_State *L, Pfunc func, void *u,
                                         ptrdiff_t oldtop, ptrdiff_t ef);
-CUPI_FUNC void cupD_poscall (cup_State *L, CallInfo *ci, int nres);
-CUPI_FUNC int cupD_reallocstack (cup_State *L, int newsize, int raiseerror);
-CUPI_FUNC int cupD_growstack (cup_State *L, int n, int raiseerror);
-CUPI_FUNC void cupD_shrinkstack (cup_State *L);
-CUPI_FUNC void cupD_inctop (cup_State *L);
+ACORNI_FUNC void acornD_poscall (acorn_State *L, CallInfo *ci, int nres);
+ACORNI_FUNC int acornD_reallocstack (acorn_State *L, int newsize, int raiseerror);
+ACORNI_FUNC int acornD_growstack (acorn_State *L, int n, int raiseerror);
+ACORNI_FUNC void acornD_shrinkstack (acorn_State *L);
+ACORNI_FUNC void acornD_inctop (acorn_State *L);
 
-CUPI_FUNC l_noret cupD_throw (cup_State *L, int errcode);
-CUPI_FUNC int cupD_rawrunprotected (cup_State *L, Pfunc f, void *ud);
+ACORNI_FUNC l_noret acornD_throw (acorn_State *L, int errcode);
+ACORNI_FUNC int acornD_rawrunprotected (acorn_State *L, Pfunc f, void *ud);
 
 #endif
 

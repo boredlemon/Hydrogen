@@ -1,8 +1,0 @@
--- cuplang
-num1 = 12
-num2 = 6
-num3 = 10
-
--- calculating in cuplang
-max_num = math.max(num1, num2, num3)
-console("The maximum number is " .. max_num)

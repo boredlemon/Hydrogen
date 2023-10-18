@@ -1,18 +1,18 @@
 /*
 ** $Id: lzio.c $
 ** Buffered streams
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #define lzio_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
 
 #include <string.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "llimits.h"
 #include "lmem.h"
@@ -20,13 +20,13 @@
 #include "lzio.h"
 
 
-int cupZ_fill (ZIO *z) {
+int acornZ_fill (ZIO *z) {
   size_t size;
-  cup_State *L = z->L;
+  acorn_State *L = z->L;
   const char *buff;
-  cup_unlock(L);
+  acorn_unlock(L);
   buff = z->reader(L, z->data, &size);
-  cup_lock(L);
+  acorn_lock(L);
   if (buff == NULL || size == 0)
     return EOZ;
   z->n = size - 1;  /* discount char being returned */
@@ -35,7 +35,7 @@ int cupZ_fill (ZIO *z) {
 }
 
 
-void cupZ_init (cup_State *L, ZIO *z, cup_Reader reader, void *data) {
+void acornZ_init (acorn_State *L, ZIO *z, acorn_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;
   z->data = data;
@@ -45,14 +45,14 @@ void cupZ_init (cup_State *L, ZIO *z, cup_Reader reader, void *data) {
 
 
 /* --------------------------------------------------------------- read --- */
-size_t cupZ_read (ZIO *z, void *b, size_t n) {
+size_t acornZ_read (ZIO *z, void *b, size_t n) {
   while (n) {
     size_t m;
     if (z->n == 0) {  /* no bytes in buffer? */
-      if (cupZ_fill(z) == EOZ)  /* try to read more */
+      if (acornZ_fill(z) == EOZ)  /* try to read more */
         return n;  /* no more input; return number of missing bytes */
       else {
-        z->n++;  /* cupZ_fill consumed first byte; put it back */
+        z->n++;  /* acornZ_fill consumed first byte; put it back */
         z->p--;
       }
     }

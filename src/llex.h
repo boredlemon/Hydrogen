@@ -1,7 +1,7 @@
 /*
 ** $Id: llex.h $
 ** Lexical Analyzer
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #ifndef llex_h
@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(CUP_ENV)
-#define CUP_ENV		"_ENV"
+#if !defined(ACORN_ENV)
+#define ACORN_ENV		"_ENV"
 #endif
 
 
@@ -47,8 +47,8 @@ enum RESERVED {
 
 
 typedef union {
-  cup_Number r;
-  cup_Integer i;
+  acorn_Number r;
+  acorn_Integer i;
   TString *ts;
 } SemInfo;  /* semantics information */
 
@@ -68,7 +68,7 @@ typedef struct LexState {
   Token t;  /* current token */
   Token lookahead;  /* look ahead token */
   struct FuncState *fs;  /* current function (parser) */
-  struct cup_State *L;
+  struct acorn_State *L;
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-CUPI_FUNC void cupX_init (cup_State *L);
-CUPI_FUNC void cupX_setinput (cup_State *L, LexState *ls, ZIO *z,
+ACORNI_FUNC void acornX_init (acorn_State *L);
+ACORNI_FUNC void acornX_setinput (acorn_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-CUPI_FUNC TString *cupX_newstring (LexState *ls, const char *str, size_t l);
-CUPI_FUNC void cupX_next (LexState *ls);
-CUPI_FUNC int cupX_lookahead (LexState *ls);
-CUPI_FUNC l_noret cupX_syntaxerror (LexState *ls, const char *s);
-CUPI_FUNC const char *cupX_token2str (LexState *ls, int token);
+ACORNI_FUNC TString *acornX_newstring (LexState *ls, const char *str, size_t l);
+ACORNI_FUNC void acornX_next (LexState *ls);
+ACORNI_FUNC int acornX_lookahead (LexState *ls);
+ACORNI_FUNC l_noret acornX_syntaxerror (LexState *ls, const char *s);
+ACORNI_FUNC const char *acornX_token2str (LexState *ls, int token);
 
 
 #endif

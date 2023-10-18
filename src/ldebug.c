@@ -1,11 +1,11 @@
 /*
 ** $Id: ldebug.c $
 ** Debug Interface
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #define ldebug_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lapi.h"
 #include "lcode.h"
@@ -31,15 +31,15 @@
 
 
 
-#define noCupClosure(f)		((f) == NULL || (f)->c.tt == CUP_VCCL)
+#define noAcornClosure(f)		((f) == NULL || (f)->c.tt == ACORN_VCCL)
 
 
-static const char *funcnamefromcall (cup_State *L, CallInfo *ci,
+static const char *funcnamefromcall (acorn_State *L, CallInfo *ci,
                                                    const char **name);
 
 
 static int currentpc (CallInfo *ci) {
-  cup_assert(isCup(ci));
+  acorn_assert(isAcorn(ci));
   return pcRel(ci->u.l.savedpc, ci_func(ci)->p);
 }
 
@@ -65,7 +65,7 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
   else {
     int i = cast_uint(pc) / MAXIWTHABS - 1;  /* get an estimate */
     /* estimate must be a lower bound of the correct base */
-    cup_assert(i < 0 ||
+    acorn_assert(i < 0 ||
               (i < f->sizeabslineinfo && f->abslineinfo[i].pc <= pc));
     while (i + 1 < f->sizeabslineinfo && pc >= f->abslineinfo[i + 1].pc)
       i++;  /* low estimate; adjust it */
@@ -80,14 +80,14 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
 ** first gets a base line and from there does the increments until
 ** the desired instruction.
 */
-int cupG_getfuncline (const Proto *f, int pc) {
+int acornG_getfuncline (const Proto *f, int pc) {
   if (f->lineinfo == NULL)  /* no debug information? */
     return -1;
   else {
     int basepc;
     int baseline = getbaseline(f, pc, &basepc);
     while (basepc++ < pc) {  /* walk until given instruction */
-      cup_assert(f->lineinfo[basepc] != ABSLINEINFO);
+      acorn_assert(f->lineinfo[basepc] != ABSLINEINFO);
       baseline += f->lineinfo[basepc];  /* correct line */
     }
     return baseline;
@@ -96,12 +96,12 @@ int cupG_getfuncline (const Proto *f, int pc) {
 
 
 static int getcurrentline (CallInfo *ci) {
-  return cupG_getfuncline(ci_func(ci)->p, currentpc(ci));
+  return acornG_getfuncline(ci_func(ci)->p, currentpc(ci));
 }
 
 
 /*
-** Set 'trap' for all active Cup frames.
+** Set 'trap' for all active Acorn frames.
 ** This function can be called during a signal, under "reasonable"
 ** assumptions. A new 'ci' is completely linked in the list before it
 ** becomes part of the "active" list, and we assume that pointers are
@@ -109,11 +109,11 @@ static int getcurrentline (CallInfo *ci) {
 ** (A compiler doing interprocedural optimizations could, theoretically,
 ** reorder memory writes in such a way that the list could be
 ** temporarily broken while inserting a new element. We simply assume it
-** has no Cupod reasons to do that.)
+** has no Acornod reasons to do that.)
 */
 static void settraps (CallInfo *ci) {
   for (; ci != NULL; ci = ci->previous)
-    if (isCup(ci))
+    if (isAcorn(ci))
       ci->u.l.trap = 1;
 }
 
@@ -126,9 +126,9 @@ static void settraps (CallInfo *ci) {
 ** values (causes at most one wrong hook call). 'hookmask' is an atomic
 ** value. We assume that pointers are atomic too (e.g., gcc ensures that
 ** for all platforms where it runs). Moreover, 'hook' is always checked
-** before being called (see 'cupD_hook').
+** before being called (see 'acornD_hook').
 */
-CUP_API void cup_sethook (cup_State *L, cup_Hook func, int mask, int count) {
+ACORN_API void acorn_sethook (acorn_State *L, acorn_Hook func, int mask, int count) {
   if (func == NULL || mask == 0) {  /* turn off hooks? */
     mask = 0;
     func = NULL;
@@ -138,30 +138,30 @@ CUP_API void cup_sethook (cup_State *L, cup_Hook func, int mask, int count) {
   resethookcount(L);
   L->hookmask = cast_byte(mask);
   if (mask)
-    settraps(L->ci);  /* to trace inside 'cupV_execute' */
+    settraps(L->ci);  /* to trace inside 'acornV_execute' */
 }
 
 
-CUP_API cup_Hook cup_gethook (cup_State *L) {
+ACORN_API acorn_Hook acorn_gethook (acorn_State *L) {
   return L->hook;
 }
 
 
-CUP_API int cup_gethookmask (cup_State *L) {
+ACORN_API int acorn_gethookmask (acorn_State *L) {
   return L->hookmask;
 }
 
 
-CUP_API int cup_gethookcount (cup_State *L) {
+ACORN_API int acorn_gethookcount (acorn_State *L) {
   return L->basehookcount;
 }
 
 
-CUP_API int cup_getstack (cup_State *L, int level, cup_Debug *ar) {
+ACORN_API int acorn_getstack (acorn_State *L, int level, acorn_Debug *ar) {
   int status;
   CallInfo *ci;
   if (level < 0) return 0;  /* invalid (negative) level */
-  cup_lock(L);
+  acorn_lock(L);
   for (ci = L->ci; level > 0 && ci != &L->base_ci; ci = ci->previous)
     level--;
   if (level == 0 && ci != &L->base_ci) {  /* level found? */
@@ -169,7 +169,7 @@ CUP_API int cup_getstack (cup_State *L, int level, cup_Debug *ar) {
     ar->i_ci = ci;
   }
   else status = 0;  /* no such level */
-  cup_unlock(L);
+  acorn_unlock(L);
   return status;
 }
 
@@ -193,20 +193,20 @@ static const char *findvararg (CallInfo *ci, int n, StkId *pos) {
 }
 
 
-const char *cupG_findlocal (cup_State *L, CallInfo *ci, int n, StkId *pos) {
+const char *acornG_findlocal (acorn_State *L, CallInfo *ci, int n, StkId *pos) {
   StkId base = ci->func + 1;
   const char *name = NULL;
-  if (isCup(ci)) {
+  if (isAcorn(ci)) {
     if (n < 0)  /* access to vararg values? */
       return findvararg(ci, n, pos);
     else
-      name = cupF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
+      name = acornF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
   }
   if (name == NULL) {  /* no 'standard' name? */
     StkId limit = (ci == L->ci) ? L->top : ci->next->func;
     if (limit - base >= n && n > 0) {  /* is 'n' inside 'ci' stack? */
       /* generic name for any valid slot */
-      name = isCup(ci) ? "(temporary)" : "(C temporary)";
+      name = isAcorn(ci) ? "(temporary)" : "(C temporary)";
     }
     else
       return NULL;  /* no name */
@@ -217,44 +217,44 @@ const char *cupG_findlocal (cup_State *L, CallInfo *ci, int n, StkId *pos) {
 }
 
 
-CUP_API const char *cup_getlocal (cup_State *L, const cup_Debug *ar, int n) {
+ACORN_API const char *acorn_getlocal (acorn_State *L, const acorn_Debug *ar, int n) {
   const char *name;
-  cup_lock(L);
+  acorn_lock(L);
   if (ar == NULL) {  /* information about non-active function? */
-    if (!isLfunction(s2v(L->top - 1)))  /* not a Cup function? */
+    if (!isLfunction(s2v(L->top - 1)))  /* not a Acorn function? */
       name = NULL;
     else  /* consider live variables at function start (parameters) */
-      name = cupF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
+      name = acornF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
   }
   else {  /* active function; get information through 'ar' */
     StkId pos = NULL;  /* to avoid warnings */
-    name = cupG_findlocal(L, ar->i_ci, n, &pos);
+    name = acornG_findlocal(L, ar->i_ci, n, &pos);
     if (name) {
       setobjs2s(L, L->top, pos);
       api_incr_top(L);
     }
   }
-  cup_unlock(L);
+  acorn_unlock(L);
   return name;
 }
 
 
-CUP_API const char *cup_setlocal (cup_State *L, const cup_Debug *ar, int n) {
+ACORN_API const char *acorn_setlocal (acorn_State *L, const acorn_Debug *ar, int n) {
   StkId pos = NULL;  /* to avoid warnings */
   const char *name;
-  cup_lock(L);
-  name = cupG_findlocal(L, ar->i_ci, n, &pos);
+  acorn_lock(L);
+  name = acornG_findlocal(L, ar->i_ci, n, &pos);
   if (name) {
     setobjs2s(L, pos, L->top - 1);
     L->top--;  /* pop value */
   }
-  cup_unlock(L);
+  acorn_unlock(L);
   return name;
 }
 
 
-static void funcinfo (cup_Debug *ar, Closure *cl) {
-  if (noCupClosure(cl)) {
+static void funcinfo (acorn_Debug *ar, Closure *cl) {
+  if (noAcornClosure(cl)) {
     ar->source = "=[C]";
     ar->srclen = LL("=[C]");
     ar->linedefined = -1;
@@ -273,9 +273,9 @@ static void funcinfo (cup_Debug *ar, Closure *cl) {
     }
     ar->linedefined = p->linedefined;
     ar->lastlinedefined = p->lastlinedefined;
-    ar->what = (ar->linedefined == 0) ? "main" : "Cup";
+    ar->what = (ar->linedefined == 0) ? "main" : "Acorn";
   }
-  cupO_chunkid(ar->short_src, ar->source, ar->srclen);
+  acornO_chunkid(ar->short_src, ar->source, ar->srclen);
 }
 
 
@@ -283,12 +283,12 @@ static int nextline (const Proto *p, int currentline, int pc) {
   if (p->lineinfo[pc] != ABSLINEINFO)
     return currentline + p->lineinfo[pc];
   else
-    return cupG_getfuncline(p, pc);
+    return acornG_getfuncline(p, pc);
 }
 
 
-static void collectvalidlines (cup_State *L, Closure *f) {
-  if (noCupClosure(f)) {
+static void collectvalidlines (acorn_State *L, Closure *f) {
+  if (noAcornClosure(f)) {
     setnilvalue(s2v(L->top));
     api_incr_top(L);
   }
@@ -297,26 +297,26 @@ static void collectvalidlines (cup_State *L, Closure *f) {
     TValue v;
     const Proto *p = f->l.p;
     int currentline = p->linedefined;
-    Table *t = cupH_new(L);  /* new table to store active lines */
+    Table *t = acornH_new(L);  /* new table to store active lines */
     sethvalue2s(L, L->top, t);  /* push it on stack */
     api_incr_top(L);
     setbtvalue(&v);  /* boolean 'true' to be the value of all indices */
     if (!p->is_vararg)  /* regular function? */
       i = 0;  /* consider all instructions */
     else {  /* vararg function */
-      cup_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
+      acorn_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
       currentline = nextline(p, currentline, 0);
       i = 1;  /* skip first instruction (OP_VARARGPREP) */
     }
     for (; i < p->sizelineinfo; i++) {  /* for each instruction */
       currentline = nextline(p, currentline, i);  /* get its line */
-      cupH_setint(L, t, currentline, &v);  /* table[line] = true */
+      acornH_setint(L, t, currentline, &v);  /* table[line] = true */
     }
   }
 }
 
 
-static const char *getfuncname (cup_State *L, CallInfo *ci, const char **name) {
+static const char *getfuncname (acorn_State *L, CallInfo *ci, const char **name) {
   /* calling function is a known function? */
   if (ci != NULL && !(ci->callstatus & CIST_TAIL))
     return funcnamefromcall(L, ci->previous, name);
@@ -324,7 +324,7 @@ static const char *getfuncname (cup_State *L, CallInfo *ci, const char **name) {
 }
 
 
-static int auxgetinfo (cup_State *L, const char *what, cup_Debug *ar,
+static int auxgetinfo (acorn_State *L, const char *what, acorn_Debug *ar,
                        Closure *f, CallInfo *ci) {
   int status = 1;
   for (; *what; what++) {
@@ -334,12 +334,12 @@ static int auxgetinfo (cup_State *L, const char *what, cup_Debug *ar,
         break;
       }
       case 'l': {
-        ar->currentline = (ci && isCup(ci)) ? getcurrentline(ci) : -1;
+        ar->currentline = (ci && isAcorn(ci)) ? getcurrentline(ci) : -1;
         break;
       }
       case 'u': {
         ar->nups = (f == NULL) ? 0 : f->c.nupvalues;
-        if (noCupClosure(f)) {
+        if (noAcornClosure(f)) {
           ar->isvararg = 1;
           ar->nparams = 0;
         }
@@ -371,7 +371,7 @@ static int auxgetinfo (cup_State *L, const char *what, cup_Debug *ar,
         break;
       }
       case 'L':
-      case 'f':  /* handled by cup_getinfo */
+      case 'f':  /* handled by acorn_getinfo */
         break;
       default: status = 0;  /* invalid option */
     }
@@ -380,12 +380,12 @@ static int auxgetinfo (cup_State *L, const char *what, cup_Debug *ar,
 }
 
 
-CUP_API int cup_getinfo (cup_State *L, const char *what, cup_Debug *ar) {
+ACORN_API int acorn_getinfo (acorn_State *L, const char *what, acorn_Debug *ar) {
   int status;
   Closure *cl;
   CallInfo *ci;
   TValue *func;
-  cup_lock(L);
+  acorn_lock(L);
   if (*what == '>') {
     ci = NULL;
     func = s2v(L->top - 1);
@@ -396,7 +396,7 @@ CUP_API int cup_getinfo (cup_State *L, const char *what, cup_Debug *ar) {
   else {
     ci = ar->i_ci;
     func = s2v(ci->func);
-    cup_assert(ttisfunction(func));
+    acorn_assert(ttisfunction(func));
   }
   cl = ttisclosure(func) ? clvalue(func) : NULL;
   status = auxgetinfo(L, what, ar, cl, ci);
@@ -406,7 +406,7 @@ CUP_API int cup_getinfo (cup_State *L, const char *what, cup_Debug *ar) {
   }
   if (strchr(what, 'L'))
     collectvalidlines(L, cl);
-  cup_unlock(L);
+  acorn_unlock(L);
   return status;
 }
 
@@ -519,14 +519,14 @@ static const char *gxf (const Proto *p, int pc, Instruction i, int isup) {
     name = upvalname(p, t);
   else
     getobjname(p, pc, t, &name);
-  return (name && strcmp(name, CUP_ENV) == 0) ? "global" : "field";
+  return (name && strcmp(name, ACORN_ENV) == 0) ? "global" : "field";
 }
 
 
 static const char *getobjname (const Proto *p, int lastpc, int reg,
                                const char **name) {
   int pc;
-  *name = cupF_getlocalname(p, reg + 1, lastpc);
+  *name = acornF_getlocalname(p, reg + 1, lastpc);
   if (*name)  /* is a local? */
     return "local";
   /* else try symbolic execution */
@@ -578,7 +578,7 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
         rkname(p, pc, i, name);
         return "method";
       }
-      default: break;  /* Cup through to return NULL */
+      default: break;  /* Acorn through to return NULL */
     }
   }
   return NULL;  /* could not find reasonable name */
@@ -587,11 +587,11 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
 
 /*
 ** Try to find a name for a function based on the code that called it.
-** (Only works when function was called by a Cup function.)
+** (Only works when function was called by a Acorn function.)
 ** Returns what the name is (e.g., "for iterator", "method",
 ** "metamethod") and sets '*name' to point to the name.
 */
-static const char *funcnamefromcode (cup_State *L, const Proto *p,
+static const char *funcnamefromcode (acorn_State *L, const Proto *p,
                                      int pc, const char **name) {
   TMS tm = (TMS)0;  /* (initial value avoids warnings) */
   Instruction i = p->code[pc];  /* calling instruction */
@@ -635,7 +635,7 @@ static const char *funcnamefromcode (cup_State *L, const Proto *p,
 /*
 ** Try to find a name for a function based on how it was called.
 */
-static const char *funcnamefromcall (cup_State *L, CallInfo *ci,
+static const char *funcnamefromcall (acorn_State *L, CallInfo *ci,
                                                    const char **name) {
   if (ci->callstatus & CIST_HOOKED) {  /* was it called inside a hook? */
     *name = "?";
@@ -645,7 +645,7 @@ static const char *funcnamefromcall (cup_State *L, CallInfo *ci,
     *name = "__gc";
     return "metamethod";  /* report it as such */
   }
-  else if (isCup(ci))
+  else if (isAcorn(ci))
     return funcnamefromcode(L, ci_func(ci)->p, currentpc(ci), name);
   else
     return NULL;
@@ -690,23 +690,23 @@ static const char *getupvalname (CallInfo *ci, const TValue *o,
 }
 
 
-static const char *formatvarinfo (cup_State *L, const char *kind,
+static const char *formatvarinfo (acorn_State *L, const char *kind,
                                                 const char *name) {
   if (kind == NULL)
     return "";  /* no information */
   else
-    return cupO_pushfstring(L, " (%s '%s')", kind, name);
+    return acornO_pushfstring(L, " (%s '%s')", kind, name);
 }
 
 /*
 ** Build a string with a "description" for the value 'o', such as
 ** "variable 'x'" or "upvalue 'y'".
 */
-static const char *varinfo (cup_State *L, const TValue *o) {
+static const char *varinfo (acorn_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = NULL;
-  if (isCup(ci)) {
+  if (isAcorn(ci)) {
     kind = getupvalname(ci, o, &name);  /* check whether 'o' is an upvalue */
     if (!kind && isinstack(ci, o))  /* no? try a register */
       kind = getobjname(ci_func(ci)->p, currentpc(ci),
@@ -719,10 +719,10 @@ static const char *varinfo (cup_State *L, const TValue *o) {
 /*
 ** Raise a type error
 */
-static l_noret typeerror (cup_State *L, const TValue *o, const char *op,
+static l_noret typeerror (acorn_State *L, const TValue *o, const char *op,
                           const char *extra) {
-  const char *t = cupT_objtypename(L, o);
-  cupG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
+  const char *t = acornT_objtypename(L, o);
+  acornG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
 }
 
 
@@ -730,7 +730,7 @@ static l_noret typeerror (cup_State *L, const TValue *o, const char *op,
 ** Raise a type error with "standard" information about the faulty
 ** object 'o' (using 'varinfo').
 */
-l_noret cupG_typeerror (cup_State *L, const TValue *o, const char *op) {
+l_noret acornG_typeerror (acorn_State *L, const TValue *o, const char *op) {
   typeerror(L, o, op, varinfo(L, o));
 }
 
@@ -740,7 +740,7 @@ l_noret cupG_typeerror (cup_State *L, const TValue *o, const char *op) {
 ** for the object based on how it was called ('funcnamefromcall'); if it
 ** cannot get a name there, try 'varinfo'.
 */
-l_noret cupG_callerror (cup_State *L, const TValue *o) {
+l_noret acornG_callerror (acorn_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = funcnamefromcall(L, ci, &name);
@@ -749,84 +749,84 @@ l_noret cupG_callerror (cup_State *L, const TValue *o) {
 }
 
 
-l_noret cupG_forerror (cup_State *L, const TValue *o, const char *what) {
-  cupG_runerror(L, "bad 'for' %s (number expected, Cupt %s)",
-                   what, cupT_objtypename(L, o));
+l_noret acornG_forerror (acorn_State *L, const TValue *o, const char *what) {
+  acornG_runerror(L, "bad 'for' %s (number expected, Acornt %s)",
+                   what, acornT_objtypename(L, o));
 }
 
 
-l_noret cupG_concaterror (cup_State *L, const TValue *p1, const TValue *p2) {
+l_noret acornG_concaterror (acorn_State *L, const TValue *p1, const TValue *p2) {
   if (ttisstring(p1) || cvt2str(p1)) p1 = p2;
-  cupG_typeerror(L, p1, "concatenate");
+  acornG_typeerror(L, p1, "concatenate");
 }
 
 
-l_noret cupG_opinterror (cup_State *L, const TValue *p1,
+l_noret acornG_opinterror (acorn_State *L, const TValue *p1,
                          const TValue *p2, const char *msg) {
   if (!ttisnumber(p1))  /* first operand is wrong? */
     p2 = p1;  /* now second is wrong */
-  cupG_typeerror(L, p2, msg);
+  acornG_typeerror(L, p2, msg);
 }
 
 
 /*
 ** Error when both values are convertible to numbers, but not to integers
 */
-l_noret cupG_tointerror (cup_State *L, const TValue *p1, const TValue *p2) {
-  cup_Integer temp;
-  if (!cupV_tointegerns(p1, &temp, CUP_FLOORN2I))
+l_noret acornG_tointerror (acorn_State *L, const TValue *p1, const TValue *p2) {
+  acorn_Integer temp;
+  if (!acornV_tointegerns(p1, &temp, ACORN_FLOORN2I))
     p2 = p1;
-  cupG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
+  acornG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
 }
 
 
-l_noret cupG_ordererror (cup_State *L, const TValue *p1, const TValue *p2) {
-  const char *t1 = cupT_objtypename(L, p1);
-  const char *t2 = cupT_objtypename(L, p2);
+l_noret acornG_ordererror (acorn_State *L, const TValue *p1, const TValue *p2) {
+  const char *t1 = acornT_objtypename(L, p1);
+  const char *t2 = acornT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
-    cupG_runerror(L, "attempt to compare two %s values", t1);
+    acornG_runerror(L, "attempt to compare two %s values", t1);
   else
-    cupG_runerror(L, "attempt to compare %s with %s", t1, t2);
+    acornG_runerror(L, "attempt to compare %s with %s", t1, t2);
 }
 
 
 /* add src:line information to 'msg' */
-const char *cupG_addinfo (cup_State *L, const char *msg, TString *src,
+const char *acornG_addinfo (acorn_State *L, const char *msg, TString *src,
                                         int line) {
-  char buff[CUP_IDSIZE];
+  char buff[ACORN_IDSIZE];
   if (src)
-    cupO_chunkid(buff, getstr(src), tsslen(src));
+    acornO_chunkid(buff, getstr(src), tsslen(src));
   else {  /* no source available; use "?" instead */
     buff[0] = '?'; buff[1] = '\0';
   }
-  return cupO_pushfstring(L, "%s:%d: %s", buff, line, msg);
+  return acornO_pushfstring(L, "%s:%d: %s", buff, line, msg);
 }
 
 
-l_noret cupG_errormsg (cup_State *L) {
+l_noret acornG_errormsg (acorn_State *L) {
   if (L->errfunc != 0) {  /* is there an error handling function? */
     StkId errfunc = restorestack(L, L->errfunc);
-    cup_assert(ttisfunction(s2v(errfunc)));
+    acorn_assert(ttisfunction(s2v(errfunc)));
     setobjs2s(L, L->top, L->top - 1);  /* move argument */
     setobjs2s(L, L->top - 1, errfunc);  /* push function */
     L->top++;  /* assume EXTRA_STACK */
-    cupD_callnoyield(L, L->top - 2, 1);  /* call it */
+    acornD_callnoyield(L, L->top - 2, 1);  /* call it */
   }
-  cupD_throw(L, CUP_ERRRUN);
+  acornD_throw(L, ACORN_ERRRUN);
 }
 
 
-l_noret cupG_runerror (cup_State *L, const char *fmt, ...) {
+l_noret acornG_runerror (acorn_State *L, const char *fmt, ...) {
   CallInfo *ci = L->ci;
   const char *msg;
   va_list argp;
-  cupC_checkGC(L);  /* error message uses memory */
+  acornC_checkGC(L);  /* error message uses memory */
   va_start(argp, fmt);
-  msg = cupO_pushvfstring(L, fmt, argp);  /* format message */
+  msg = acornO_pushvfstring(L, fmt, argp);  /* format message */
   va_end(argp);
-  if (isCup(ci))  /* if Cup function, add source:line information */
-    cupG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
-  cupG_errormsg(L);
+  if (isAcorn(ci))  /* if Acorn function, add source:line information */
+    acornG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
+  acornG_errormsg(L);
 }
 
 
@@ -834,9 +834,9 @@ l_noret cupG_runerror (cup_State *L, const char *fmt, ...) {
 ** Check whether new instruction 'newpc' is in a different line from
 ** previous instruction 'oldpc'. More often than not, 'newpc' is only
 ** one or a few instructions after 'oldpc' (it must be after, see
-** caller), so try to avoid calling 'cupG_getfuncline'. If they are
-** too far apart, there is a Cupod chance of a ABSLINEINFO in the way,
-** so it Cupes directly to 'cupG_getfuncline'.
+** caller), so try to avoid calling 'acornG_getfuncline'. If they are
+** too far apart, there is a Acornod chance of a ABSLINEINFO in the way,
+** so it Acornes directly to 'acornG_getfuncline'.
 */
 static int changedline (const Proto *p, int oldpc, int newpc) {
   if (p->lineinfo == NULL)  /* no debug information? */
@@ -855,12 +855,12 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
   }
   /* either instructions are too far apart or there is an absolute line
      info in the way; compute line difference explicitly */
-  return (cupG_getfuncline(p, oldpc) != cupG_getfuncline(p, newpc));
+  return (acornG_getfuncline(p, oldpc) != acornG_getfuncline(p, newpc));
 }
 
 
 /*
-** Traces the execution of a Cup function. Called before the execution
+** Traces the execution of a Acorn function. Called before the execution
 ** of each opcode, when debug is on. 'L->oldpc' stores the last
 ** instruction traced, to detect line changes. When entering a new
 ** function, 'npci' will be zero and will test as a new line whatever
@@ -871,21 +871,21 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
 ** This function is not "Protected" when called, so it should correct
 ** 'L->top' before calling anything that can run the GC.
 */
-int cupG_traceexec (cup_State *L, const Instruction *pc) {
+int acornG_traceexec (acorn_State *L, const Instruction *pc) {
   CallInfo *ci = L->ci;
   lu_byte mask = L->hookmask;
   const Proto *p = ci_func(ci)->p;
   int counthook;
-  if (!(mask & (CUP_MASKLINE | CUP_MASKCOUNT))) {  /* no hooks? */
+  if (!(mask & (ACORN_MASKLINE | ACORN_MASKCOUNT))) {  /* no hooks? */
     ci->u.l.trap = 0;  /* don't need to stop again */
     return 0;  /* turn off 'trap' */
   }
   pc++;  /* reference is always next instruction */
   ci->u.l.savedpc = pc;  /* save 'pc' */
-  counthook = (--L->hookcount == 0 && (mask & CUP_MASKCOUNT));
+  counthook = (--L->hookcount == 0 && (mask & ACORN_MASKCOUNT));
   if (counthook)
     resethookcount(L);  /* reset count */
-  else if (!(mask & CUP_MASKLINE))
+  else if (!(mask & ACORN_MASKLINE))
     return 1;  /* no line hook and count != 0; nothing to be done now */
   if (ci->callstatus & CIST_HOOKYIELD) {  /* called hook last time? */
     ci->callstatus &= ~CIST_HOOKYIELD;  /* erase mark */
@@ -894,24 +894,24 @@ int cupG_traceexec (cup_State *L, const Instruction *pc) {
   if (!isIT(*(ci->u.l.savedpc - 1)))  /* top not being used? */
     L->top = ci->top;  /* correct top */
   if (counthook)
-    cupD_hook(L, CUP_HOOKCOUNT, -1, 0, 0);  /* call count hook */
-  if (mask & CUP_MASKLINE) {
+    acornD_hook(L, ACORN_HOOKCOUNT, -1, 0, 0);  /* call count hook */
+  if (mask & ACORN_MASKLINE) {
     /* 'L->oldpc' may be invalid; use zero in this case */
     int oldpc = (L->oldpc < p->sizecode) ? L->oldpc : 0;
     int npci = pcRel(pc, p);
     if (npci <= oldpc ||  /* call hook when jump back (loop), */
         changedline(p, oldpc, npci)) {  /* or when enter new line */
-      int newline = cupG_getfuncline(p, npci);
-      cupD_hook(L, CUP_HOOKLINE, newline, 0, 0);  /* call line hook */
+      int newline = acornG_getfuncline(p, npci);
+      acornD_hook(L, ACORN_HOOKLINE, newline, 0, 0);  /* call line hook */
     }
     L->oldpc = npci;  /* 'pc' of last call to line hook */
   }
-  if (L->status == CUP_YIELD) {  /* did hook yield? */
+  if (L->status == ACORN_YIELD) {  /* did hook yield? */
     if (counthook)
       L->hookcount = 1;  /* undo decrement to zero */
     ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */
     ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yielded */
-    cupD_throw(L, CUP_YIELD);
+    acornD_throw(L, ACORN_YIELD);
   }
   return 1;  /* keep 'trap' on */
 }

@@ -1,11 +1,11 @@
 /*
 ** $Id: lopcodes.c $
-** Opcodes for Cup virtual machine
-** See Copyright Notice in cup.h
+** Opcodes for Acorn virtual machine
+** See Copyright Notice in acorn.h
 */
 
 #define lopcodes_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-CUPI_DDEF const lu_byte cupP_opmodes[NUM_OPCODES] = {
+ACORNI_DDEF const lu_byte acornP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

@@ -1,7 +1,7 @@
 /*
 ** $Id: lundump.h $
-** load precompiled Cup chunks
-** See Copyright Notice in cup.h
+** load precompiled Acorn chunks
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lundump_h
@@ -13,24 +13,24 @@
 
 
 /* data to catch conversion errors */
-#define CUPC_DATA	"\x19\x93\r\n\x1a\n"
+#define ACORNC_DATA	"\x19\x93\r\n\x1a\n"
 
-#define CUPC_INT	0x5678
-#define CUPC_NUM	cast_num(370.5)
+#define ACORNC_INT	0x5678
+#define ACORNC_NUM	cast_num(370.5)
 
 /*
 ** Encode major-minor version in one byte, one nibble for each
 */
 #define MYINT(s)	(s[0]-'0')  /* assume one-digit numerals */
-#define CUPC_VERSION	(MYINT(CUP_VERSION_MAJOR)*16+MYINT(CUP_VERSION_MINOR))
+#define ACORNC_VERSION	(MYINT(ACORN_VERSION_MAJOR)*16+MYINT(ACORN_VERSION_MINOR))
 
-#define CUPC_FORMAT	0	/* this is the official format */
+#define ACORNC_FORMAT	0	/* this is the official format */
 
 /* load one chunk; from lundump.c */
-CUPI_FUNC LClosure* cupU_undump (cup_State* L, ZIO* Z, const char* name);
+ACORNI_FUNC LClosure* acornU_undump (acorn_State* L, ZIO* Z, const char* name);
 
 /* dump one chunk; from ldump.c */
-CUPI_FUNC int cupU_dump (cup_State* L, const Proto* f, cup_Writer w,
+ACORNI_FUNC int acornU_dump (acorn_State* L, const Proto* f, acorn_Writer w,
                          void* data, int strip);
 
 #endif

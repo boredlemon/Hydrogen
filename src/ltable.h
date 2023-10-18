@@ -1,7 +1,7 @@
 /*
 ** $Id: ltable.h $
-** Cup tables (hash)
-** See Copyright Notice in cup.h
+** Acorn tables (hash)
+** See Copyright Notice in acorn.h
 */
 
 #ifndef ltable_h
@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-CUPI_FUNC const TValue *cupH_getint (Table *t, cup_Integer key);
-CUPI_FUNC void cupH_setint (cup_State *L, Table *t, cup_Integer key,
+ACORNI_FUNC const TValue *acornH_getint (Table *t, acorn_Integer key);
+ACORNI_FUNC void acornH_setint (acorn_State *L, Table *t, acorn_Integer key,
                                                     TValue *value);
-CUPI_FUNC const TValue *cupH_getshortstr (Table *t, TString *key);
-CUPI_FUNC const TValue *cupH_getstr (Table *t, TString *key);
-CUPI_FUNC const TValue *cupH_get (Table *t, const TValue *key);
-CUPI_FUNC void cupH_newkey (cup_State *L, Table *t, const TValue *key,
+ACORNI_FUNC const TValue *acornH_getshortstr (Table *t, TString *key);
+ACORNI_FUNC const TValue *acornH_getstr (Table *t, TString *key);
+ACORNI_FUNC const TValue *acornH_get (Table *t, const TValue *key);
+ACORNI_FUNC void acornH_newkey (acorn_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-CUPI_FUNC void cupH_set (cup_State *L, Table *t, const TValue *key,
+ACORNI_FUNC void acornH_set (acorn_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-CUPI_FUNC void cupH_finishset (cup_State *L, Table *t, const TValue *key,
+ACORNI_FUNC void acornH_finishset (acorn_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-CUPI_FUNC Table *cupH_new (cup_State *L);
-CUPI_FUNC void cupH_resize (cup_State *L, Table *t, unsigned int nasize,
+ACORNI_FUNC Table *acornH_new (acorn_State *L);
+ACORNI_FUNC void acornH_resize (acorn_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-CUPI_FUNC void cupH_resizearray (cup_State *L, Table *t, unsigned int nasize);
-CUPI_FUNC void cupH_free (cup_State *L, Table *t);
-CUPI_FUNC int cupH_next (cup_State *L, Table *t, StkId key);
-CUPI_FUNC cup_Unsigned cupH_getn (Table *t);
-CUPI_FUNC unsigned int cupH_realasize (const Table *t);
+ACORNI_FUNC void acornH_resizearray (acorn_State *L, Table *t, unsigned int nasize);
+ACORNI_FUNC void acornH_free (acorn_State *L, Table *t);
+ACORNI_FUNC int acornH_next (acorn_State *L, Table *t, StkId key);
+ACORNI_FUNC acorn_Unsigned acornH_getn (Table *t);
+ACORNI_FUNC unsigned int acornH_realasize (const Table *t);
 
 
-#if defined(CUP_DEBUG)
-CUPI_FUNC Node *cupH_mainposition (const Table *t, const TValue *key);
-CUPI_FUNC int cupH_isdummy (const Table *t);
+#if defined(ACORN_DEBUG)
+ACORNI_FUNC Node *acornH_mainposition (const Table *t, const TValue *key);
+ACORNI_FUNC int acornH_isdummy (const Table *t);
 #endif
 
 

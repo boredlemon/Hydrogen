@@ -1,11 +1,11 @@
 /*
 ** $Id: lundump.c $
-** load precompiled Cup chunks
-** See Copyright Notice in cup.h
+** load precompiled Acorn chunks
+** See Copyright Notice in acorn.h
 */
 
 #define lundump_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
@@ -13,7 +13,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -25,32 +25,32 @@
 #include "lzio.h"
 
 
-#if !defined(cupi_verifycode)
-#define cupi_verifycode(L,f)  /* empty */
+#if !defined(acorni_verifycode)
+#define acorni_verifycode(L,f)  /* empty */
 #endif
 
 
 typedef struct {
-  cup_State *L;
+  acorn_State *L;
   ZIO *Z;
   const char *name;
 } LoadState;
 
 
 static l_noret error (LoadState *S, const char *why) {
-  cupO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
-  cupD_throw(S->L, CUP_ERRSYNTAX);
+  acornO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
+  acornD_throw(S->L, ACORN_ERRSYNTAX);
 }
 
 
 /*
-** All high-level loads Cup through loadVector; you can change it to
+** All high-level loads Acorn through loadVector; you can change it to
 ** adapt to the endianness of the input
 */
 #define loadVector(S,b,n)	loadBlock(S,b,(n)*sizeof((b)[0]))
 
 static void loadBlock (LoadState *S, void *b, size_t size) {
-  if (cupZ_read(S->Z, b, size) != 0)
+  if (acornZ_read(S->Z, b, size) != 0)
     error(S, "truncated chunk");
 }
 
@@ -90,15 +90,15 @@ static int loadInt (LoadState *S) {
 }
 
 
-static cup_Number loadNumber (LoadState *S) {
-  cup_Number x;
+static acorn_Number loadNumber (LoadState *S) {
+  acorn_Number x;
   loadVar(S, x);
   return x;
 }
 
 
-static cup_Integer loadInteger (LoadState *S) {
-  cup_Integer x;
+static acorn_Integer loadInteger (LoadState *S) {
+  acorn_Integer x;
   loadVar(S, x);
   return x;
 }
@@ -108,24 +108,24 @@ static cup_Integer loadInteger (LoadState *S) {
 ** Load a nullable string into prototype 'p'.
 */
 static TString *loadStringN (LoadState *S, Proto *p) {
-  cup_State *L = S->L;
+  acorn_State *L = S->L;
   TString *ts;
   size_t size = loadSize(S);
   if (size == 0)  /* no string? */
     return NULL;
-  else if (--size <= CUPI_MAXSHORTLEN) {  /* short string? */
-    char buff[CUPI_MAXSHORTLEN];
+  else if (--size <= ACORNI_MAXSHORTLEN) {  /* short string? */
+    char buff[ACORNI_MAXSHORTLEN];
     loadVector(S, buff, size);  /* load string into buffer */
-    ts = cupS_newlstr(L, buff, size);  /* create string */
+    ts = acornS_newlstr(L, buff, size);  /* create string */
   }
   else {  /* long string */
-    ts = cupS_createlngstrobj(L, size);  /* create string */
+    ts = acornS_createlngstrobj(L, size);  /* create string */
     setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) */
-    cupD_inctop(L);
+    acornD_inctop(L);
     loadVector(S, getstr(ts), size);  /* load directly in final place */
     L->top--;  /* pop string */
   }
-  cupC_objbarrier(L, p, ts);
+  acornC_objbarrier(L, p, ts);
   return ts;
 }
 
@@ -143,7 +143,7 @@ static TString *loadString (LoadState *S, Proto *p) {
 
 static void loadCode (LoadState *S, Proto *f) {
   int n = loadInt(S);
-  f->code = cupM_newvectorchecked(S->L, n, Instruction);
+  f->code = acornM_newvectorchecked(S->L, n, Instruction);
   f->sizecode = n;
   loadVector(S, f->code, n);
 }
@@ -155,7 +155,7 @@ static void loadFunction(LoadState *S, Proto *f, TString *psource);
 static void loadConstants (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->k = cupM_newvectorchecked(S->L, n, TValue);
+  f->k = acornM_newvectorchecked(S->L, n, TValue);
   f->sizek = n;
   for (i = 0; i < n; i++)
     setnilvalue(&f->k[i]);
@@ -163,26 +163,26 @@ static void loadConstants (LoadState *S, Proto *f) {
     TValue *o = &f->k[i];
     int t = loadByte(S);
     switch (t) {
-      case CUP_VNIL:
+      case ACORN_VNIL:
         setnilvalue(o);
         break;
-      case CUP_VFALSE:
+      case ACORN_VFALSE:
         setbfvalue(o);
         break;
-      case CUP_VTRUE:
+      case ACORN_VTRUE:
         setbtvalue(o);
         break;
-      case CUP_VNUMFLT:
+      case ACORN_VNUMFLT:
         setfltvalue(o, loadNumber(S));
         break;
-      case CUP_VNUMINT:
+      case ACORN_VNUMINT:
         setivalue(o, loadInteger(S));
         break;
-      case CUP_VSHRSTR:
-      case CUP_VLNGSTR:
+      case ACORN_VSHRSTR:
+      case ACORN_VLNGSTR:
         setsvalue2n(S->L, o, loadString(S, f));
         break;
-      default: cup_assert(0);
+      default: acorn_assert(0);
     }
   }
 }
@@ -191,13 +191,13 @@ static void loadConstants (LoadState *S, Proto *f) {
 static void loadProtos (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->p = cupM_newvectorchecked(S->L, n, Proto *);
+  f->p = acornM_newvectorchecked(S->L, n, Proto *);
   f->sizep = n;
   for (i = 0; i < n; i++)
     f->p[i] = NULL;
   for (i = 0; i < n; i++) {
-    f->p[i] = cupF_newproto(S->L);
-    cupC_objbarrier(S->L, f, f->p[i]);
+    f->p[i] = acornF_newproto(S->L);
+    acornC_objbarrier(S->L, f, f->p[i]);
     loadFunction(S, f->p[i], f->source);
   }
 }
@@ -212,7 +212,7 @@ static void loadProtos (LoadState *S, Proto *f) {
 static void loadUpvalues (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->upvalues = cupM_newvectorchecked(S->L, n, Upvaldesc);
+  f->upvalues = acornM_newvectorchecked(S->L, n, Upvaldesc);
   f->sizeupvalues = n;
   for (i = 0; i < n; i++)  /* make array valid for GC */
     f->upvalues[i].name = NULL;
@@ -227,18 +227,18 @@ static void loadUpvalues (LoadState *S, Proto *f) {
 static void loadDebug (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->lineinfo = cupM_newvectorchecked(S->L, n, ls_byte);
+  f->lineinfo = acornM_newvectorchecked(S->L, n, ls_byte);
   f->sizelineinfo = n;
   loadVector(S, f->lineinfo, n);
   n = loadInt(S);
-  f->abslineinfo = cupM_newvectorchecked(S->L, n, AbsLineInfo);
+  f->abslineinfo = acornM_newvectorchecked(S->L, n, AbsLineInfo);
   f->sizeabslineinfo = n;
   for (i = 0; i < n; i++) {
     f->abslineinfo[i].pc = loadInt(S);
     f->abslineinfo[i].line = loadInt(S);
   }
   n = loadInt(S);
-  f->locvars = cupM_newvectorchecked(S->L, n, LocVar);
+  f->locvars = acornM_newvectorchecked(S->L, n, LocVar);
   f->sizelocvars = n;
   for (i = 0; i < n; i++)
     f->locvars[i].varname = NULL;
@@ -271,7 +271,7 @@ static void loadFunction (LoadState *S, Proto *f, TString *psource) {
 
 
 static void checkliteral (LoadState *S, const char *s, const char *msg) {
-  char buff[sizeof(CUP_SIGNATURE) + sizeof(CUPC_DATA)]; /* larger than both */
+  char buff[sizeof(ACORN_SIGNATURE) + sizeof(ACORNC_DATA)]; /* larger than both */
   size_t len = strlen(s);
   loadVector(S, buff, len);
   if (memcmp(s, buff, len) != 0)
@@ -281,7 +281,7 @@ static void checkliteral (LoadState *S, const char *s, const char *msg) {
 
 static void fchecksize (LoadState *S, size_t size, const char *tname) {
   if (loadByte(S) != size)
-    error(S, cupO_pushfstring(S->L, "%s size mismatch", tname));
+    error(S, acornO_pushfstring(S->L, "%s size mismatch", tname));
 }
 
 
@@ -289,18 +289,18 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 
 static void checkHeader (LoadState *S) {
   /* skip 1st char (already read and checked) */
-  checkliteral(S, &CUP_SIGNATURE[1], "not a binary chunk");
-  if (loadByte(S) != CUPC_VERSION)
+  checkliteral(S, &ACORN_SIGNATURE[1], "not a binary chunk");
+  if (loadByte(S) != ACORNC_VERSION)
     error(S, "version mismatch");
-  if (loadByte(S) != CUPC_FORMAT)
+  if (loadByte(S) != ACORNC_FORMAT)
     error(S, "format mismatch");
-  checkliteral(S, CUPC_DATA, "corrupted chunk");
+  checkliteral(S, ACORNC_DATA, "corrupted chunk");
   checksize(S, Instruction);
-  checksize(S, cup_Integer);
-  checksize(S, cup_Number);
-  if (loadInteger(S) != CUPC_INT)
+  checksize(S, acorn_Integer);
+  checksize(S, acorn_Number);
+  if (loadInteger(S) != ACORNC_INT)
     error(S, "integer format mismatch");
-  if (loadNumber(S) != CUPC_NUM)
+  if (loadNumber(S) != ACORNC_NUM)
     error(S, "float format mismatch");
 }
 
@@ -308,26 +308,26 @@ static void checkHeader (LoadState *S) {
 /*
 ** Load precompiled chunk.
 */
-LClosure *cupU_undump(cup_State *L, ZIO *Z, const char *name) {
+LClosure *acornU_undump(acorn_State *L, ZIO *Z, const char *name) {
   LoadState S;
   LClosure *cl;
   if (*name == '@' || *name == '=')
     S.name = name + 1;
-  else if (*name == CUP_SIGNATURE[0])
+  else if (*name == ACORN_SIGNATURE[0])
     S.name = "binary string";
   else
     S.name = name;
   S.L = L;
   S.Z = Z;
   checkHeader(&S);
-  cl = cupF_newLclosure(L, loadByte(&S));
+  cl = acornF_newLclosure(L, loadByte(&S));
   setclLvalue2s(L, L->top, cl);
-  cupD_inctop(L);
-  cl->p = cupF_newproto(L);
-  cupC_objbarrier(L, cl, cl->p);
+  acornD_inctop(L);
+  cl->p = acornF_newproto(L);
+  acornC_objbarrier(L, cl, cl->p);
   loadFunction(&S, cl->p, NULL);
-  cup_assert(cl->nupvalues == cl->p->sizeupvalues);
-  cupi_verifycode(L, cl->p);
+  acorn_assert(cl->nupvalues == cl->p->sizeupvalues);
+  acorni_verifycode(L, cl->p);
   return cl;
 }
 

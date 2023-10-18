@@ -1,7 +1,7 @@
 /*
 ** $Id: ltm.h $
 ** Tag methods
-** See Copyright Notice in cup.h
+** See Copyright Notice in acorn.h
 */
 
 #ifndef ltm_h
@@ -62,41 +62,41 @@ typedef enum {
 
 
 #define gfasttm(g,et,e) ((et) == NULL ? NULL : \
-  ((et)->flags & (1u<<(e))) ? NULL : cupT_gettm(et, e, (g)->tmname[e]))
+  ((et)->flags & (1u<<(e))) ? NULL : acornT_gettm(et, e, (g)->tmname[e]))
 
 #define fasttm(l,et,e)	gfasttm(G(l), et, e)
 
-#define ttypename(x)	cupT_typenames_[(x) + 1]
+#define ttypename(x)	acornT_typenames_[(x) + 1]
 
-CUPI_DDEC(const char *const cupT_typenames_[CUP_TOTALTYPES];)
+ACORNI_DDEC(const char *const acornT_typenames_[ACORN_TOTALTYPES];)
 
 
-CUPI_FUNC const char *cupT_objtypename (cup_State *L, const TValue *o);
+ACORNI_FUNC const char *acornT_objtypename (acorn_State *L, const TValue *o);
 
-CUPI_FUNC const TValue *cupT_gettm (Table *events, TMS event, TString *ename);
-CUPI_FUNC const TValue *cupT_gettmbyobj (cup_State *L, const TValue *o,
+ACORNI_FUNC const TValue *acornT_gettm (Table *events, TMS event, TString *ename);
+ACORNI_FUNC const TValue *acornT_gettmbyobj (acorn_State *L, const TValue *o,
                                                        TMS event);
-CUPI_FUNC void cupT_init (cup_State *L);
+ACORNI_FUNC void acornT_init (acorn_State *L);
 
-CUPI_FUNC void cupT_callTM (cup_State *L, const TValue *f, const TValue *p1,
+ACORNI_FUNC void acornT_callTM (acorn_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
-CUPI_FUNC void cupT_callTMres (cup_State *L, const TValue *f,
+ACORNI_FUNC void acornT_callTMres (acorn_State *L, const TValue *f,
                             const TValue *p1, const TValue *p2, StkId p3);
-CUPI_FUNC void cupT_trybinTM (cup_State *L, const TValue *p1, const TValue *p2,
+ACORNI_FUNC void acornT_trybinTM (acorn_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
-CUPI_FUNC void cupT_tryconcatTM (cup_State *L);
-CUPI_FUNC void cupT_trybinassocTM (cup_State *L, const TValue *p1,
+ACORNI_FUNC void acornT_tryconcatTM (acorn_State *L);
+ACORNI_FUNC void acornT_trybinassocTM (acorn_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
-CUPI_FUNC void cupT_trybiniTM (cup_State *L, const TValue *p1, cup_Integer i2,
+ACORNI_FUNC void acornT_trybiniTM (acorn_State *L, const TValue *p1, acorn_Integer i2,
                                int inv, StkId res, TMS event);
-CUPI_FUNC int cupT_callorderTM (cup_State *L, const TValue *p1,
+ACORNI_FUNC int acornT_callorderTM (acorn_State *L, const TValue *p1,
                                 const TValue *p2, TMS event);
-CUPI_FUNC int cupT_callorderiTM (cup_State *L, const TValue *p1, int v2,
+ACORNI_FUNC int acornT_callorderiTM (acorn_State *L, const TValue *p1, int v2,
                                  int inv, int isfloat, TMS event);
 
-CUPI_FUNC void cupT_adjustvarargs (cup_State *L, int nfixparams,
+ACORNI_FUNC void acornT_adjustvarargs (acorn_State *L, int nfixparams,
                                    struct CallInfo *ci, const Proto *p);
-CUPI_FUNC void cupT_getvarargs (cup_State *L, struct CallInfo *ci,
+ACORNI_FUNC void acornT_getvarargs (acorn_State *L, struct CallInfo *ci,
                                               StkId where, int wanted);
 
 

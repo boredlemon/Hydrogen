@@ -1,18 +1,18 @@
 /*
 ** $Id: ldump.c $
-** save precompiled Cup chunks
-** See Copyright Notice in cup.h
+** save precompiled Acorn chunks
+** See Copyright Notice in acorn.h
 */
 
 #define ldump_c
-#define CUP_CORE
+#define ACORN_CORE
 
 #include "lprefix.h"
 
 
 #include <stddef.h>
 
-#include "cup.h"
+#include "acorn.h"
 
 #include "lobject.h"
 #include "lstate.h"
@@ -20,8 +20,8 @@
 
 
 typedef struct {
-  cup_State *L;
-  cup_Writer writer;
+  acorn_State *L;
+  acorn_Writer writer;
   void *data;
   int strip;
   int status;
@@ -29,7 +29,7 @@ typedef struct {
 
 
 /*
-** All high-level dumps Cup through dumpVector; you can change it to
+** All high-level dumps Acorn through dumpVector; you can change it to
 ** change the endianness of the result
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
@@ -39,9 +39,9 @@ typedef struct {
 
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    cup_unlock(D->L);
+    acorn_unlock(D->L);
     D->status = (*D->writer)(D->L, b, size, D->data);
-    cup_lock(D->L);
+    acorn_lock(D->L);
   }
 }
 
@@ -75,12 +75,12 @@ static void dumpInt (DumpState *D, int x) {
 }
 
 
-static void dumpNumber (DumpState *D, cup_Number x) {
+static void dumpNumber (DumpState *D, acorn_Number x) {
   dumpVar(D, x);
 }
 
 
-static void dumpInteger (DumpState *D, cup_Integer x) {
+static void dumpInteger (DumpState *D, acorn_Integer x) {
   dumpVar(D, x);
 }
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case CUP_VNUMFLT:
+      case ACORN_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case CUP_VNUMINT:
+      case ACORN_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case CUP_VSHRSTR:
-      case CUP_VLNGSTR:
+      case ACORN_VSHRSTR:
+      case ACORN_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        cup_assert(tt == CUP_VNIL || tt == CUP_VFALSE || tt == CUP_VTRUE);
+        acorn_assert(tt == ACORN_VNIL || tt == ACORN_VFALSE || tt == ACORN_VTRUE);
     }
   }
 }
@@ -195,22 +195,22 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, CUP_SIGNATURE);
-  dumpByte(D, CUPC_VERSION);
-  dumpByte(D, CUPC_FORMAT);
-  dumpLiteral(D, CUPC_DATA);
+  dumpLiteral(D, ACORN_SIGNATURE);
+  dumpByte(D, ACORNC_VERSION);
+  dumpByte(D, ACORNC_FORMAT);
+  dumpLiteral(D, ACORNC_DATA);
   dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(cup_Integer));
-  dumpByte(D, sizeof(cup_Number));
-  dumpInteger(D, CUPC_INT);
-  dumpNumber(D, CUPC_NUM);
+  dumpByte(D, sizeof(acorn_Integer));
+  dumpByte(D, sizeof(acorn_Number));
+  dumpInteger(D, ACORNC_INT);
+  dumpNumber(D, ACORNC_NUM);
 }
 
 
 /*
-** dump Cup function as precompiled chunk
+** dump Acorn function as precompiled chunk
 */
-int cupU_dump(cup_State *L, const Proto *f, cup_Writer w, void *data,
+int acornU_dump(acorn_State *L, const Proto *f, acorn_Writer w, void *data,
               int strip) {
   DumpState D;
   D.L = L;

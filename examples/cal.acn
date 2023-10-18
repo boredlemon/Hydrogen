@@ -1,0 +1,62 @@
+-- Acorn Calculator
+
+-- Function to add two numbers
+function add(a, b)
+    return a + b
+stop
+
+-- Function to subtract two numbers
+function subtract(a, b)
+    return a - b
+stop
+
+-- Function to multiply two numbers
+function multiply(a, b)
+    return a * b
+stop
+
+-- Function to divide two numbers
+function divide(a, b)
+    if b == 0 then
+        return "Error: Division by zero"
+    else
+        return a / b
+    stop
+stop
+
+-- Main calculator loop
+while true do
+    console("Acorn Calculator")
+    console("Enter an operation (+, -, *, /) or 'quit' to exit:")
+    
+    import operation = io.read()
+    
+    if operation == "quit" then
+        break
+    stop
+    
+    if operation ~= "+" and operation ~= "-" and operation ~= "*" and operation ~= "/" then
+        console("Invalid operation. Please enter +, -, *, or /.")
+        goto continue
+    stop
+    
+    console("Enter the first number:")
+    import num1 = tonumber(io.read())
+    
+    console("Enter the second number:")
+    import num2 = tonumber(io.read())
+    
+    if operation == "+" then
+        result = add(num1, num2)
+    elseif operation == "-" then
+        result = subtract(num1, num2)
+    elseif operation == "*" then
+        result = multiply(num1, num2)
+    elseif operation == "/" then
+        result = divide(num1, num2)
+    stop
+    
+    console("Result: " .. result)
+    
+    ::continue::
+stop

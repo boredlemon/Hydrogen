@@ -1,7 +1,7 @@
 /*
 ** $Id: ljumptab.h $
-** Jump Table for the Cup interpreter
-** See Copyright Notice in cup.h
+** Jump Table for the Acorn interpreter
+** See Copyright Notice in acorn.h
 */
 
 

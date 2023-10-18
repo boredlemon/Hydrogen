@@ -1,35 +1,35 @@
 /*
 ** $Id: lctype.h $
-** 'ctype' functions for Cup
-** See Copyright Notice in cup.h
+** 'ctype' functions for Acorn
+** See Copyright Notice in acorn.h
 */
 
 #ifndef lctype_h
 #define lctype_h
 
-#include "cup.h"
+#include "acorn.h"
 
 
 /*
 ** WARNING: the functions defined here do not necessarily correspond
 ** to the similar functions in the standard C ctype.h. They are
-** optimized for the specific needs of Cup.
+** optimized for the specific needs of Acorn.
 */
 
-#if !defined(CUP_USE_CTYPE)
+#if !defined(ACORN_USE_CTYPE)
 
 #if 'A' == 65 && '0' == 48
 /* ASCII case: can use its own tables; faster and fixed */
-#define CUP_USE_CTYPE	0
+#define ACORN_USE_CTYPE	0
 #else
 /* must use standard C ctype */
-#define CUP_USE_CTYPE	1
+#define ACORN_USE_CTYPE	1
 #endif
 
 #endif
 
 
-#if !CUP_USE_CTYPE	/* { */
+#if !ACORN_USE_CTYPE	/* { */
 
 #include <limits.h>
 
@@ -49,10 +49,10 @@
 /*
 ** add 1 to char to allow index -1 (EOZ)
 */
-#define testprop(c,p)	(cupi_ctype_[(c)+1] & (p))
+#define testprop(c,p)	(acorni_ctype_[(c)+1] & (p))
 
 /*
-** 'lalpha' (Cup alphabetic) and 'lalnum' (Cup alphanumeric) both include '_'
+** 'lalpha' (Acorn alphabetic) and 'lalnum' (Acorn alphanumeric) both include '_'
 */
 #define lislalpha(c)	testprop(c, MASK(ALPHABIT))
 #define lislalnum(c)	testprop(c, (MASK(ALPHABIT) | MASK(DIGITBIT)))
@@ -64,7 +64,7 @@
 
 /*
 ** In ASCII, this 'ltolower' is correct for alphabetic characters and
-** for '.'. That is enough for Cup needs. ('check_exp' ensures that
+** for '.'. That is enough for Acorn needs. ('check_exp' ensures that
 ** the character either is an upper-case letter or is unchanged by
 ** the transformation, which holds for lower-case letters and '.'.)
 */
@@ -74,7 +74,7 @@
 
 
 /* one entry for each character and for -1 (EOZ) */
-CUPI_DDEC(const lu_byte cupi_ctype_[UCHAR_MAX + 2];)
+ACORNI_DDEC(const lu_byte acorni_ctype_[UCHAR_MAX + 2];)
 
 
 #else			/* }{ */
