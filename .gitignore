@@ -1,2 +1,12 @@
-/.DS_Store
-.DS_Store
+*.DS_Store
+
+# Ignore object files
+*.o
+
+# Ignore executable files
+*.exe
+*.out
+*acorn
+*acornc
+*.a
+*.tmp
