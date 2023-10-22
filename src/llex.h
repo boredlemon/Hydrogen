@@ -1,7 +1,7 @@
 /*
 ** $Id: llex.h $
 ** Lexical Analyzer
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #ifndef llex_h
@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(ACORN_ENV)
-#define ACORN_ENV		"_ENV"
+#if !defined(VIPER_ENV)
+#define VIPER_ENV		"_ENV"
 #endif
 
 
@@ -47,8 +47,8 @@ enum RESERVED {
 
 
 typedef union {
-  acorn_Number r;
-  acorn_Integer i;
+  viper_Number r;
+  viper_Integer i;
   TString *ts;
 } SemInfo;  /* semantics information */
 
@@ -68,7 +68,7 @@ typedef struct LexState {
   Token t;  /* current token */
   Token lookahead;  /* look ahead token */
   struct FuncState *fs;  /* current function (parser) */
-  struct acorn_State *L;
+  struct viper_State *L;
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-ACORNI_FUNC void acornX_init (acorn_State *L);
-ACORNI_FUNC void acornX_setinput (acorn_State *L, LexState *ls, ZIO *z,
+VIPERI_FUNC void viperX_init (viper_State *L);
+VIPERI_FUNC void viperX_setinput (viper_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-ACORNI_FUNC TString *acornX_newstring (LexState *ls, const char *str, size_t l);
-ACORNI_FUNC void acornX_next (LexState *ls);
-ACORNI_FUNC int acornX_lookahead (LexState *ls);
-ACORNI_FUNC l_noret acornX_syntaxerror (LexState *ls, const char *s);
-ACORNI_FUNC const char *acornX_token2str (LexState *ls, int token);
+VIPERI_FUNC TString *viperX_newstring (LexState *ls, const char *str, size_t l);
+VIPERI_FUNC void viperX_next (LexState *ls);
+VIPERI_FUNC int viperX_lookahead (LexState *ls);
+VIPERI_FUNC l_noret viperX_syntaxerror (LexState *ls, const char *s);
+VIPERI_FUNC const char *viperX_token2str (LexState *ls, int token);
 
 
 #endif

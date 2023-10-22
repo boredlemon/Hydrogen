@@ -1,7 +1,7 @@
 /*
 ** $Id: lopnames.h $
 ** Opcode names
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #if !defined(lopnames_h)

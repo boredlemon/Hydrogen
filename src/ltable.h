@@ -1,7 +1,7 @@
 /*
 ** $Id: ltable.h $
-** Acorn tables (hash)
-** See Copyright Notice in acorn.h
+** Viper tables (hash)
+** See Copyright Notice in viper.h
 */
 
 #ifndef ltable_h
@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-ACORNI_FUNC const TValue *acornH_getint (Table *t, acorn_Integer key);
-ACORNI_FUNC void acornH_setint (acorn_State *L, Table *t, acorn_Integer key,
+VIPERI_FUNC const TValue *viperH_getint (Table *t, viper_Integer key);
+VIPERI_FUNC void viperH_setint (viper_State *L, Table *t, viper_Integer key,
                                                     TValue *value);
-ACORNI_FUNC const TValue *acornH_getshortstr (Table *t, TString *key);
-ACORNI_FUNC const TValue *acornH_getstr (Table *t, TString *key);
-ACORNI_FUNC const TValue *acornH_get (Table *t, const TValue *key);
-ACORNI_FUNC void acornH_newkey (acorn_State *L, Table *t, const TValue *key,
+VIPERI_FUNC const TValue *viperH_getshortstr (Table *t, TString *key);
+VIPERI_FUNC const TValue *viperH_getstr (Table *t, TString *key);
+VIPERI_FUNC const TValue *viperH_get (Table *t, const TValue *key);
+VIPERI_FUNC void viperH_newkey (viper_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-ACORNI_FUNC void acornH_set (acorn_State *L, Table *t, const TValue *key,
+VIPERI_FUNC void viperH_set (viper_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-ACORNI_FUNC void acornH_finishset (acorn_State *L, Table *t, const TValue *key,
+VIPERI_FUNC void viperH_finishset (viper_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-ACORNI_FUNC Table *acornH_new (acorn_State *L);
-ACORNI_FUNC void acornH_resize (acorn_State *L, Table *t, unsigned int nasize,
+VIPERI_FUNC Table *viperH_new (viper_State *L);
+VIPERI_FUNC void viperH_resize (viper_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-ACORNI_FUNC void acornH_resizearray (acorn_State *L, Table *t, unsigned int nasize);
-ACORNI_FUNC void acornH_free (acorn_State *L, Table *t);
-ACORNI_FUNC int acornH_next (acorn_State *L, Table *t, StkId key);
-ACORNI_FUNC acorn_Unsigned acornH_getn (Table *t);
-ACORNI_FUNC unsigned int acornH_realasize (const Table *t);
+VIPERI_FUNC void viperH_resizearray (viper_State *L, Table *t, unsigned int nasize);
+VIPERI_FUNC void viperH_free (viper_State *L, Table *t);
+VIPERI_FUNC int viperH_next (viper_State *L, Table *t, StkId key);
+VIPERI_FUNC viper_Unsigned viperH_getn (Table *t);
+VIPERI_FUNC unsigned int viperH_realasize (const Table *t);
 
 
-#if defined(ACORN_DEBUG)
-ACORNI_FUNC Node *acornH_mainposition (const Table *t, const TValue *key);
-ACORNI_FUNC int acornH_isdummy (const Table *t);
+#if defined(VIPER_DEBUG)
+VIPERI_FUNC Node *viperH_mainposition (const Table *t, const TValue *key);
+VIPERI_FUNC int viperH_isdummy (const Table *t);
 #endif
 
 

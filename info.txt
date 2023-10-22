@@ -1,5 +1,5 @@
-ACORN = Creative Utility Programs
-It's Acorn the coffee!☕☕☕
+VIPER = Creative Utility Programs
+It's Viper the coffee!☕☕☕
 remove those cache makefiles
 find . -type f -name "*-e-e-e*" -exec rm {} \;
 find . -type f -name "*-e-e*" -exec rm {} \;
@@ -13,7 +13,7 @@ N - Network
 
 cd examples/bot
 ---------------------------------------------
-acorn pkg manager
+viper pkg manager
 tpm
 
 if its not working on mac you do
@@ -22,7 +22,7 @@ make sure to replace exmapleuser with your actual username!
 
 ---------------------------------------------
 Change file extensions
-for file in *.neb; do mv "$file" "${file%.acorn}.acorn"; done
+for file in *.neb; do mv "$file" "${file%.viper}.viper"; done
 
 for the whole project
 find . -type f -name "*.cup" -exec bash -c 'mv "$0" "${0%.cup}.acn"' {} \;
@@ -36,9 +36,9 @@ sed -i '' 's/lit/tpm/g' Makefile
 
 
 change it for the whole project
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/acorn/acorn/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/ACORN/ACORN/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Acorn/Acorn/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/viper/viper/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/VIPER/VIPER/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Viper/Viper/g' {} +
 ___________________
 project map
 

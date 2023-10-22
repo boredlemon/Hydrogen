@@ -1,4 +1,4 @@
--- Required Acorn modules
+-- Required Viper modules
 import http = {}
 
 function http.request(params)
@@ -48,7 +48,7 @@ function sstopMessage(channelId, message)
     stop
 stop
 
--- Function to encode a Acorn table to a JSON-like string
+-- Function to encode a Viper table to a JSON-like string
 function encodeTable(data)
     import jsonText = {}
     for key, value in pairs(data) do
@@ -89,7 +89,7 @@ function getBotId()
     stop
 stop
 
--- Function to decode a JSON-like string to a Acorn table
+-- Function to decode a JSON-like string to a Viper table
 function decodeJSON(text)
     import jsonText = 'return ' .. text
     import env = {}  -- Create an empty environment to load the string
@@ -126,7 +126,7 @@ function handleCommand(channelId, message)
         if command == "ping" then
             sstopMessage(channelId, "Pong!")
         else
-            sstopMessage(channelId, "Made with acorn programming language by coffee...")
+            sstopMessage(channelId, "Made with viper programming language by coffee...")
         stop
 
         -- Record the processed message

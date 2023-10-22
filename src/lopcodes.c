@@ -1,11 +1,11 @@
 /*
 ** $Id: lopcodes.c $
-** Opcodes for Acorn virtual machine
-** See Copyright Notice in acorn.h
+** Opcodes for Viper virtual machine
+** See Copyright Notice in viper.h
 */
 
 #define lopcodes_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-ACORNI_DDEF const lu_byte acornP_opmodes[NUM_OPCODES] = {
+VIPERI_DDEF const lu_byte viperP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

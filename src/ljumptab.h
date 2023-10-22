@@ -1,7 +1,7 @@
 /*
 ** $Id: ljumptab.h $
-** Jump Table for the Acorn interpreter
-** See Copyright Notice in acorn.h
+** Jump Table for the Viper interpreter
+** See Copyright Notice in viper.h
 */
 
 

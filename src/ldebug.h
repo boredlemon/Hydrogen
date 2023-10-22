@@ -1,7 +1,7 @@
 /*
 ** $Id: ldebug.h $
 ** Auxiliary functions from Debug Interface module
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #ifndef ldebug_h
@@ -14,7 +14,7 @@
 #define pcRel(pc, p)	(cast_int((pc) - (p)->code) - 1)
 
 
-/* Active Acorn function (given call info) */
+/* Active Viper function (given call info) */
 #define ci_func(ci)		(clLvalue(s2v((ci)->func)))
 
 
@@ -36,28 +36,28 @@
 #endif
 
 
-ACORNI_FUNC int acornG_getfuncline (const Proto *f, int pc);
-ACORNI_FUNC const char *acornG_findlocal (acorn_State *L, CallInfo *ci, int n,
+VIPERI_FUNC int viperG_getfuncline (const Proto *f, int pc);
+VIPERI_FUNC const char *viperG_findlocal (viper_State *L, CallInfo *ci, int n,
                                                     StkId *pos);
-ACORNI_FUNC l_noret acornG_typeerror (acorn_State *L, const TValue *o,
+VIPERI_FUNC l_noret viperG_typeerror (viper_State *L, const TValue *o,
                                                 const char *opname);
-ACORNI_FUNC l_noret acornG_callerror (acorn_State *L, const TValue *o);
-ACORNI_FUNC l_noret acornG_forerror (acorn_State *L, const TValue *o,
+VIPERI_FUNC l_noret viperG_callerror (viper_State *L, const TValue *o);
+VIPERI_FUNC l_noret viperG_forerror (viper_State *L, const TValue *o,
                                                const char *what);
-ACORNI_FUNC l_noret acornG_concaterror (acorn_State *L, const TValue *p1,
+VIPERI_FUNC l_noret viperG_concaterror (viper_State *L, const TValue *p1,
                                                   const TValue *p2);
-ACORNI_FUNC l_noret acornG_opinterror (acorn_State *L, const TValue *p1,
+VIPERI_FUNC l_noret viperG_opinterror (viper_State *L, const TValue *p1,
                                                  const TValue *p2,
                                                  const char *msg);
-ACORNI_FUNC l_noret acornG_tointerror (acorn_State *L, const TValue *p1,
+VIPERI_FUNC l_noret viperG_tointerror (viper_State *L, const TValue *p1,
                                                  const TValue *p2);
-ACORNI_FUNC l_noret acornG_ordererror (acorn_State *L, const TValue *p1,
+VIPERI_FUNC l_noret viperG_ordererror (viper_State *L, const TValue *p1,
                                                  const TValue *p2);
-ACORNI_FUNC l_noret acornG_runerror (acorn_State *L, const char *fmt, ...);
-ACORNI_FUNC const char *acornG_addinfo (acorn_State *L, const char *msg,
+VIPERI_FUNC l_noret viperG_runerror (viper_State *L, const char *fmt, ...);
+VIPERI_FUNC const char *viperG_addinfo (viper_State *L, const char *msg,
                                                   TString *src, int line);
-ACORNI_FUNC l_noret acornG_errormsg (acorn_State *L);
-ACORNI_FUNC int acornG_traceexec (acorn_State *L, const Instruction *pc);
+VIPERI_FUNC l_noret viperG_errormsg (viper_State *L);
+VIPERI_FUNC int viperG_traceexec (viper_State *L, const Instruction *pc);
 
 
 #endif

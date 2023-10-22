@@ -1,18 +1,18 @@
 /*
 ** $Id: ldump.c $
-** save precompiled Acorn chunks
-** See Copyright Notice in acorn.h
+** save precompiled Viper chunks
+** See Copyright Notice in viper.h
 */
 
 #define ldump_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
 
 #include <stddef.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lobject.h"
 #include "lstate.h"
@@ -20,8 +20,8 @@
 
 
 typedef struct {
-  acorn_State *L;
-  acorn_Writer writer;
+  viper_State *L;
+  viper_Writer writer;
   void *data;
   int strip;
   int status;
@@ -29,7 +29,7 @@ typedef struct {
 
 
 /*
-** All high-level dumps Acorn through dumpVector; you can change it to
+** All high-level dumps Viper through dumpVector; you can change it to
 ** change the endianness of the result
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
@@ -39,9 +39,9 @@ typedef struct {
 
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    acorn_unlock(D->L);
+    viper_unlock(D->L);
     D->status = (*D->writer)(D->L, b, size, D->data);
-    acorn_lock(D->L);
+    viper_lock(D->L);
   }
 }
 
@@ -75,12 +75,12 @@ static void dumpInt (DumpState *D, int x) {
 }
 
 
-static void dumpNumber (DumpState *D, acorn_Number x) {
+static void dumpNumber (DumpState *D, viper_Number x) {
   dumpVar(D, x);
 }
 
 
-static void dumpInteger (DumpState *D, acorn_Integer x) {
+static void dumpInteger (DumpState *D, viper_Integer x) {
   dumpVar(D, x);
 }
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case ACORN_VNUMFLT:
+      case VIPER_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case ACORN_VNUMINT:
+      case VIPER_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case ACORN_VSHRSTR:
-      case ACORN_VLNGSTR:
+      case VIPER_VSHRSTR:
+      case VIPER_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        acorn_assert(tt == ACORN_VNIL || tt == ACORN_VFALSE || tt == ACORN_VTRUE);
+        viper_assert(tt == VIPER_VNIL || tt == VIPER_VFALSE || tt == VIPER_VTRUE);
     }
   }
 }
@@ -195,22 +195,22 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, ACORN_SIGNATURE);
-  dumpByte(D, ACORNC_VERSION);
-  dumpByte(D, ACORNC_FORMAT);
-  dumpLiteral(D, ACORNC_DATA);
+  dumpLiteral(D, VIPER_SIGNATURE);
+  dumpByte(D, VIPERC_VERSION);
+  dumpByte(D, VIPERC_FORMAT);
+  dumpLiteral(D, VIPERC_DATA);
   dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(acorn_Integer));
-  dumpByte(D, sizeof(acorn_Number));
-  dumpInteger(D, ACORNC_INT);
-  dumpNumber(D, ACORNC_NUM);
+  dumpByte(D, sizeof(viper_Integer));
+  dumpByte(D, sizeof(viper_Number));
+  dumpInteger(D, VIPERC_INT);
+  dumpNumber(D, VIPERC_NUM);
 }
 
 
 /*
-** dump Acorn function as precompiled chunk
+** dump Viper function as precompiled chunk
 */
-int acornU_dump(acorn_State *L, const Proto *f, acorn_Writer w, void *data,
+int viperU_dump(viper_State *L, const Proto *f, viper_Writer w, void *data,
               int strip) {
   DumpState D;
   D.L = L;

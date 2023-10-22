@@ -1,4 +1,4 @@
-# Makefile for building Acorn
+# Makefile for building Viper
 # See ../doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -7,7 +7,7 @@
 PLAT= guess
 
 CC= gcc -std=gnu99
-CFLAGS= -O2 -Wall -Wextra -DACORN_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
+CFLAGS= -O2 -Wall -Wextra -DVIPER_COMPAT_5_3 $(SYSCFLAGS) $(MYCFLAGS)
 LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lm $(SYSLIBS) $(MYLIBS)
 
@@ -32,20 +32,20 @@ CMCFLAGS=
 
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
-ACORN_A=	libacorn.a
+VIPER_A=	libviper.a
 CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o
 LIB_O=	lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o
 BASE_O= $(CORE_O) $(LIB_O) $(MYOBJS)
 
-ACORN_T=	acorn
-ACORN_O=	acorn.o
+VIPER_T=	viper
+VIPER_O=	viper.o
 
-ACORNC_T=	acornc
-ACORNC_O=	acornc.o
+VIPERC_T=	viperc
+VIPERC_O=	viperc.o
 
-ALL_O= $(BASE_O) $(ACORN_O) $(ACORNC_O)
-ALL_T= $(ACORN_A) $(ACORN_T) $(ACORNC_T)
-ALL_A= $(ACORN_A)
+ALL_O= $(BASE_O) $(VIPER_O) $(VIPERC_O)
+ALL_T= $(VIPER_A) $(VIPER_T) $(VIPERC_T)
+ALL_A= $(VIPER_A)
 
 # Targets start here.
 default: $(PLAT)
@@ -56,18 +56,18 @@ o:	$(ALL_O)
 
 a:	$(ALL_A)
 
-$(ACORN_A): $(BASE_O)
+$(VIPER_A): $(BASE_O)
 	$(AR) $@ $(BASE_O)
 	$(RANLIB) $@
 
-$(ACORN_T): $(ACORN_O) $(ACORN_A)
-	$(CC) -o $@ $(LDFLAGS) $(ACORN_O) $(ACORN_A) $(LIBS)
+$(VIPER_T): $(VIPER_O) $(VIPER_A)
+	$(CC) -o $@ $(LDFLAGS) $(VIPER_O) $(VIPER_A) $(LIBS)
 
-$(ACORNC_T): $(ACORNC_O) $(ACORN_A)
-	$(CC) -o $@ $(LDFLAGS) $(ACORNC_O) $(ACORN_A) $(LIBS)
+$(VIPERC_T): $(VIPERC_O) $(VIPER_A)
+	$(CC) -o $@ $(LDFLAGS) $(VIPERC_O) $(VIPER_A) $(LIBS)
 
 test:
-	./$(ACORN_T) -v
+	./$(VIPER_T) -v
 
 clean:
 	$(RM) $(ALL_T) $(ALL_O)
@@ -99,46 +99,46 @@ guess:
 	@$(MAKE) `$(UNAME)`
 
 AIX aix:
-	$(MAKE) $(ALL) CC="xlc" CFLAGS="-O2 -DACORN_USE_POSIX -DACORN_USE_DLOPEN" SYSLIBS="-ldl" SYSLDFLAGS="-brtl -bexpall"
+	$(MAKE) $(ALL) CC="xlc" CFLAGS="-O2 -DVIPER_USE_POSIX -DVIPER_USE_DLOPEN" SYSLIBS="-ldl" SYSLDFLAGS="-brtl -bexpall"
 
 bsd:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_POSIX -DACORN_USE_DLOPEN" SYSLIBS="-Wl,-E"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_POSIX -DVIPER_USE_DLOPEN" SYSLIBS="-Wl,-E"
 
 c89:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_C89" CC="gcc -std=c89"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_C89" CC="gcc -std=c89"
 	@echo ''
-	@echo '*** C89 does not guarantee 64-bit integers for Acorn.'
-	@echo '*** Make sure to compile all external Acorn libraries'
-	@echo '*** with ACORN_USE_C89 to ensure consistency'
+	@echo '*** C89 does not guarantee 64-bit integers for Viper.'
+	@echo '*** Make sure to compile all external Viper libraries'
+	@echo '*** with VIPER_USE_C89 to ensure consistency'
 	@echo ''
 
 FreeBSD NetBSD OpenBSD freebsd:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_LINUX -DACORN_USE_READLINE -I/usr/include/edit" SYSLIBS="-Wl,-E -ledit" CC="cc"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_LINUX -DVIPER_USE_READLINE -I/usr/include/edit" SYSLIBS="-Wl,-E -ledit" CC="cc"
 
 generic: $(ALL)
 
 Linux linux:	linux-noreadline
 
 linux-noreadline:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_LINUX" SYSLIBS="-Wl,-E -ldl"
 
 linux-readline:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_LINUX -DACORN_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_LINUX -DVIPER_USE_READLINE" SYSLIBS="-Wl,-E -ldl -lreadline"
 
 Darwin macos macosx:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_MACOSX -DACORN_USE_READLINE" SYSLIBS="-lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_MACOSX -DVIPER_USE_READLINE" SYSLIBS="-lreadline"
 
 mingw:
-	$(MAKE) "ACORN_A=acorn54.dll" "ACORN_T=acorn.exe" \
+	$(MAKE) "VIPER_A=viper54.dll" "VIPER_T=viper.exe" \
 	"AR=$(CC) -shared -o" "RANLIB=strip --strip-unneeded" \
-	"SYSCFLAGS=-DACORN_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" acorn.exe
-	$(MAKE) "ACORNC_T=acornc.exe" acornc.exe
+	"SYSCFLAGS=-DVIPER_BUILD_AS_DLL" "SYSLIBS=" "SYSLDFLAGS=-s" viper.exe
+	$(MAKE) "VIPERC_T=viperc.exe" viperc.exe
 
 posix:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_POSIX"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_POSIX"
 
 SunOS solaris:
-	$(MAKE) $(ALL) SYSCFLAGS="-DACORN_USE_POSIX -DACORN_USE_DLOPEN -D_REENTRANT" SYSLIBS="-ldl"
+	$(MAKE) $(ALL) SYSCFLAGS="-DVIPER_USE_POSIX -DVIPER_USE_DLOPEN -D_REENTRANT" SYSLIBS="-ldl"
 
 # Targets that do not create files (not all makes understand .PHONY).
 .PHONY: all $(PLATS) help test clean default o a depend echo
@@ -155,68 +155,68 @@ lcode.o:
 
 # DO NOT DELETE
 
-lapi.o: lapi.c lprefix.h acorn.h acornconf.h lapi.h llimits.h lstate.h \
+lapi.o: lapi.c lprefix.h viper.h viperconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
  ltable.h lundump.h lvm.h
-lauxlib.o: lauxlib.c lprefix.h acorn.h acornconf.h lauxlib.h
-lbaselib.o: lbaselib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lcode.o: lcode.c lprefix.h acorn.h acornconf.h lcode.h llex.h lobject.h \
+lauxlib.o: lauxlib.c lprefix.h viper.h viperconf.h lauxlib.h
+lbaselib.o: lbaselib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lcode.o: lcode.c lprefix.h viper.h viperconf.h lcode.h llex.h lobject.h \
  llimits.h lzio.h lmem.h lopcodes.h lparser.h ldebug.h lstate.h ltm.h \
  ldo.h lgc.h lstring.h ltable.h lvm.h
-lcorolib.o: lcorolib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lctype.o: lctype.c lprefix.h lctype.h acorn.h acornconf.h llimits.h
-ldblib.o: ldblib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-ldebug.o: ldebug.c lprefix.h acorn.h acornconf.h lapi.h llimits.h lstate.h \
+lcorolib.o: lcorolib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lctype.o: lctype.c lprefix.h lctype.h viper.h viperconf.h llimits.h
+ldblib.o: ldblib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+ldebug.o: ldebug.c lprefix.h viper.h viperconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h lcode.h llex.h lopcodes.h lparser.h \
  ldebug.h ldo.h lfunc.h lstring.h lgc.h ltable.h lvm.h
-ldo.o: ldo.c lprefix.h acorn.h acornconf.h lapi.h llimits.h lstate.h \
+ldo.o: ldo.c lprefix.h viper.h viperconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lopcodes.h \
  lparser.h lstring.h ltable.h lundump.h lvm.h
-ldump.o: ldump.c lprefix.h acorn.h acornconf.h lobject.h llimits.h lstate.h \
+ldump.o: ldump.c lprefix.h viper.h viperconf.h lobject.h llimits.h lstate.h \
  ltm.h lzio.h lmem.h lundump.h
-lfunc.o: lfunc.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+lfunc.o: lfunc.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h
-lgc.o: lgc.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+lgc.o: lgc.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h lstring.h ltable.h
-linit.o: linit.c lprefix.h acorn.h acornconf.h acornlib.h lauxlib.h
-liolib.o: liolib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-llex.o: llex.c lprefix.h acorn.h acornconf.h lctype.h llimits.h ldebug.h \
+linit.o: linit.c lprefix.h viper.h viperconf.h viperlib.h lauxlib.h
+liolib.o: liolib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+llex.o: llex.c lprefix.h viper.h viperconf.h lctype.h llimits.h ldebug.h \
  lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lgc.h llex.h lparser.h \
  lstring.h ltable.h
-lmathlib.o: lmathlib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lmem.o: lmem.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+lmathlib.o: lmathlib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lmem.o: lmem.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h
-loadlib.o: loadlib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lobject.o: lobject.c lprefix.h acorn.h acornconf.h lctype.h llimits.h \
+loadlib.o: loadlib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lobject.o: lobject.c lprefix.h viper.h viperconf.h lctype.h llimits.h \
  ldebug.h lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lstring.h lgc.h \
  lvm.h
-lopcodes.o: lopcodes.c lprefix.h lopcodes.h llimits.h acorn.h acornconf.h
-loslib.o: loslib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lparser.o: lparser.c lprefix.h acorn.h acornconf.h lcode.h llex.h lobject.h \
+lopcodes.o: lopcodes.c lprefix.h lopcodes.h llimits.h viper.h viperconf.h
+loslib.o: loslib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lparser.o: lparser.c lprefix.h viper.h viperconf.h lcode.h llex.h lobject.h \
  llimits.h lzio.h lmem.h lopcodes.h lparser.h ldebug.h lstate.h ltm.h \
  ldo.h lfunc.h lstring.h lgc.h ltable.h
-lstate.o: lstate.c lprefix.h acorn.h acornconf.h lapi.h llimits.h lstate.h \
+lstate.o: lstate.c lprefix.h viper.h viperconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h llex.h \
  lstring.h ltable.h
-lstring.o: lstring.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h \
+lstring.o: lstring.c lprefix.h viper.h viperconf.h ldebug.h lstate.h \
  lobject.h llimits.h ltm.h lzio.h lmem.h ldo.h lstring.h lgc.h
-lstrlib.o: lstrlib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-ltable.o: ltable.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+lstrlib.o: lstrlib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+ltable.o: ltable.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h lstring.h ltable.h lvm.h
-ltablib.o: ltablib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-ltm.o: ltm.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+ltablib.o: ltablib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+ltm.o: ltm.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h lstring.h ltable.h lvm.h
-acorn.o: acorn.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-acornc.o: acornc.c lprefix.h acorn.h acornconf.h lauxlib.h ldebug.h lstate.h \
+viper.o: viper.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+viperc.o: viperc.c lprefix.h viper.h viperconf.h lauxlib.h ldebug.h lstate.h \
  lobject.h llimits.h ltm.h lzio.h lmem.h lopcodes.h lopnames.h lundump.h
-lundump.o: lundump.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h \
+lundump.o: lundump.c lprefix.h viper.h viperconf.h ldebug.h lstate.h \
  lobject.h llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lstring.h lgc.h \
  lundump.h
-lutf8lib.o: lutf8lib.c lprefix.h acorn.h acornconf.h lauxlib.h acornlib.h
-lvm.o: lvm.c lprefix.h acorn.h acornconf.h ldebug.h lstate.h lobject.h \
+lutf8lib.o: lutf8lib.c lprefix.h viper.h viperconf.h lauxlib.h viperlib.h
+lvm.o: lvm.c lprefix.h viper.h viperconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lfunc.h lgc.h lopcodes.h lstring.h \
  ltable.h lvm.h ljumptab.h
-lzio.o: lzio.c lprefix.h acorn.h acornconf.h llimits.h lmem.h lstate.h \
+lzio.o: lzio.c lprefix.h viper.h viperconf.h llimits.h lmem.h lstate.h \
  lobject.h ltm.h lzio.h
 
 # (end of Makefile)

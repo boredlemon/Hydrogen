@@ -1,11 +1,11 @@
 /*
 ** $Id: lobject.c $
-** Some generic functions over Acorn objects
-** See Copyright Notice in acorn.h
+** Some generic functions over Viper objects
+** See Copyright Notice in viper.h
 */
 
 #define lobject_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lctype.h"
 #include "ldebug.h"
@@ -32,7 +32,7 @@
 /*
 ** Computes ceil(log2(x))
 */
-int acornO_ceillog2 (unsigned int x) {
+int viperO_ceillog2 (unsigned int x) {
   static const lu_byte log_2[256] = {  /* log_2[i] = ceil(log2(i - 1)) */
     0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
     6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
@@ -50,57 +50,57 @@ int acornO_ceillog2 (unsigned int x) {
 }
 
 
-static acorn_Integer intarith (acorn_State *L, int op, acorn_Integer v1,
-                                                   acorn_Integer v2) {
+static viper_Integer intarith (viper_State *L, int op, viper_Integer v1,
+                                                   viper_Integer v2) {
   switch (op) {
-    case ACORN_OPADD: return intop(+, v1, v2);
-    case ACORN_OPSUB:return intop(-, v1, v2);
-    case ACORN_OPMUL:return intop(*, v1, v2);
-    case ACORN_OPMOD: return acornV_mod(L, v1, v2);
-    case ACORN_OPIDIV: return acornV_idiv(L, v1, v2);
-    case ACORN_OPBAND: return intop(&, v1, v2);
-    case ACORN_OPBOR: return intop(|, v1, v2);
-    case ACORN_OPBXOR: return intop(^, v1, v2);
-    case ACORN_OPSHL: return acornV_shiftl(v1, v2);
-    case ACORN_OPSHR: return acornV_shiftl(v1, -v2);
-    case ACORN_OPUNM: return intop(-, 0, v1);
-    case ACORN_OPBNOT: return intop(^, ~l_castS2U(0), v1);
-    default: acorn_assert(0); return 0;
+    case VIPER_OPADD: return intop(+, v1, v2);
+    case VIPER_OPSUB:return intop(-, v1, v2);
+    case VIPER_OPMUL:return intop(*, v1, v2);
+    case VIPER_OPMOD: return viperV_mod(L, v1, v2);
+    case VIPER_OPIDIV: return viperV_idiv(L, v1, v2);
+    case VIPER_OPBAND: return intop(&, v1, v2);
+    case VIPER_OPBOR: return intop(|, v1, v2);
+    case VIPER_OPBXOR: return intop(^, v1, v2);
+    case VIPER_OPSHL: return viperV_shiftl(v1, v2);
+    case VIPER_OPSHR: return viperV_shiftl(v1, -v2);
+    case VIPER_OPUNM: return intop(-, 0, v1);
+    case VIPER_OPBNOT: return intop(^, ~l_castS2U(0), v1);
+    default: viper_assert(0); return 0;
   }
 }
 
 
-static acorn_Number numarith (acorn_State *L, int op, acorn_Number v1,
-                                                  acorn_Number v2) {
+static viper_Number numarith (viper_State *L, int op, viper_Number v1,
+                                                  viper_Number v2) {
   switch (op) {
-    case ACORN_OPADD: return acorni_numadd(L, v1, v2);
-    case ACORN_OPSUB: return acorni_numsub(L, v1, v2);
-    case ACORN_OPMUL: return acorni_nummul(L, v1, v2);
-    case ACORN_OPDIV: return acorni_numdiv(L, v1, v2);
-    case ACORN_OPPOW: return acorni_numpow(L, v1, v2);
-    case ACORN_OPIDIV: return acorni_numidiv(L, v1, v2);
-    case ACORN_OPUNM: return acorni_numunm(L, v1);
-    case ACORN_OPMOD: return acornV_modf(L, v1, v2);
-    default: acorn_assert(0); return 0;
+    case VIPER_OPADD: return viperi_numadd(L, v1, v2);
+    case VIPER_OPSUB: return viperi_numsub(L, v1, v2);
+    case VIPER_OPMUL: return viperi_nummul(L, v1, v2);
+    case VIPER_OPDIV: return viperi_numdiv(L, v1, v2);
+    case VIPER_OPPOW: return viperi_numpow(L, v1, v2);
+    case VIPER_OPIDIV: return viperi_numidiv(L, v1, v2);
+    case VIPER_OPUNM: return viperi_numunm(L, v1);
+    case VIPER_OPMOD: return viperV_modf(L, v1, v2);
+    default: viper_assert(0); return 0;
   }
 }
 
 
-int acornO_rawarith (acorn_State *L, int op, const TValue *p1, const TValue *p2,
+int viperO_rawarith (viper_State *L, int op, const TValue *p1, const TValue *p2,
                    TValue *res) {
   switch (op) {
-    case ACORN_OPBAND: case ACORN_OPBOR: case ACORN_OPBXOR:
-    case ACORN_OPSHL: case ACORN_OPSHR:
-    case ACORN_OPBNOT: {  /* operate only on integers */
-      acorn_Integer i1; acorn_Integer i2;
+    case VIPER_OPBAND: case VIPER_OPBOR: case VIPER_OPBXOR:
+    case VIPER_OPSHL: case VIPER_OPSHR:
+    case VIPER_OPBNOT: {  /* operate only on integers */
+      viper_Integer i1; viper_Integer i2;
       if (tointegerns(p1, &i1) && tointegerns(p2, &i2)) {
         setivalue(res, intarith(L, op, i1, i2));
         return 1;
       }
       else return 0;  /* fail */
     }
-    case ACORN_OPDIV: case ACORN_OPPOW: {  /* operate only on floats */
-      acorn_Number n1; acorn_Number n2;
+    case VIPER_OPDIV: case VIPER_OPPOW: {  /* operate only on floats */
+      viper_Number n1; viper_Number n2;
       if (tonumberns(p1, n1) && tonumberns(p2, n2)) {
         setfltvalue(res, numarith(L, op, n1, n2));
         return 1;
@@ -108,7 +108,7 @@ int acornO_rawarith (acorn_State *L, int op, const TValue *p1, const TValue *p2,
       else return 0;  /* fail */
     }
     default: {  /* other operations */
-      acorn_Number n1; acorn_Number n2;
+      viper_Number n1; viper_Number n2;
       if (ttisinteger(p1) && ttisinteger(p2)) {
         setivalue(res, intarith(L, op, ivalue(p1), ivalue(p2)));
         return 1;
@@ -123,16 +123,16 @@ int acornO_rawarith (acorn_State *L, int op, const TValue *p1, const TValue *p2,
 }
 
 
-void acornO_arith (acorn_State *L, int op, const TValue *p1, const TValue *p2,
+void viperO_arith (viper_State *L, int op, const TValue *p1, const TValue *p2,
                  StkId res) {
-  if (!acornO_rawarith(L, op, p1, p2, s2v(res))) {
+  if (!viperO_rawarith(L, op, p1, p2, s2v(res))) {
     /* could not perform raw operation; try metamethod */
-    acornT_trybinTM(L, p1, p2, res, cast(TMS, (op - ACORN_OPADD) + TM_ADD));
+    viperT_trybinTM(L, p1, p2, res, cast(TMS, (op - VIPER_OPADD) + TM_ADD));
   }
 }
 
 
-int acornO_hexavalue (int c) {
+int viperO_hexavalue (int c) {
   if (lisdigit(c)) return c - '0';
   else return (ltolower(c) - 'a') + 10;
 }
@@ -148,11 +148,11 @@ static int isneg (const char **s) {
 
 /*
 ** {==================================================================
-** Acorn's implementation for 'acorn_strx2number'
+** Viper's implementation for 'viper_strx2number'
 ** ===================================================================
 */
 
-#if !defined(acorn_strx2number)
+#if !defined(viper_strx2number)
 
 /* maximum number of significant digits to read (to avoid overflows
    even with single floats) */
@@ -162,9 +162,9 @@ static int isneg (const char **s) {
 ** convert a hexadecimal numeric string to a number, following
 ** C99 specification for 'strtod'
 */
-static acorn_Number acorn_strx2number (const char *s, char **endptr) {
-  int dot = acorn_getlocaledecpoint();
-  acorn_Number r = l_mathop(0.0);  /* result (accumulator) */
+static viper_Number viper_strx2number (const char *s, char **endptr) {
+  int dot = viper_getlocaledecpoint();
+  viper_Number r = l_mathop(0.0);  /* result (accumulator) */
   int sigdig = 0;  /* number of significant digits */
   int nosigdig = 0;  /* number of non-significant digits */
   int e = 0;  /* exponent correction */
@@ -184,7 +184,7 @@ static acorn_Number acorn_strx2number (const char *s, char **endptr) {
       if (sigdig == 0 && *s == '0')  /* non-significant digit (zero)? */
         nosigdig++;
       else if (++sigdig <= MAXSIGDIG)  /* can read it without overflow? */
-          r = (r * l_mathop(16.0)) + acornO_hexavalue(*s);
+          r = (r * l_mathop(16.0)) + viperO_hexavalue(*s);
       else e++; /* too many digits; ignore, but still count for exponent */
       if (hasdot) e--;  /* decimal digit? correct exponent */
     }
@@ -221,14 +221,14 @@ static acorn_Number acorn_strx2number (const char *s, char **endptr) {
 #endif
 
 /*
-** Convert string 's' to a Acorn number (put in 'result'). Return NULL on
+** Convert string 's' to a Viper number (put in 'result'). Return NULL on
 ** fail or the address of the ending '\0' on success. ('mode' == 'x')
 ** means a hexadecimal numeral.
 */
-static const char *l_str2dloc (const char *s, acorn_Number *result, int mode) {
+static const char *l_str2dloc (const char *s, viper_Number *result, int mode) {
   char *endptr;
-  *result = (mode == 'x') ? acorn_strx2number(s, &endptr)  /* try to convert */
-                          : acorn_str2number(s, &endptr);
+  *result = (mode == 'x') ? viper_strx2number(s, &endptr)  /* try to convert */
+                          : viper_str2number(s, &endptr);
   if (endptr == s) return NULL;  /* nothing recognized? */
   while (lisspace(cast_uchar(*endptr))) endptr++;  /* skip trailing spaces */
   return (*endptr == '\0') ? endptr : NULL;  /* OK iff no trailing chars */
@@ -236,7 +236,7 @@ static const char *l_str2dloc (const char *s, acorn_Number *result, int mode) {
 
 
 /*
-** Convert string 's' to a Acorn number (put in 'result') handling the
+** Convert string 's' to a Viper number (put in 'result') handling the
 ** current locale.
 ** This function accepts both the current locale or a dot as the radix
 ** mark. If the conversion fails, it may mean number has a dot but
@@ -248,7 +248,7 @@ static const char *l_str2dloc (const char *s, acorn_Number *result, int mode) {
 ** - 'x' means a hexadecimal numeral
 ** - '.' just optimizes the search for the common case (no special chars)
 */
-static const char *l_str2d (const char *s, acorn_Number *result) {
+static const char *l_str2d (const char *s, viper_Number *result) {
   const char *endptr;
   const char *pmode = strpbrk(s, ".xXnN");  /* look for special chars */
   int mode = pmode ? ltolower(cast_uchar(*pmode)) : 0;
@@ -261,7 +261,7 @@ static const char *l_str2d (const char *s, acorn_Number *result) {
     if (pdot == NULL || strlen(s) > L_MAXLENNUM)
       return NULL;  /* string too long or no dot; fail */
     strcpy(buff, s);  /* copy string to buffer */
-    buff[pdot - s] = acorn_getlocaledecpoint();  /* correct decimal point */
+    buff[pdot - s] = viper_getlocaledecpoint();  /* correct decimal point */
     endptr = l_str2dloc(buff, result, mode);  /* try again */
     if (endptr != NULL)
       endptr = s + (endptr - buff);  /* make relative to 's' */
@@ -270,11 +270,11 @@ static const char *l_str2d (const char *s, acorn_Number *result) {
 }
 
 
-#define MAXBY10		cast(acorn_Unsigned, ACORN_MAXINTEGER / 10)
-#define MAXLASTD	cast_int(ACORN_MAXINTEGER % 10)
+#define MAXBY10		cast(viper_Unsigned, VIPER_MAXINTEGER / 10)
+#define MAXLASTD	cast_int(VIPER_MAXINTEGER % 10)
 
-static const char *l_str2int (const char *s, acorn_Integer *result) {
-  acorn_Unsigned a = 0;
+static const char *l_str2int (const char *s, viper_Integer *result) {
+  viper_Unsigned a = 0;
   int empty = 1;
   int neg;
   while (lisspace(cast_uchar(*s))) s++;  /* skip initial spaces */
@@ -283,7 +283,7 @@ static const char *l_str2int (const char *s, acorn_Integer *result) {
       (s[1] == 'x' || s[1] == 'X')) {  /* hex? */
     s += 2;  /* skip '0x' */
     for (; lisxdigit(cast_uchar(*s)); s++) {
-      a = a * 16 + acornO_hexavalue(*s);
+      a = a * 16 + viperO_hexavalue(*s);
       empty = 0;
     }
   }
@@ -305,8 +305,8 @@ static const char *l_str2int (const char *s, acorn_Integer *result) {
 }
 
 
-size_t acornO_str2num (const char *s, TValue *o) {
-  acorn_Integer i; acorn_Number n;
+size_t viperO_str2num (const char *s, TValue *o) {
+  viper_Integer i; viper_Number n;
   const char *e;
   if ((e = l_str2int(s, &i)) != NULL) {  /* try as an integer */
     setivalue(o, i);
@@ -320,9 +320,9 @@ size_t acornO_str2num (const char *s, TValue *o) {
 }
 
 
-int acornO_utf8esc (char *buff, unsigned long x) {
+int viperO_utf8esc (char *buff, unsigned long x) {
   int n = 1;  /* number of bytes put in buffer (backwards) */
-  acorn_assert(x <= 0x7FFFFFFFu);
+  viper_assert(x <= 0x7FFFFFFFu);
   if (x < 0x80)  /* ascii? */
     buff[UTF8BUFFSZ - 1] = cast_char(x);
   else {  /* need continuation bytes */
@@ -340,9 +340,9 @@ int acornO_utf8esc (char *buff, unsigned long x) {
 
 /*
 ** Maximum length of the conversion of a number to a string. Must be
-** enough to accommodate both ACORN_INTEGER_FMT and ACORN_NUMBER_FMT.
+** enough to accommodate both VIPER_INTEGER_FMT and VIPER_NUMBER_FMT.
 ** (For a long long int, this is 19 digits plus a sign and a final '\0',
-** adding to 21. For a long double, it can Acorn to a sign, 33 digits,
+** adding to 21. For a long double, it can Viper to a sign, 33 digits,
 ** the dot, an exponent letter, an exponent sign, 5 exponent digits,
 ** and a final '\0', adding to 43.)
 */
@@ -354,13 +354,13 @@ int acornO_utf8esc (char *buff, unsigned long x) {
 */
 static int tostringbuff (TValue *obj, char *buff) {
   int len;
-  acorn_assert(ttisnumber(obj));
+  viper_assert(ttisnumber(obj));
   if (ttisinteger(obj))
-    len = acorn_integer2str(buff, MAXNUMBER2STR, ivalue(obj));
+    len = viper_integer2str(buff, MAXNUMBER2STR, ivalue(obj));
   else {
-    len = acorn_number2str(buff, MAXNUMBER2STR, fltvalue(obj));
+    len = viper_number2str(buff, MAXNUMBER2STR, fltvalue(obj));
     if (buff[strspn(buff, "-0123456789")] == '\0') {  /* looks like an int? */
-      buff[len++] = acorn_getlocaledecpoint();
+      buff[len++] = viper_getlocaledecpoint();
       buff[len++] = '0';  /* adds '.0' to result */
     }
   }
@@ -369,12 +369,12 @@ static int tostringbuff (TValue *obj, char *buff) {
 
 
 /*
-** Convert a number object to a Acorn string, replacing the value at 'obj'
+** Convert a number object to a Viper string, replacing the value at 'obj'
 */
-void acornO_tostring (acorn_State *L, TValue *obj) {
+void viperO_tostring (viper_State *L, TValue *obj) {
   char buff[MAXNUMBER2STR];
   int len = tostringbuff(obj, buff);
-  setsvalue(L, obj, acornS_newlstr(L, buff, len));
+  setsvalue(L, obj, viperS_newlstr(L, buff, len));
 }
 
 
@@ -382,16 +382,16 @@ void acornO_tostring (acorn_State *L, TValue *obj) {
 
 /*
 ** {==================================================================
-** 'acornO_pushvfstring'
+** 'viperO_pushvfstring'
 ** ===================================================================
 */
 
-/* size for buffer space used by 'acornO_pushvfstring' */
+/* size for buffer space used by 'viperO_pushvfstring' */
 #define BUFVFS		200
 
-/* buffer used by 'acornO_pushvfstring' */
+/* buffer used by 'viperO_pushvfstring' */
 typedef struct BuffFS {
-  acorn_State *L;
+  viper_State *L;
   int pushed;  /* number of string pieces already on the stack */
   int blen;  /* length of partial string in 'space' */
   char space[BUFVFS];  /* holds last part of the result */
@@ -403,11 +403,11 @@ typedef struct BuffFS {
 ** join the partial strings in the stack into one.
 */
 static void pushstr (BuffFS *buff, const char *str, size_t l) {
-  acorn_State *L = buff->L;
-  setsvalue2s(L, L->top, acornS_newlstr(L, str, l));
+  viper_State *L = buff->L;
+  setsvalue2s(L, L->top, viperS_newlstr(L, str, l));
   L->top++;  /* may use one extra slot */
   buff->pushed++;
-  acornV_concat(L, buff->pushed);  /* join partial results into one */
+  viperV_concat(L, buff->pushed);  /* join partial results into one */
   buff->pushed = 1;
 }
 
@@ -426,7 +426,7 @@ static void clearbuff (BuffFS *buff) {
 ** space, empty it. 'sz' must fit in an empty buffer.
 */
 static char *getbuff (BuffFS *buff, int sz) {
-  acorn_assert(buff->blen <= BUFVFS); acorn_assert(sz <= BUFVFS);
+  viper_assert(buff->blen <= BUFVFS); viper_assert(sz <= BUFVFS);
   if (sz > BUFVFS - buff->blen)  /* not enough space? */
     clearbuff(buff);
   return buff->space + buff->blen;
@@ -465,9 +465,9 @@ static void addnum2buff (BuffFS *buff, TValue *num) {
 
 /*
 ** this function handles only '%d', '%c', '%f', '%p', '%s', and '%%'
-   conventional formats, plus Acorn-specific '%I' and '%U'
+   conventional formats, plus Viper-specific '%I' and '%U'
 */
-const char *acornO_pushvfstring (acorn_State *L, const char *fmt, va_list argp) {
+const char *viperO_pushvfstring (viper_State *L, const char *fmt, va_list argp) {
   BuffFS buff;  /* holds last part of the result */
   const char *e;  /* points to next '%' */
   buff.pushed = buff.blen = 0;
@@ -492,13 +492,13 @@ const char *acornO_pushvfstring (acorn_State *L, const char *fmt, va_list argp) 
         addnum2buff(&buff, &num);
         break;
       }
-      case 'I': {  /* a 'acorn_Integer' */
+      case 'I': {  /* a 'viper_Integer' */
         TValue num;
-        setivalue(&num, cast(acorn_Integer, va_arg(argp, l_uacInt)));
+        setivalue(&num, cast(viper_Integer, va_arg(argp, l_uacInt)));
         addnum2buff(&buff, &num);
         break;
       }
-      case 'f': {  /* a 'acorn_Number' */
+      case 'f': {  /* a 'viper_Number' */
         TValue num;
         setfltvalue(&num, cast_num(va_arg(argp, l_uacNumber)));
         addnum2buff(&buff, &num);
@@ -508,13 +508,13 @@ const char *acornO_pushvfstring (acorn_State *L, const char *fmt, va_list argp) 
         const int sz = 3 * sizeof(void*) + 8; /* enough space for '%p' */
         char *bf = getbuff(&buff, sz);
         void *p = va_arg(argp, void *);
-        int len = acorn_pointer2str(bf, sz, p);
+        int len = viper_pointer2str(bf, sz, p);
         addsize(&buff, len);
         break;
       }
       case 'U': {  /* a 'long' as a UTF-8 sequence */
         char bf[UTF8BUFFSZ];
-        int len = acornO_utf8esc(bf, va_arg(argp, long));
+        int len = viperO_utf8esc(bf, va_arg(argp, long));
         addstr2buff(&buff, bf + UTF8BUFFSZ - len, len);
         break;
       }
@@ -523,7 +523,7 @@ const char *acornO_pushvfstring (acorn_State *L, const char *fmt, va_list argp) 
         break;
       }
       default: {
-        acornG_runerror(L, "invalid option '%%%c' to 'acorn_pushfstring'",
+        viperG_runerror(L, "invalid option '%%%c' to 'viper_pushfstring'",
                          *(e + 1));
       }
     }
@@ -531,16 +531,16 @@ const char *acornO_pushvfstring (acorn_State *L, const char *fmt, va_list argp) 
   }
   addstr2buff(&buff, fmt, strlen(fmt));  /* rest of 'fmt' */
   clearbuff(&buff);  /* empty buffer into the stack */
-  acorn_assert(buff.pushed == 1);
+  viper_assert(buff.pushed == 1);
   return svalue(s2v(L->top - 1));
 }
 
 
-const char *acornO_pushfstring (acorn_State *L, const char *fmt, ...) {
+const char *viperO_pushfstring (viper_State *L, const char *fmt, ...) {
   const char *msg;
   va_list argp;
   va_start(argp, fmt);
-  msg = acornO_pushvfstring(L, fmt, argp);
+  msg = viperO_pushvfstring(L, fmt, argp);
   va_end(argp);
   return msg;
 }
@@ -554,8 +554,8 @@ const char *acornO_pushfstring (acorn_State *L, const char *fmt, ...) {
 
 #define addstr(a,b,l)	( memcpy(a,b,(l) * sizeof(char)), a += (l) )
 
-void acornO_chunkid (char *out, const char *source, size_t srclen) {
-  size_t bufflen = ACORN_IDSIZE;  /* free space in buffer */
+void viperO_chunkid (char *out, const char *source, size_t srclen) {
+  size_t bufflen = VIPER_IDSIZE;  /* free space in buffer */
   if (*source == '=') {  /* 'literal' source */
     if (srclen <= bufflen)  /* small enough? */
       memcpy(out, source + 1, srclen * sizeof(char));

@@ -1,7 +1,7 @@
 /*
 ** $Id: ltm.h $
 ** Tag methods
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #ifndef ltm_h
@@ -62,41 +62,41 @@ typedef enum {
 
 
 #define gfasttm(g,et,e) ((et) == NULL ? NULL : \
-  ((et)->flags & (1u<<(e))) ? NULL : acornT_gettm(et, e, (g)->tmname[e]))
+  ((et)->flags & (1u<<(e))) ? NULL : viperT_gettm(et, e, (g)->tmname[e]))
 
 #define fasttm(l,et,e)	gfasttm(G(l), et, e)
 
-#define ttypename(x)	acornT_typenames_[(x) + 1]
+#define ttypename(x)	viperT_typenames_[(x) + 1]
 
-ACORNI_DDEC(const char *const acornT_typenames_[ACORN_TOTALTYPES];)
+VIPERI_DDEC(const char *const viperT_typenames_[VIPER_TOTALTYPES];)
 
 
-ACORNI_FUNC const char *acornT_objtypename (acorn_State *L, const TValue *o);
+VIPERI_FUNC const char *viperT_objtypename (viper_State *L, const TValue *o);
 
-ACORNI_FUNC const TValue *acornT_gettm (Table *events, TMS event, TString *ename);
-ACORNI_FUNC const TValue *acornT_gettmbyobj (acorn_State *L, const TValue *o,
+VIPERI_FUNC const TValue *viperT_gettm (Table *events, TMS event, TString *ename);
+VIPERI_FUNC const TValue *viperT_gettmbyobj (viper_State *L, const TValue *o,
                                                        TMS event);
-ACORNI_FUNC void acornT_init (acorn_State *L);
+VIPERI_FUNC void viperT_init (viper_State *L);
 
-ACORNI_FUNC void acornT_callTM (acorn_State *L, const TValue *f, const TValue *p1,
+VIPERI_FUNC void viperT_callTM (viper_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
-ACORNI_FUNC void acornT_callTMres (acorn_State *L, const TValue *f,
+VIPERI_FUNC void viperT_callTMres (viper_State *L, const TValue *f,
                             const TValue *p1, const TValue *p2, StkId p3);
-ACORNI_FUNC void acornT_trybinTM (acorn_State *L, const TValue *p1, const TValue *p2,
+VIPERI_FUNC void viperT_trybinTM (viper_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
-ACORNI_FUNC void acornT_tryconcatTM (acorn_State *L);
-ACORNI_FUNC void acornT_trybinassocTM (acorn_State *L, const TValue *p1,
+VIPERI_FUNC void viperT_tryconcatTM (viper_State *L);
+VIPERI_FUNC void viperT_trybinassocTM (viper_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
-ACORNI_FUNC void acornT_trybiniTM (acorn_State *L, const TValue *p1, acorn_Integer i2,
+VIPERI_FUNC void viperT_trybiniTM (viper_State *L, const TValue *p1, viper_Integer i2,
                                int inv, StkId res, TMS event);
-ACORNI_FUNC int acornT_callorderTM (acorn_State *L, const TValue *p1,
+VIPERI_FUNC int viperT_callorderTM (viper_State *L, const TValue *p1,
                                 const TValue *p2, TMS event);
-ACORNI_FUNC int acornT_callorderiTM (acorn_State *L, const TValue *p1, int v2,
+VIPERI_FUNC int viperT_callorderiTM (viper_State *L, const TValue *p1, int v2,
                                  int inv, int isfloat, TMS event);
 
-ACORNI_FUNC void acornT_adjustvarargs (acorn_State *L, int nfixparams,
+VIPERI_FUNC void viperT_adjustvarargs (viper_State *L, int nfixparams,
                                    struct CallInfo *ci, const Proto *p);
-ACORNI_FUNC void acornT_getvarargs (acorn_State *L, struct CallInfo *ci,
+VIPERI_FUNC void viperT_getvarargs (viper_State *L, struct CallInfo *ci,
                                               StkId where, int wanted);
 
 

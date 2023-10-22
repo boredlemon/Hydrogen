@@ -1,7 +1,7 @@
 /*
 ** $Id: lfunc.h $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #ifndef lfunc_h
@@ -23,7 +23,7 @@
 
 
 /*
-** maximum number of upvalues in a closure (both C and Acorn). (Value
+** maximum number of upvalues in a closure (both C and Viper). (Value
 ** must fit in a VM register.)
 */
 #define MAXUPVAL	255
@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-ACORNI_FUNC Proto *acornF_newproto (acorn_State *L);
-ACORNI_FUNC CClosure *acornF_newCclosure (acorn_State *L, int nupvals);
-ACORNI_FUNC LClosure *acornF_newLclosure (acorn_State *L, int nupvals);
-ACORNI_FUNC void acornF_initupvals (acorn_State *L, LClosure *cl);
-ACORNI_FUNC UpVal *acornF_findupval (acorn_State *L, StkId level);
-ACORNI_FUNC void acornF_newtbacornval (acorn_State *L, StkId level);
-ACORNI_FUNC void acornF_closeupval (acorn_State *L, StkId level);
-ACORNI_FUNC void acornF_close (acorn_State *L, StkId level, int status, int yy);
-ACORNI_FUNC void acornF_unlinkupval (UpVal *uv);
-ACORNI_FUNC void acornF_freeproto (acorn_State *L, Proto *f);
-ACORNI_FUNC const char *acornF_getlocalname (const Proto *func, int local_number,
+VIPERI_FUNC Proto *viperF_newproto (viper_State *L);
+VIPERI_FUNC CClosure *viperF_newCclosure (viper_State *L, int nupvals);
+VIPERI_FUNC LClosure *viperF_newLclosure (viper_State *L, int nupvals);
+VIPERI_FUNC void viperF_initupvals (viper_State *L, LClosure *cl);
+VIPERI_FUNC UpVal *viperF_findupval (viper_State *L, StkId level);
+VIPERI_FUNC void viperF_newtbviperval (viper_State *L, StkId level);
+VIPERI_FUNC void viperF_closeupval (viper_State *L, StkId level);
+VIPERI_FUNC void viperF_close (viper_State *L, StkId level, int status, int yy);
+VIPERI_FUNC void viperF_unlinkupval (UpVal *uv);
+VIPERI_FUNC void viperF_freeproto (viper_State *L, Proto *f);
+VIPERI_FUNC const char *viperF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

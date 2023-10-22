@@ -1,7 +1,7 @@
 /*
 ** $Id: loadlib.c $
-** Dynamic library loader for Acorn
-** See Copyright Notice in acorn.h
+** Dynamic library loader for Viper
+** See Copyright Notice in viper.h
 **
 ** This module contains an implementation of loadlib for Unix systems
 ** that have dlfcn, an implementation for Windows, and a stub for other
@@ -9,7 +9,7 @@
 */
 
 #define loadlib_c
-#define ACORN_LIB
+#define VIPER_LIB
 
 #include "lprefix.h"
 
@@ -18,41 +18,41 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lauxlib.h"
-#include "acornlib.h"
+#include "viperlib.h"
 
 
 /*
-** ACORN_IGMARK is a mark to ignore all before it when building the
-** acornopen_ function name.
+** VIPER_IGMARK is a mark to ignore all before it when building the
+** viperopen_ function name.
 */
-#if !defined (ACORN_IGMARK)
-#define ACORN_IGMARK		"-"
+#if !defined (VIPER_IGMARK)
+#define VIPER_IGMARK		"-"
 #endif
 
 
 /*
-** ACORN_CSUBSEP is the character that replaces dots in submodule names
+** VIPER_CSUBSEP is the character that replaces dots in submodule names
 ** when searching for a C loader.
-** ACORN_LSUBSEP is the character that replaces dots in submodule names
-** when searching for a Acorn loader.
+** VIPER_LSUBSEP is the character that replaces dots in submodule names
+** when searching for a Viper loader.
 */
-#if !defined(ACORN_CSUBSEP)
-#define ACORN_CSUBSEP		ACORN_DIRSEP
+#if !defined(VIPER_CSUBSEP)
+#define VIPER_CSUBSEP		VIPER_DIRSEP
 #endif
 
-#if !defined(ACORN_LSUBSEP)
-#define ACORN_LSUBSEP		ACORN_DIRSEP
+#if !defined(VIPER_LSUBSEP)
+#define VIPER_LSUBSEP		VIPER_DIRSEP
 #endif
 
 
 /* prefix for open functions in C libraries */
-#define ACORN_POF		"acornopen_"
+#define VIPER_POF		"viperopen_"
 
 /* separator for open functions in C libraries */
-#define ACORN_OFSEP	"_"
+#define VIPER_OFSEP	"_"
 
 
 /*
@@ -89,19 +89,19 @@ static void lsys_unloadlib (void *lib);
 ** Returns the library; in case of error, returns NULL plus an
 ** error string in the stack.
 */
-static void *lsys_load (acorn_State *L, const char *path, int seeglb);
+static void *lsys_load (viper_State *L, const char *path, int seeglb);
 
 /*
 ** Try to find a function named 'sym' in library 'lib'.
 ** Returns the function; in case of error, returns NULL plus an
 ** error string in the stack.
 */
-static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym);
+static viper_CFunction lsys_sym (viper_State *L, void *lib, const char *sym);
 
 
 
 
-#if defined(ACORN_USE_DLOPEN)	/* { */
+#if defined(VIPER_USE_DLOPEN)	/* { */
 /*
 ** {========================================================================
 ** This is an implementation of loadlib based on the dlfcn interface.
@@ -119,9 +119,9 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym);
 ** (The '__extension__' in gnu compilers is only to avoid warnings.)
 */
 #if defined(__GNUC__)
-#define cast_func(p) (__extension__ (acorn_CFunction)(p))
+#define cast_func(p) (__extension__ (viper_CFunction)(p))
 #else
-#define cast_func(p) ((acorn_CFunction)(p))
+#define cast_func(p) ((viper_CFunction)(p))
 #endif
 
 
@@ -130,18 +130,18 @@ static void lsys_unloadlib (void *lib) {
 }
 
 
-static void *lsys_load (acorn_State *L, const char *path, int seeglb) {
+static void *lsys_load (viper_State *L, const char *path, int seeglb) {
   void *lib = dlopen(path, RTLD_NOW | (seeglb ? RTLD_GLOBAL : RTLD_LOCAL));
   if (l_unlikely(lib == NULL))
-    acorn_pushstring(L, dlerror());
+    viper_pushstring(L, dlerror());
   return lib;
 }
 
 
-static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
-  acorn_CFunction f = cast_func(dlsym(lib, sym));
+static viper_CFunction lsys_sym (viper_State *L, void *lib, const char *sym) {
+  viper_CFunction f = cast_func(dlsym(lib, sym));
   if (l_unlikely(f == NULL))
-    acorn_pushstring(L, dlerror());
+    viper_pushstring(L, dlerror());
   return f;
 }
 
@@ -149,7 +149,7 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
 
 
 
-#elif defined(ACORN_DL_DLL)	/* }{ */
+#elif defined(VIPER_DL_DLL)	/* }{ */
 /*
 ** {======================================================================
 ** This is an implementation of loadlib for Windows using native functions.
@@ -162,8 +162,8 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
 /*
 ** optional flags for LoadLibraryEx
 */
-#if !defined(ACORN_LLE_FLAGS)
-#define ACORN_LLE_FLAGS	0
+#if !defined(VIPER_LLE_FLAGS)
+#define VIPER_LLE_FLAGS	0
 #endif
 
 
@@ -172,33 +172,33 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
 
 /*
 ** Replace in the path (on the top of the stack) any occurrence
-** of ACORN_EXEC_DIR with the executable's path.
+** of VIPER_EXEC_DIR with the executable's path.
 */
-static void setprogdir (acorn_State *L) {
+static void setprogdir (viper_State *L) {
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);  /* get exec. name */
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
-    acornL_error(L, "unable to get ModuleFileName");
+    viperL_error(L, "unable to get ModuleFileName");
   else {
     *lb = '\0';  /* cut name on the last '\\' to get the path */
-    acornL_gsub(L, acorn_tostring(L, -1), ACORN_EXEC_DIR, buff);
-    acorn_remove(L, -2);  /* remove original string */
+    viperL_gsub(L, viper_tostring(L, -1), VIPER_EXEC_DIR, buff);
+    viper_remove(L, -2);  /* remove original string */
   }
 }
 
 
 
 
-static void pusherror (acorn_State *L) {
+static void pusherror (viper_State *L) {
   int error = GetLastError();
   char buffer[128];
   if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
       NULL, error, 0, buffer, sizeof(buffer)/sizeof(char), NULL))
-    acorn_pushstring(L, buffer);
+    viper_pushstring(L, buffer);
   else
-    acorn_pushfstring(L, "system error %d\n", error);
+    viper_pushfstring(L, "system error %d\n", error);
 }
 
 static void lsys_unloadlib (void *lib) {
@@ -206,16 +206,16 @@ static void lsys_unloadlib (void *lib) {
 }
 
 
-static void *lsys_load (acorn_State *L, const char *path, int seeglb) {
-  HMODULE lib = LoadLibraryExA(path, NULL, ACORN_LLE_FLAGS);
+static void *lsys_load (viper_State *L, const char *path, int seeglb) {
+  HMODULE lib = LoadLibraryExA(path, NULL, VIPER_LLE_FLAGS);
   (void)(seeglb);  /* not used: symbols are 'global' by default */
   if (lib == NULL) pusherror(L);
   return lib;
 }
 
 
-static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
-  acorn_CFunction f = (acorn_CFunction)(voidf)GetProcAddress((HMODULE)lib, sym);
+static viper_CFunction lsys_sym (viper_State *L, void *lib, const char *sym) {
+  viper_CFunction f = (viper_CFunction)(voidf)GetProcAddress((HMODULE)lib, sym);
   if (f == NULL) pusherror(L);
   return f;
 }
@@ -234,7 +234,7 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
 #define LIB_FAIL	"absent"
 
 
-#define DLMSG	"dynamic libraries not enabled; check your Acorn installation"
+#define DLMSG	"dynamic libraries not enabled; check your Viper installation"
 
 
 static void lsys_unloadlib (void *lib) {
@@ -242,16 +242,16 @@ static void lsys_unloadlib (void *lib) {
 }
 
 
-static void *lsys_load (acorn_State *L, const char *path, int seeglb) {
+static void *lsys_load (viper_State *L, const char *path, int seeglb) {
   (void)(path); (void)(seeglb);  /* not used */
-  acorn_pushliteral(L, DLMSG);
+  viper_pushliteral(L, DLMSG);
   return NULL;
 }
 
 
-static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
+static viper_CFunction lsys_sym (viper_State *L, void *lib, const char *sym) {
   (void)(lib); (void)(sym);  /* not used */
-  acorn_pushliteral(L, DLMSG);
+  viper_pushliteral(L, DLMSG);
   return NULL;
 }
 
@@ -266,27 +266,27 @@ static acorn_CFunction lsys_sym (acorn_State *L, void *lib, const char *sym) {
 */
 
 /*
-** ACORN_PATH_VAR and ACORN_CPATH_VAR are the names of the environment
-** variables that Acorn check to set its paths.
+** VIPER_PATH_VAR and VIPER_CPATH_VAR are the names of the environment
+** variables that Viper check to set its paths.
 */
-#if !defined(ACORN_PATH_VAR)
-#define ACORN_PATH_VAR    "ACORN_PATH"
+#if !defined(VIPER_PATH_VAR)
+#define VIPER_PATH_VAR    "VIPER_PATH"
 #endif
 
-#if !defined(ACORN_CPATH_VAR)
-#define ACORN_CPATH_VAR   "ACORN_CPATH"
+#if !defined(VIPER_CPATH_VAR)
+#define VIPER_CPATH_VAR   "VIPER_CPATH"
 #endif
 
 
 
 /*
-** return registry.ACORN_NOENV as a boolean
+** return registry.VIPER_NOENV as a boolean
 */
-static int noenv (acorn_State *L) {
+static int noenv (viper_State *L) {
   int b;
-  acorn_getfield(L, ACORN_REGISTRYINDEX, "ACORN_NOENV");
-  b = acorn_toboolean(L, -1);
-  acorn_pop(L, 1);  /* remove value */
+  viper_getfield(L, VIPER_REGISTRYINDEX, "VIPER_NOENV");
+  b = viper_toboolean(L, -1);
+  viper_pop(L, 1);  /* remove value */
   return b;
 }
 
@@ -294,36 +294,36 @@ static int noenv (acorn_State *L) {
 /*
 ** Set a path
 */
-static void setpath (acorn_State *L, const char *fieldname,
+static void setpath (viper_State *L, const char *fieldname,
                                    const char *envname,
                                    const char *dft) {
   const char *dftmark;
-  const char *nver = acorn_pushfstring(L, "%s%s", envname, ACORN_VERSUFFIX);
+  const char *nver = viper_pushfstring(L, "%s%s", envname, VIPER_VERSUFFIX);
   const char *path = getenv(nver);  /* try versioned name */
   if (path == NULL)  /* no versioned environment variable? */
     path = getenv(envname);  /* try unversioned name */
   if (path == NULL || noenv(L))  /* no environment variable? */
-    acorn_pushstring(L, dft);  /* use default */
-  else if ((dftmark = strstr(path, ACORN_PATH_SEP ACORN_PATH_SEP)) == NULL)
-    acorn_pushstring(L, path);  /* nothing to change */
+    viper_pushstring(L, dft);  /* use default */
+  else if ((dftmark = strstr(path, VIPER_PATH_SEP VIPER_PATH_SEP)) == NULL)
+    viper_pushstring(L, path);  /* nothing to change */
   else {  /* path contains a ";;": insert default path in its place */
     size_t len = strlen(path);
-    acornL_Buffer b;
-    acornL_buffinit(L, &b);
+    viperL_Buffer b;
+    viperL_buffinit(L, &b);
     if (path < dftmark) {  /* is there a prefix before ';;'? */
-      acornL_addlstring(&b, path, dftmark - path);  /* add it */
-      acornL_addchar(&b, *ACORN_PATH_SEP);
+      viperL_addlstring(&b, path, dftmark - path);  /* add it */
+      viperL_addchar(&b, *VIPER_PATH_SEP);
     }
-    acornL_addstring(&b, dft);  /* add default */
+    viperL_addstring(&b, dft);  /* add default */
     if (dftmark < path + len - 2) {  /* is there a suffix after ';;'? */
-      acornL_addchar(&b, *ACORN_PATH_SEP);
-      acornL_addlstring(&b, dftmark + 2, (path + len - 2) - dftmark);
+      viperL_addchar(&b, *VIPER_PATH_SEP);
+      viperL_addlstring(&b, dftmark + 2, (path + len - 2) - dftmark);
     }
-    acornL_pushresult(&b);
+    viperL_pushresult(&b);
   }
   setprogdir(L);
-  acorn_setfield(L, -3, fieldname);  /* package[fieldname] = path value */
-  acorn_pop(L, 1);  /* pop versioned variable name ('nver') */
+  viper_setfield(L, -3, fieldname);  /* package[fieldname] = path value */
+  viper_pop(L, 1);  /* pop versioned variable name ('nver') */
 }
 
 /* }================================================================== */
@@ -332,12 +332,12 @@ static void setpath (acorn_State *L, const char *fieldname,
 /*
 ** return registry.CLIBS[path]
 */
-static void *checkclib (acorn_State *L, const char *path) {
+static void *checkclib (viper_State *L, const char *path) {
   void *plib;
-  acorn_getfield(L, ACORN_REGISTRYINDEX, CLIBS);
-  acorn_getfield(L, -1, path);
-  plib = acorn_touserdata(L, -1);  /* plib = CLIBS[path] */
-  acorn_pop(L, 2);  /* pop CLIBS table and 'plib' */
+  viper_getfield(L, VIPER_REGISTRYINDEX, CLIBS);
+  viper_getfield(L, -1, path);
+  plib = viper_touserdata(L, -1);  /* plib = CLIBS[path] */
+  viper_pop(L, 2);  /* pop CLIBS table and 'plib' */
   return plib;
 }
 
@@ -346,13 +346,13 @@ static void *checkclib (acorn_State *L, const char *path) {
 ** registry.CLIBS[path] = plib        -- for queries
 ** registry.CLIBS[#CLIBS + 1] = plib  -- also keep a list of all libraries
 */
-static void addtoclib (acorn_State *L, const char *path, void *plib) {
-  acorn_getfield(L, ACORN_REGISTRYINDEX, CLIBS);
-  acorn_pushlightuserdata(L, plib);
-  acorn_pushvalue(L, -1);
-  acorn_setfield(L, -3, path);  /* CLIBS[path] = plib */
-  acorn_rawseti(L, -2, acornL_len(L, -2) + 1);  /* CLIBS[#CLIBS + 1] = plib */
-  acorn_pop(L, 1);  /* pop CLIBS table */
+static void addtoclib (viper_State *L, const char *path, void *plib) {
+  viper_getfield(L, VIPER_REGISTRYINDEX, CLIBS);
+  viper_pushlightuserdata(L, plib);
+  viper_pushvalue(L, -1);
+  viper_setfield(L, -3, path);  /* CLIBS[path] = plib */
+  viper_rawseti(L, -2, viperL_len(L, -2) + 1);  /* CLIBS[#CLIBS + 1] = plib */
+  viper_pop(L, 1);  /* pop CLIBS table */
 }
 
 
@@ -360,12 +360,12 @@ static void addtoclib (acorn_State *L, const char *path, void *plib) {
 ** __gc tag method for CLIBS table: calls 'lsys_unloadlib' for all lib
 ** handles in list CLIBS
 */
-static int gctm (acorn_State *L) {
-  acorn_Integer n = acornL_len(L, 1);
+static int gctm (viper_State *L) {
+  viper_Integer n = viperL_len(L, 1);
   for (; n >= 1; n--) {  /* for each handle, in reverse order */
-    acorn_rawgeti(L, 1, n);  /* get handle CLIBS[n] */
-    lsys_unloadlib(acorn_touserdata(L, -1));
-    acorn_pop(L, 1);  /* pop handle */
+    viper_rawgeti(L, 1, n);  /* get handle CLIBS[n] */
+    lsys_unloadlib(viper_touserdata(L, -1));
+    viper_pop(L, 1);  /* pop handle */
   }
   return 0;
 }
@@ -387,7 +387,7 @@ static int gctm (acorn_State *L) {
 ** Return 0 and 'true' or a function in the stack; in case of
 ** errors, return an error code and an error message in the stack.
 */
-static int lookforfunc (acorn_State *L, const char *path, const char *sym) {
+static int lookforfunc (viper_State *L, const char *path, const char *sym) {
   void *reg = checkclib(L, path);  /* check loaded C libraries */
   if (reg == NULL) {  /* must load library? */
     reg = lsys_load(L, path, *sym == '*');  /* global symbols if 'sym'=='*' */
@@ -395,29 +395,29 @@ static int lookforfunc (acorn_State *L, const char *path, const char *sym) {
     addtoclib(L, path, reg);
   }
   if (*sym == '*') {  /* loading only library (no function)? */
-    acorn_pushboolean(L, 1);  /* return 'true' */
+    viper_pushboolean(L, 1);  /* return 'true' */
     return 0;  /* no errors */
   }
   else {
-    acorn_CFunction f = lsys_sym(L, reg, sym);
+    viper_CFunction f = lsys_sym(L, reg, sym);
     if (f == NULL)
       return ERRFUNC;  /* unable to find function */
-    acorn_pushcfunction(L, f);  /* else create new function */
+    viper_pushcfunction(L, f);  /* else create new function */
     return 0;  /* no errors */
   }
 }
 
 
-static int ll_loadlib (acorn_State *L) {
-  const char *path = acornL_checkstring(L, 1);
-  const char *init = acornL_checkstring(L, 2);
+static int ll_loadlib (viper_State *L) {
+  const char *path = viperL_checkstring(L, 1);
+  const char *init = viperL_checkstring(L, 2);
   int stat = lookforfunc(L, path, init);
   if (l_likely(stat == 0))  /* no errors? */
     return 1;  /* return the loaded function */
   else {  /* error; error message is on stack top */
-    acornL_pushfail(L);
-    acorn_insert(L, -2);
-    acorn_pushstring(L, (stat == ERRLIB) ?  LIB_FAIL : "init");
+    viperL_pushfail(L);
+    viper_insert(L, -2);
+    viper_pushstring(L, (stat == ERRLIB) ?  LIB_FAIL : "init");
     return 3;  /* return fail, error message, and where */
   }
 }
@@ -450,12 +450,12 @@ static const char *getnextfilename (char **path, char *end) {
   if (name == end)
     return NULL;  /* no more names */
   else if (*name == '\0') {  /* from previous iteration? */
-    *name = *ACORN_PATH_SEP;  /* restore separator */
+    *name = *VIPER_PATH_SEP;  /* restore separator */
     name++;  /* skip it */
   }
-  sep = strchr(name, *ACORN_PATH_SEP);  /* find next separator */
+  sep = strchr(name, *VIPER_PATH_SEP);  /* find next separator */
   if (sep == NULL)  /* separator not found? */
-    sep = end;  /* name Acornes until the end */
+    sep = end;  /* name Viperes until the end */
   *sep = '\0';  /* finish file name */
   *path = sep;  /* will start next search from here */
   return name;
@@ -468,86 +468,86 @@ static const char *getnextfilename (char **path, char *end) {
 ** no file 'blabla.so'
 **	no file 'blublu.so'
 */
-static void pusherrornotfound (acorn_State *L, const char *path) {
-  acornL_Buffer b;
-  acornL_buffinit(L, &b);
-  acornL_addstring(&b, "no file '");
-  acornL_addgsub(&b, path, ACORN_PATH_SEP, "'\n\tno file '");
-  acornL_addstring(&b, "'");
-  acornL_pushresult(&b);
+static void pusherrornotfound (viper_State *L, const char *path) {
+  viperL_Buffer b;
+  viperL_buffinit(L, &b);
+  viperL_addstring(&b, "no file '");
+  viperL_addgsub(&b, path, VIPER_PATH_SEP, "'\n\tno file '");
+  viperL_addstring(&b, "'");
+  viperL_pushresult(&b);
 }
 
 
-static const char *searchpath (acorn_State *L, const char *name,
+static const char *searchpath (viper_State *L, const char *name,
                                              const char *path,
                                              const char *sep,
                                              const char *dirsep) {
-  acornL_Buffer buff;
+  viperL_Buffer buff;
   char *pathname;  /* path with name inserted */
   char *endpathname;  /* its end */
   const char *filename;
   /* separator is non-empty and appears in 'name'? */
   if (*sep != '\0' && strchr(name, *sep) != NULL)
-    name = acornL_gsub(L, name, sep, dirsep);  /* replace it by 'dirsep' */
-  acornL_buffinit(L, &buff);
+    name = viperL_gsub(L, name, sep, dirsep);  /* replace it by 'dirsep' */
+  viperL_buffinit(L, &buff);
   /* add path to the buffer, replacing marks ('?') with the file name */
-  acornL_addgsub(&buff, path, ACORN_PATH_MARK, name);
-  acornL_addchar(&buff, '\0');
-  pathname = acornL_buffaddr(&buff);  /* writable list of file names */
-  endpathname = pathname + acornL_bufflen(&buff) - 1;
+  viperL_addgsub(&buff, path, VIPER_PATH_MARK, name);
+  viperL_addchar(&buff, '\0');
+  pathname = viperL_buffaddr(&buff);  /* writable list of file names */
+  endpathname = pathname + viperL_bufflen(&buff) - 1;
   while ((filename = getnextfilename(&pathname, endpathname)) != NULL) {
     if (readable(filename))  /* does file exist and is readable? */
-      return acorn_pushstring(L, filename);  /* save and return name */
+      return viper_pushstring(L, filename);  /* save and return name */
   }
-  acornL_pushresult(&buff);  /* push path to create error message */
-  pusherrornotfound(L, acorn_tostring(L, -1));  /* create error message */
+  viperL_pushresult(&buff);  /* push path to create error message */
+  pusherrornotfound(L, viper_tostring(L, -1));  /* create error message */
   return NULL;  /* not found */
 }
 
 
-static int ll_searchpath (acorn_State *L) {
-  const char *f = searchpath(L, acornL_checkstring(L, 1),
-                                acornL_checkstring(L, 2),
-                                acornL_optstring(L, 3, "."),
-                                acornL_optstring(L, 4, ACORN_DIRSEP));
+static int ll_searchpath (viper_State *L) {
+  const char *f = searchpath(L, viperL_checkstring(L, 1),
+                                viperL_checkstring(L, 2),
+                                viperL_optstring(L, 3, "."),
+                                viperL_optstring(L, 4, VIPER_DIRSEP));
   if (f != NULL) return 1;
   else {  /* error message is on top of the stack */
-    acornL_pushfail(L);
-    acorn_insert(L, -2);
+    viperL_pushfail(L);
+    viper_insert(L, -2);
     return 2;  /* return fail + error message */
   }
 }
 
 
-static const char *findfile (acorn_State *L, const char *name,
+static const char *findfile (viper_State *L, const char *name,
                                            const char *pname,
                                            const char *dirsep) {
   const char *path;
-  acorn_getfield(L, acorn_upvalueindex(1), pname);
-  path = acorn_tostring(L, -1);
+  viper_getfield(L, viper_upvalueindex(1), pname);
+  path = viper_tostring(L, -1);
   if (l_unlikely(path == NULL))
-    acornL_error(L, "'package.%s' must be a string", pname);
+    viperL_error(L, "'package.%s' must be a string", pname);
   return searchpath(L, name, path, ".", dirsep);
 }
 
 
-static int checkload (acorn_State *L, int stat, const char *filename) {
+static int checkload (viper_State *L, int stat, const char *filename) {
   if (l_likely(stat)) {  /* module loaded successfully? */
-    acorn_pushstring(L, filename);  /* will be 2nd argument to module */
+    viper_pushstring(L, filename);  /* will be 2nd argument to module */
     return 2;  /* return open function and file name */
   }
   else
-    return acornL_error(L, "error loading module '%s' from file '%s':\n\t%s",
-                          acorn_tostring(L, 1), filename, acorn_tostring(L, -1));
+    return viperL_error(L, "error loading module '%s' from file '%s':\n\t%s",
+                          viper_tostring(L, 1), filename, viper_tostring(L, -1));
 }
 
 
-static int searcher_Acorn (acorn_State *L) {
+static int searcher_Viper (viper_State *L) {
   const char *filename;
-  const char *name = acornL_checkstring(L, 1);
-  filename = findfile(L, name, "path", ACORN_LSUBSEP);
+  const char *name = viperL_checkstring(L, 1);
+  filename = findfile(L, name, "path", VIPER_LSUBSEP);
   if (filename == NULL) return 1;  /* module not found in this path */
-  return checkload(L, (acornL_loadfile(L, filename) == ACORN_OK), filename);
+  return checkload(L, (viperL_loadfile(L, filename) == VIPER_OK), filename);
 }
 
 
@@ -555,131 +555,131 @@ static int searcher_Acorn (acorn_State *L) {
 ** Try to find a load function for module 'modname' at file 'filename'.
 ** First, change '.' to '_' in 'modname'; then, if 'modname' has
 ** the form X-Y (that is, it has an "ignore mark"), build a function
-** name "acornopen_X" and look for it. (For compatibility, if that
-** fails, it also tries "acornopen_Y".) If there is no ignore mark,
-** look for a function named "acornopen_modname".
+** name "viperopen_X" and look for it. (For compatibility, if that
+** fails, it also tries "viperopen_Y".) If there is no ignore mark,
+** look for a function named "viperopen_modname".
 */
-static int loadfunc (acorn_State *L, const char *filename, const char *modname) {
+static int loadfunc (viper_State *L, const char *filename, const char *modname) {
   const char *openfunc;
   const char *mark;
-  modname = acornL_gsub(L, modname, ".", ACORN_OFSEP);
-  mark = strchr(modname, *ACORN_IGMARK);
+  modname = viperL_gsub(L, modname, ".", VIPER_OFSEP);
+  mark = strchr(modname, *VIPER_IGMARK);
   if (mark) {
     int stat;
-    openfunc = acorn_pushlstring(L, modname, mark - modname);
-    openfunc = acorn_pushfstring(L, ACORN_POF"%s", openfunc);
+    openfunc = viper_pushlstring(L, modname, mark - modname);
+    openfunc = viper_pushfstring(L, VIPER_POF"%s", openfunc);
     stat = lookforfunc(L, filename, openfunc);
     if (stat != ERRFUNC) return stat;
-    modname = mark + 1;  /* else Acorn ahead and try old-style name */
+    modname = mark + 1;  /* else Viper ahead and try old-style name */
   }
-  openfunc = acorn_pushfstring(L, ACORN_POF"%s", modname);
+  openfunc = viper_pushfstring(L, VIPER_POF"%s", modname);
   return lookforfunc(L, filename, openfunc);
 }
 
 
-static int searcher_C (acorn_State *L) {
-  const char *name = acornL_checkstring(L, 1);
-  const char *filename = findfile(L, name, "cpath", ACORN_CSUBSEP);
+static int searcher_C (viper_State *L) {
+  const char *name = viperL_checkstring(L, 1);
+  const char *filename = findfile(L, name, "cpath", VIPER_CSUBSEP);
   if (filename == NULL) return 1;  /* module not found in this path */
   return checkload(L, (loadfunc(L, filename, name) == 0), filename);
 }
 
 
-static int searcher_Croot (acorn_State *L) {
+static int searcher_Croot (viper_State *L) {
   const char *filename;
-  const char *name = acornL_checkstring(L, 1);
+  const char *name = viperL_checkstring(L, 1);
   const char *p = strchr(name, '.');
   int stat;
   if (p == NULL) return 0;  /* is root */
-  acorn_pushlstring(L, name, p - name);
-  filename = findfile(L, acorn_tostring(L, -1), "cpath", ACORN_CSUBSEP);
+  viper_pushlstring(L, name, p - name);
+  filename = findfile(L, viper_tostring(L, -1), "cpath", VIPER_CSUBSEP);
   if (filename == NULL) return 1;  /* root not found */
   if ((stat = loadfunc(L, filename, name)) != 0) {
     if (stat != ERRFUNC)
       return checkload(L, 0, filename);  /* real error */
     else {  /* open function not found */
-      acorn_pushfstring(L, "no module '%s' in file '%s'", name, filename);
+      viper_pushfstring(L, "no module '%s' in file '%s'", name, filename);
       return 1;
     }
   }
-  acorn_pushstring(L, filename);  /* will be 2nd argument to module */
+  viper_pushstring(L, filename);  /* will be 2nd argument to module */
   return 2;
 }
 
 
-static int searcher_preload (acorn_State *L) {
-  const char *name = acornL_checkstring(L, 1);
-  acorn_getfield(L, ACORN_REGISTRYINDEX, ACORN_PRELOAD_TABLE);
-  if (acorn_getfield(L, -1, name) == ACORN_TNIL) {  /* not found? */
-    acorn_pushfstring(L, "no field package.preload['%s']", name);
+static int searcher_preload (viper_State *L) {
+  const char *name = viperL_checkstring(L, 1);
+  viper_getfield(L, VIPER_REGISTRYINDEX, VIPER_PRELOAD_TABLE);
+  if (viper_getfield(L, -1, name) == VIPER_TNIL) {  /* not found? */
+    viper_pushfstring(L, "no field package.preload['%s']", name);
     return 1;
   }
   else {
-    acorn_pushliteral(L, ":preload:");
+    viper_pushliteral(L, ":preload:");
     return 2;
   }
 }
 
 
-static void findloader (acorn_State *L, const char *name) {
+static void findloader (viper_State *L, const char *name) {
   int i;
-  acornL_Buffer msg;  /* to build error message */
+  viperL_Buffer msg;  /* to build error message */
   /* push 'package.searchers' to index 3 in the stack */
-  if (l_unlikely(acorn_getfield(L, acorn_upvalueindex(1), "searchers")
-                 != ACORN_TTABLE))
-    acornL_error(L, "'package.searchers' must be a table");
-  acornL_buffinit(L, &msg);
+  if (l_unlikely(viper_getfield(L, viper_upvalueindex(1), "searchers")
+                 != VIPER_TTABLE))
+    viperL_error(L, "'package.searchers' must be a table");
+  viperL_buffinit(L, &msg);
   /*  iterate over available searchers to find a loader */
   for (i = 1; ; i++) {
-    acornL_addstring(&msg, "\n\t");  /* error-message prefix */
-    if (l_unlikely(acorn_rawgeti(L, 3, i) == ACORN_TNIL)) {  /* no more searchers? */
-      acorn_pop(L, 1);  /* remove nil */
-      acornL_buffsub(&msg, 2);  /* remove prefix */
-      acornL_pushresult(&msg);  /* create error message */
-      acornL_error(L, "module '%s' not found:%s", name, acorn_tostring(L, -1));
+    viperL_addstring(&msg, "\n\t");  /* error-message prefix */
+    if (l_unlikely(viper_rawgeti(L, 3, i) == VIPER_TNIL)) {  /* no more searchers? */
+      viper_pop(L, 1);  /* remove nil */
+      viperL_buffsub(&msg, 2);  /* remove prefix */
+      viperL_pushresult(&msg);  /* create error message */
+      viperL_error(L, "module '%s' not found:%s", name, viper_tostring(L, -1));
     }
-    acorn_pushstring(L, name);
-    acorn_call(L, 1, 2);  /* call it */
-    if (acorn_isfunction(L, -2))  /* did it find a loader? */
+    viper_pushstring(L, name);
+    viper_call(L, 1, 2);  /* call it */
+    if (viper_isfunction(L, -2))  /* did it find a loader? */
       return;  /* module loader found */
-    else if (acorn_isstring(L, -2)) {  /* searcher returned error message? */
-      acorn_pop(L, 1);  /* remove extra return */
-      acornL_addvalue(&msg);  /* concatenate error message */
+    else if (viper_isstring(L, -2)) {  /* searcher returned error message? */
+      viper_pop(L, 1);  /* remove extra return */
+      viperL_addvalue(&msg);  /* concatenate error message */
     }
     else {  /* no error message */
-      acorn_pop(L, 2);  /* remove both returns */
-      acornL_buffsub(&msg, 2);  /* remove prefix */
+      viper_pop(L, 2);  /* remove both returns */
+      viperL_buffsub(&msg, 2);  /* remove prefix */
     }
   }
 }
 
 
-static int ll_require (acorn_State *L) {
-  const char *name = acornL_checkstring(L, 1);
-  acorn_settop(L, 1);  /* LOADED table will be at index 2 */
-  acorn_getfield(L, ACORN_REGISTRYINDEX, ACORN_LOADED_TABLE);
-  acorn_getfield(L, 2, name);  /* LOADED[name] */
-  if (acorn_toboolean(L, -1))  /* is it there? */
+static int ll_require (viper_State *L) {
+  const char *name = viperL_checkstring(L, 1);
+  viper_settop(L, 1);  /* LOADED table will be at index 2 */
+  viper_getfield(L, VIPER_REGISTRYINDEX, VIPER_LOADED_TABLE);
+  viper_getfield(L, 2, name);  /* LOADED[name] */
+  if (viper_toboolean(L, -1))  /* is it there? */
     return 1;  /* package is already loaded */
   /* else must load package */
-  acorn_pop(L, 1);  /* remove 'getfield' result */
+  viper_pop(L, 1);  /* remove 'getfield' result */
   findloader(L, name);
-  acorn_rotate(L, -2, 1);  /* function <-> loader data */
-  acorn_pushvalue(L, 1);  /* name is 1st argument to module loader */
-  acorn_pushvalue(L, -3);  /* loader data is 2nd argument */
+  viper_rotate(L, -2, 1);  /* function <-> loader data */
+  viper_pushvalue(L, 1);  /* name is 1st argument to module loader */
+  viper_pushvalue(L, -3);  /* loader data is 2nd argument */
   /* stack: ...; loader data; loader function; mod. name; loader data */
-  acorn_call(L, 2, 1);  /* run loader to load module */
+  viper_call(L, 2, 1);  /* run loader to load module */
   /* stack: ...; loader data; result from loader */
-  if (!acorn_isnil(L, -1))  /* non-nil return? */
-    acorn_setfield(L, 2, name);  /* LOADED[name] = returned value */
+  if (!viper_isnil(L, -1))  /* non-nil return? */
+    viper_setfield(L, 2, name);  /* LOADED[name] = returned value */
   else
-    acorn_pop(L, 1);  /* pop nil */
-  if (acorn_getfield(L, 2, name) == ACORN_TNIL) {   /* module set no value? */
-    acorn_pushboolean(L, 1);  /* use true as result */
-    acorn_copy(L, -1, -2);  /* replace loader result */
-    acorn_setfield(L, 2, name);  /* LOADED[name] = true */
+    viper_pop(L, 1);  /* pop nil */
+  if (viper_getfield(L, 2, name) == VIPER_TNIL) {   /* module set no value? */
+    viper_pushboolean(L, 1);  /* use true as result */
+    viper_copy(L, -1, -2);  /* replace loader result */
+    viper_setfield(L, 2, name);  /* LOADED[name] = true */
   }
-  acorn_rotate(L, -2, 1);  /* loader data <-> module result  */
+  viper_rotate(L, -2, 1);  /* loader data <-> module result  */
   return 2;  /* return module result and loader data */
 }
 
@@ -688,7 +688,7 @@ static int ll_require (acorn_State *L) {
 
 
 
-static const acornL_Reg pk_funcs[] = {
+static const viperL_Reg pk_funcs[] = {
   {"loadlib", ll_loadlib},
   {"searchpath", ll_searchpath},
   /* placeholders */
@@ -701,25 +701,25 @@ static const acornL_Reg pk_funcs[] = {
 };
 
 
-static const acornL_Reg ll_funcs[] = {
+static const viperL_Reg ll_funcs[] = {
   {"require", ll_require},
   {NULL, NULL}
 };
 
 
-static void createsearcherstable (acorn_State *L) {
-  static const acorn_CFunction searchers[] =
-    {searcher_preload, searcher_Acorn, searcher_C, searcher_Croot, NULL};
+static void createsearcherstable (viper_State *L) {
+  static const viper_CFunction searchers[] =
+    {searcher_preload, searcher_Viper, searcher_C, searcher_Croot, NULL};
   int i;
   /* create 'searchers' table */
-  acorn_createtable(L, sizeof(searchers)/sizeof(searchers[0]) - 1, 0);
+  viper_createtable(L, sizeof(searchers)/sizeof(searchers[0]) - 1, 0);
   /* fill it with predefined searchers */
   for (i=0; searchers[i] != NULL; i++) {
-    acorn_pushvalue(L, -2);  /* set 'package' as upvalue for all searchers */
-    acorn_pushcclosure(L, searchers[i], 1);
-    acorn_rawseti(L, -2, i+1);
+    viper_pushvalue(L, -2);  /* set 'package' as upvalue for all searchers */
+    viper_pushcclosure(L, searchers[i], 1);
+    viper_rawseti(L, -2, i+1);
   }
-  acorn_setfield(L, -2, "searchers");  /* put it in field 'searchers' */
+  viper_setfield(L, -2, "searchers");  /* put it in field 'searchers' */
 }
 
 
@@ -727,36 +727,36 @@ static void createsearcherstable (acorn_State *L) {
 ** create table CLIBS to keep track of loaded C libraries,
 ** setting a finalizer to close all libraries when closing state.
 */
-static void createclibstable (acorn_State *L) {
-  acornL_getsubtable(L, ACORN_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
-  acorn_createtable(L, 0, 1);  /* create metatable for CLIBS */
-  acorn_pushcfunction(L, gctm);
-  acorn_setfield(L, -2, "__gc");  /* set finalizer for CLIBS table */
-  acorn_setmetatable(L, -2);
+static void createclibstable (viper_State *L) {
+  viperL_getsubtable(L, VIPER_REGISTRYINDEX, CLIBS);  /* create CLIBS table */
+  viper_createtable(L, 0, 1);  /* create metatable for CLIBS */
+  viper_pushcfunction(L, gctm);
+  viper_setfield(L, -2, "__gc");  /* set finalizer for CLIBS table */
+  viper_setmetatable(L, -2);
 }
 
 
-ACORNMOD_API int acornopen_package (acorn_State *L) {
+VIPERMOD_API int viperopen_package (viper_State *L) {
   createclibstable(L);
-  acornL_newlib(L, pk_funcs);  /* create 'package' table */
+  viperL_newlib(L, pk_funcs);  /* create 'package' table */
   createsearcherstable(L);
   /* set paths */
-  setpath(L, "path", ACORN_PATH_VAR, ACORN_PATH_DEFAULT);
-  setpath(L, "cpath", ACORN_CPATH_VAR, ACORN_CPATH_DEFAULT);
+  setpath(L, "path", VIPER_PATH_VAR, VIPER_PATH_DEFAULT);
+  setpath(L, "cpath", VIPER_CPATH_VAR, VIPER_CPATH_DEFAULT);
   /* store config information */
-  acorn_pushliteral(L, ACORN_DIRSEP "\n" ACORN_PATH_SEP "\n" ACORN_PATH_MARK "\n"
-                     ACORN_EXEC_DIR "\n" ACORN_IGMARK "\n");
-  acorn_setfield(L, -2, "config");
+  viper_pushliteral(L, VIPER_DIRSEP "\n" VIPER_PATH_SEP "\n" VIPER_PATH_MARK "\n"
+                     VIPER_EXEC_DIR "\n" VIPER_IGMARK "\n");
+  viper_setfield(L, -2, "config");
   /* set field 'loaded' */
-  acornL_getsubtable(L, ACORN_REGISTRYINDEX, ACORN_LOADED_TABLE);
-  acorn_setfield(L, -2, "loaded");
+  viperL_getsubtable(L, VIPER_REGISTRYINDEX, VIPER_LOADED_TABLE);
+  viper_setfield(L, -2, "loaded");
   /* set field 'preload' */
-  acornL_getsubtable(L, ACORN_REGISTRYINDEX, ACORN_PRELOAD_TABLE);
-  acorn_setfield(L, -2, "preload");
-  acorn_pushglobaltable(L);
-  acorn_pushvalue(L, -2);  /* set 'package' as upvalue for next lib */
-  acornL_setfuncs(L, ll_funcs, 1);  /* open lib into global table */
-  acorn_pop(L, 1);  /* pop global table */
+  viperL_getsubtable(L, VIPER_REGISTRYINDEX, VIPER_PRELOAD_TABLE);
+  viper_setfield(L, -2, "preload");
+  viper_pushglobaltable(L);
+  viper_pushvalue(L, -2);  /* set 'package' as upvalue for next lib */
+  viperL_setfuncs(L, ll_funcs, 1);  /* open lib into global table */
+  viper_pop(L, 1);  /* pop global table */
   return 1;  /* return 'package' table */
 }
 

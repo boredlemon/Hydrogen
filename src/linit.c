@@ -1,16 +1,16 @@
 /*
 ** $Id: linit.c $
-** Initialization of libraries for acorn.c and other clients
-** See Copyright Notice in acorn.h
+** Initialization of libraries for viper.c and other clients
+** See Copyright Notice in viper.h
 */
 
 
 #define linit_c
-#define ACORN_LIB
+#define VIPER_LIB
 
 /*
-** If you embed Acorn in your program and need to open the standard
-** libraries, call acornL_openlibs in your program. If you need a
+** If you embed Viper in your program and need to open the standard
+** libraries, call viperL_openlibs in your program. If you need a
 ** different set of libraries, copy this file to your project and edit
 ** it to suit your needs.
 **
@@ -18,10 +18,10 @@
 ** open the library, which is already linked to the application.
 ** For that, do the following code:
 **
-**  acornL_getsubtable(L, ACORN_REGISTRYINDEX, ACORN_PRELOAD_TABLE);
-**  acorn_pushcfunction(L, acornopen_modname);
-**  acorn_setfield(L, -2, modname);
-**  acorn_pop(L, 1);  // remove PRELOAD table
+**  viperL_getsubtable(L, VIPER_REGISTRYINDEX, VIPER_PRELOAD_TABLE);
+**  viper_pushcfunction(L, viperopen_modname);
+**  viper_setfield(L, -2, modname);
+**  viper_pop(L, 1);  // remove PRELOAD table
 */
 
 #include "lprefix.h"
@@ -29,37 +29,37 @@
 
 #include <stddef.h>
 
-#include "acorn.h"
+#include "viper.h"
 
-#include "acornlib.h"
+#include "viperlib.h"
 #include "lauxlib.h"
 
 
 /*
-** these libs are loaded by acorn.c and are readily available to any Acorn
+** these libs are loaded by viper.c and are readily available to any Viper
 ** program
 */
-static const acornL_Reg loadedlibs[] = {
-  {ACORN_GNAME, acornopen_base},
-  {ACORN_LOADLIBNAME, acornopen_package},
-  {ACORN_COLIBNAME, acornopen_coroutine},
-  {ACORN_TABLIBNAME, acornopen_table},
-  {ACORN_IOLIBNAME, acornopen_io},
-  {ACORN_OSLIBNAME, acornopen_os},
-  {ACORN_STRLIBNAME, acornopen_string},
-  {ACORN_MATHLIBNAME, acornopen_math},
-  {ACORN_UTF8LIBNAME, acornopen_utf8},
-  {ACORN_DBLIBNAME, acornopen_debug},
+static const viperL_Reg loadedlibs[] = {
+  {VIPER_GNAME, viperopen_base},
+  {VIPER_LOADLIBNAME, viperopen_package},
+  {VIPER_COLIBNAME, viperopen_coroutine},
+  {VIPER_TABLIBNAME, viperopen_table},
+  {VIPER_IOLIBNAME, viperopen_io},
+  {VIPER_OSLIBNAME, viperopen_os},
+  {VIPER_STRLIBNAME, viperopen_string},
+  {VIPER_MATHLIBNAME, viperopen_math},
+  {VIPER_UTF8LIBNAME, viperopen_utf8},
+  {VIPER_DBLIBNAME, viperopen_debug},
   {NULL, NULL}
 };
 
 
-ACORNLIB_API void acornL_openlibs (acorn_State *L) {
-  const acornL_Reg *lib;
+VIPERLIB_API void viperL_openlibs (viper_State *L) {
+  const viperL_Reg *lib;
   /* "require" functions from 'loadedlibs' and set results to global table */
   for (lib = loadedlibs; lib->func; lib++) {
-    acornL_requiref(L, lib->name, lib->func, 1);
-    acorn_pop(L, 1);  /* remove lib */
+    viperL_requiref(L, lib->name, lib->func, 1);
+    viper_pop(L, 1);  /* remove lib */
   }
 }
 

@@ -1,11 +1,11 @@
 /*
-** $Id: acornc.c $
-** Acorn compiler (saves bytecodes to files; also lists bytecodes)
-** See Copyright Notice in acorn.h
+** $Id: viperc.c $
+** Viper compiler (saves bytecodes to files; also lists bytecodes)
+** See Copyright Notice in viper.h
 */
 
-#define acornc_c
-#define ACORN_CORE
+#define viperc_c
+#define VIPER_CORE
 
 #include "lprefix.h"
 
@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 #include "lauxlib.h"
 
 #include "ldebug.h"
@@ -26,9 +26,9 @@
 #include "lundump.h"
 
 static void PrintFunction(const Proto* f, int full);
-#define acornU_print	PrintFunction
+#define viperU_print	PrintFunction
 
-#define PROGNAME	"acornc"		/* default program name */
+#define PROGNAME	"viperc"		/* default program name */
 #define OUTPUT		PROGNAME ".out"	/* default output file */
 
 static int listing=0;			/* list bytecodes? */
@@ -67,7 +67,7 @@ static void usage(const char* message)
   "  -v       show version information\n"
   "  --       stop handling options\n"
   "  -        stop handling options and process stdin\n"
-  " 🌰Acorn was here🌰\n"
+  "The Viper is coming for you... it bytes\n"
   ,progname,Output);
  exit(EXIT_FAILURE);
 }
@@ -116,7 +116,7 @@ static int doargs(int argc, char* argv[])
  }
  if (version)
  {
-  printf("%s\n",ACORN_COPYRIGHT);
+  printf("%s\n",VIPER_COPYRIGHT);
   if (version==argc-1) exit(EXIT_SUCCESS);
  }
  return i;
@@ -124,7 +124,7 @@ static int doargs(int argc, char* argv[])
 
 #define FUNCTION "(function()end)();"
 
-static const char* reader(acorn_State* L, void* ud, size_t* size)
+static const char* reader(viper_State* L, void* ud, size_t* size)
 {
  UNUSED(L);
  if ((*(int*)ud)--)
@@ -141,7 +141,7 @@ static const char* reader(acorn_State* L, void* ud, size_t* size)
 
 #define toproto(L,i) getproto(s2v(L->top+(i)))
 
-static const Proto* combine(acorn_State* L, int n)
+static const Proto* combine(viper_State* L, int n)
 {
  if (n==1)
   return toproto(L,-1);
@@ -149,47 +149,47 @@ static const Proto* combine(acorn_State* L, int n)
  {
   Proto* f;
   int i=n;
-  if (acorn_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=ACORN_OK) fatal(acorn_tostring(L,-1));
+  if (viper_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=VIPER_OK) fatal(viper_tostring(L,-1));
   f=toproto(L,-1);
   for (i=0; i<n; i++)
   {
    f->p[i]=toproto(L,i-n-1);
    if (f->p[i]->sizeupvalues>0) f->p[i]->upvalues[0].instack=0;
   }
-  acornM_freearray(L,f->lineinfo,f->sizelineinfo);
+  viperM_freearray(L,f->lineinfo,f->sizelineinfo);
   f->sizelineinfo=0;
   return f;
  }
 }
 
-static int writer(acorn_State* L, const void* p, size_t size, void* u)
+static int writer(viper_State* L, const void* p, size_t size, void* u)
 {
  UNUSED(L);
  return (fwrite(p,size,1,(FILE*)u)!=1) && (size!=0);
 }
 
-static int pmain(acorn_State* L)
+static int pmain(viper_State* L)
 {
- int argc=(int)acorn_tointeger(L,1);
- char** argv=(char**)acorn_touserdata(L,2);
+ int argc=(int)viper_tointeger(L,1);
+ char** argv=(char**)viper_touserdata(L,2);
  const Proto* f;
  int i;
  tmname=G(L)->tmname;
- if (!acorn_checkstack(L,argc)) fatal("too many input files");
+ if (!viper_checkstack(L,argc)) fatal("too many input files");
  for (i=0; i<argc; i++)
  {
   const char* filename=IS("-") ? NULL : argv[i];
-  if (acornL_loadfile(L,filename)!=ACORN_OK) fatal(acorn_tostring(L,-1));
+  if (viperL_loadfile(L,filename)!=VIPER_OK) fatal(viper_tostring(L,-1));
  }
  f=combine(L,argc);
- if (listing) acornU_print(f,listing>1);
+ if (listing) viperU_print(f,listing>1);
  if (dumping)
  {
   FILE* D= (output==NULL) ? stdout : fopen(output,"wb");
   if (D==NULL) cannot("open");
-  acorn_lock(L);
-  acornU_dump(L,f,writer,D,stripping);
-  acorn_unlock(L);
+  viper_lock(L);
+  viperU_dump(L,f,writer,D,stripping);
+  viper_unlock(L);
   if (ferror(D)) cannot("write");
   if (fclose(D)) cannot("close");
  }
@@ -198,17 +198,17 @@ static int pmain(acorn_State* L)
 
 int main(int argc, char* argv[])
 {
- acorn_State* L;
+ viper_State* L;
  int i=doargs(argc,argv);
  argc-=i; argv+=i;
  if (argc<=0) usage("no input files given");
- L=acornL_newstate();
+ L=viperL_newstate();
  if (L==NULL) fatal("cannot create state: not enough memory");
- acorn_pushcfunction(L,&pmain);
- acorn_pushinteger(L,argc);
- acorn_pushlightuserdata(L,argv);
- if (acorn_pcall(L,2,0,0)!=ACORN_OK) fatal(acorn_tostring(L,-1));
- acorn_close(L);
+ viper_pushcfunction(L,&pmain);
+ viper_pushinteger(L,argc);
+ viper_pushlightuserdata(L,argv);
+ if (viper_pcall(L,2,0,0)!=VIPER_OK) fatal(viper_tostring(L,-1));
+ viper_close(L);
  return EXIT_SUCCESS;
 }
 
@@ -270,21 +270,21 @@ static void PrintType(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case ACORN_VNIL:
+  case VIPER_VNIL:
 	printf("N");
 	break;
-  case ACORN_VFALSE:
-  case ACORN_VTRUE:
+  case VIPER_VFALSE:
+  case VIPER_VTRUE:
 	printf("B");
 	break;
-  case ACORN_VNUMFLT:
+  case VIPER_VNUMFLT:
 	printf("F");
 	break;
-  case ACORN_VNUMINT:
+  case VIPER_VNUMINT:
 	printf("I");
 	break;
-  case ACORN_VSHRSTR:
-  case ACORN_VLNGSTR:
+  case VIPER_VSHRSTR:
+  case VIPER_VLNGSTR:
 	printf("S");
 	break;
   default:				/* cannot happen */
@@ -299,28 +299,28 @@ static void PrintConstant(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case ACORN_VNIL:
+  case VIPER_VNIL:
 	printf("nil");
 	break;
-  case ACORN_VFALSE:
+  case VIPER_VFALSE:
 	printf("false");
 	break;
-  case ACORN_VTRUE:
+  case VIPER_VTRUE:
 	printf("true");
 	break;
-  case ACORN_VNUMFLT:
+  case VIPER_VNUMFLT:
 	{
 	char buff[100];
-	sprintf(buff,ACORN_NUMBER_FMT,fltvalue(o));
+	sprintf(buff,VIPER_NUMBER_FMT,fltvalue(o));
 	printf("%s",buff);
 	if (buff[strspn(buff,"-0123456789")]=='\0') printf(".0");
 	break;
 	}
-  case ACORN_VNUMINT:
-	printf(ACORN_INTEGER_FMT,ivalue(o));
+  case VIPER_VNUMINT:
+	printf(VIPER_INTEGER_FMT,ivalue(o));
 	break;
-  case ACORN_VSHRSTR:
-  case ACORN_VLNGSTR:
+  case VIPER_VSHRSTR:
+  case VIPER_VLNGSTR:
 	PrintString(tsvalue(o));
 	break;
   default:				/* cannot happen */
@@ -351,7 +351,7 @@ static void PrintCode(const Proto* f)
   int sc=GETARG_sC(i);
   int sbx=GETARG_sBx(i);
   int isk=GETARG_k(i);
-  int line=acornG_getfuncline(f,pc);
+  int line=viperG_getfuncline(f,pc);
   printf("\t%d\t",pc+1);
   if (line>0) printf("[%d]\t",line); else printf("[-]\t");
   printf("%-9s\t",opnames[o]);
@@ -673,7 +673,7 @@ static void PrintHeader(const Proto* f)
  const char* s=f->source ? getstr(f->source) : "=?";
  if (*s=='@' || *s=='=')
   s++;
- else if (*s==ACORN_SIGNATURE[0])
+ else if (*s==VIPER_SIGNATURE[0])
   s="(bstring)";
  else
   s="(string)";

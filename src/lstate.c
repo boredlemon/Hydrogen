@@ -1,11 +1,11 @@
 /*
 ** $Id: lstate.c $
 ** Global State
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #define lstate_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
@@ -13,7 +13,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lapi.h"
 #include "ldebug.h"
@@ -33,8 +33,8 @@
 ** thread state + extra space
 */
 typedef struct LX {
-  lu_byte extra_[ACORN_EXTRASPACE];
-  acorn_State l;
+  lu_byte extra_[VIPER_EXTRASPACE];
+  viper_State l;
 } LX;
 
 
@@ -55,7 +55,7 @@ typedef struct LG {
 ** A macro to create a "random" seed when a state is created;
 ** the seed is used to randomize string hashes.
 */
-#if !defined(acorni_makeseed)
+#if !defined(viperi_makeseed)
 
 #include <time.h>
 
@@ -68,15 +68,15 @@ typedef struct LG {
   { size_t t = cast_sizet(e); \
     memcpy(b + p, &t, sizeof(t)); p += sizeof(t); }
 
-static unsigned int acorni_makeseed (acorn_State *L) {
+static unsigned int viperi_makeseed (viper_State *L) {
   char buff[3 * sizeof(size_t)];
   unsigned int h = cast_uint(time(NULL));
   int p = 0;
   addbuff(buff, p, L);  /* heap variable */
   addbuff(buff, p, &h);  /* local variable */
-  addbuff(buff, p, &acorn_newstate);  /* public function */
-  acorn_assert(p == sizeof(buff));
-  return acornS_hash(buff, p, h);
+  addbuff(buff, p, &viper_newstate);  /* public function */
+  viper_assert(p == sizeof(buff));
+  return viperS_hash(buff, p, h);
 }
 
 #endif
@@ -86,9 +86,9 @@ static unsigned int acorni_makeseed (acorn_State *L) {
 ** set GCdebt to a new value keeping the value (totalbytes + GCdebt)
 ** invariant (and avoiding underflows in 'totalbytes')
 */
-void acornE_setdebt (global_State *g, l_mem debt) {
+void viperE_setdebt (global_State *g, l_mem debt) {
   l_mem tb = gettotalbytes(g);
-  acorn_assert(tb > 0);
+  viper_assert(tb > 0);
   if (debt < tb - MAX_LMEM)
     debt = tb - MAX_LMEM;  /* will make 'totalbytes == MAX_LMEM' */
   g->totalbytes = tb - debt;
@@ -96,17 +96,17 @@ void acornE_setdebt (global_State *g, l_mem debt) {
 }
 
 
-ACORN_API int acorn_setcstacklimit (acorn_State *L, unsigned int limit) {
+VIPER_API int viper_setcstacklimit (viper_State *L, unsigned int limit) {
   UNUSED(L); UNUSED(limit);
-  return ACORNI_MAXCCALLS;  /* warning?? */
+  return VIPERI_MAXCCALLS;  /* warning?? */
 }
 
 
-CallInfo *acornE_extendCI (acorn_State *L) {
+CallInfo *viperE_extendCI (viper_State *L) {
   CallInfo *ci;
-  acorn_assert(L->ci->next == NULL);
-  ci = acornM_new(L, CallInfo);
-  acorn_assert(L->ci->next == NULL);
+  viper_assert(L->ci->next == NULL);
+  ci = viperM_new(L, CallInfo);
+  viper_assert(L->ci->next == NULL);
   L->ci->next = ci;
   ci->previous = L->ci;
   ci->next = NULL;
@@ -119,13 +119,13 @@ CallInfo *acornE_extendCI (acorn_State *L) {
 /*
 ** free all CallInfo structures not in use by a thread
 */
-void acornE_freeCI (acorn_State *L) {
+void viperE_freeCI (viper_State *L) {
   CallInfo *ci = L->ci;
   CallInfo *next = ci->next;
   ci->next = NULL;
   while ((ci = next) != NULL) {
     next = ci->next;
-    acornM_free(L, ci);
+    viperM_free(L, ci);
     L->nci--;
   }
 }
@@ -135,7 +135,7 @@ void acornE_freeCI (acorn_State *L) {
 ** free half of the CallInfo structures not in use by a thread,
 ** keeping the first one.
 */
-void acornE_shrinkCI (acorn_State *L) {
+void viperE_shrinkCI (viper_State *L) {
   CallInfo *ci = L->ci->next;  /* first free CallInfo */
   CallInfo *next;
   if (ci == NULL)
@@ -144,7 +144,7 @@ void acornE_shrinkCI (acorn_State *L) {
     CallInfo *next2 = next->next;  /* next's next */
     ci->next = next2;  /* remove next from the list */
     L->nci--;
-    acornM_free(L, next);  /* free next */
+    viperM_free(L, next);  /* free next */
     if (next2 == NULL)
       break;  /* no more elements */
     else {
@@ -156,31 +156,31 @@ void acornE_shrinkCI (acorn_State *L) {
 
 
 /*
-** Called when 'getCcalls(L)' larger or equal to ACORNI_MAXCCALLS.
+** Called when 'getCcalls(L)' larger or equal to VIPERI_MAXCCALLS.
 ** If equal, raises an overflow error. If value is larger than
-** ACORNI_MAXCCALLS (which means it is handling an overflow) but
+** VIPERI_MAXCCALLS (which means it is handling an overflow) but
 ** not much larger, does not report an error (to allow overflow
 ** handling to work).
 */
-void acornE_checkcstack (acorn_State *L) {
-  if (getCcalls(L) == ACORNI_MAXCCALLS)
-    acornG_runerror(L, "C stack overflow");
-  else if (getCcalls(L) >= (ACORNI_MAXCCALLS / 10 * 11))
-    acornD_throw(L, ACORN_ERRERR);  /* error while handling stack error */
+void viperE_checkcstack (viper_State *L) {
+  if (getCcalls(L) == VIPERI_MAXCCALLS)
+    viperG_runerror(L, "C stack overflow");
+  else if (getCcalls(L) >= (VIPERI_MAXCCALLS / 10 * 11))
+    viperD_throw(L, VIPER_ERRERR);  /* error while handling stack error */
 }
 
 
-ACORNI_FUNC void acornE_incCstack (acorn_State *L) {
+VIPERI_FUNC void viperE_incCstack (viper_State *L) {
   L->nCcalls++;
-  if (l_unlikely(getCcalls(L) >= ACORNI_MAXCCALLS))
-    acornE_checkcstack(L);
+  if (l_unlikely(getCcalls(L) >= VIPERI_MAXCCALLS))
+    viperE_checkcstack(L);
 }
 
 
-static void stack_init (acorn_State *L1, acorn_State *L) {
+static void stack_init (viper_State *L1, viper_State *L) {
   int i; CallInfo *ci;
   /* initialize stack array */
-  L1->stack = acornM_newvector(L, BASIC_STACK_SIZE + EXTRA_STACK, StackValue);
+  L1->stack = viperM_newvector(L, BASIC_STACK_SIZE + EXTRA_STACK, StackValue);
   L1->tbclist = L1->stack;
   for (i = 0; i < BASIC_STACK_SIZE + EXTRA_STACK; i++)
     setnilvalue(s2v(L1->stack + i));  /* erase new stack */
@@ -195,50 +195,50 @@ static void stack_init (acorn_State *L1, acorn_State *L) {
   ci->nresults = 0;
   setnilvalue(s2v(L1->top));  /* 'function' entry for this 'ci' */
   L1->top++;
-  ci->top = L1->top + ACORN_MINSTACK;
+  ci->top = L1->top + VIPER_MINSTACK;
   L1->ci = ci;
 }
 
 
-static void freestack (acorn_State *L) {
+static void freestack (viper_State *L) {
   if (L->stack == NULL)
     return;  /* stack not completely built yet */
   L->ci = &L->base_ci;  /* free the entire 'ci' list */
-  acornE_freeCI(L);
-  acorn_assert(L->nci == 0);
-  acornM_freearray(L, L->stack, stacksize(L) + EXTRA_STACK);  /* free stack */
+  viperE_freeCI(L);
+  viper_assert(L->nci == 0);
+  viperM_freearray(L, L->stack, stacksize(L) + EXTRA_STACK);  /* free stack */
 }
 
 
 /*
 ** Create registry table and its predefined values
 */
-static void init_registry (acorn_State *L, global_State *g) {
+static void init_registry (viper_State *L, global_State *g) {
   /* create registry */
-  Table *registry = acornH_new(L);
+  Table *registry = viperH_new(L);
   sethvalue(L, &g->l_registry, registry);
-  acornH_resize(L, registry, ACORN_RIDX_LAST, 0);
-  /* registry[ACORN_RIDX_MAINTHREAD] = L */
-  setthvalue(L, &registry->array[ACORN_RIDX_MAINTHREAD - 1], L);
-  /* registry[ACORN_RIDX_GLOBALS] = new table (table of globals) */
-  sethvalue(L, &registry->array[ACORN_RIDX_GLOBALS - 1], acornH_new(L));
+  viperH_resize(L, registry, VIPER_RIDX_LAST, 0);
+  /* registry[VIPER_RIDX_MAINTHREAD] = L */
+  setthvalue(L, &registry->array[VIPER_RIDX_MAINTHREAD - 1], L);
+  /* registry[VIPER_RIDX_GLOBALS] = new table (table of globals) */
+  sethvalue(L, &registry->array[VIPER_RIDX_GLOBALS - 1], viperH_new(L));
 }
 
 
 /*
 ** open parts of the state that may cause memory-allocation errors.
 */
-static void f_acornopen (acorn_State *L, void *ud) {
+static void f_viperopen (viper_State *L, void *ud) {
   global_State *g = G(L);
   UNUSED(ud);
   stack_init(L, L);  /* init stack */
   init_registry(L, g);
-  acornS_init(L);
-  acornT_init(L);
-  acornX_init(L);
+  viperS_init(L);
+  viperT_init(L);
+  viperX_init(L);
   g->gcstp = 0;  /* allow gc */
   setnilvalue(&g->nilvalue);  /* now state is complete */
-  acorni_userstateopen(L);
+  viperi_userstateopen(L);
 }
 
 
@@ -246,7 +246,7 @@ static void f_acornopen (acorn_State *L, void *ud) {
 ** preinitialize a thread with consistent values without allocating
 ** any memory (to avoid errors)
 */
-static void preinit_thread (acorn_State *L, global_State *g) {
+static void preinit_thread (viper_State *L, global_State *g) {
   G(L) = g;
   L->stack = NULL;
   L->ci = NULL;
@@ -260,39 +260,39 @@ static void preinit_thread (acorn_State *L, global_State *g) {
   L->allowhook = 1;
   resethookcount(L);
   L->openupval = NULL;
-  L->status = ACORN_OK;
+  L->status = VIPER_OK;
   L->errfunc = 0;
   L->oldpc = 0;
 }
 
 
-static void close_state (acorn_State *L) {
+static void close_state (viper_State *L) {
   global_State *g = G(L);
   if (!completestate(g))  /* closing a partially built state? */
-    acornC_freeallobjects(L);  /* just collect its objects */
+    viperC_freeallobjects(L);  /* just collect its objects */
   else {  /* closing a fully built state */
     L->ci = &L->base_ci;  /* unwind CallInfo list */
-    acornD_closeprotected(L, 1, ACORN_OK);  /* close all upvalues */
-    acornC_freeallobjects(L);  /* collect all objects */
-    acorni_userstateclose(L);
+    viperD_closeprotected(L, 1, VIPER_OK);  /* close all upvalues */
+    viperC_freeallobjects(L);  /* collect all objects */
+    viperi_userstateclose(L);
   }
-  acornM_freearray(L, G(L)->strt.hash, G(L)->strt.size);
+  viperM_freearray(L, G(L)->strt.hash, G(L)->strt.size);
   freestack(L);
-  acorn_assert(gettotalbytes(g) == sizeof(LG));
+  viper_assert(gettotalbytes(g) == sizeof(LG));
   (*g->frealloc)(g->ud, fromstate(L), sizeof(LG), 0);  /* free main block */
 }
 
 
-ACORN_API acorn_State *acorn_newthread (acorn_State *L) {
+VIPER_API viper_State *viper_newthread (viper_State *L) {
   global_State *g;
-  acorn_State *L1;
-  acorn_lock(L);
+  viper_State *L1;
+  viper_lock(L);
   g = G(L);
-  acornC_checkGC(L);
+  viperC_checkGC(L);
   /* create new thread */
-  L1 = &cast(LX *, acornM_newobject(L, ACORN_TTHREAD, sizeof(LX)))->l;
-  L1->marked = acornC_white(g);
-  L1->tt = ACORN_VTHREAD;
+  L1 = &cast(LX *, viperM_newobject(L, VIPER_TTHREAD, sizeof(LX)))->l;
+  L1->marked = viperC_white(g);
+  L1->tt = VIPER_VTHREAD;
   /* link it on list 'allgc' */
   L1->next = g->allgc;
   g->allgc = obj2gco(L1);
@@ -305,64 +305,64 @@ ACORN_API acorn_State *acorn_newthread (acorn_State *L) {
   L1->hook = L->hook;
   resethookcount(L1);
   /* initialize L1 extra space */
-  memcpy(acorn_getextraspace(L1), acorn_getextraspace(g->mainthread),
-         ACORN_EXTRASPACE);
-  acorni_userstatethread(L, L1);
+  memcpy(viper_getextraspace(L1), viper_getextraspace(g->mainthread),
+         VIPER_EXTRASPACE);
+  viperi_userstatethread(L, L1);
   stack_init(L1, L);  /* init stack */
-  acorn_unlock(L);
+  viper_unlock(L);
   return L1;
 }
 
 
-void acornE_freethread (acorn_State *L, acorn_State *L1) {
+void viperE_freethread (viper_State *L, viper_State *L1) {
   LX *l = fromstate(L1);
-  acornF_closeupval(L1, L1->stack);  /* close all upvalues */
-  acorn_assert(L1->openupval == NULL);
-  acorni_userstatefree(L, L1);
+  viperF_closeupval(L1, L1->stack);  /* close all upvalues */
+  viper_assert(L1->openupval == NULL);
+  viperi_userstatefree(L, L1);
   freestack(L1);
-  acornM_free(L, l);
+  viperM_free(L, l);
 }
 
 
-int acornE_resetthread (acorn_State *L, int status) {
+int viperE_resetthread (viper_State *L, int status) {
   CallInfo *ci = L->ci = &L->base_ci;  /* unwind CallInfo list */
   setnilvalue(s2v(L->stack));  /* 'function' entry for basic 'ci' */
   ci->func = L->stack;
   ci->callstatus = CIST_C;
-  if (status == ACORN_YIELD)
-    status = ACORN_OK;
-  L->status = ACORN_OK;  /* so it can run __close metamethods */
-  status = acornD_closeprotected(L, 1, status);
-  if (status != ACORN_OK)  /* errors? */
-    acornD_seterrorobj(L, status, L->stack + 1);
+  if (status == VIPER_YIELD)
+    status = VIPER_OK;
+  L->status = VIPER_OK;  /* so it can run __close metamethods */
+  status = viperD_closeprotected(L, 1, status);
+  if (status != VIPER_OK)  /* errors? */
+    viperD_seterrorobj(L, status, L->stack + 1);
   else
     L->top = L->stack + 1;
-  ci->top = L->top + ACORN_MINSTACK;
-  acornD_reallocstack(L, cast_int(ci->top - L->stack), 0);
+  ci->top = L->top + VIPER_MINSTACK;
+  viperD_reallocstack(L, cast_int(ci->top - L->stack), 0);
   return status;
 }
 
 
-ACORN_API int acorn_resetthread (acorn_State *L) {
+VIPER_API int viper_resetthread (viper_State *L) {
   int status;
-  acorn_lock(L);
-  status = acornE_resetthread(L, L->status);
-  acorn_unlock(L);
+  viper_lock(L);
+  status = viperE_resetthread(L, L->status);
+  viper_unlock(L);
   return status;
 }
 
 
-ACORN_API acorn_State *acorn_newstate (acorn_Alloc f, void *ud) {
+VIPER_API viper_State *viper_newstate (viper_Alloc f, void *ud) {
   int i;
-  acorn_State *L;
+  viper_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, ACORN_TTHREAD, sizeof(LG)));
+  LG *l = cast(LG *, (*f)(ud, NULL, VIPER_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;
-  L->tt = ACORN_VTHREAD;
+  L->tt = VIPER_VTHREAD;
   g->currentwhite = bitmask(WHITE0BIT);
-  L->marked = acornC_white(g);
+  L->marked = viperC_white(g);
   preinit_thread(L, g);
   g->allgc = obj2gco(L);  /* by now, only object is the main thread */
   L->next = NULL;
@@ -372,7 +372,7 @@ ACORN_API acorn_State *acorn_newstate (acorn_Alloc f, void *ud) {
   g->warnf = NULL;
   g->ud_warn = NULL;
   g->mainthread = L;
-  g->seed = acorni_makeseed(L);
+  g->seed = viperi_makeseed(L);
   g->gcstp = GCSTPGC;  /* no GC while building state */
   g->strt.size = g->strt.nuse = 0;
   g->strt.hash = NULL;
@@ -393,13 +393,13 @@ ACORN_API acorn_State *acorn_newstate (acorn_Alloc f, void *ud) {
   g->GCdebt = 0;
   g->lastatomic = 0;
   setivalue(&g->nilvalue, 0);  /* to signal that state is not yet built */
-  setgcparam(g->gcpause, ACORNI_GCPAUSE);
-  setgcparam(g->gcstepmul, ACORNI_GCMUL);
-  g->gcstepsize = ACORNI_GCSTEPSIZE;
-  setgcparam(g->genmajormul, ACORNI_GENMAJORMUL);
-  g->genminormul = ACORNI_GENMINORMUL;
-  for (i=0; i < ACORN_NUMTAGS; i++) g->mt[i] = NULL;
-  if (acornD_rawrunprotected(L, f_acornopen, NULL) != ACORN_OK) {
+  setgcparam(g->gcpause, VIPERI_GCPAUSE);
+  setgcparam(g->gcstepmul, VIPERI_GCMUL);
+  g->gcstepsize = VIPERI_GCSTEPSIZE;
+  setgcparam(g->genmajormul, VIPERI_GENMAJORMUL);
+  g->genminormul = VIPERI_GENMINORMUL;
+  for (i=0; i < VIPER_NUMTAGS; i++) g->mt[i] = NULL;
+  if (viperD_rawrunprotected(L, f_viperopen, NULL) != VIPER_OK) {
     /* memory allocation error: free partial state */
     close_state(L);
     L = NULL;
@@ -408,15 +408,15 @@ ACORN_API acorn_State *acorn_newstate (acorn_Alloc f, void *ud) {
 }
 
 
-ACORN_API void acorn_close (acorn_State *L) {
-  acorn_lock(L);
+VIPER_API void viper_close (viper_State *L) {
+  viper_lock(L);
   L = G(L)->mainthread;  /* only the main thread can be closed */
   close_state(L);
 }
 
 
-void acornE_warning (acorn_State *L, const char *msg, int tocont) {
-  acorn_WarnFunction wf = G(L)->warnf;
+void viperE_warning (viper_State *L, const char *msg, int tocont) {
+  viper_WarnFunction wf = G(L)->warnf;
   if (wf != NULL)
     wf(G(L)->ud_warn, msg, tocont);
 }
@@ -425,16 +425,16 @@ void acornE_warning (acorn_State *L, const char *msg, int tocont) {
 /*
 ** Generate a warning from an error message
 */
-void acornE_warnerror (acorn_State *L, const char *where) {
+void viperE_warnerror (viper_State *L, const char *where) {
   TValue *errobj = s2v(L->top - 1);  /* error object */
   const char *msg = (ttisstring(errobj))
                   ? svalue(errobj)
                   : "error object is not a string";
   /* produce warning "error in %s (%s)" (where, msg) */
-  acornE_warning(L, "error in ", 1);
-  acornE_warning(L, where, 1);
-  acornE_warning(L, " (", 1);
-  acornE_warning(L, msg, 1);
-  acornE_warning(L, ")", 0);
+  viperE_warning(L, "error in ", 1);
+  viperE_warning(L, where, 1);
+  viperE_warning(L, " (", 1);
+  viperE_warning(L, msg, 1);
+  viperE_warning(L, ")", 0);
 }
 

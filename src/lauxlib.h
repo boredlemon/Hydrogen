@@ -1,7 +1,7 @@
 /*
 ** $Id: lauxlib.h $
-** Auxiliary functions for building Acorn libraries
-** See Copyright Notice in acorn.h
+** Auxiliary functions for building Viper libraries
+** See Copyright Notice in viper.h
 */
 
 
@@ -12,110 +12,110 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "acornconf.h"
-#include "acorn.h"
+#include "viperconf.h"
+#include "viper.h"
 
 
 /* global table */
-#define ACORN_GNAME	"_G"
+#define VIPER_GNAME	"_G"
 
 
-typedef struct acornL_Buffer acornL_Buffer;
+typedef struct viperL_Buffer viperL_Buffer;
 
 
-/* extra error code for 'acornL_loadfilex' */
-#define ACORN_ERRFILE     (ACORN_ERRERR+1)
+/* extra error code for 'viperL_loadfilex' */
+#define VIPER_ERRFILE     (VIPER_ERRERR+1)
 
 
 /* key, in the registry, for table of loaded modules */
-#define ACORN_LOADED_TABLE	"_LOADED"
+#define VIPER_LOADED_TABLE	"_LOADED"
 
 
 /* key, in the registry, for table of preloaded loaders */
-#define ACORN_PRELOAD_TABLE	"_PRELOAD"
+#define VIPER_PRELOAD_TABLE	"_PRELOAD"
 
 
-typedef struct acornL_Reg {
+typedef struct viperL_Reg {
   const char *name;
-  acorn_CFunction func;
-} acornL_Reg;
+  viper_CFunction func;
+} viperL_Reg;
 
 
-#define ACORNL_NUMSIZES	(sizeof(acorn_Integer)*16 + sizeof(acorn_Number))
+#define VIPERL_NUMSIZES	(sizeof(viper_Integer)*16 + sizeof(viper_Number))
 
-ACORNLIB_API void (acornL_checkversion_) (acorn_State *L, acorn_Number ver, size_t sz);
-#define acornL_checkversion(L)  \
-	  acornL_checkversion_(L, ACORN_VERSION_NUM, ACORNL_NUMSIZES)
+VIPERLIB_API void (viperL_checkversion_) (viper_State *L, viper_Number ver, size_t sz);
+#define viperL_checkversion(L)  \
+	  viperL_checkversion_(L, VIPER_VERSION_NUM, VIPERL_NUMSIZES)
 
-ACORNLIB_API int (acornL_getmetafield) (acorn_State *L, int obj, const char *e);
-ACORNLIB_API int (acornL_callmeta) (acorn_State *L, int obj, const char *e);
-ACORNLIB_API const char *(acornL_tolstring) (acorn_State *L, int idx, size_t *len);
-ACORNLIB_API int (acornL_argerror) (acorn_State *L, int arg, const char *extramsg);
-ACORNLIB_API int (acornL_typeerror) (acorn_State *L, int arg, const char *tname);
-ACORNLIB_API const char *(acornL_checklstring) (acorn_State *L, int arg,
+VIPERLIB_API int (viperL_getmetafield) (viper_State *L, int obj, const char *e);
+VIPERLIB_API int (viperL_callmeta) (viper_State *L, int obj, const char *e);
+VIPERLIB_API const char *(viperL_tolstring) (viper_State *L, int idx, size_t *len);
+VIPERLIB_API int (viperL_argerror) (viper_State *L, int arg, const char *extramsg);
+VIPERLIB_API int (viperL_typeerror) (viper_State *L, int arg, const char *tname);
+VIPERLIB_API const char *(viperL_checklstring) (viper_State *L, int arg,
                                                           size_t *l);
-ACORNLIB_API const char *(acornL_optlstring) (acorn_State *L, int arg,
+VIPERLIB_API const char *(viperL_optlstring) (viper_State *L, int arg,
                                           const char *def, size_t *l);
-ACORNLIB_API acorn_Number (acornL_checknumber) (acorn_State *L, int arg);
-ACORNLIB_API acorn_Number (acornL_optnumber) (acorn_State *L, int arg, acorn_Number def);
+VIPERLIB_API viper_Number (viperL_checknumber) (viper_State *L, int arg);
+VIPERLIB_API viper_Number (viperL_optnumber) (viper_State *L, int arg, viper_Number def);
 
-ACORNLIB_API acorn_Integer (acornL_checkinteger) (acorn_State *L, int arg);
-ACORNLIB_API acorn_Integer (acornL_optinteger) (acorn_State *L, int arg,
-                                          acorn_Integer def);
+VIPERLIB_API viper_Integer (viperL_checkinteger) (viper_State *L, int arg);
+VIPERLIB_API viper_Integer (viperL_optinteger) (viper_State *L, int arg,
+                                          viper_Integer def);
 
-ACORNLIB_API void (acornL_checkstack) (acorn_State *L, int sz, const char *msg);
-ACORNLIB_API void (acornL_checktype) (acorn_State *L, int arg, int t);
-ACORNLIB_API void (acornL_checkany) (acorn_State *L, int arg);
+VIPERLIB_API void (viperL_checkstack) (viper_State *L, int sz, const char *msg);
+VIPERLIB_API void (viperL_checktype) (viper_State *L, int arg, int t);
+VIPERLIB_API void (viperL_checkany) (viper_State *L, int arg);
 
-ACORNLIB_API int   (acornL_newmetatable) (acorn_State *L, const char *tname);
-ACORNLIB_API void  (acornL_setmetatable) (acorn_State *L, const char *tname);
-ACORNLIB_API void *(acornL_testudata) (acorn_State *L, int ud, const char *tname);
-ACORNLIB_API void *(acornL_checkudata) (acorn_State *L, int ud, const char *tname);
+VIPERLIB_API int   (viperL_newmetatable) (viper_State *L, const char *tname);
+VIPERLIB_API void  (viperL_setmetatable) (viper_State *L, const char *tname);
+VIPERLIB_API void *(viperL_testudata) (viper_State *L, int ud, const char *tname);
+VIPERLIB_API void *(viperL_checkudata) (viper_State *L, int ud, const char *tname);
 
-ACORNLIB_API void (acornL_where) (acorn_State *L, int lvl);
-ACORNLIB_API int (acornL_error) (acorn_State *L, const char *fmt, ...);
+VIPERLIB_API void (viperL_where) (viper_State *L, int lvl);
+VIPERLIB_API int (viperL_error) (viper_State *L, const char *fmt, ...);
 
-ACORNLIB_API int (acornL_checkoption) (acorn_State *L, int arg, const char *def,
+VIPERLIB_API int (viperL_checkoption) (viper_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-ACORNLIB_API int (acornL_fileresult) (acorn_State *L, int stat, const char *fname);
-ACORNLIB_API int (acornL_execresult) (acorn_State *L, int stat);
+VIPERLIB_API int (viperL_fileresult) (viper_State *L, int stat, const char *fname);
+VIPERLIB_API int (viperL_execresult) (viper_State *L, int stat);
 
 
 /* predefined references */
-#define ACORN_NOREF       (-2)
-#define ACORN_REFNIL      (-1)
+#define VIPER_NOREF       (-2)
+#define VIPER_REFNIL      (-1)
 
-ACORNLIB_API int (acornL_ref) (acorn_State *L, int t);
-ACORNLIB_API void (acornL_unref) (acorn_State *L, int t, int ref);
+VIPERLIB_API int (viperL_ref) (viper_State *L, int t);
+VIPERLIB_API void (viperL_unref) (viper_State *L, int t, int ref);
 
-ACORNLIB_API int (acornL_loadfilex) (acorn_State *L, const char *filename,
+VIPERLIB_API int (viperL_loadfilex) (viper_State *L, const char *filename,
                                                const char *mode);
 
-#define acornL_loadfile(L,f)	acornL_loadfilex(L,f,NULL)
+#define viperL_loadfile(L,f)	viperL_loadfilex(L,f,NULL)
 
-ACORNLIB_API int (acornL_loadbufferx) (acorn_State *L, const char *buff, size_t sz,
+VIPERLIB_API int (viperL_loadbufferx) (viper_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-ACORNLIB_API int (acornL_loadstring) (acorn_State *L, const char *s);
+VIPERLIB_API int (viperL_loadstring) (viper_State *L, const char *s);
 
-ACORNLIB_API acorn_State *(acornL_newstate) (void);
+VIPERLIB_API viper_State *(viperL_newstate) (void);
 
-ACORNLIB_API acorn_Integer (acornL_len) (acorn_State *L, int idx);
+VIPERLIB_API viper_Integer (viperL_len) (viper_State *L, int idx);
 
-ACORNLIB_API void (acornL_addgsub) (acornL_Buffer *b, const char *s,
+VIPERLIB_API void (viperL_addgsub) (viperL_Buffer *b, const char *s,
                                      const char *p, const char *r);
-ACORNLIB_API const char *(acornL_gsub) (acorn_State *L, const char *s,
+VIPERLIB_API const char *(viperL_gsub) (viper_State *L, const char *s,
                                     const char *p, const char *r);
 
-ACORNLIB_API void (acornL_setfuncs) (acorn_State *L, const acornL_Reg *l, int nup);
+VIPERLIB_API void (viperL_setfuncs) (viper_State *L, const viperL_Reg *l, int nup);
 
-ACORNLIB_API int (acornL_getsubtable) (acorn_State *L, int idx, const char *fname);
+VIPERLIB_API int (viperL_getsubtable) (viper_State *L, int idx, const char *fname);
 
-ACORNLIB_API void (acornL_traceback) (acorn_State *L, acorn_State *L1,
+VIPERLIB_API void (viperL_traceback) (viper_State *L, viper_State *L1,
                                   const char *msg, int level);
 
-ACORNLIB_API void (acornL_requiref) (acorn_State *L, const char *modname,
-                                 acorn_CFunction openf, int glb);
+VIPERLIB_API void (viperL_requiref) (viper_State *L, const char *modname,
+                                 viper_CFunction openf, int glb);
 
 /*
 ** ===============================================================
@@ -124,58 +124,58 @@ ACORNLIB_API void (acornL_requiref) (acorn_State *L, const char *modname,
 */
 
 
-#define acornL_newlibtable(L,l)	\
-  acorn_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#define viperL_newlibtable(L,l)	\
+  viper_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
-#define acornL_newlib(L,l)  \
-  (acornL_checkversion(L), acornL_newlibtable(L,l), acornL_setfuncs(L,l,0))
+#define viperL_newlib(L,l)  \
+  (viperL_checkversion(L), viperL_newlibtable(L,l), viperL_setfuncs(L,l,0))
 
-#define acornL_argcheck(L, cond,arg,extramsg)	\
-	((void)(acorni_likely(cond) || acornL_argerror(L, (arg), (extramsg))))
+#define viperL_argcheck(L, cond,arg,extramsg)	\
+	((void)(viperi_likely(cond) || viperL_argerror(L, (arg), (extramsg))))
 
-#define acornL_argexpected(L,cond,arg,tname)	\
-	((void)(acorni_likely(cond) || acornL_typeerror(L, (arg), (tname))))
+#define viperL_argexpected(L,cond,arg,tname)	\
+	((void)(viperi_likely(cond) || viperL_typeerror(L, (arg), (tname))))
 
-#define acornL_checkstring(L,n)	(acornL_checklstring(L, (n), NULL))
-#define acornL_optstring(L,n,d)	(acornL_optlstring(L, (n), (d), NULL))
+#define viperL_checkstring(L,n)	(viperL_checklstring(L, (n), NULL))
+#define viperL_optstring(L,n,d)	(viperL_optlstring(L, (n), (d), NULL))
 
-#define acornL_typename(L,i)	acorn_typename(L, acorn_type(L,(i)))
+#define viperL_typename(L,i)	viper_typename(L, viper_type(L,(i)))
 
-#define acornL_dofile(L, fn) \
-	(acornL_loadfile(L, fn) || acorn_pcall(L, 0, ACORN_MULTRET, 0))
+#define viperL_dofile(L, fn) \
+	(viperL_loadfile(L, fn) || viper_pcall(L, 0, VIPER_MULTRET, 0))
 
-#define acornL_dostring(L, s) \
-	(acornL_loadstring(L, s) || acorn_pcall(L, 0, ACORN_MULTRET, 0))
+#define viperL_dostring(L, s) \
+	(viperL_loadstring(L, s) || viper_pcall(L, 0, VIPER_MULTRET, 0))
 
-#define acornL_getmetatable(L,n)	(acorn_getfield(L, ACORN_REGISTRYINDEX, (n)))
+#define viperL_getmetatable(L,n)	(viper_getfield(L, VIPER_REGISTRYINDEX, (n)))
 
-#define acornL_opt(L,f,n,d)	(acorn_isnoneornil(L,(n)) ? (d) : f(L,(n)))
+#define viperL_opt(L,f,n,d)	(viper_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
-#define acornL_loadbuffer(L,s,sz,n)	acornL_loadbufferx(L,s,sz,n,NULL)
+#define viperL_loadbuffer(L,s,sz,n)	viperL_loadbufferx(L,s,sz,n,NULL)
 
 
 /*
-** Perform arithmetic operations on acorn_Integer values with wrap-around
-** semantics, as the Acorn core does.
+** Perform arithmetic operations on viper_Integer values with wrap-around
+** semantics, as the Viper core does.
 */
-#define acornL_intop(op,v1,v2)  \
-	((acorn_Integer)((acorn_Unsigned)(v1) op (acorn_Unsigned)(v2)))
+#define viperL_intop(op,v1,v2)  \
+	((viper_Integer)((viper_Unsigned)(v1) op (viper_Unsigned)(v2)))
 
 
 /* push the value used to represent failure/error */
-#define acornL_pushfail(L)	acorn_pushnil(L)
+#define viperL_pushfail(L)	viper_pushnil(L)
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if !defined(acorn_assert)
+#if !defined(viper_assert)
 
-#if defined ACORNI_ASSERT
+#if defined VIPERI_ASSERT
   #include <assert.h>
-  #define acorn_assert(c)		assert(c)
+  #define viper_assert(c)		assert(c)
 #else
-  #define acorn_assert(c)		((void)0)
+  #define viper_assert(c)		((void)0)
 #endif
 
 #endif
@@ -188,40 +188,40 @@ ACORNLIB_API void (acornL_requiref) (acorn_State *L, const char *modname,
 ** =======================================================
 */
 
-struct acornL_Buffer {
+struct viperL_Buffer {
   char *b;  /* buffer address */
   size_t size;  /* buffer size */
   size_t n;  /* number of characters in buffer */
-  acorn_State *L;
+  viper_State *L;
   union {
-    ACORNI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[ACORNL_BUFFERSIZE];  /* initial buffer */
+    VIPERI_MAXALIGN;  /* ensure maximum alignment for buffer */
+    char b[VIPERL_BUFFERSIZE];  /* initial buffer */
   } init;
 };
 
 
-#define acornL_bufflen(bf)	((bf)->n)
-#define acornL_buffaddr(bf)	((bf)->b)
+#define viperL_bufflen(bf)	((bf)->n)
+#define viperL_buffaddr(bf)	((bf)->b)
 
 
-#define acornL_addchar(B,c) \
-  ((void)((B)->n < (B)->size || acornL_prepbuffsize((B), 1)), \
+#define viperL_addchar(B,c) \
+  ((void)((B)->n < (B)->size || viperL_prepbuffsize((B), 1)), \
    ((B)->b[(B)->n++] = (c)))
 
-#define acornL_addsize(B,s)	((B)->n += (s))
+#define viperL_addsize(B,s)	((B)->n += (s))
 
-#define acornL_buffsub(B,s)	((B)->n -= (s))
+#define viperL_buffsub(B,s)	((B)->n -= (s))
 
-ACORNLIB_API void (acornL_buffinit) (acorn_State *L, acornL_Buffer *B);
-ACORNLIB_API char *(acornL_prepbuffsize) (acornL_Buffer *B, size_t sz);
-ACORNLIB_API void (acornL_addlstring) (acornL_Buffer *B, const char *s, size_t l);
-ACORNLIB_API void (acornL_addstring) (acornL_Buffer *B, const char *s);
-ACORNLIB_API void (acornL_addvalue) (acornL_Buffer *B);
-ACORNLIB_API void (acornL_pushresult) (acornL_Buffer *B);
-ACORNLIB_API void (acornL_pushresultsize) (acornL_Buffer *B, size_t sz);
-ACORNLIB_API char *(acornL_buffinitsize) (acorn_State *L, acornL_Buffer *B, size_t sz);
+VIPERLIB_API void (viperL_buffinit) (viper_State *L, viperL_Buffer *B);
+VIPERLIB_API char *(viperL_prepbuffsize) (viperL_Buffer *B, size_t sz);
+VIPERLIB_API void (viperL_addlstring) (viperL_Buffer *B, const char *s, size_t l);
+VIPERLIB_API void (viperL_addstring) (viperL_Buffer *B, const char *s);
+VIPERLIB_API void (viperL_addvalue) (viperL_Buffer *B);
+VIPERLIB_API void (viperL_pushresult) (viperL_Buffer *B);
+VIPERLIB_API void (viperL_pushresultsize) (viperL_Buffer *B, size_t sz);
+VIPERLIB_API char *(viperL_buffinitsize) (viper_State *L, viperL_Buffer *B, size_t sz);
 
-#define acornL_prepbuffer(B)	acornL_prepbuffsize(B, ACORNL_BUFFERSIZE)
+#define viperL_prepbuffer(B)	viperL_prepbuffsize(B, VIPERL_BUFFERSIZE)
 
 /* }====================================================== */
 
@@ -234,18 +234,18 @@ ACORNLIB_API char *(acornL_buffinitsize) (acorn_State *L, acornL_Buffer *B, size
 */
 
 /*
-** A file handle is a userdata with metatable 'ACORN_FILEHANDLE' and
-** initial structure 'acornL_Stream' (it may contain other fields
+** A file handle is a userdata with metatable 'VIPER_FILEHANDLE' and
+** initial structure 'viperL_Stream' (it may contain other fields
 ** after that initial structure).
 */
 
-#define ACORN_FILEHANDLE          "FILE*"
+#define VIPER_FILEHANDLE          "FILE*"
 
 
-typedef struct acornL_Stream {
+typedef struct viperL_Stream {
   FILE *f;  /* stream (NULL for incompletely created streams) */
-  acorn_CFunction closef;  /* to close stream (NULL for closed streams) */
-} acornL_Stream;
+  viper_CFunction closef;  /* to close stream (NULL for closed streams) */
+} viperL_Stream;
 
 /* }====================================================== */
 
@@ -256,18 +256,18 @@ typedef struct acornL_Stream {
 */
 
 /* print a string */
-#if !defined(acorn_writestring)
-#define acorn_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+#if !defined(viper_writestring)
+#define viper_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #endif
 
 /* print a newline and flush the output */
-#if !defined(acorn_writeline)
-#define acorn_writeline()        (acorn_writestring("\n", 1), fflush(stdout))
+#if !defined(viper_writeline)
+#define viper_writeline()        (viper_writestring("\n", 1), fflush(stdout))
 #endif
 
 /* print an error message */
-#if !defined(acorn_writestringerror)
-#define acorn_writestringerror(s,p) \
+#if !defined(viper_writestringerror)
+#define viper_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
 #endif
 
@@ -279,17 +279,17 @@ typedef struct acornL_Stream {
 ** Compatibility with deprecated conversions
 ** =============================================================
 */
-#if defined(ACORN_COMPAT_APIINTCASTS)
+#if defined(VIPER_COMPAT_APIINTCASTS)
 
-#define acornL_checkunsigned(L,a)	((acorn_Unsigned)acornL_checkinteger(L,a))
-#define acornL_optunsigned(L,a,d)	\
-	((acorn_Unsigned)acornL_optinteger(L,a,(acorn_Integer)(d)))
+#define viperL_checkunsigned(L,a)	((viper_Unsigned)viperL_checkinteger(L,a))
+#define viperL_optunsigned(L,a,d)	\
+	((viper_Unsigned)viperL_optinteger(L,a,(viper_Integer)(d)))
 
-#define acornL_checkint(L,n)	((int)acornL_checkinteger(L, (n)))
-#define acornL_optint(L,n,d)	((int)acornL_optinteger(L, (n), (d)))
+#define viperL_checkint(L,n)	((int)viperL_checkinteger(L, (n)))
+#define viperL_optint(L,n,d)	((int)viperL_optinteger(L, (n), (d)))
 
-#define acornL_checklong(L,n)	((long)acornL_checkinteger(L, (n)))
-#define acornL_optlong(L,n,d)	((long)acornL_optinteger(L, (n), (d)))
+#define viperL_checklong(L,n)	((long)viperL_checkinteger(L, (n)))
+#define viperL_optlong(L,n,d)	((long)viperL_optinteger(L, (n), (d)))
 
 #endif
 /* }============================================================ */

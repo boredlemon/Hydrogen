@@ -1,11 +1,11 @@
 /*
 ** $Id: lmathlib.c $
 ** Standard mathematical library
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #define lmathlib_c
-#define ACORN_LIB
+#define VIPER_LIB
 
 #include "lprefix.h"
 
@@ -16,164 +16,164 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lauxlib.h"
-#include "acornlib.h"
+#include "viperlib.h"
 
 
 #undef PI
 #define PI	(l_mathop(3.141592653589793238462643383279502884))
 
 
-static int math_abs (acorn_State *L) {
-  if (acorn_isinteger(L, 1)) {
-    acorn_Integer n = acorn_tointeger(L, 1);
-    if (n < 0) n = (acorn_Integer)(0u - (acorn_Unsigned)n);
-    acorn_pushinteger(L, n);
+static int math_abs (viper_State *L) {
+  if (viper_isinteger(L, 1)) {
+    viper_Integer n = viper_tointeger(L, 1);
+    if (n < 0) n = (viper_Integer)(0u - (viper_Unsigned)n);
+    viper_pushinteger(L, n);
   }
   else
-    acorn_pushnumber(L, l_mathop(fabs)(acornL_checknumber(L, 1)));
+    viper_pushnumber(L, l_mathop(fabs)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sin (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(sin)(acornL_checknumber(L, 1)));
+static int math_sin (viper_State *L) {
+  viper_pushnumber(L, l_mathop(sin)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_cos (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(cos)(acornL_checknumber(L, 1)));
+static int math_cos (viper_State *L) {
+  viper_pushnumber(L, l_mathop(cos)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tan (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(tan)(acornL_checknumber(L, 1)));
+static int math_tan (viper_State *L) {
+  viper_pushnumber(L, l_mathop(tan)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_asin (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(asin)(acornL_checknumber(L, 1)));
+static int math_asin (viper_State *L) {
+  viper_pushnumber(L, l_mathop(asin)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_acos (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(acos)(acornL_checknumber(L, 1)));
+static int math_acos (viper_State *L) {
+  viper_pushnumber(L, l_mathop(acos)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_atan (acorn_State *L) {
-  acorn_Number y = acornL_checknumber(L, 1);
-  acorn_Number x = acornL_optnumber(L, 2, 1);
-  acorn_pushnumber(L, l_mathop(atan2)(y, x));
+static int math_atan (viper_State *L) {
+  viper_Number y = viperL_checknumber(L, 1);
+  viper_Number x = viperL_optnumber(L, 2, 1);
+  viper_pushnumber(L, l_mathop(atan2)(y, x));
   return 1;
 }
 
 
-static int math_toint (acorn_State *L) {
+static int math_toint (viper_State *L) {
   int valid;
-  acorn_Integer n = acorn_tointegerx(L, 1, &valid);
+  viper_Integer n = viper_tointegerx(L, 1, &valid);
   if (l_likely(valid))
-    acorn_pushinteger(L, n);
+    viper_pushinteger(L, n);
   else {
-    acornL_checkany(L, 1);
-    acornL_pushfail(L);  /* value is not convertible to integer */
+    viperL_checkany(L, 1);
+    viperL_pushfail(L);  /* value is not convertible to integer */
   }
   return 1;
 }
 
 
-static void pushnumint (acorn_State *L, acorn_Number d) {
-  acorn_Integer n;
-  if (acorn_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
-    acorn_pushinteger(L, n);  /* result is integer */
+static void pushnumint (viper_State *L, viper_Number d) {
+  viper_Integer n;
+  if (viper_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
+    viper_pushinteger(L, n);  /* result is integer */
   else
-    acorn_pushnumber(L, d);  /* result is float */
+    viper_pushnumber(L, d);  /* result is float */
 }
 
 
-static int math_floor (acorn_State *L) {
-  if (acorn_isinteger(L, 1))
-    acorn_settop(L, 1);  /* integer is its own floor */
+static int math_floor (viper_State *L) {
+  if (viper_isinteger(L, 1))
+    viper_settop(L, 1);  /* integer is its own floor */
   else {
-    acorn_Number d = l_mathop(floor)(acornL_checknumber(L, 1));
+    viper_Number d = l_mathop(floor)(viperL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_ceil (acorn_State *L) {
-  if (acorn_isinteger(L, 1))
-    acorn_settop(L, 1);  /* integer is its own ceil */
+static int math_ceil (viper_State *L) {
+  if (viper_isinteger(L, 1))
+    viper_settop(L, 1);  /* integer is its own ceil */
   else {
-    acorn_Number d = l_mathop(ceil)(acornL_checknumber(L, 1));
+    viper_Number d = l_mathop(ceil)(viperL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_fmod (acorn_State *L) {
-  if (acorn_isinteger(L, 1) && acorn_isinteger(L, 2)) {
-    acorn_Integer d = acorn_tointeger(L, 2);
-    if ((acorn_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
-      acornL_argcheck(L, d != 0, 2, "zero");
-      acorn_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
+static int math_fmod (viper_State *L) {
+  if (viper_isinteger(L, 1) && viper_isinteger(L, 2)) {
+    viper_Integer d = viper_tointeger(L, 2);
+    if ((viper_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
+      viperL_argcheck(L, d != 0, 2, "zero");
+      viper_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
     }
     else
-      acorn_pushinteger(L, acorn_tointeger(L, 1) % d);
+      viper_pushinteger(L, viper_tointeger(L, 1) % d);
   }
   else
-    acorn_pushnumber(L, l_mathop(fmod)(acornL_checknumber(L, 1),
-                                     acornL_checknumber(L, 2)));
+    viper_pushnumber(L, l_mathop(fmod)(viperL_checknumber(L, 1),
+                                     viperL_checknumber(L, 2)));
   return 1;
 }
 
 
 /*
 ** next function does not use 'modf', avoiding problems with 'double*'
-** (which is not compatible with 'float*') when acorn_Number is not
+** (which is not compatible with 'float*') when viper_Number is not
 ** 'double'.
 */
-static int math_modf (acorn_State *L) {
-  if (acorn_isinteger(L ,1)) {
-    acorn_settop(L, 1);  /* number is its own integer part */
-    acorn_pushnumber(L, 0);  /* no fractional part */
+static int math_modf (viper_State *L) {
+  if (viper_isinteger(L ,1)) {
+    viper_settop(L, 1);  /* number is its own integer part */
+    viper_pushnumber(L, 0);  /* no fractional part */
   }
   else {
-    acorn_Number n = acornL_checknumber(L, 1);
+    viper_Number n = viperL_checknumber(L, 1);
     /* integer part (rounds toward zero) */
-    acorn_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
+    viper_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
     pushnumint(L, ip);
     /* fractional part (test needed for inf/-inf) */
-    acorn_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
+    viper_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
   }
   return 2;
 }
 
 
-static int math_sqrt (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(sqrt)(acornL_checknumber(L, 1)));
+static int math_sqrt (viper_State *L) {
+  viper_pushnumber(L, l_mathop(sqrt)(viperL_checknumber(L, 1)));
   return 1;
 }
 
 
-static int math_ult (acorn_State *L) {
-  acorn_Integer a = acornL_checkinteger(L, 1);
-  acorn_Integer b = acornL_checkinteger(L, 2);
-  acorn_pushboolean(L, (acorn_Unsigned)a < (acorn_Unsigned)b);
+static int math_ult (viper_State *L) {
+  viper_Integer a = viperL_checkinteger(L, 1);
+  viper_Integer b = viperL_checkinteger(L, 2);
+  viper_pushboolean(L, (viper_Unsigned)a < (viper_Unsigned)b);
   return 1;
 }
 
-static int math_log (acorn_State *L) {
-  acorn_Number x = acornL_checknumber(L, 1);
-  acorn_Number res;
-  if (acorn_isnoneornil(L, 2))
+static int math_log (viper_State *L) {
+  viper_Number x = viperL_checknumber(L, 1);
+  viper_Number res;
+  if (viper_isnoneornil(L, 2))
     res = l_mathop(log)(x);
   else {
-    acorn_Number base = acornL_checknumber(L, 2);
-#if !defined(ACORN_USE_C89)
+    viper_Number base = viperL_checknumber(L, 2);
+#if !defined(VIPER_USE_C89)
     if (base == l_mathop(2.0))
       res = l_mathop(log2)(x);
     else
@@ -183,60 +183,60 @@ static int math_log (acorn_State *L) {
     else
       res = l_mathop(log)(x)/l_mathop(log)(base);
   }
-  acorn_pushnumber(L, res);
+  viper_pushnumber(L, res);
   return 1;
 }
 
-static int math_exp (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(exp)(acornL_checknumber(L, 1)));
+static int math_exp (viper_State *L) {
+  viper_pushnumber(L, l_mathop(exp)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_deg (acorn_State *L) {
-  acorn_pushnumber(L, acornL_checknumber(L, 1) * (l_mathop(180.0) / PI));
+static int math_deg (viper_State *L) {
+  viper_pushnumber(L, viperL_checknumber(L, 1) * (l_mathop(180.0) / PI));
   return 1;
 }
 
-static int math_rad (acorn_State *L) {
-  acorn_pushnumber(L, acornL_checknumber(L, 1) * (PI / l_mathop(180.0)));
+static int math_rad (viper_State *L) {
+  viper_pushnumber(L, viperL_checknumber(L, 1) * (PI / l_mathop(180.0)));
   return 1;
 }
 
 
-static int math_min (acorn_State *L) {
-  int n = acorn_gettop(L);  /* number of arguments */
+static int math_min (viper_State *L) {
+  int n = viper_gettop(L);  /* number of arguments */
   int imin = 1;  /* index of current minimum value */
   int i;
-  acornL_argcheck(L, n >= 1, 1, "value expected");
+  viperL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (acorn_compare(L, i, imin, ACORN_OPLT))
+    if (viper_compare(L, i, imin, VIPER_OPLT))
       imin = i;
   }
-  acorn_pushvalue(L, imin);
+  viper_pushvalue(L, imin);
   return 1;
 }
 
 
-static int math_max (acorn_State *L) {
-  int n = acorn_gettop(L);  /* number of arguments */
+static int math_max (viper_State *L) {
+  int n = viper_gettop(L);  /* number of arguments */
   int imax = 1;  /* index of current maximum value */
   int i;
-  acornL_argcheck(L, n >= 1, 1, "value expected");
+  viperL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (acorn_compare(L, imax, i, ACORN_OPLT))
+    if (viper_compare(L, imax, i, VIPER_OPLT))
       imax = i;
   }
-  acorn_pushvalue(L, imax);
+  viper_pushvalue(L, imax);
   return 1;
 }
 
 
-static int math_type (acorn_State *L) {
-  if (acorn_type(L, 1) == ACORN_TNUMBER)
-    acorn_pushstring(L, (acorn_isinteger(L, 1)) ? "integer" : "float");
+static int math_type (viper_State *L) {
+  if (viper_type(L, 1) == VIPER_TNUMBER)
+    viper_pushstring(L, (viper_isinteger(L, 1)) ? "integer" : "float");
   else {
-    acornL_checkany(L, 1);
-    acornL_pushfail(L);
+    viperL_checkany(L, 1);
+    viperL_pushfail(L);
   }
   return 1;
 }
@@ -260,10 +260,10 @@ static int math_type (acorn_State *L) {
 
 
 /*
-** ACORN_RAND32 forces the use of 32-bit integers in the implementation
+** VIPER_RAND32 forces the use of 32-bit integers in the implementation
 ** of the PRN generator (mainly for testing).
 */
-#if !defined(ACORN_RAND32) && !defined(Rand64)
+#if !defined(VIPER_RAND32) && !defined(Rand64)
 
 /* try to find an integer type with at least 64 bits */
 
@@ -272,15 +272,15 @@ static int math_type (acorn_State *L) {
 /* 'long' has at least 64 bits */
 #define Rand64		unsigned long
 
-#elif !defined(ACORN_USE_C89) && defined(LLONG_MAX)
+#elif !defined(VIPER_USE_C89) && defined(LLONG_MAX)
 
 /* there is a 'long long' type (which must have at least 64 bits) */
 #define Rand64		unsigned long long
 
-#elif (ACORN_MAXUNSIGNED >> 31 >> 31) >= 3
+#elif (VIPER_MAXUNSIGNED >> 31 >> 31) >= 3
 
-/* 'acorn_Integer' has at least 64 bits */
-#define Rand64		acorn_Unsigned
+/* 'viper_Integer' has at least 64 bits */
+#define Rand64		viper_Unsigned
 
 #endif
 
@@ -334,21 +334,21 @@ static Rand64 nextrand (Rand64 *state) {
 /* to scale to [0, 1), multiply by scaleFIG = 2^(-FIGS) */
 #define scaleFIG	(l_mathop(0.5) / ((Rand64)1 << (FIGS - 1)))
 
-static acorn_Number I2d (Rand64 x) {
-  return (acorn_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
+static viper_Number I2d (Rand64 x) {
+  return (viper_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
 }
 
-/* convert a 'Rand64' to a 'acorn_Unsigned' */
-#define I2UInt(x)	((acorn_Unsigned)trim64(x))
+/* convert a 'Rand64' to a 'viper_Unsigned' */
+#define I2UInt(x)	((viper_Unsigned)trim64(x))
 
-/* convert a 'acorn_Unsigned' to a 'Rand64' */
+/* convert a 'viper_Unsigned' to a 'Rand64' */
 #define Int2I(x)	((Rand64)(x))
 
 
 #else	/* no 'Rand64'   }{ */
 
 /* get an integer with at least 32 bits */
-#if ACORNI_IS32INT
+#if VIPERI_IS32INT
 typedef unsigned int lu_int32;
 #else
 typedef unsigned long lu_int32;
@@ -388,7 +388,7 @@ static Rand64 packI (lu_int32 h, lu_int32 l) {
 
 /* return i << n */
 static Rand64 Ishl (Rand64 i, int n) {
-  acorn_assert(n > 0 && n < 32);
+  viper_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)), i.l << n);
 }
 
@@ -418,21 +418,21 @@ static Rand64 times9 (Rand64 i) {
 
 /* return 'i' rotated left 'n' bits */
 static Rand64 rotl (Rand64 i, int n) {
-  acorn_assert(n > 0 && n < 32);
+  viper_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)),
                (trim32(i.h) >> (32 - n)) | (i.l << n));
 }
 
 /* for offsets larger than 32, rotate right by 64 - offset */
 static Rand64 rotl1 (Rand64 i, int n) {
-  acorn_assert(n > 32 && n < 64);
+  viper_assert(n > 32 && n < 64);
   n = 64 - n;
   return packI((trim32(i.h) >> n) | (i.l << (32 - n)),
                (i.h << (32 - n)) | (trim32(i.l) >> n));
 }
 
 /*
-** implementation of 'xoshiro256**' alAcornrithm on 'Rand64' values
+** implementation of 'xoshiro256**' alViperrithm on 'Rand64' values
 */
 static Rand64 nextrand (Rand64 *state) {
   Rand64 res = times9(rotl(times5(state[1]), 7));
@@ -464,8 +464,8 @@ static Rand64 nextrand (Rand64 *state) {
 ** get up to 32 bits from higher half, shifting right to
 ** throw out the extra bits.
 */
-static acorn_Number I2d (Rand64 x) {
-  acorn_Number h = (acorn_Number)(trim32(x.h) >> (32 - FIGS));
+static viper_Number I2d (Rand64 x) {
+  viper_Number h = (viper_Number)(trim32(x.h) >> (32 - FIGS));
   return h * scaleFIG;
 }
 
@@ -484,27 +484,27 @@ static acorn_Number I2d (Rand64 x) {
 #define shiftLOW	(64 - FIGS)
 
 /*
-** higher 32 bits Acorn after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
+** higher 32 bits Viper after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
 */
-#define shiftHI		((acorn_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
+#define shiftHI		((viper_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
 
 
-static acorn_Number I2d (Rand64 x) {
-  acorn_Number h = (acorn_Number)trim32(x.h) * shiftHI;
-  acorn_Number l = (acorn_Number)(trim32(x.l) >> shiftLOW);
+static viper_Number I2d (Rand64 x) {
+  viper_Number h = (viper_Number)trim32(x.h) * shiftHI;
+  viper_Number l = (viper_Number)(trim32(x.l) >> shiftLOW);
   return (h + l) * scaleFIG;
 }
 
 #endif
 
 
-/* convert a 'Rand64' to a 'acorn_Unsigned' */
-static acorn_Unsigned I2UInt (Rand64 x) {
-  return ((acorn_Unsigned)trim32(x.h) << 31 << 1) | (acorn_Unsigned)trim32(x.l);
+/* convert a 'Rand64' to a 'viper_Unsigned' */
+static viper_Unsigned I2UInt (Rand64 x) {
+  return ((viper_Unsigned)trim32(x.h) << 31 << 1) | (viper_Unsigned)trim32(x.l);
 }
 
-/* convert a 'acorn_Unsigned' to a 'Rand64' */
-static Rand64 Int2I (acorn_Unsigned n) {
+/* convert a 'viper_Unsigned' to a 'Rand64' */
+static Rand64 Int2I (viper_Unsigned n) {
   return packI((lu_int32)(n >> 31 >> 1), (lu_int32)n);
 }
 
@@ -529,22 +529,22 @@ typedef struct {
 ** is inside [0, n], we are done. Otherwise, we try with another 'ran',
 ** until we have a result inside the interval.
 */
-static acorn_Unsigned project (acorn_Unsigned ran, acorn_Unsigned n,
+static viper_Unsigned project (viper_Unsigned ran, viper_Unsigned n,
                              RanState *state) {
   if ((n & (n + 1)) == 0)  /* is 'n + 1' a power of 2? */
     return ran & n;  /* no bias */
   else {
-    acorn_Unsigned lim = n;
+    viper_Unsigned lim = n;
     /* compute the smallest (2^b - 1) not smaller than 'n' */
     lim |= (lim >> 1);
     lim |= (lim >> 2);
     lim |= (lim >> 4);
     lim |= (lim >> 8);
     lim |= (lim >> 16);
-#if (ACORN_MAXUNSIGNED >> 31) >= 3
+#if (VIPER_MAXUNSIGNED >> 31) >= 3
     lim |= (lim >> 32);  /* integer type has more than 32 bits */
 #endif
-    acorn_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
+    viper_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
       && lim >= n  /* not smaller than 'n', */
       && (lim >> 1) < n);  /* and it is the smallest one */
     while ((ran &= lim) > n)  /* project 'ran' into [0..lim] */
@@ -554,43 +554,43 @@ static acorn_Unsigned project (acorn_Unsigned ran, acorn_Unsigned n,
 }
 
 
-static int math_random (acorn_State *L) {
-  acorn_Integer low, up;
-  acorn_Unsigned p;
-  RanState *state = (RanState *)acorn_touserdata(L, acorn_upvalueindex(1));
+static int math_random (viper_State *L) {
+  viper_Integer low, up;
+  viper_Unsigned p;
+  RanState *state = (RanState *)viper_touserdata(L, viper_upvalueindex(1));
   Rand64 rv = nextrand(state->s);  /* next pseudo-random value */
-  switch (acorn_gettop(L)) {  /* check number of arguments */
+  switch (viper_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
-      acorn_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
+      viper_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
       return 1;
     }
     case 1: {  /* only upper limit */
       low = 1;
-      up = acornL_checkinteger(L, 1);
+      up = viperL_checkinteger(L, 1);
       if (up == 0) {  /* single 0 as argument? */
-        acorn_pushinteger(L, I2UInt(rv));  /* full random integer */
+        viper_pushinteger(L, I2UInt(rv));  /* full random integer */
         return 1;
       }
       break;
     }
     case 2: {  /* lower and upper limits */
-      low = acornL_checkinteger(L, 1);
-      up = acornL_checkinteger(L, 2);
+      low = viperL_checkinteger(L, 1);
+      up = viperL_checkinteger(L, 2);
       break;
     }
-    default: return acornL_error(L, "wrong number of arguments");
+    default: return viperL_error(L, "wrong number of arguments");
   }
   /* random integer in the interval [low, up] */
-  acornL_argcheck(L, low <= up, 1, "interval is empty");
+  viperL_argcheck(L, low <= up, 1, "interval is empty");
   /* project random integer into the interval [0, up - low] */
-  p = project(I2UInt(rv), (acorn_Unsigned)up - (acorn_Unsigned)low, state);
-  acorn_pushinteger(L, p + (acorn_Unsigned)low);
+  p = project(I2UInt(rv), (viper_Unsigned)up - (viper_Unsigned)low, state);
+  viper_pushinteger(L, p + (viper_Unsigned)low);
   return 1;
 }
 
 
-static void setseed (acorn_State *L, Rand64 *state,
-                     acorn_Unsigned n1, acorn_Unsigned n2) {
+static void setseed (viper_State *L, Rand64 *state,
+                     viper_Unsigned n1, viper_Unsigned n2) {
   int i;
   state[0] = Int2I(n1);
   state[1] = Int2I(0xff);  /* avoid a zero state */
@@ -598,8 +598,8 @@ static void setseed (acorn_State *L, Rand64 *state,
   state[3] = Int2I(0);
   for (i = 0; i < 16; i++)
     nextrand(state);  /* discard initial values to "spread" seed */
-  acorn_pushinteger(L, n1);
-  acorn_pushinteger(L, n2);
+  viper_pushinteger(L, n1);
+  viper_pushinteger(L, n2);
 }
 
 
@@ -608,28 +608,28 @@ static void setseed (acorn_State *L, Rand64 *state,
 ** and the address of 'L' (in case the machine does address space layout
 ** randomization).
 */
-static void randseed (acorn_State *L, RanState *state) {
-  acorn_Unsigned seed1 = (acorn_Unsigned)time(NULL);
-  acorn_Unsigned seed2 = (acorn_Unsigned)(size_t)L;
+static void randseed (viper_State *L, RanState *state) {
+  viper_Unsigned seed1 = (viper_Unsigned)time(NULL);
+  viper_Unsigned seed2 = (viper_Unsigned)(size_t)L;
   setseed(L, state->s, seed1, seed2);
 }
 
 
-static int math_randomseed (acorn_State *L) {
-  RanState *state = (RanState *)acorn_touserdata(L, acorn_upvalueindex(1));
-  if (acorn_isnone(L, 1)) {
+static int math_randomseed (viper_State *L) {
+  RanState *state = (RanState *)viper_touserdata(L, viper_upvalueindex(1));
+  if (viper_isnone(L, 1)) {
     randseed(L, state);
   }
   else {
-    acorn_Integer n1 = acornL_checkinteger(L, 1);
-    acorn_Integer n2 = acornL_optinteger(L, 2, 0);
+    viper_Integer n1 = viperL_checkinteger(L, 1);
+    viper_Integer n2 = viperL_optinteger(L, 2, 0);
     setseed(L, state->s, n1, n2);
   }
   return 2;  /* return seeds */
 }
 
 
-static const acornL_Reg randfuncs[] = {
+static const viperL_Reg randfuncs[] = {
   {"random", math_random},
   {"randomseed", math_randomseed},
   {NULL, NULL}
@@ -639,11 +639,11 @@ static const acornL_Reg randfuncs[] = {
 /*
 ** Register the random functions and initialize their state.
 */
-static void setrandfunc (acorn_State *L) {
-  RanState *state = (RanState *)acorn_newuserdatauv(L, sizeof(RanState), 0);
+static void setrandfunc (viper_State *L) {
+  RanState *state = (RanState *)viper_newuserdatauv(L, sizeof(RanState), 0);
   randseed(L, state);  /* initialize with a "random" seed */
-  acorn_pop(L, 2);  /* remove pushed seeds */
-  acornL_setfuncs(L, randfuncs, 1);
+  viper_pop(L, 2);  /* remove pushed seeds */
+  viperL_setfuncs(L, randfuncs, 1);
 }
 
 /* }================================================================== */
@@ -654,46 +654,46 @@ static void setrandfunc (acorn_State *L) {
 ** Deprecated functions (for compatibility only)
 ** ===================================================================
 */
-#if defined(ACORN_COMPAT_MATHLIB)
+#if defined(VIPER_COMPAT_MATHLIB)
 
-static int math_cosh (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(cosh)(acornL_checknumber(L, 1)));
+static int math_cosh (viper_State *L) {
+  viper_pushnumber(L, l_mathop(cosh)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sinh (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(sinh)(acornL_checknumber(L, 1)));
+static int math_sinh (viper_State *L) {
+  viper_pushnumber(L, l_mathop(sinh)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tanh (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(tanh)(acornL_checknumber(L, 1)));
+static int math_tanh (viper_State *L) {
+  viper_pushnumber(L, l_mathop(tanh)(viperL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_pow (acorn_State *L) {
-  acorn_Number x = acornL_checknumber(L, 1);
-  acorn_Number y = acornL_checknumber(L, 2);
-  acorn_pushnumber(L, l_mathop(pow)(x, y));
+static int math_pow (viper_State *L) {
+  viper_Number x = viperL_checknumber(L, 1);
+  viper_Number y = viperL_checknumber(L, 2);
+  viper_pushnumber(L, l_mathop(pow)(x, y));
   return 1;
 }
 
-static int math_frexp (acorn_State *L) {
+static int math_frexp (viper_State *L) {
   int e;
-  acorn_pushnumber(L, l_mathop(frexp)(acornL_checknumber(L, 1), &e));
-  acorn_pushinteger(L, e);
+  viper_pushnumber(L, l_mathop(frexp)(viperL_checknumber(L, 1), &e));
+  viper_pushinteger(L, e);
   return 2;
 }
 
-static int math_ldexp (acorn_State *L) {
-  acorn_Number x = acornL_checknumber(L, 1);
-  int ep = (int)acornL_checkinteger(L, 2);
-  acorn_pushnumber(L, l_mathop(ldexp)(x, ep));
+static int math_ldexp (viper_State *L) {
+  viper_Number x = viperL_checknumber(L, 1);
+  int ep = (int)viperL_checkinteger(L, 2);
+  viper_pushnumber(L, l_mathop(ldexp)(x, ep));
   return 1;
 }
 
-static int math_log10 (acorn_State *L) {
-  acorn_pushnumber(L, l_mathop(log10)(acornL_checknumber(L, 1)));
+static int math_log10 (viper_State *L) {
+  viper_pushnumber(L, l_mathop(log10)(viperL_checknumber(L, 1)));
   return 1;
 }
 
@@ -702,7 +702,7 @@ static int math_log10 (acorn_State *L) {
 
 
 
-static const acornL_Reg mathlib[] = {
+static const viperL_Reg mathlib[] = {
   {"abs",   math_abs},
   {"acos",  math_acos},
   {"asin",  math_asin},
@@ -724,7 +724,7 @@ static const acornL_Reg mathlib[] = {
   {"sqrt",  math_sqrt},
   {"tan",   math_tan},
   {"type", math_type},
-#if defined(ACORN_COMPAT_MATHLIB)
+#if defined(VIPER_COMPAT_MATHLIB)
   {"atan2", math_atan},
   {"cosh",   math_cosh},
   {"sinh",   math_sinh},
@@ -748,16 +748,16 @@ static const acornL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-ACORNMOD_API int acornopen_math (acorn_State *L) {
-  acornL_newlib(L, mathlib);
-  acorn_pushnumber(L, PI);
-  acorn_setfield(L, -2, "pi");
-  acorn_pushnumber(L, (acorn_Number)HUGE_VAL);
-  acorn_setfield(L, -2, "huge");
-  acorn_pushinteger(L, ACORN_MAXINTEGER);
-  acorn_setfield(L, -2, "maxinteger");
-  acorn_pushinteger(L, ACORN_MININTEGER);
-  acorn_setfield(L, -2, "mininteger");
+VIPERMOD_API int viperopen_math (viper_State *L) {
+  viperL_newlib(L, mathlib);
+  viper_pushnumber(L, PI);
+  viper_setfield(L, -2, "pi");
+  viper_pushnumber(L, (viper_Number)HUGE_VAL);
+  viper_setfield(L, -2, "huge");
+  viper_pushinteger(L, VIPER_MAXINTEGER);
+  viper_setfield(L, -2, "maxinteger");
+  viper_pushinteger(L, VIPER_MININTEGER);
+  viper_setfield(L, -2, "mininteger");
   setrandfunc(L);
   return 1;
 }

@@ -1,23 +1,23 @@
 /*
 ** $Id: lctype.c $
-** 'ctype' functions for Acorn
-** See Copyright Notice in acorn.h
+** 'ctype' functions for Viper
+** See Copyright Notice in viper.h
 */
 
 #define lctype_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
 
 #include "lctype.h"
 
-#if !ACORN_USE_CTYPE	/* { */
+#if !VIPER_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (ACORN_UCID)		/* accept UniCode IDentifiers? */
+#if defined (VIPER_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-ACORNI_DDEF const lu_byte acorni_ctype_[UCHAR_MAX + 2] = {
+VIPERI_DDEF const lu_byte viperi_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

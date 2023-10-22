@@ -1,18 +1,18 @@
 /*
 ** $Id: lfunc.c $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #define lfunc_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
 
 #include <stddef.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "ldebug.h"
 #include "ldo.h"
@@ -24,16 +24,16 @@
 
 
 
-CClosure *acornF_newCclosure (acorn_State *L, int nupvals) {
-  GCObject *o = acornC_newobj(L, ACORN_VCCL, sizeCclosure(nupvals));
+CClosure *viperF_newCclosure (viper_State *L, int nupvals) {
+  GCObject *o = viperC_newobj(L, VIPER_VCCL, sizeCclosure(nupvals));
   CClosure *c = gco2ccl(o);
   c->nupvalues = cast_byte(nupvals);
   return c;
 }
 
 
-LClosure *acornF_newLclosure (acorn_State *L, int nupvals) {
-  GCObject *o = acornC_newobj(L, ACORN_VLCL, sizeLclosure(nupvals));
+LClosure *viperF_newLclosure (viper_State *L, int nupvals) {
+  GCObject *o = viperC_newobj(L, VIPER_VLCL, sizeLclosure(nupvals));
   LClosure *c = gco2lcl(o);
   c->p = NULL;
   c->nupvalues = cast_byte(nupvals);
@@ -45,15 +45,15 @@ LClosure *acornF_newLclosure (acorn_State *L, int nupvals) {
 /*
 ** fill a closure with new closed upvalues
 */
-void acornF_initupvals (acorn_State *L, LClosure *cl) {
+void viperF_initupvals (viper_State *L, LClosure *cl) {
   int i;
   for (i = 0; i < cl->nupvalues; i++) {
-    GCObject *o = acornC_newobj(L, ACORN_VUPVAL, sizeof(UpVal));
+    GCObject *o = viperC_newobj(L, VIPER_VUPVAL, sizeof(UpVal));
     UpVal *uv = gco2upv(o);
     uv->v = &uv->u.value;  /* make it closed */
     setnilvalue(uv->v);
     cl->upvals[i] = uv;
-    acornC_objbarrier(L, cl, uv);
+    viperC_objbarrier(L, cl, uv);
   }
 }
 
@@ -62,8 +62,8 @@ void acornF_initupvals (acorn_State *L, LClosure *cl) {
 ** Create a new upvalue at the given level, and link it to the list of
 ** open upvalues of 'L' after entry 'prev'.
 **/
-static UpVal *newupval (acorn_State *L, int tbc, StkId level, UpVal **prev) {
-  GCObject *o = acornC_newobj(L, ACORN_VUPVAL, sizeof(UpVal));
+static UpVal *newupval (viper_State *L, int tbc, StkId level, UpVal **prev) {
+  GCObject *o = viperC_newobj(L, VIPER_VUPVAL, sizeof(UpVal));
   UpVal *uv = gco2upv(o);
   UpVal *next = *prev;
   uv->v = s2v(level);  /* current value lives in the stack */
@@ -85,12 +85,12 @@ static UpVal *newupval (acorn_State *L, int tbc, StkId level, UpVal **prev) {
 ** Find and reuse, or create if it does not exist, an upvalue
 ** at the given level.
 */
-UpVal *acornF_findupval (acorn_State *L, StkId level) {
+UpVal *viperF_findupval (viper_State *L, StkId level) {
   UpVal **pp = &L->openupval;
   UpVal *p;
-  acorn_assert(isintwups(L) || L->openupval == NULL);
+  viper_assert(isintwups(L) || L->openupval == NULL);
   while ((p = *pp) != NULL && uplevel(p) >= level) {  /* search for it */
-    acorn_assert(!isdead(G(L), p));
+    viper_assert(!isdead(G(L), p));
     if (uplevel(p) == level)  /* corresponding upvalue? */
       return p;  /* return it */
     pp = &p->u.open.next;
@@ -105,17 +105,17 @@ UpVal *acornF_findupval (acorn_State *L, StkId level) {
 ** boolean 'yy' controls whether the call is yieldable.
 ** (This function assumes EXTRA_STACK.)
 */
-static void callclosemethod (acorn_State *L, TValue *obj, TValue *err, int yy) {
+static void callclosemethod (viper_State *L, TValue *obj, TValue *err, int yy) {
   StkId top = L->top;
-  const TValue *tm = acornT_gettmbyobj(L, obj, TM_CLOSE);
+  const TValue *tm = viperT_gettmbyobj(L, obj, TM_CLOSE);
   setobj2s(L, top, tm);  /* will call metamethod... */
   setobj2s(L, top + 1, obj);  /* with 'self' as the 1st argument */
   setobj2s(L, top + 2, err);  /* and error msg. as 2nd argument */
   L->top = top + 3;  /* add function and arguments */
   if (yy)
-    acornD_call(L, top, 0);
+    viperD_call(L, top, 0);
   else
-    acornD_callnoyield(L, top, 0);
+    viperD_callnoyield(L, top, 0);
 }
 
 
@@ -123,13 +123,13 @@ static void callclosemethod (acorn_State *L, TValue *obj, TValue *err, int yy) {
 ** Check whether object at given level has a close metamethod and raise
 ** an error if not.
 */
-static void checkclosemth (acorn_State *L, StkId level) {
-  const TValue *tm = acornT_gettmbyobj(L, s2v(level), TM_CLOSE);
+static void checkclosemth (viper_State *L, StkId level) {
+  const TValue *tm = viperT_gettmbyobj(L, s2v(level), TM_CLOSE);
   if (ttisnil(tm)) {  /* no metamethod? */
     int idx = cast_int(level - L->ci->func);  /* variable index */
-    const char *vname = acornG_findlocal(L, L->ci, idx, NULL);
+    const char *vname = viperG_findlocal(L, L->ci, idx, NULL);
     if (vname == NULL) vname = "?";
-    acornG_runerror(L, "variable '%s' Acornt a non-closable value", vname);
+    viperG_runerror(L, "variable '%s' Vipert a non-closable value", vname);
   }
 }
 
@@ -141,14 +141,14 @@ static void checkclosemth (acorn_State *L, StkId level) {
 ** the 'level' of the upvalue being closed, as everything after that
 ** won't be used again.
 */
-static void prepcallclosemth (acorn_State *L, StkId level, int status, int yy) {
+static void prepcallclosemth (viper_State *L, StkId level, int status, int yy) {
   TValue *uv = s2v(level);  /* value being closed */
   TValue *errobj;
   if (status == CLOSEKTOP)
     errobj = &G(L)->nilvalue;  /* error object is nil */
-  else {  /* 'acornD_seterrorobj' will set top to level + 2 */
-    errobj = s2v(level + 1);  /* error object Acornes after 'uv' */
-    acornD_seterrorobj(L, status, level + 1);  /* set error object */
+  else {  /* 'viperD_seterrorobj' will set top to level + 2 */
+    errobj = s2v(level + 1);  /* error object Viperes after 'uv' */
+    viperD_seterrorobj(L, status, level + 1);  /* set error object */
   }
   callclosemethod(L, uv, errobj, yy);
 }
@@ -166,8 +166,8 @@ static void prepcallclosemth (acorn_State *L, StkId level, int status, int yy) {
 /*
 ** Insert a variable in the list of to-be-closed variables.
 */
-void acornF_newtbacornval (acorn_State *L, StkId level) {
-  acorn_assert(level > L->tbclist);
+void viperF_newtbviperval (viper_State *L, StkId level) {
+  viper_assert(level > L->tbclist);
   if (l_isfalse(s2v(level)))
     return;  /* false doesn't need to be closed */
   checkclosemth(L, level);  /* value must have a close method */
@@ -180,8 +180,8 @@ void acornF_newtbacornval (acorn_State *L, StkId level) {
 }
 
 
-void acornF_unlinkupval (UpVal *uv) {
-  acorn_assert(upisopen(uv));
+void viperF_unlinkupval (UpVal *uv) {
+  viper_assert(upisopen(uv));
   *uv->u.open.previous = uv->u.open.next;
   if (uv->u.open.next)
     uv->u.open.next->u.open.previous = uv->u.open.previous;
@@ -191,18 +191,18 @@ void acornF_unlinkupval (UpVal *uv) {
 /*
 ** Close all upvalues up to the given stack level.
 */
-void acornF_closeupval (acorn_State *L, StkId level) {
+void viperF_closeupval (viper_State *L, StkId level) {
   UpVal *uv;
   StkId upl;  /* stack index pointed by 'uv' */
   while ((uv = L->openupval) != NULL && (upl = uplevel(uv)) >= level) {
     TValue *slot = &uv->u.value;  /* new position for value */
-    acorn_assert(uplevel(uv) < L->top);
-    acornF_unlinkupval(uv);  /* remove upvalue from 'openupval' list */
+    viper_assert(uplevel(uv) < L->top);
+    viperF_unlinkupval(uv);  /* remove upvalue from 'openupval' list */
     setobj(L, slot, uv->v);  /* move value to upvalue slot */
     uv->v = slot;  /* now current value lives here */
     if (!iswhite(uv)) {  /* neither white nor dead? */
       nw2black(uv);  /* closed upvalues cannot be gray */
-      acornC_barrier(L, uv, slot);
+      viperC_barrier(L, uv, slot);
     }
   }
 }
@@ -211,9 +211,9 @@ void acornF_closeupval (acorn_State *L, StkId level) {
 /*
 ** Remove firt element from the tbclist plus its dummy nodes.
 */
-static void poptbclist (acorn_State *L) {
+static void poptbclist (viper_State *L) {
   StkId tbc = L->tbclist;
-  acorn_assert(tbc->tbclist.delta > 0);  /* first element cannot be dummy */
+  viper_assert(tbc->tbclist.delta > 0);  /* first element cannot be dummy */
   tbc -= tbc->tbclist.delta;
   while (tbc > L->stack && tbc->tbclist.delta == 0)
     tbc -= MAXDELTA;  /* remove dummy nodes */
@@ -225,9 +225,9 @@ static void poptbclist (acorn_State *L) {
 ** Close all upvalues and to-be-closed variables up to the given stack
 ** level.
 */
-void acornF_close (acorn_State *L, StkId level, int status, int yy) {
+void viperF_close (viper_State *L, StkId level, int status, int yy) {
   ptrdiff_t levelrel = savestack(L, level);
-  acornF_closeupval(L, level);  /* first, close the upvalues */
+  viperF_closeupval(L, level);  /* first, close the upvalues */
   while (L->tbclist >= level) {  /* traverse tbc's down to that level */
     StkId tbc = L->tbclist;  /* get variable index */
     poptbclist(L);  /* remove it from list */
@@ -237,8 +237,8 @@ void acornF_close (acorn_State *L, StkId level, int status, int yy) {
 }
 
 
-Proto *acornF_newproto (acorn_State *L) {
-  GCObject *o = acornC_newobj(L, ACORN_VPROTO, sizeof(Proto));
+Proto *viperF_newproto (viper_State *L) {
+  GCObject *o = viperC_newobj(L, VIPER_VPROTO, sizeof(Proto));
   Proto *f = gco2p(o);
   f->k = NULL;
   f->sizek = 0;
@@ -264,15 +264,15 @@ Proto *acornF_newproto (acorn_State *L) {
 }
 
 
-void acornF_freeproto (acorn_State *L, Proto *f) {
-  acornM_freearray(L, f->code, f->sizecode);
-  acornM_freearray(L, f->p, f->sizep);
-  acornM_freearray(L, f->k, f->sizek);
-  acornM_freearray(L, f->lineinfo, f->sizelineinfo);
-  acornM_freearray(L, f->abslineinfo, f->sizeabslineinfo);
-  acornM_freearray(L, f->locvars, f->sizelocvars);
-  acornM_freearray(L, f->upvalues, f->sizeupvalues);
-  acornM_free(L, f);
+void viperF_freeproto (viper_State *L, Proto *f) {
+  viperM_freearray(L, f->code, f->sizecode);
+  viperM_freearray(L, f->p, f->sizep);
+  viperM_freearray(L, f->k, f->sizek);
+  viperM_freearray(L, f->lineinfo, f->sizelineinfo);
+  viperM_freearray(L, f->abslineinfo, f->sizeabslineinfo);
+  viperM_freearray(L, f->locvars, f->sizelocvars);
+  viperM_freearray(L, f->upvalues, f->sizeupvalues);
+  viperM_free(L, f);
 }
 
 
@@ -280,7 +280,7 @@ void acornF_freeproto (acorn_State *L, Proto *f) {
 ** Look for n-th local variable at line 'line' in function 'func'.
 ** Returns NULL if not found.
 */
-const char *acornF_getlocalname (const Proto *f, int local_number, int pc) {
+const char *viperF_getlocalname (const Proto *f, int local_number, int pc) {
   int i;
   for (i = 0; i<f->sizelocvars && f->locvars[i].startpc <= pc; i++) {
     if (pc < f->locvars[i].endpc) {  /* is variable active? */

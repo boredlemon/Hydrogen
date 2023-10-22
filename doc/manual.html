@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Acorn 5.4 Reference Manual</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="css/acorn.css">
+<TITLE>Viper 5.4 Reference Manual</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="css/viper.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="css/manual.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 </HEAD>
@@ -10,8 +10,8 @@
 <BODY>
 
 <H1>
-<A HREF="http://www.acorn.org/"><IMG SRC="img/Acorn.png" ALT="Acorn"></A>
-Acorn 5.4 Reference Manual
+<A HREF="http://www.viper.org/"><IMG SRC="img/Viper.png" ALT="Viper"></A>
+Viper 5.4 Reference Manual
 </H1>
 
 <P>
@@ -19,9 +19,9 @@ by Roberto Ierusalimschy, Luiz Henrique de Figueiredo, Waldemar Celes
 
 <P>
 <SMALL>
-Copyright &copy; 2020&nacorn;2022 Acorn.org, PUC-Rio.
+Copyright &copy; 2020&nviper;2022 Viper.org, PUC-Rio.
 Freely available under the terms of the
-<a href="http://www.acorn.org/license.html">Acorn license</a>.
+<a href="http://www.viper.org/license.html">Viper license</a>.
 </SMALL>
 
 <DIV CLASS="menubar">
@@ -29,7 +29,7 @@ Freely available under the terms of the
 &middot;
 <A HREF="contents.html#index">index</A>
 &middot;
-<A HREF="http://www.acorn.org/manual/">other versions</A>
+<A HREF="http://www.viper.org/manual/">other versions</A>
 </DIV>
 
 <!-- ====================================================================== -->
@@ -40,19 +40,19 @@ Freely available under the terms of the
 
 
 
-<h1>1 &nacorn; <a name="1">Introduction</a></h1>
+<h1>1 &nviper; <a name="1">Introduction</a></h1>
 
 <p>
-Acorn is a powerful, efficient, lightweight, embeddable scripting language.
+Viper is a powerful, efficient, lightweight, embeddable scripting language.
 It supports procedural programming,
 object-oriented programming, functional programming,
 data-driven programming, and data description.
 
 
 <p>
-Acorn combines simple procedural syntax with powerful data description
+Viper combines simple procedural syntax with powerful data description
 constructs based on associative arrays and extensible semantics.
-Acorn is dynamically typed,
+Viper is dynamically typed,
 runs by interpreting bytecode with a register-based
 virtual machine,
 and has automatic memory management with
@@ -62,49 +62,49 @@ and rapid prototyping.
 
 
 <p>
-Acorn is implemented as a library, written in <em>clean C</em>,
+Viper is implemented as a library, written in <em>clean C</em>,
 the common subset of Standard&nbsp;C and C++.
-The Acorn distribution includes a host program called <code>acorn</code>,
-which uses the Acorn library to offer a complete,
-standalone Acorn interpreter,
+The Viper distribution includes a host program called <code>viper</code>,
+which uses the Viper library to offer a complete,
+standalone Viper interpreter,
 for interactive or batch use.
-Acorn is intended to be used both as a powerful, lightweight,
+Viper is intended to be used both as a powerful, lightweight,
 embeddable scripting language for any program that needs one,
 and as a powerful but lightweight and efficient stand-alone language.
 
 
 <p>
-As an extension language, Acorn has no notion of a "main" program:
+As an extension language, Viper has no notion of a "main" program:
 it works <em>embedded</em> in a host client,
 called the <em>embedding program</em> or simply the <em>host</em>.
-(Frequently, this host is the stand-alone <code>acorn</code> program.)
-The host program can invoke functions to execute a piece of Acorn code,
-can write and read Acorn variables,
-and can register C&nbsp;functions to be called by Acorn code.
-Through the use of C&nbsp;functions, Acorn can be augmented to cope with
+(Frequently, this host is the stand-alone <code>viper</code> program.)
+The host program can invoke functions to execute a piece of Viper code,
+can write and read Viper variables,
+and can register C&nbsp;functions to be called by Viper code.
+Through the use of C&nbsp;functions, Viper can be augmented to cope with
 a wide range of different domains,
 thus creating customized programming languages sharing a syntactical framework.
 
 
 <p>
-Acorn is free software,
+Viper is free software,
 and is provided as usual with no guarantees,
 as stated in its license.
 The implementation described in this manual is available
-at Acorn's official web site, <code>www.acorn.org</code>.
+at Viper's official web site, <code>www.viper.org</code>.
 
 
 <p>
 Like any other reference manual,
 this document is dry in places.
-For a discussion of the decisions behind the design of Acorn,
-see the technical papers available at Acorn's web site.
-For a detailed introduction to programming in Acorn,
-see Roberto's book, <em>Programming in Acorn</em>.
+For a discussion of the decisions behind the design of Viper,
+see the technical papers available at Viper's web site.
+For a detailed introduction to programming in Viper,
+see Roberto's book, <em>Programming in Viper</em>.
 
 
 
-<h1>2 &nacorn; <a name="2">Basic Concepts</a></h1>
+<h1>2 &nviper; <a name="2">Basic Concepts</a></h1>
 
 
 
@@ -115,10 +115,10 @@ This section describes the basic concepts of the language.
 
 
 
-<h2>2.1 &nacorn; <a name="2.1">Values and Types</a></h2>
+<h2>2.1 &nviper; <a name="2.1">Values and Types</a></h2>
 
 <p>
-Acorn is a dynamically typed language.
+Viper is a dynamically typed language.
 This means that
 variables do not have types; only values do.
 There are no type definitions in the language.
@@ -126,13 +126,13 @@ All values carry their own type.
 
 
 <p>
-All values in Acorn are first-class values.
+All values in Viper are first-class values.
 This means that all values can be stored in variables,
 passed as arguments to other functions, and returned as results.
 
 
 <p>
-There are eight basic types in Acorn:
+There are eight basic types in Viper:
 <em>nil</em>, <em>boolean</em>, <em>number</em>,
 <em>string</em>, <em>function</em>, <em>userdata</em>,
 <em>thread</em>, and <em>table</em>.
@@ -154,13 +154,13 @@ while a <b>nil</b> in a table represents an absent key.
 The type <em>number</em> represents both
 integer numbers and real (floating-point) numbers,
 using two subtypes: <em>integer</em> and <em>float</em>.
-Standard Acorn uses 64-bit integers and double-precision (64-bit) floats,
-but you can also compile Acorn so that it
+Standard Viper uses 64-bit integers and double-precision (64-bit) floats,
+but you can also compile Viper so that it
 uses 32-bit integers and/or single-precision (32-bit) floats.
 The option with 32 bits for both integers and floats
 is particularly attractive
 for small machines and embedded systems.
-(See macro <code>ACORN_32BITS</code> in file <code>acornconf.h</code>.)
+(See macro <code>VIPER_32BITS</code> in file <code>viperconf.h</code>.)
 
 
 <p>
@@ -174,7 +174,7 @@ where <em>n</em> is the number of bits of the integer type.)
 
 
 <p>
-Acorn has explicit rules about when each subtype is used,
+Viper has explicit rules about when each subtype is used,
 but it also converts between them automatically as needed (see <a href="#3.4.3">&sect;3.4.3</a>).
 Therefore,
 the programmer may choose to mostly ignore the difference
@@ -185,35 +185,35 @@ or to assume complete control over the representation of each number.
 <p>
 The type <em>string</em> represents immutable sequences of bytes.
 
-Acorn is 8-bit clean:
+Viper is 8-bit clean:
 strings can contain any 8-bit value,
 including embedded zeros ('<code>\0</code>').
-Acorn is also encoding-agnostic;
+Viper is also encoding-agnostic;
 it makes no assumptions about the contents of a string.
-The length of any string in Acorn must fit in a Acorn integer.
+The length of any string in Viper must fit in a Viper integer.
 
 
 <p>
-Acorn can call (and manipulate) functions written in Acorn and
+Viper can call (and manipulate) functions written in Viper and
 functions written in C (see <a href="#3.4.10">&sect;3.4.10</a>).
 Both are represented by the type <em>function</em>.
 
 
 <p>
 The type <em>userdata</em> is provided to allow arbitrary C&nbsp;data to
-be stored in Acorn variables.
+be stored in Viper variables.
 A userdata value represents a block of raw memory.
 There are two kinds of userdata:
 <em>full userdata</em>,
-which is an object with a block of memory managed by Acorn,
+which is an object with a block of memory managed by Viper,
 and <em>light userdata</em>,
 which is simply a C&nbsp;pointer value.
-Userdata has no predefined operations in Acorn,
+Userdata has no predefined operations in Viper,
 except assignment and identity test.
 By using <em>metatables</em>,
 the programmer can define operations for full userdata values
 (see <a href="#2.4">&sect;2.4</a>).
-Userdata values cannot be created or modified in Acorn,
+Userdata values cannot be created or modified in Viper,
 only through the C&nbsp;API.
 This guarantees the integrity of data owned by
 the host program and C&nbsp;libraries.
@@ -222,15 +222,15 @@ the host program and C&nbsp;libraries.
 <p>
 The type <em>thread</em> represents independent threads of execution
 and it is used to implement coroutines (see <a href="#2.6">&sect;2.6</a>).
-Acorn threads are not related to operating-system threads.
-Acorn supports coroutines on all systems,
+Viper threads are not related to operating-system threads.
+Viper supports coroutines on all systems,
 even those that do not support threads natively.
 
 
 <p>
 The type <em>table</em> implements associative arrays,
 that is, arrays that can have as indices not only numbers,
-but any Acorn value except <b>nil</b> and NaN.
+but any Viper value except <b>nil</b> and NaN.
 (<em>Not a Number</em> is a special floating-point value
 used by the IEEE 754 standard to represent
 undefined numerical results, such as <code>0/0</code>.)
@@ -242,13 +242,13 @@ an associated value <b>nil</b>.
 
 
 <p>
-Tables are the sole data-structuring mechanism in Acorn;
+Tables are the sole data-structuring mechanism in Viper;
 they can be used to represent ordinary arrays, lists,
 symbol tables, sets, records, graphs, trees, etc.
-To represent records, Acorn uses the field name as an index.
+To represent records, Viper uses the field name as an index.
 The language supports this representation by
 providing <code>a.name</code> as syntactic sugar for <code>a["name"]</code>.
-There are several convenient ways to create tables in Acorn
+There are several convenient ways to create tables in Viper
 (see <a href="#3.4.9">&sect;3.4.9</a>).
 
 
@@ -295,7 +295,7 @@ of a given value (see <a href="#pdf-type"><code>type</code></a>).
 
 
 
-<h2>2.2 &nacorn; <a name="2.2">Environments and the Global Environment</a></h2>
+<h2>2.2 &nviper; <a name="2.2">Environments and the Global Environment</a></h2>
 
 <p>
 As we will discuss further in <a href="#3.2">&sect;3.2</a> and <a href="#3.3.3">&sect;3.3.3</a>,
@@ -315,7 +315,7 @@ In particular,
 you can define new variables and parameters with that name.
 Each reference to a free name uses the <code>_ENV</code> that is
 visible at that point in the program,
-following the usual visibility rules of Acorn (see <a href="#3.5">&sect;3.5</a>).
+following the usual visibility rules of Viper (see <a href="#3.5">&sect;3.5</a>).
 
 
 <p>
@@ -323,47 +323,47 @@ Any table used as the value of <code>_ENV</code> is called an <em>environment</e
 
 
 <p>
-Acorn keeps a distinguished environment called the <em>global environment</em>.
+Viper keeps a distinguished environment called the <em>global environment</em>.
 This value is kept at a special index in the C registry (see <a href="#4.3">&sect;4.3</a>).
-In Acorn, the global variable <a href="#pdf-_G"><code>_G</code></a> is initialized with this same value.
+In Viper, the global variable <a href="#pdf-_G"><code>_G</code></a> is initialized with this same value.
 (<a href="#pdf-_G"><code>_G</code></a> is never used internally,
 so changing its value will affect only your own code.)
 
 
 <p>
-When Acorn loads a chunk,
+When Viper loads a chunk,
 the default value for its <code>_ENV</code> variable
 is the global environment (see <a href="#pdf-load"><code>load</code></a>).
 Therefore, by default,
-free names in Acorn code refer to entries in the global environment
+free names in Viper code refer to entries in the global environment
 and, therefore, they are also called <em>global variables</em>.
 Moreover, all standard libraries are loaded in the global environment
 and some functions there operate on that environment.
 You can use <a href="#pdf-load"><code>load</code></a> (or <a href="#pdf-loadfile"><code>loadfile</code></a>)
 to load a chunk with a different environment.
 (In C, you have to load the chunk and then change the value
-of its first upvalue; see <a href="#acorn_setupvalue"><code>acorn_setupvalue</code></a>.)
+of its first upvalue; see <a href="#viper_setupvalue"><code>viper_setupvalue</code></a>.)
 
 
 
 
 
-<h2>2.3 &nacorn; <a name="2.3">Error Handling</a></h2>
+<h2>2.3 &nviper; <a name="2.3">Error Handling</a></h2>
 
 <p>
-Several operations in Acorn can <em>raise</em> an error.
+Several operations in Viper can <em>raise</em> an error.
 An error interrupts the normal flow of the program,
 which can continue by <em>catching</em> the error.
 
 
 <p>
-Acorn code can explicitly raise an error by calling the
+Viper code can explicitly raise an error by calling the
 <a href="#pdf-error"><code>error</code></a> function.
 (This function never returns.)
 
 
 <p>
-To catch errors in Acorn,
+To catch errors in Viper,
 you can do a <em>protected call</em>,
 using <a href="#pdf-pcall"><code>pcall</code></a> (or <a href="#pdf-xpcall"><code>xpcall</code></a>).
 The function <a href="#pdf-pcall"><code>pcall</code></a> calls a given function in <em>protected mode</em>.
@@ -373,14 +373,14 @@ which returns a status code.
 
 
 <p>
-Because Acorn is an embedded extension language,
-Acorn code starts running by a call
+Because Viper is an embedded extension language,
+Viper code starts running by a call
 from C&nbsp;code in the host program.
-(When you use Acorn standalone,
-the <code>acorn</code> application is the host program.)
+(When you use Viper standalone,
+the <code>viper</code> application is the host program.)
 Usually, this call is protected;
 so, when an otherwise unprotected error occurs during
-the compilation or execution of a Acorn chunk,
+the compilation or execution of a Viper chunk,
 control returns to the host,
 which can take appropriate measures,
 such as printing an error message.
@@ -390,17 +390,17 @@ such as printing an error message.
 Whenever there is an error,
 an <em>error object</em>
 is propagated with information about the error.
-Acorn itself only generates errors whose error object is a string,
+Viper itself only generates errors whose error object is a string,
 but programs may generate errors with
 any value as the error object.
-It is up to the Acorn program or its host to handle such error objects.
+It is up to the Viper program or its host to handle such error objects.
 For historical reasons,
 an error object is often called an <em>error message</em>,
 even though it does not have to be a string.
 
 
 <p>
-When you use <a href="#pdf-xpcall"><code>xpcall</code></a> (or <a href="#acorn_pcall"><code>acorn_pcall</code></a>, in C)
+When you use <a href="#pdf-xpcall"><code>xpcall</code></a> (or <a href="#viper_pcall"><code>viper_pcall</code></a>, in C)
 you may give a <em>message handler</em>
 to be called in case of errors.
 This function is called with the original error object
@@ -411,37 +411,37 @@ for instance by inspecting the stack and creating a stack traceback.
 This message handler is still protected by the protected call;
 so, an error inside the message handler
 will call the message handler again.
-If this loop Acornes on for too long,
-Acorn breaks it and returns an appropriate message.
+If this loop Viperes on for too long,
+Viper breaks it and returns an appropriate message.
 The message handler is called only for regular runtime errors.
 It is not called for memory-allocation errors
 nor for errors while running finalizers or other message handlers.
 
 
 <p>
-Acorn also offers a system of <em>warnings</em> (see <a href="#pdf-warn"><code>warn</code></a>).
+Viper also offers a system of <em>warnings</em> (see <a href="#pdf-warn"><code>warn</code></a>).
 Unlike errors, warnings do not interfere
 in any way with program execution.
 They typically only generate a message to the user,
-although this behavior can be adapted from C (see <a href="#acorn_setwarnf"><code>acorn_setwarnf</code></a>).
+although this behavior can be adapted from C (see <a href="#viper_setwarnf"><code>viper_setwarnf</code></a>).
 
 
 
 
 
-<h2>2.4 &nacorn; <a name="2.4">Metatables and Metamethods</a></h2>
+<h2>2.4 &nviper; <a name="2.4">Metatables and Metamethods</a></h2>
 
 <p>
-Every value in Acorn can have a <em>metatable</em>.
-This <em>metatable</em> is an ordinary Acorn table
+Every value in Viper can have a <em>metatable</em>.
+This <em>metatable</em> is an ordinary Viper table
 that defines the behavior of the original value
 under certain events.
 You can change several aspects of the behavior
 of a value by setting specific fields in its metatable.
 For instance, when a non-numeric value is the operand of an addition,
-Acorn checks for a function in the field <code>__add</code> of the value's metatable.
+Viper checks for a function in the field <code>__add</code> of the value's metatable.
 If it finds one,
-Acorn calls this function to perform the addition.
+Viper calls this function to perform the addition.
 
 
 <p>
@@ -460,13 +460,13 @@ which is either a function or a value with a <code>__call</code> metamethod.
 <p>
 You can query the metatable of any value
 using the <a href="#pdf-getmetatable"><code>getmetatable</code></a> function.
-Acorn queries metamethods in metatables using a raw access (see <a href="#pdf-rawget"><code>rawget</code></a>).
+Viper queries metamethods in metatables using a raw access (see <a href="#pdf-rawget"><code>rawget</code></a>).
 
 
 <p>
 You can replace the metatable of tables
 using the <a href="#pdf-setmetatable"><code>setmetatable</code></a> function.
-You cannot change the metatable of other types from Acorn code,
+You cannot change the metatable of other types from Viper code,
 except by using the debug library (<a href="#6.10">&sect;6.10</a>).
 
 
@@ -483,7 +483,7 @@ but the string library sets a metatable for the string type (see <a href="#6.4">
 <p>
 A detailed list of operations controlled by metatables is given next.
 Each event is identified by its corresponding key.
-By convention, all metatable keys used by Acorn are composed by
+By convention, all metatable keys used by Viper are composed by
 two underscores followed by lowercase Latin letters.
 
 
@@ -493,17 +493,17 @@ two underscores followed by lowercase Latin letters.
 <li><b><code>__add</code>: </b>
 the addition (<code>+</code>) operation.
 If any operand for an addition is not a number,
-Acorn will try to call a metamethod.
+Viper will try to call a metamethod.
 It starts by checking the first operand (even if it is a number);
 if that operand does not define a metamethod for <code>__add</code>,
-then Acorn will check the second operand.
-If Acorn can find a metamethod,
+then Viper will check the second operand.
+If Viper can find a metamethod,
 it calls the metamethod with the two operands as arguments,
 and the result of the call
 (adjusted to one value)
 is the result of the operation.
 Otherwise, if no metamethod is found,
-Acorn raises an error.
+Viper raises an error.
 </li>
 
 <li><b><code>__sub</code>: </b>
@@ -544,7 +544,7 @@ Behavior similar to the addition operation.
 <li><b><code>__band</code>: </b>
 the bitwise AND (<code>&amp;</code>) operation.
 Behavior similar to the addition operation,
-except that Acorn will try a metamethod
+except that Viper will try a metamethod
 if any operand is neither an integer
 nor a float coercible to an integer (see <a href="#3.4.3">&sect;3.4.3</a>).
 </li>
@@ -577,7 +577,7 @@ Behavior similar to the bitwise AND operation.
 <li><b><code>__concat</code>: </b>
 the concatenation (<code>..</code>) operation.
 Behavior similar to the addition operation,
-except that Acorn will try a metamethod
+except that Viper will try a metamethod
 if any operand is neither a string nor a number
 (which is always coercible to a string).
 </li>
@@ -585,21 +585,21 @@ if any operand is neither a string nor a number
 <li><b><code>__len</code>: </b>
 the length (<code>#</code>) operation.
 If the object is not a string,
-Acorn will try its metamethod.
+Viper will try its metamethod.
 If there is a metamethod,
-Acorn calls it with the object as argument,
+Viper calls it with the object as argument,
 and the result of the call
 (always adjusted to one value)
 is the result of the operation.
 If there is no metamethod but the object is a table,
-then Acorn uses the table length operation (see <a href="#3.4.7">&sect;3.4.7</a>).
-Otherwise, Acorn raises an error.
+then Viper uses the table length operation (see <a href="#3.4.7">&sect;3.4.7</a>).
+Otherwise, Viper raises an error.
 </li>
 
 <li><b><code>__eq</code>: </b>
 the equal (<code>==</code>) operation.
 Behavior similar to the addition operation,
-except that Acorn will try a metamethod only when the values
+except that Viper will try a metamethod only when the values
 being compared are either both tables or both full userdata
 and they are not primitively equal.
 The result of the call is always converted to a boolean.
@@ -608,7 +608,7 @@ The result of the call is always converted to a boolean.
 <li><b><code>__lt</code>: </b>
 the less than (<code>&lt;</code>) operation.
 Behavior similar to the addition operation,
-except that Acorn will try a metamethod only when the values
+except that Viper will try a metamethod only when the values
 being compared are neither both numbers nor both strings.
 Moreover, the result of the call is always converted to a boolean.
 </li>
@@ -654,7 +654,7 @@ or any value with an <code>__newindex</code> metavalue.
 If it is a function,
 it is called with <code>table</code>, <code>key</code>, and <code>value</code> as arguments.
 Otherwise,
-Acorn repeats the indexing assignment over this metavalue
+Viper repeats the indexing assignment over this metavalue
 with the same key and value.
 This assignment is regular, not raw,
 and therefore can trigger another <code>__newindex</code> metavalue.
@@ -662,7 +662,7 @@ and therefore can trigger another <code>__newindex</code> metavalue.
 
 <p>
 Whenever a <code>__newindex</code> metavalue is invoked,
-Acorn does not perform the primitive assignment.
+Viper does not perform the primitive assignment.
 If needed,
 the metamethod itself can call <a href="#pdf-rawset"><code>rawset</code></a>
 to do the assignment.
@@ -670,7 +670,7 @@ to do the assignment.
 
 <li><b><code>__call</code>: </b>
 The call operation <code>func(args)</code>.
-This event happens when Acorn tries to call a non-function value
+This event happens when Viper tries to call a non-function value
 (that is, <code>func</code> is not a function).
 The metamethod is looked up in <code>func</code>.
 If present,
@@ -699,7 +699,7 @@ may be used by <a href="#pdf-tostring"><code>tostring</code></a> and in error me
 For the unary operators (negation, length, and bitwise NOT),
 the metamethod is computed and called with a dummy second operand,
 equal to the first one.
-This extra operand is only to simplify Acorn's internals
+This extra operand is only to simplify Viper's internals
 (by making these operators behave like a binary operation)
 and may be removed in future versions.
 For most uses this extra operand is irrelevant.
@@ -715,29 +715,29 @@ use other fields in metatables for their own purposes.
 
 
 <p>
-It is a Acornod practice to add all needed metamethods to a table
+It is a Viperod practice to add all needed metamethods to a table
 before setting it as a metatable of some object.
 In particular, the <code>__gc</code> metamethod works only when this order
 is followed (see <a href="#2.5.3">&sect;2.5.3</a>).
-It is also a Acornod practice to set the metatable of an object
+It is also a Viperod practice to set the metatable of an object
 right after its creation.
 
 
 
 
 
-<h2>2.5 &nacorn; <a name="2.5">Garbage Collection</a></h2>
+<h2>2.5 &nviper; <a name="2.5">Garbage Collection</a></h2>
 
 
 
 <p>
-Acorn performs automatic memory management.
+Viper performs automatic memory management.
 This means that
 you do not have to worry about allocating memory for new objects
 or freeing it when the objects are no longer needed.
-Acorn manages memory automatically by running
+Viper manages memory automatically by running
 a <em>garbage collector</em> to collect all <em>dead</em> objects.
-All memory used by Acorn is subject to automatic management:
+All memory used by Viper is subject to automatic management:
 strings, tables, userdata, functions, threads, internal structures, etc.
 
 
@@ -750,20 +750,20 @@ which can resurrect dead objects (see <a href="#2.5.3">&sect;2.5.3</a>),
 and excludes also operations using the debug library.)
 Note that the time when the collector can be sure that an object
 is dead may not coincide with the programmer's expectations.
-The only guarantees are that Acorn will not collect an object
+The only guarantees are that Viper will not collect an object
 that may still be accessed in the normal execution of the program,
 and it will eventually collect an object
-that is inaccessible from Acorn.
+that is inaccessible from Viper.
 (Here,
-<em>inaccessible from Acorn</em> means that neither a variable nor
+<em>inaccessible from Viper</em> means that neither a variable nor
 another live object refer to the object.)
-Because Acorn has no knowledge about C&nbsp;code,
+Because Viper has no knowledge about C&nbsp;code,
 it never collects objects accessible through the registry (see <a href="#4.3">&sect;4.3</a>),
 which includes the global environment (see <a href="#2.2">&sect;2.2</a>).
 
 
 <p>
-The garbage collector (GC) in Acorn can work in two modes:
+The garbage collector (GC) in Viper can work in two modes:
 incremental and generational.
 
 
@@ -773,14 +773,14 @@ are adequate for most uses.
 However, programs that waste a large proportion of their time
 allocating and freeing memory can benefit from other settings.
 Keep in mind that the GC behavior is non-portable
-both across platforms and across different Acorn releases;
+both across platforms and across different Viper releases;
 therefore, optimal settings are also non-portable.
 
 
 <p>
 You can change the GC mode and parameters by calling
-<a href="#acorn_gc"><code>acorn_gc</code></a> in&nbsp;C
-or <a href="#pdf-collectgarbage"><code>collectgarbage</code></a> in Acorn.
+<a href="#viper_gc"><code>viper_gc</code></a> in&nbsp;C
+or <a href="#pdf-collectgarbage"><code>collectgarbage</code></a> in Viper.
 You can also use these functions to control
 the collector directly (e.g., to stop and restart it).
 
@@ -788,7 +788,7 @@ the collector directly (e.g., to stop and restart it).
 
 
 
-<h3>2.5.1 &nacorn; <a name="2.5.1">Incremental Garbage Collection</a></h3>
+<h3>2.5.1 &nviper; <a name="2.5.1">Incremental Garbage Collection</a></h3>
 
 <p>
 In incremental mode,
@@ -846,7 +846,7 @@ which means steps of approximately 8&nbsp;Kbytes.
 
 
 
-<h3>2.5.2 &nacorn; <a name="2.5.2">Generational Garbage Collection</a></h3>
+<h3>2.5.2 &nviper; <a name="2.5.2">Generational Garbage Collection</a></h3>
 
 <p>
 In generational mode,
@@ -886,7 +886,7 @@ The default value is 100; the maximum value is 1000.
 
 
 
-<h3>2.5.3 &nacorn; <a name="2.5.3">Garbage-Collection Metamethods</a></h3>
+<h3>2.5.3 &nviper; <a name="2.5.3">Garbage-Collection Metamethods</a></h3>
 
 <p>
 You can set garbage-collector metamethods for tables
@@ -895,7 +895,7 @@ for full userdata (see <a href="#2.4">&sect;2.4</a>).
 These metamethods, called <em>finalizers</em>,
 are called when the garbage collector detects that the
 corresponding table or userdata is dead.
-Finalizers allow you to coordinate Acorn's garbage collection
+Finalizers allow you to coordinate Viper's garbage collection
 with external resource management such as closing files,
 network or database connections,
 or freeing your own memory.
@@ -915,13 +915,13 @@ the object will not be marked for finalization.
 <p>
 When a marked object becomes dead,
 it is not collected immediately by the garbage collector.
-Instead, Acorn puts it in a list.
+Instead, Viper puts it in a list.
 After the collection,
-Acorn Acornes through that list.
+Viper Viperes through that list.
 For each object in the list,
 it checks the object's <code>__gc</code> metamethod:
 If it is present,
-Acorn calls it with the object as its single argument.
+Viper calls it with the object as its single argument.
 
 
 <p>
@@ -938,7 +938,7 @@ the execution of the regular code.
 <p>
 Because the object being collected must still be used by the finalizer,
 that object (and other objects accessible only through it)
-must be <em>resurrected</em> by Acorn.
+must be <em>resurrected</em> by Viper.
 Usually, this resurrection is transient,
 and the object memory is freed in the next garbage-collection cycle.
 However, if the finalizer stores the object in some global place
@@ -953,8 +953,8 @@ the object is dead and not marked for finalization.
 
 
 <p>
-When you close a state (see <a href="#acorn_close"><code>acorn_close</code></a>),
-Acorn calls the finalizers of all objects marked for finalization,
+When you close a state (see <a href="#viper_close"><code>viper_close</code></a>),
+Viper calls the finalizers of all objects marked for finalization,
 following the reverse order that they were marked.
 If any finalizer marks objects for collection during that phase,
 these marks have no effect.
@@ -963,7 +963,7 @@ these marks have no effect.
 <p>
 Finalizers cannot yield nor run the garbage collector.
 Because they can run in unpredictable times,
-it is Acornod practice to restrict each finalizer
+it is Viperod practice to restrict each finalizer
 to the minimum necessary to properly release
 its associated resource.
 
@@ -976,7 +976,7 @@ the error is not propagated.
 
 
 
-<h3>2.5.4 &nacorn; <a name="2.5.4">Weak Tables</a></h3>
+<h3>2.5.4 &nviper; <a name="2.5.4">Weak Tables</a></h3>
 
 <p>
 A <em>weak table</em> is a table whose elements are
@@ -1017,7 +1017,7 @@ the pair is removed.
 Any change in the weakness of a table may take effect only
 at the next collect cycle.
 In particular, if you change the weakness to a stronger mode,
-Acorn may still collect some items from that table
+Viper may still collect some items from that table
 before the change takes effect.
 
 
@@ -1057,12 +1057,12 @@ it may not be properly cleared until the next cycle.
 
 
 
-<h2>2.6 &nacorn; <a name="2.6">Coroutines</a></h2>
+<h2>2.6 &nviper; <a name="2.6">Coroutines</a></h2>
 
 <p>
-Acorn supports coroutines,
+Viper supports coroutines,
 also called <em>collaborative multithreading</em>.
-A coroutine in Acorn represents an independent thread of execution.
+A coroutine in Viper represents an independent thread of execution.
 Unlike threads in multithread systems, however,
 a coroutine only suspends its execution by explicitly calling
 a yield function.
@@ -1126,7 +1126,7 @@ the <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a> function also 
 but instead of returning the coroutine itself,
 it returns a function that, when called, resumes the coroutine.
 Any arguments passed to this function
-Acorn as extra arguments to <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>.
+Viper as extra arguments to <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>.
 <a href="#pdf-coroutine.wrap"><code>coroutine.wrap</code></a> returns all the values returned by <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>,
 except the first one (the boolean error code).
 Unlike <a href="#pdf-coroutine.resume"><code>coroutine.resume</code></a>,
@@ -1175,19 +1175,19 @@ When you run it, it produces the following output:
 
 <p>
 You can also create and manipulate coroutines through the C API:
-see functions <a href="#acorn_newthread"><code>acorn_newthread</code></a>, <a href="#acorn_resume"><code>acorn_resume</code></a>,
-and <a href="#acorn_yield"><code>acorn_yield</code></a>.
+see functions <a href="#viper_newthread"><code>viper_newthread</code></a>, <a href="#viper_resume"><code>viper_resume</code></a>,
+and <a href="#viper_yield"><code>viper_yield</code></a>.
 
 
 
 
 
-<h1>3 &nacorn; <a name="3">The Language</a></h1>
+<h1>3 &nviper; <a name="3">The Language</a></h1>
 
 
 
 <p>
-This section describes the lexis, the syntax, and the semantics of Acorn.
+This section describes the lexis, the syntax, and the semantics of Viper.
 In other words,
 this section describes
 which tokens are valid,
@@ -1203,21 +1203,21 @@ in which
 Non-terminals are shown like non-terminal,
 keywords are shown like <b>kword</b>,
 and other terminal symbols are shown like &lsquo;<b>=</b>&rsquo;.
-The complete syntax of Acorn can be found in <a href="#9">&sect;9</a>
+The complete syntax of Viper can be found in <a href="#9">&sect;9</a>
 at the end of this manual.
 
 
 
 
 
-<h2>3.1 &nacorn; <a name="3.1">Lexical Conventions</a></h2>
+<h2>3.1 &nviper; <a name="3.1">Lexical Conventions</a></h2>
 
 <p>
-Acorn is a free-form language.
+Viper is a free-form language.
 It ignores spaces and comments between lexical elements (tokens),
 except as delimiters between two tokens.
 In source code,
-Acorn recognizes as spaces the standard ASCII whitespace
+Viper recognizes as spaces the standard ASCII whitespace
 characters space, form feed, newline,
 carriage return, horizontal tab, and vertical tab.
 
@@ -1225,7 +1225,7 @@ carriage return, horizontal tab, and vertical tab.
 <p>
 <em>Names</em>
 (also called <em>identifiers</em>)
-in Acorn can be any string of Latin letters,
+in Viper can be any string of Latin letters,
 Arabic-Indic digits, and underscores,
 not beginning with a digit and
 not being a reserved word.
@@ -1245,7 +1245,7 @@ and cannot be used as names:
 </pre>
 
 <p>
-Acorn is a case-sensitive language:
+Viper is a case-sensitive language:
 <code>and</code> is a reserved word, but <code>And</code> and <code>AND</code>
 are two different, valid names.
 As a convention,
@@ -1312,7 +1312,7 @@ the escape sequence <code>\u{<em>XXX</em>}</code>
 where <em>XXX</em> is a sequence of one or more hexadecimal digits
 representing the character code point.
 This code point can be any value less than <em>2<sup>31</sup></em>.
-(Acorn uses the original UTF-8 specification here,
+(Viper uses the original UTF-8 specification here,
 which is not restricted to valid Unicode code points.)
 
 
@@ -1362,7 +1362,7 @@ the five literal strings below denote the same string:
 <p>
 Any byte in a literal string not
 explicitly affected by the previous rules represents itself.
-However, Acorn opens files for parsing in text mode,
+However, Viper opens files for parsing in text mode,
 and the system's file functions may have problems with
 some control characters.
 So, it is safer to represent
@@ -1375,7 +1375,7 @@ A <em>numeric constant</em> (or <em>numeral</em>)
 can be written with an optional fractional part
 and an optional decimal exponent,
 marked by a letter '<code>e</code>' or '<code>E</code>'.
-Acorn also accepts hexadecimal constants,
+Viper also accepts hexadecimal constants,
 which start with <code>0x</code> or <code>0X</code>.
 Hexadecimal constants also accept an optional fractional part
 plus an optional binary exponent,
@@ -1422,11 +1422,11 @@ which runs until the corresponding closing long bracket.
 
 
 
-<h2>3.2 &nacorn; <a name="3.2">Variables</a></h2>
+<h2>3.2 &nviper; <a name="3.2">Variables</a></h2>
 
 <p>
 Variables are places that store values.
-There are three kinds of variables in Acorn:
+There are three kinds of variables in Viper:
 global variables, local variables, and table fields.
 
 
@@ -1481,12 +1481,12 @@ the variable <code>_ENV</code> itself is never global (see <a href="#2.2">&sect;
 
 
 
-<h2>3.3 &nacorn; <a name="3.3">Statements</a></h2>
+<h2>3.3 &nviper; <a name="3.3">Statements</a></h2>
 
 
 
 <p>
-Acorn supports an almost conventional set of statements,
+Viper supports an almost conventional set of statements,
 similar to those in other conventional languages.
 This set includes
 blocks, assignments, control structures, function calls,
@@ -1496,7 +1496,7 @@ and variable declarations.
 
 
 
-<h3>3.3.1 &nacorn; <a name="3.3.1">Blocks</a></h3>
+<h3>3.3.1 &nviper; <a name="3.3.1">Blocks</a></h3>
 
 <p>
 A block is a list of statements,
@@ -1505,7 +1505,7 @@ which are executed sequentially:
 <pre>
 	block ::= {stat}
 </pre><p>
-Acorn has <em>empty statements</em>
+Viper has <em>empty statements</em>
 that allow you to separate statements with semicolons,
 start a block with a semicolon
 or write two semicolons in sequence:
@@ -1517,7 +1517,7 @@ or write two semicolons in sequence:
 <p>
 Both function calls and assignments
 can start with an open parenthesis.
-This possibility leads to an ambiguity in Acorn's grammar.
+This possibility leads to an ambiguity in Viper's grammar.
 Consider the following fragment:
 
 <pre>
@@ -1536,7 +1536,7 @@ in the first way,
 interpreting the open parenthesis
 as the start of the arguments to a call.
 To avoid this ambiguity,
-it is a Acornod practice to always precede with a semicolon
+it is a Viperod practice to always precede with a semicolon
 statements that start with a parenthesis:
 
 <pre>
@@ -1559,10 +1559,10 @@ of another block (see <a href="#3.3.4">&sect;3.3.4</a>).
 
 
 
-<h3>3.3.2 &nacorn; <a name="3.3.2">Chunks</a></h3>
+<h3>3.3.2 &nviper; <a name="3.3.2">Chunks</a></h3>
 
 <p>
-The unit of compilation of Acorn is called a <em>chunk</em>.
+The unit of compilation of Viper is called a <em>chunk</em>.
 Syntactically,
 a chunk is simply a block:
 
@@ -1571,7 +1571,7 @@ a chunk is simply a block:
 </pre>
 
 <p>
-Acorn handles a chunk as the body of an anonymous function
+Viper handles a chunk as the body of an anonymous function
 with a variable number of arguments
 (see <a href="#3.4.11">&sect;3.4.11</a>).
 As such, chunks can define local variables,
@@ -1585,26 +1585,26 @@ even if it does not use that variable.
 <p>
 A chunk can be stored in a file or in a string inside the host program.
 To execute a chunk,
-Acorn first <em>loads</em> it,
+Viper first <em>loads</em> it,
 precompiling the chunk's code into instructions for a virtual machine,
-and then Acorn executes the compiled code
+and then Viper executes the compiled code
 with an interpreter for the virtual machine.
 
 
 <p>
 Chunks can also be precompiled into binary form;
-see the program <code>acornc</code> and the function <a href="#pdf-string.dump"><code>string.dump</code></a> for details.
+see the program <code>viperc</code> and the function <a href="#pdf-string.dump"><code>string.dump</code></a> for details.
 Programs in source and compiled forms are interchangeable;
-Acorn automatically detects the file type and acts accordingly (see <a href="#pdf-load"><code>load</code></a>).
+Viper automatically detects the file type and acts accordingly (see <a href="#pdf-load"><code>load</code></a>).
 
 
 
 
 
-<h3>3.3.3 &nacorn; <a name="3.3.3">Assignment</a></h3>
+<h3>3.3.3 &nviper; <a name="3.3.3">Assignment</a></h3>
 
 <p>
-Acorn allows multiple assignments.
+Viper allows multiple assignments.
 Therefore, the syntax for assignment
 defines a list of variables on the left side
 and a list of expressions on the right side.
@@ -1635,7 +1635,7 @@ before the adjustment
 <p>
 If a variable is both assigned and read
 inside a multiple assignment,
-Acorn ensures all reads get the value of the variable
+Viper ensures all reads get the value of the variable
 before the assignment.
 Thus the code
 
@@ -1644,7 +1644,7 @@ Thus the code
      i, a[i] = i+1, 20
 </pre><p>
 sets <code>a[3]</code> to 20, without affecting <code>a[4]</code>
-because the <code>i</code> in <code>a[i]</code> is evaacornted (to 3)
+because the <code>i</code> in <code>a[i]</code> is evaviperted (to 3)
 before it is assigned&nbsp;4.
 Similarly, the line
 
@@ -1665,7 +1665,7 @@ Note that this guarantee covers only accesses
 syntactically inside the assignment statement.
 If a function or a metamethod called during the assignment
 changes the value of a variable,
-Acorn gives no guarantees about the order of that access.
+Viper gives no guarantees about the order of that access.
 
 
 <p>
@@ -1683,7 +1683,7 @@ can be changed via metatables (see <a href="#2.4">&sect;2.4</a>).
 
 
 
-<h3>3.3.4 &nacorn; <a name="3.3.4">Control Structures</a></h3><p>
+<h3>3.3.4 &nviper; <a name="3.3.4">Control Structures</a></h3><p>
 The control structures
 <b>if</b>, <b>while</b>, and <b>repeat</b> have the usual meaning and
 familiar syntax:
@@ -1696,7 +1696,7 @@ familiar syntax:
 	stat ::= <b>repeat</b> block <b>until</b> exp
 	stat ::= <b>if</b> exp <b>then</b> block {<b>elseif</b> exp <b>then</b> block} [<b>else</b> block] <b>end</b>
 </pre><p>
-Acorn also has a <b>for</b> statement, in two flavors (see <a href="#3.3.5">&sect;3.3.5</a>).
+Viper also has a <b>for</b> statement, in two flavors (see <a href="#3.3.5">&sect;3.3.5</a>).
 
 
 <p>
@@ -1708,7 +1708,7 @@ In particular, the number 0 and the empty string also test true.
 
 
 <p>
-In the <b>repeat</b>&nacorn;<b>until</b> loop,
+In the <b>repeat</b>&nviper;<b>until</b> loop,
 the inner block does not end at the <b>until</b> keyword,
 but only after the condition.
 So, the condition can refer to local variables
@@ -1718,7 +1718,7 @@ declared inside the loop block.
 <p>
 The <b>goto</b> statement transfers the program control to a label.
 For syntactical reasons,
-labels in Acorn are considered statements too:
+labels in Viper are considered statements too:
 
 
 
@@ -1779,7 +1779,7 @@ because now <b>return</b> is the last statement in its (inner) block.
 
 
 
-<h3>3.3.5 &nacorn; <a name="3.3.5">For Statement</a></h3>
+<h3>3.3.5 &nviper; <a name="3.3.5">For Statement</a></h3>
 
 <p>
 
@@ -1792,7 +1792,7 @@ one numerical and one generic.
 
 <p>
 The numerical <b>for</b> loop repeats a block of code while a
-control variable Acornes through an arithmetic progression.
+control variable Viperes through an arithmetic progression.
 It has the following syntax:
 
 <pre>
@@ -1803,7 +1803,7 @@ which is a new variable local to the loop body (<em>block</em>).
 
 
 <p>
-The loop starts by evaacornting once the three control expressions.
+The loop starts by evaviperting once the three control expressions.
 Their values are called respectively
 the <em>initial value</em>, the <em>limit</em>, and the <em>step</em>.
 If the step is absent, it defaults to&nbsp;1.
@@ -1821,7 +1821,7 @@ Beware of floating-point accuracy in this case.
 <p>
 After that initialization,
 the loop body is repeated with the value of the control variable
-Acorning through an arithmetic progression,
+Vipering through an arithmetic progression,
 starting at the initial value,
 with a common difference given by the step.
 A negative step makes a decreasing sequence;
@@ -1877,7 +1877,7 @@ The first of these variables is the <em>control variable</em>.
 
 
 <p>
-The loop starts by evaacornting <em>explist</em>
+The loop starts by evaviperting <em>explist</em>
 to produce four values:
 an <em>iterator function</em>,
 a <em>state</em>,
@@ -1887,13 +1887,13 @@ and a <em>closing value</em>.
 
 <p>
 Then, at each iteration,
-Acorn calls the iterator function with two arguments:
+Viper calls the iterator function with two arguments:
 the state and the control variable.
 The results from this call are then assigned to the loop variables,
 following the rules of multiple assignments (see <a href="#3.3.3">&sect;3.3.3</a>).
 If the control variable becomes <b>nil</b>,
 the loop terminates.
-Otherwise, the body is executed and the loop Acornes
+Otherwise, the body is executed and the loop Viperes
 to the next iteration.
 
 
@@ -1914,7 +1914,7 @@ during the loop.
 
 
 
-<h3>3.3.6 &nacorn; <a name="3.3.6">Function Calls as Statements</a></h3><p>
+<h3>3.3.6 &nviper; <a name="3.3.6">Function Calls as Statements</a></h3><p>
 To allow possible side-effects,
 function calls can be executed as statements:
 
@@ -1928,7 +1928,7 @@ Function calls are explained in <a href="#3.4.10">&sect;3.4.10</a>.
 
 
 
-<h3>3.3.7 &nacorn; <a name="3.3.7">Local Declarations</a></h3><p>
+<h3>3.3.7 &nviper; <a name="3.3.7">Local Declarations</a></h3><p>
 Local variables can be declared anywhere inside a block.
 The declaration can include an initialization:
 
@@ -1968,12 +1968,12 @@ The visibility rules for local variables are explained in <a href="#3.5">&sect;3
 
 
 
-<h3>3.3.8 &nacorn; <a name="3.3.8">To-be-closed Variables</a></h3>
+<h3>3.3.8 &nviper; <a name="3.3.8">To-be-closed Variables</a></h3>
 
 <p>
 A to-be-closed variable behaves like a constant local variable,
 except that its value is <em>closed</em> whenever the variable
-Acornes out of scope, including normal block termination,
+Viperes out of scope, including normal block termination,
 exiting its block by <b>break</b>/<b>goto</b>/<b>return</b>,
 or exiting by an error.
 
@@ -1996,7 +1996,7 @@ or be a false value.
 
 
 <p>
-If several to-be-closed variables Acorn out of scope at the same event,
+If several to-be-closed variables Viper out of scope at the same event,
 they are closed in the reverse order that they were declared.
 
 
@@ -2010,7 +2010,7 @@ the other pending closing methods will still be called.
 
 <p>
 If a coroutine yields and is never resumed again,
-some variables may never Acorn out of scope,
+some variables may never Viper out of scope,
 and therefore they will never be closed.
 (These variables are the ones created inside the coroutine
 and in scope at the point where the coroutine yielded.)
@@ -2031,12 +2031,12 @@ in case of errors.
 
 
 
-<h2>3.4 &nacorn; <a name="3.4">Expressions</a></h2>
+<h2>3.4 &nviper; <a name="3.4">Expressions</a></h2>
 
 
 
 <p>
-The basic expressions in Acorn are the following:
+The basic expressions in Viper are the following:
 
 <pre>
 	exp ::= prefixexp
@@ -2084,7 +2084,7 @@ of a list of expressions,
 then no adjustment is made
 (unless the expression is enclosed in parentheses).
 In all other contexts,
-Acorn adjusts the result list to one element,
+Viper adjusts the result list to one element,
 either discarding all values except the first one
 or adding a single <b>nil</b> if there are no values.
 
@@ -2123,8 +2123,8 @@ or <b>nil</b> if <code>f</code> does not return any values.)
 
 
 
-<h3>3.4.1 &nacorn; <a name="3.4.1">Arithmetic Operators</a></h3><p>
-Acorn supports the following arithmetic operators:
+<h3>3.4.1 &nviper; <a name="3.4.1">Arithmetic Operators</a></h3><p>
+Viper supports the following arithmetic operators:
 
 <ul>
 <li><b><code>+</code>: </b>addition</li>
@@ -2177,8 +2177,8 @@ all operations <em>wrap around</em>.
 
 
 
-<h3>3.4.2 &nacorn; <a name="3.4.2">Bitwise Operators</a></h3><p>
-Acorn supports the following bitwise operators:
+<h3>3.4.2 &nviper; <a name="3.4.2">Bitwise Operators</a></h3><p>
+Viper supports the following bitwise operators:
 
 <ul>
 <li><b><code>&amp;</code>: </b>bitwise AND</li>
@@ -2207,8 +2207,8 @@ result in zero (as all bits are shifted out).
 
 
 
-<h3>3.4.3 &nacorn; <a name="3.4.3">Coercions and Conversions</a></h3><p>
-Acorn provides some automatic conversions between some
+<h3>3.4.3 &nviper; <a name="3.4.3">Coercions and Conversions</a></h3><p>
+Viper provides some automatic conversions between some
 types and representations at run time.
 Bitwise operators always convert float operands to integers.
 Exponentiation and float division
@@ -2241,7 +2241,7 @@ Otherwise, the conversion fails.
 
 
 <p>
-Several places in Acorn coerce strings to numbers when necessary.
+Several places in Viper coerce strings to numbers when necessary.
 In particular,
 the string library sets metamethods that try to coerce
 strings to numbers in all arithmetic operations.

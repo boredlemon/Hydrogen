@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Acorn 5.4 Reference Manual - contents</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="src/acorn.css">
+<TITLE>Viper 5.4 Reference Manual - contents</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="src/viper.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="src/index.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 </HEAD>
@@ -10,15 +10,15 @@
 <BODY>
 
 <H1>
-<A HREF="http://www.acorn.org/"><IMG SRC="img/Acorn.png" ALT="Acorn"></A>
-Acorn 5.4 Reference Manual
+<A HREF="http://www.viper.org/"><IMG SRC="img/Viper.png" ALT="Viper"></A>
+Viper 5.4 Reference Manual
 </H1>
 
 <P>
-The reference manual is the official definition of the Acorn language.
+The reference manual is the official definition of the Viper language.
 <BR>
-For a complete introduction to Acorn programming, see the book
-<A HREF="http://www.acorn.org/pil/">Programming in Acorn</A>.
+For a complete introduction to Viper programming, see the book
+<A HREF="http://www.viper.org/pil/">Programming in Viper</A>.
 
 <DIV CLASS="menubar">
 <A HREF="manual.html">start</A>
@@ -27,127 +27,127 @@ For a complete introduction to Acorn programming, see the book
 &middot;
 <A HREF="#index">index</A>
 &middot;
-<A HREF="http://www.acorn.org/manual/">other versions</A>
+<A HREF="http://www.viper.org/manual/">other versions</A>
 </DIV>
 
 <P>
 <SMALL>
-Copyright &copy; 2020&nacorn;2022 Acorn.org, PUC-Rio.
+Copyright &copy; 2020&nviper;2022 Viper.org, PUC-Rio.
 Freely available under the terms of the
-<A HREF="http://www.acorn.org/license.html">Acorn license</A>.
+<A HREF="http://www.viper.org/license.html">Viper license</A>.
 </SMALL>
 
 <H2><A NAME="contents">Contents</A></H2>
 <UL CLASS="contents menubar">
-<LI><A HREF="manual.html">1 &nacorn; Introduction</A>
+<LI><A HREF="manual.html">1 &nviper; Introduction</A>
 <P>
-<LI><A HREF="manual.html#2">2 &nacorn; Basic Concepts</A>
+<LI><A HREF="manual.html#2">2 &nviper; Basic Concepts</A>
 <UL>
-<LI><A HREF="manual.html#2.1">2.1 &nacorn; Values and Types</A>
-<LI><A HREF="manual.html#2.2">2.2 &nacorn; Environments and the Global Environment</A>
-<LI><A HREF="manual.html#2.3">2.3 &nacorn; Error Handling</A>
-<LI><A HREF="manual.html#2.4">2.4 &nacorn; Metatables and Metamethods</A>
-<LI><A HREF="manual.html#2.5">2.5 &nacorn; Garbage Collection</A>
+<LI><A HREF="manual.html#2.1">2.1 &nviper; Values and Types</A>
+<LI><A HREF="manual.html#2.2">2.2 &nviper; Environments and the Global Environment</A>
+<LI><A HREF="manual.html#2.3">2.3 &nviper; Error Handling</A>
+<LI><A HREF="manual.html#2.4">2.4 &nviper; Metatables and Metamethods</A>
+<LI><A HREF="manual.html#2.5">2.5 &nviper; Garbage Collection</A>
 <UL>
-<LI><A HREF="manual.html#2.5.1">2.5.1 &nacorn; Incremental Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.2">2.5.2 &nacorn; Generational Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.3">2.5.3 &nacorn; Garbage-Collection Metamethods</A>
-<LI><A HREF="manual.html#2.5.4">2.5.4 &nacorn; Weak Tables</A>
+<LI><A HREF="manual.html#2.5.1">2.5.1 &nviper; Incremental Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.2">2.5.2 &nviper; Generational Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.3">2.5.3 &nviper; Garbage-Collection Metamethods</A>
+<LI><A HREF="manual.html#2.5.4">2.5.4 &nviper; Weak Tables</A>
 </UL>
-<LI><A HREF="manual.html#2.6">2.6 &nacorn; Coroutines</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#3">3 &nacorn; The Language</A>
-<UL>
-<LI><A HREF="manual.html#3.1">3.1 &nacorn; Lexical Conventions</A>
-<LI><A HREF="manual.html#3.2">3.2 &nacorn; Variables</A>
-<LI><A HREF="manual.html#3.3">3.3 &nacorn; Statements</A>
-<UL>
-<LI><A HREF="manual.html#3.3.1">3.3.1 &nacorn; Blocks</A>
-<LI><A HREF="manual.html#3.3.2">3.3.2 &nacorn; Chunks</A>
-<LI><A HREF="manual.html#3.3.3">3.3.3 &nacorn; Assignment</A>
-<LI><A HREF="manual.html#3.3.4">3.3.4 &nacorn; Control Structures</A>
-<LI><A HREF="manual.html#3.3.5">3.3.5 &nacorn; For Statement</A>
-<LI><A HREF="manual.html#3.3.6">3.3.6 &nacorn; Function Calls as Statements</A>
-<LI><A HREF="manual.html#3.3.7">3.3.7 &nacorn; Local Declarations</A>
-<LI><A HREF="manual.html#3.3.8">3.3.8 &nacorn; To-be-closed Variables</A>
-</UL>
-<LI><A HREF="manual.html#3.4">3.4 &nacorn; Expressions</A>
-<UL>
-<LI><A HREF="manual.html#3.4.1">3.4.1 &nacorn; Arithmetic Operators</A>
-<LI><A HREF="manual.html#3.4.2">3.4.2 &nacorn; Bitwise Operators</A>
-<LI><A HREF="manual.html#3.4.3">3.4.3 &nacorn; Coercions and Conversions</A>
-<LI><A HREF="manual.html#3.4.4">3.4.4 &nacorn; Relational Operators</A>
-<LI><A HREF="manual.html#3.4.5">3.4.5 &nacorn; Logical Operators</A>
-<LI><A HREF="manual.html#3.4.6">3.4.6 &nacorn; Concatenation</A>
-<LI><A HREF="manual.html#3.4.7">3.4.7 &nacorn; The Length Operator</A>
-<LI><A HREF="manual.html#3.4.8">3.4.8 &nacorn; Precedence</A>
-<LI><A HREF="manual.html#3.4.9">3.4.9 &nacorn; Table Constructors</A>
-<LI><A HREF="manual.html#3.4.10">3.4.10 &nacorn; Function Calls</A>
-<LI><A HREF="manual.html#3.4.11">3.4.11 &nacorn; Function Definitions</A>
-</UL>
-<LI><A HREF="manual.html#3.5">3.5 &nacorn; Visibility Rules</A>
+<LI><A HREF="manual.html#2.6">2.6 &nviper; Coroutines</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#4">4 &nacorn; The Application Program Interface</A>
+<LI><A HREF="manual.html#3">3 &nviper; The Language</A>
 <UL>
-<LI><A HREF="manual.html#4.1">4.1 &nacorn; The Stack</A>
+<LI><A HREF="manual.html#3.1">3.1 &nviper; Lexical Conventions</A>
+<LI><A HREF="manual.html#3.2">3.2 &nviper; Variables</A>
+<LI><A HREF="manual.html#3.3">3.3 &nviper; Statements</A>
 <UL>
-<LI><A HREF="manual.html#4.1.1">4.1.1 &nacorn; Stack Size</A>
-<LI><A HREF="manual.html#4.1.2">4.1.2 &nacorn; Valid and Acceptable Indices</A>
-<LI><A HREF="manual.html#4.1.3">4.1.3 &nacorn; Pointers to strings</A>
+<LI><A HREF="manual.html#3.3.1">3.3.1 &nviper; Blocks</A>
+<LI><A HREF="manual.html#3.3.2">3.3.2 &nviper; Chunks</A>
+<LI><A HREF="manual.html#3.3.3">3.3.3 &nviper; Assignment</A>
+<LI><A HREF="manual.html#3.3.4">3.3.4 &nviper; Control Structures</A>
+<LI><A HREF="manual.html#3.3.5">3.3.5 &nviper; For Statement</A>
+<LI><A HREF="manual.html#3.3.6">3.3.6 &nviper; Function Calls as Statements</A>
+<LI><A HREF="manual.html#3.3.7">3.3.7 &nviper; Local Declarations</A>
+<LI><A HREF="manual.html#3.3.8">3.3.8 &nviper; To-be-closed Variables</A>
 </UL>
-<LI><A HREF="manual.html#4.2">4.2 &nacorn; C Closures</A>
-<LI><A HREF="manual.html#4.3">4.3 &nacorn; Registry</A>
-<LI><A HREF="manual.html#4.4">4.4 &nacorn; Error Handling in C</A>
+<LI><A HREF="manual.html#3.4">3.4 &nviper; Expressions</A>
 <UL>
-<LI><A HREF="manual.html#4.4.1">4.4.1 &nacorn; Status Codes</A>
+<LI><A HREF="manual.html#3.4.1">3.4.1 &nviper; Arithmetic Operators</A>
+<LI><A HREF="manual.html#3.4.2">3.4.2 &nviper; Bitwise Operators</A>
+<LI><A HREF="manual.html#3.4.3">3.4.3 &nviper; Coercions and Conversions</A>
+<LI><A HREF="manual.html#3.4.4">3.4.4 &nviper; Relational Operators</A>
+<LI><A HREF="manual.html#3.4.5">3.4.5 &nviper; Logical Operators</A>
+<LI><A HREF="manual.html#3.4.6">3.4.6 &nviper; Concatenation</A>
+<LI><A HREF="manual.html#3.4.7">3.4.7 &nviper; The Length Operator</A>
+<LI><A HREF="manual.html#3.4.8">3.4.8 &nviper; Precedence</A>
+<LI><A HREF="manual.html#3.4.9">3.4.9 &nviper; Table Constructors</A>
+<LI><A HREF="manual.html#3.4.10">3.4.10 &nviper; Function Calls</A>
+<LI><A HREF="manual.html#3.4.11">3.4.11 &nviper; Function Definitions</A>
 </UL>
-<LI><A HREF="manual.html#4.5">4.5 &nacorn; Handling Yields in C</A>
-<LI><A HREF="manual.html#4.6">4.6 &nacorn; Functions and Types</A>
-<LI><A HREF="manual.html#4.7">4.7 &nacorn; The Debug Interface</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#5">5 &nacorn; The Auxiliary Library</A>
-<UL>
-<LI><A HREF="manual.html#5.1">5.1 &nacorn; Functions and Types</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#6">6 &nacorn; The Standard Libraries</A>
-<UL>
-<LI><A HREF="manual.html#6.1">6.1 &nacorn; Basic Functions</A>
-<LI><A HREF="manual.html#6.2">6.2 &nacorn; Coroutine Manipulation</A>
-<LI><A HREF="manual.html#6.3">6.3 &nacorn; Modules</A>
-<LI><A HREF="manual.html#6.4">6.4 &nacorn; String Manipulation</A>
-<UL>
-<LI><A HREF="manual.html#6.4.1">6.4.1 &nacorn; Patterns</A>
-<LI><A HREF="manual.html#6.4.2">6.4.2 &nacorn; Format Strings for Pack and Unpack</A>
-</UL>
-<LI><A HREF="manual.html#6.5">6.5 &nacorn; UTF-8 Support</A>
-<LI><A HREF="manual.html#6.6">6.6 &nacorn; Table Manipulation</A>
-<LI><A HREF="manual.html#6.7">6.7 &nacorn; Mathematical Functions</A>
-<LI><A HREF="manual.html#6.8">6.8 &nacorn; Input and Output Facilities</A>
-<LI><A HREF="manual.html#6.9">6.9 &nacorn; Operating System Facilities</A>
-<LI><A HREF="manual.html#6.10">6.10 &nacorn; The Debug Library</A>
+<LI><A HREF="manual.html#3.5">3.5 &nviper; Visibility Rules</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#7">7 &nacorn; Acorn Standalone</A>
-<P>
-<LI><A HREF="manual.html#8">8 &nacorn; Incompatibilities with the Previous Version</A>
+<LI><A HREF="manual.html#4">4 &nviper; The Application Program Interface</A>
 <UL>
-<LI><A HREF="manual.html#8.1">8.1 &nacorn; Incompatibilities in the Language</A>
-<LI><A HREF="manual.html#8.2">8.2 &nacorn; Incompatibilities in the Libraries</A>
-<LI><A HREF="manual.html#8.3">8.3 &nacorn; Incompatibilities in the API</A>
+<LI><A HREF="manual.html#4.1">4.1 &nviper; The Stack</A>
+<UL>
+<LI><A HREF="manual.html#4.1.1">4.1.1 &nviper; Stack Size</A>
+<LI><A HREF="manual.html#4.1.2">4.1.2 &nviper; Valid and Acceptable Indices</A>
+<LI><A HREF="manual.html#4.1.3">4.1.3 &nviper; Pointers to strings</A>
+</UL>
+<LI><A HREF="manual.html#4.2">4.2 &nviper; C Closures</A>
+<LI><A HREF="manual.html#4.3">4.3 &nviper; Registry</A>
+<LI><A HREF="manual.html#4.4">4.4 &nviper; Error Handling in C</A>
+<UL>
+<LI><A HREF="manual.html#4.4.1">4.4.1 &nviper; Status Codes</A>
+</UL>
+<LI><A HREF="manual.html#4.5">4.5 &nviper; Handling Yields in C</A>
+<LI><A HREF="manual.html#4.6">4.6 &nviper; Functions and Types</A>
+<LI><A HREF="manual.html#4.7">4.7 &nviper; The Debug Interface</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#9">9 &nacorn; The Complete Syntax of Acorn</A>
+<LI><A HREF="manual.html#5">5 &nviper; The Auxiliary Library</A>
+<UL>
+<LI><A HREF="manual.html#5.1">5.1 &nviper; Functions and Types</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#6">6 &nviper; The Standard Libraries</A>
+<UL>
+<LI><A HREF="manual.html#6.1">6.1 &nviper; Basic Functions</A>
+<LI><A HREF="manual.html#6.2">6.2 &nviper; Coroutine Manipulation</A>
+<LI><A HREF="manual.html#6.3">6.3 &nviper; Modules</A>
+<LI><A HREF="manual.html#6.4">6.4 &nviper; String Manipulation</A>
+<UL>
+<LI><A HREF="manual.html#6.4.1">6.4.1 &nviper; Patterns</A>
+<LI><A HREF="manual.html#6.4.2">6.4.2 &nviper; Format Strings for Pack and Unpack</A>
+</UL>
+<LI><A HREF="manual.html#6.5">6.5 &nviper; UTF-8 Support</A>
+<LI><A HREF="manual.html#6.6">6.6 &nviper; Table Manipulation</A>
+<LI><A HREF="manual.html#6.7">6.7 &nviper; Mathematical Functions</A>
+<LI><A HREF="manual.html#6.8">6.8 &nviper; Input and Output Facilities</A>
+<LI><A HREF="manual.html#6.9">6.9 &nviper; Operating System Facilities</A>
+<LI><A HREF="manual.html#6.10">6.10 &nviper; The Debug Library</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#7">7 &nviper; Viper Standalone</A>
+<P>
+<LI><A HREF="manual.html#8">8 &nviper; Incompatibilities with the Previous Version</A>
+<UL>
+<LI><A HREF="manual.html#8.1">8.1 &nviper; Incompatibilities in the Language</A>
+<LI><A HREF="manual.html#8.2">8.2 &nviper; Incompatibilities in the Libraries</A>
+<LI><A HREF="manual.html#8.3">8.3 &nviper; Incompatibilities in the API</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#9">9 &nviper; The Complete Syntax of Viper</A>
 </UL>
 
 <H2><A NAME="index">Index</A></H2>
 <TABLE CLASS="menubar" WIDTH="100%">
 <TR>
 <TD>
-<H3><A NAME="functions">Acorn functions</A></H3>
+<H3><A NAME="functions">Viper functions</A></H3>
 <P>
 <A HREF="manual.html#6.1">basic</A><BR>
 <A HREF="manual.html#pdf-_G">_G</A><BR>
@@ -351,7 +351,7 @@ Freely available under the terms of the
 <A HREF="manual.html#2.4">__mod</A><BR>
 <A HREF="manual.html#2.5.4">__mode</A><BR>
 <A HREF="manual.html#2.4">__mul</A><BR>
-<A HREF="manual.html#acornL_newmetatable">__name</A><BR>
+<A HREF="manual.html#viperL_newmetatable">__name</A><BR>
 <A HREF="manual.html#2.4">__newindex</A><BR>
 <A HREF="manual.html#pdf-pairs">__pairs</A><BR>
 <A HREF="manual.html#2.4">__pow</A><BR>
@@ -363,300 +363,300 @@ Freely available under the terms of the
 
 <H3><A NAME="env">environment<BR>variables</A></H3>
 <P>
-<A HREF="manual.html#pdf-ACORN_CPATH">ACORN_CPATH</A><BR>
-<A HREF="manual.html#pdf-ACORN_CPATH_5_4">ACORN_CPATH_5_4</A><BR>
-<A HREF="manual.html#pdf-ACORN_INIT">ACORN_INIT</A><BR>
-<A HREF="manual.html#pdf-ACORN_INIT_5_4">ACORN_INIT_5_4</A><BR>
-<A HREF="manual.html#pdf-ACORN_PATH">ACORN_PATH</A><BR>
-<A HREF="manual.html#pdf-ACORN_PATH_5_4">ACORN_PATH_5_4</A><BR>
+<A HREF="manual.html#pdf-VIPER_CPATH">VIPER_CPATH</A><BR>
+<A HREF="manual.html#pdf-VIPER_CPATH_5_4">VIPER_CPATH_5_4</A><BR>
+<A HREF="manual.html#pdf-VIPER_INIT">VIPER_INIT</A><BR>
+<A HREF="manual.html#pdf-VIPER_INIT_5_4">VIPER_INIT_5_4</A><BR>
+<A HREF="manual.html#pdf-VIPER_PATH">VIPER_PATH</A><BR>
+<A HREF="manual.html#pdf-VIPER_PATH_5_4">VIPER_PATH_5_4</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="api">C API</A></H3>
 <P>
-<A HREF="manual.html#acorn_Alloc">acorn_Alloc</A><BR>
-<A HREF="manual.html#acorn_CFunction">acorn_CFunction</A><BR>
-<A HREF="manual.html#acorn_Debug">acorn_Debug</A><BR>
-<A HREF="manual.html#acorn_Hook">acorn_Hook</A><BR>
-<A HREF="manual.html#acorn_Integer">acorn_Integer</A><BR>
-<A HREF="manual.html#acorn_KContext">acorn_KContext</A><BR>
-<A HREF="manual.html#acorn_KFunction">acorn_KFunction</A><BR>
-<A HREF="manual.html#acorn_Number">acorn_Number</A><BR>
-<A HREF="manual.html#acorn_Reader">acorn_Reader</A><BR>
-<A HREF="manual.html#acorn_State">acorn_State</A><BR>
-<A HREF="manual.html#acorn_Unsigned">acorn_Unsigned</A><BR>
-<A HREF="manual.html#acorn_WarnFunction">acorn_WarnFunction</A><BR>
-<A HREF="manual.html#acorn_Writer">acorn_Writer</A><BR>
+<A HREF="manual.html#viper_Alloc">viper_Alloc</A><BR>
+<A HREF="manual.html#viper_CFunction">viper_CFunction</A><BR>
+<A HREF="manual.html#viper_Debug">viper_Debug</A><BR>
+<A HREF="manual.html#viper_Hook">viper_Hook</A><BR>
+<A HREF="manual.html#viper_Integer">viper_Integer</A><BR>
+<A HREF="manual.html#viper_KContext">viper_KContext</A><BR>
+<A HREF="manual.html#viper_KFunction">viper_KFunction</A><BR>
+<A HREF="manual.html#viper_Number">viper_Number</A><BR>
+<A HREF="manual.html#viper_Reader">viper_Reader</A><BR>
+<A HREF="manual.html#viper_State">viper_State</A><BR>
+<A HREF="manual.html#viper_Unsigned">viper_Unsigned</A><BR>
+<A HREF="manual.html#viper_WarnFunction">viper_WarnFunction</A><BR>
+<A HREF="manual.html#viper_Writer">viper_Writer</A><BR>
 
 <P>
-<A HREF="manual.html#acorn_absindex">acorn_absindex</A><BR>
-<A HREF="manual.html#acorn_arith">acorn_arith</A><BR>
-<A HREF="manual.html#acorn_atpanic">acorn_atpanic</A><BR>
-<A HREF="manual.html#acorn_call">acorn_call</A><BR>
-<A HREF="manual.html#acorn_callk">acorn_callk</A><BR>
-<A HREF="manual.html#acorn_checkstack">acorn_checkstack</A><BR>
-<A HREF="manual.html#acorn_close">acorn_close</A><BR>
-<A HREF="manual.html#acorn_closeslot">acorn_closeslot</A><BR>
-<A HREF="manual.html#acorn_compare">acorn_compare</A><BR>
-<A HREF="manual.html#acorn_concat">acorn_concat</A><BR>
-<A HREF="manual.html#acorn_copy">acorn_copy</A><BR>
-<A HREF="manual.html#acorn_createtable">acorn_createtable</A><BR>
-<A HREF="manual.html#acorn_dump">acorn_dump</A><BR>
-<A HREF="manual.html#acorn_error">acorn_error</A><BR>
-<A HREF="manual.html#acorn_gc">acorn_gc</A><BR>
-<A HREF="manual.html#acorn_getallocf">acorn_getallocf</A><BR>
-<A HREF="manual.html#acorn_getextraspace">acorn_getextraspace</A><BR>
-<A HREF="manual.html#acorn_getfield">acorn_getfield</A><BR>
-<A HREF="manual.html#acorn_getglobal">acorn_getglobal</A><BR>
-<A HREF="manual.html#acorn_gethook">acorn_gethook</A><BR>
-<A HREF="manual.html#acorn_gethookcount">acorn_gethookcount</A><BR>
-<A HREF="manual.html#acorn_gethookmask">acorn_gethookmask</A><BR>
-<A HREF="manual.html#acorn_geti">acorn_geti</A><BR>
-<A HREF="manual.html#acorn_getinfo">acorn_getinfo</A><BR>
-<A HREF="manual.html#acorn_getiuservalue">acorn_getiuservalue</A><BR>
-<A HREF="manual.html#acorn_getlocal">acorn_getlocal</A><BR>
-<A HREF="manual.html#acorn_getmetatable">acorn_getmetatable</A><BR>
-<A HREF="manual.html#acorn_getstack">acorn_getstack</A><BR>
-<A HREF="manual.html#acorn_gettable">acorn_gettable</A><BR>
-<A HREF="manual.html#acorn_gettop">acorn_gettop</A><BR>
-<A HREF="manual.html#acorn_getupvalue">acorn_getupvalue</A><BR>
-<A HREF="manual.html#acorn_insert">acorn_insert</A><BR>
-<A HREF="manual.html#acorn_isboolean">acorn_isboolean</A><BR>
-<A HREF="manual.html#acorn_iscfunction">acorn_iscfunction</A><BR>
-<A HREF="manual.html#acorn_isfunction">acorn_isfunction</A><BR>
-<A HREF="manual.html#acorn_isinteger">acorn_isinteger</A><BR>
-<A HREF="manual.html#acorn_islightuserdata">acorn_islightuserdata</A><BR>
-<A HREF="manual.html#acorn_isnil">acorn_isnil</A><BR>
-<A HREF="manual.html#acorn_isnone">acorn_isnone</A><BR>
-<A HREF="manual.html#acorn_isnoneornil">acorn_isnoneornil</A><BR>
-<A HREF="manual.html#acorn_isnumber">acorn_isnumber</A><BR>
-<A HREF="manual.html#acorn_isstring">acorn_isstring</A><BR>
-<A HREF="manual.html#acorn_istable">acorn_istable</A><BR>
-<A HREF="manual.html#acorn_isthread">acorn_isthread</A><BR>
-<A HREF="manual.html#acorn_isuserdata">acorn_isuserdata</A><BR>
-<A HREF="manual.html#acorn_isyieldable">acorn_isyieldable</A><BR>
-<A HREF="manual.html#acorn_len">acorn_len</A><BR>
-<A HREF="manual.html#acorn_load">acorn_load</A><BR>
-<A HREF="manual.html#acorn_newstate">acorn_newstate</A><BR>
-<A HREF="manual.html#acorn_newtable">acorn_newtable</A><BR>
-<A HREF="manual.html#acorn_newthread">acorn_newthread</A><BR>
-<A HREF="manual.html#acorn_newuserdatauv">acorn_newuserdatauv</A><BR>
-<A HREF="manual.html#acorn_next">acorn_next</A><BR>
-<A HREF="manual.html#acorn_numbertointeger">acorn_numbertointeger</A><BR>
-<A HREF="manual.html#acorn_pcall">acorn_pcall</A><BR>
-<A HREF="manual.html#acorn_pcallk">acorn_pcallk</A><BR>
-<A HREF="manual.html#acorn_pop">acorn_pop</A><BR>
-<A HREF="manual.html#acorn_pushboolean">acorn_pushboolean</A><BR>
-<A HREF="manual.html#acorn_pushcclosure">acorn_pushcclosure</A><BR>
-<A HREF="manual.html#acorn_pushcfunction">acorn_pushcfunction</A><BR>
-<A HREF="manual.html#acorn_pushfstring">acorn_pushfstring</A><BR>
-<A HREF="manual.html#acorn_pushglobaltable">acorn_pushglobaltable</A><BR>
-<A HREF="manual.html#acorn_pushinteger">acorn_pushinteger</A><BR>
-<A HREF="manual.html#acorn_pushlightuserdata">acorn_pushlightuserdata</A><BR>
-<A HREF="manual.html#acorn_pushliteral">acorn_pushliteral</A><BR>
-<A HREF="manual.html#acorn_pushlstring">acorn_pushlstring</A><BR>
-<A HREF="manual.html#acorn_pushnil">acorn_pushnil</A><BR>
-<A HREF="manual.html#acorn_pushnumber">acorn_pushnumber</A><BR>
-<A HREF="manual.html#acorn_pushstring">acorn_pushstring</A><BR>
-<A HREF="manual.html#acorn_pushthread">acorn_pushthread</A><BR>
-<A HREF="manual.html#acorn_pushvalue">acorn_pushvalue</A><BR>
-<A HREF="manual.html#acorn_pushvfstring">acorn_pushvfstring</A><BR>
-<A HREF="manual.html#acorn_rawequal">acorn_rawequal</A><BR>
-<A HREF="manual.html#acorn_rawget">acorn_rawget</A><BR>
-<A HREF="manual.html#acorn_rawgeti">acorn_rawgeti</A><BR>
-<A HREF="manual.html#acorn_rawgetp">acorn_rawgetp</A><BR>
-<A HREF="manual.html#acorn_rawlen">acorn_rawlen</A><BR>
-<A HREF="manual.html#acorn_rawset">acorn_rawset</A><BR>
-<A HREF="manual.html#acorn_rawseti">acorn_rawseti</A><BR>
-<A HREF="manual.html#acorn_rawsetp">acorn_rawsetp</A><BR>
-<A HREF="manual.html#acorn_register">acorn_register</A><BR>
-<A HREF="manual.html#acorn_remove">acorn_remove</A><BR>
-<A HREF="manual.html#acorn_replace">acorn_replace</A><BR>
-<A HREF="manual.html#acorn_resetthread">acorn_resetthread</A><BR>
-<A HREF="manual.html#acorn_resume">acorn_resume</A><BR>
-<A HREF="manual.html#acorn_rotate">acorn_rotate</A><BR>
-<A HREF="manual.html#acorn_setallocf">acorn_setallocf</A><BR>
-<A HREF="manual.html#acorn_setfield">acorn_setfield</A><BR>
-<A HREF="manual.html#acorn_setglobal">acorn_setglobal</A><BR>
-<A HREF="manual.html#acorn_sethook">acorn_sethook</A><BR>
-<A HREF="manual.html#acorn_seti">acorn_seti</A><BR>
-<A HREF="manual.html#acorn_setiuservalue">acorn_setiuservalue</A><BR>
-<A HREF="manual.html#acorn_setlocal">acorn_setlocal</A><BR>
-<A HREF="manual.html#acorn_setmetatable">acorn_setmetatable</A><BR>
-<A HREF="manual.html#acorn_settable">acorn_settable</A><BR>
-<A HREF="manual.html#acorn_settop">acorn_settop</A><BR>
-<A HREF="manual.html#acorn_setupvalue">acorn_setupvalue</A><BR>
-<A HREF="manual.html#acorn_setwarnf">acorn_setwarnf</A><BR>
-<A HREF="manual.html#acorn_status">acorn_status</A><BR>
-<A HREF="manual.html#acorn_stringtonumber">acorn_stringtonumber</A><BR>
-<A HREF="manual.html#acorn_toboolean">acorn_toboolean</A><BR>
-<A HREF="manual.html#acorn_tocfunction">acorn_tocfunction</A><BR>
-<A HREF="manual.html#acorn_toclose">acorn_toclose</A><BR>
-<A HREF="manual.html#acorn_tointeger">acorn_tointeger</A><BR>
-<A HREF="manual.html#acorn_tointegerx">acorn_tointegerx</A><BR>
-<A HREF="manual.html#acorn_tolstring">acorn_tolstring</A><BR>
-<A HREF="manual.html#acorn_tonumber">acorn_tonumber</A><BR>
-<A HREF="manual.html#acorn_tonumberx">acorn_tonumberx</A><BR>
-<A HREF="manual.html#acorn_topointer">acorn_topointer</A><BR>
-<A HREF="manual.html#acorn_tostring">acorn_tostring</A><BR>
-<A HREF="manual.html#acorn_tothread">acorn_tothread</A><BR>
-<A HREF="manual.html#acorn_touserdata">acorn_touserdata</A><BR>
-<A HREF="manual.html#acorn_type">acorn_type</A><BR>
-<A HREF="manual.html#acorn_typename">acorn_typename</A><BR>
-<A HREF="manual.html#acorn_upvalueid">acorn_upvalueid</A><BR>
-<A HREF="manual.html#acorn_upvalueindex">acorn_upvalueindex</A><BR>
-<A HREF="manual.html#acorn_upvaluejoin">acorn_upvaluejoin</A><BR>
-<A HREF="manual.html#acorn_version">acorn_version</A><BR>
-<A HREF="manual.html#acorn_warning">acorn_warning</A><BR>
-<A HREF="manual.html#acorn_xmove">acorn_xmove</A><BR>
-<A HREF="manual.html#acorn_yield">acorn_yield</A><BR>
-<A HREF="manual.html#acorn_yieldk">acorn_yieldk</A><BR>
+<A HREF="manual.html#viper_absindex">viper_absindex</A><BR>
+<A HREF="manual.html#viper_arith">viper_arith</A><BR>
+<A HREF="manual.html#viper_atpanic">viper_atpanic</A><BR>
+<A HREF="manual.html#viper_call">viper_call</A><BR>
+<A HREF="manual.html#viper_callk">viper_callk</A><BR>
+<A HREF="manual.html#viper_checkstack">viper_checkstack</A><BR>
+<A HREF="manual.html#viper_close">viper_close</A><BR>
+<A HREF="manual.html#viper_closeslot">viper_closeslot</A><BR>
+<A HREF="manual.html#viper_compare">viper_compare</A><BR>
+<A HREF="manual.html#viper_concat">viper_concat</A><BR>
+<A HREF="manual.html#viper_copy">viper_copy</A><BR>
+<A HREF="manual.html#viper_createtable">viper_createtable</A><BR>
+<A HREF="manual.html#viper_dump">viper_dump</A><BR>
+<A HREF="manual.html#viper_error">viper_error</A><BR>
+<A HREF="manual.html#viper_gc">viper_gc</A><BR>
+<A HREF="manual.html#viper_getallocf">viper_getallocf</A><BR>
+<A HREF="manual.html#viper_getextraspace">viper_getextraspace</A><BR>
+<A HREF="manual.html#viper_getfield">viper_getfield</A><BR>
+<A HREF="manual.html#viper_getglobal">viper_getglobal</A><BR>
+<A HREF="manual.html#viper_gethook">viper_gethook</A><BR>
+<A HREF="manual.html#viper_gethookcount">viper_gethookcount</A><BR>
+<A HREF="manual.html#viper_gethookmask">viper_gethookmask</A><BR>
+<A HREF="manual.html#viper_geti">viper_geti</A><BR>
+<A HREF="manual.html#viper_getinfo">viper_getinfo</A><BR>
+<A HREF="manual.html#viper_getiuservalue">viper_getiuservalue</A><BR>
+<A HREF="manual.html#viper_getlocal">viper_getlocal</A><BR>
+<A HREF="manual.html#viper_getmetatable">viper_getmetatable</A><BR>
+<A HREF="manual.html#viper_getstack">viper_getstack</A><BR>
+<A HREF="manual.html#viper_gettable">viper_gettable</A><BR>
+<A HREF="manual.html#viper_gettop">viper_gettop</A><BR>
+<A HREF="manual.html#viper_getupvalue">viper_getupvalue</A><BR>
+<A HREF="manual.html#viper_insert">viper_insert</A><BR>
+<A HREF="manual.html#viper_isboolean">viper_isboolean</A><BR>
+<A HREF="manual.html#viper_iscfunction">viper_iscfunction</A><BR>
+<A HREF="manual.html#viper_isfunction">viper_isfunction</A><BR>
+<A HREF="manual.html#viper_isinteger">viper_isinteger</A><BR>
+<A HREF="manual.html#viper_islightuserdata">viper_islightuserdata</A><BR>
+<A HREF="manual.html#viper_isnil">viper_isnil</A><BR>
+<A HREF="manual.html#viper_isnone">viper_isnone</A><BR>
+<A HREF="manual.html#viper_isnoneornil">viper_isnoneornil</A><BR>
+<A HREF="manual.html#viper_isnumber">viper_isnumber</A><BR>
+<A HREF="manual.html#viper_isstring">viper_isstring</A><BR>
+<A HREF="manual.html#viper_istable">viper_istable</A><BR>
+<A HREF="manual.html#viper_isthread">viper_isthread</A><BR>
+<A HREF="manual.html#viper_isuserdata">viper_isuserdata</A><BR>
+<A HREF="manual.html#viper_isyieldable">viper_isyieldable</A><BR>
+<A HREF="manual.html#viper_len">viper_len</A><BR>
+<A HREF="manual.html#viper_load">viper_load</A><BR>
+<A HREF="manual.html#viper_newstate">viper_newstate</A><BR>
+<A HREF="manual.html#viper_newtable">viper_newtable</A><BR>
+<A HREF="manual.html#viper_newthread">viper_newthread</A><BR>
+<A HREF="manual.html#viper_newuserdatauv">viper_newuserdatauv</A><BR>
+<A HREF="manual.html#viper_next">viper_next</A><BR>
+<A HREF="manual.html#viper_numbertointeger">viper_numbertointeger</A><BR>
+<A HREF="manual.html#viper_pcall">viper_pcall</A><BR>
+<A HREF="manual.html#viper_pcallk">viper_pcallk</A><BR>
+<A HREF="manual.html#viper_pop">viper_pop</A><BR>
+<A HREF="manual.html#viper_pushboolean">viper_pushboolean</A><BR>
+<A HREF="manual.html#viper_pushcclosure">viper_pushcclosure</A><BR>
+<A HREF="manual.html#viper_pushcfunction">viper_pushcfunction</A><BR>
+<A HREF="manual.html#viper_pushfstring">viper_pushfstring</A><BR>
+<A HREF="manual.html#viper_pushglobaltable">viper_pushglobaltable</A><BR>
+<A HREF="manual.html#viper_pushinteger">viper_pushinteger</A><BR>
+<A HREF="manual.html#viper_pushlightuserdata">viper_pushlightuserdata</A><BR>
+<A HREF="manual.html#viper_pushliteral">viper_pushliteral</A><BR>
+<A HREF="manual.html#viper_pushlstring">viper_pushlstring</A><BR>
+<A HREF="manual.html#viper_pushnil">viper_pushnil</A><BR>
+<A HREF="manual.html#viper_pushnumber">viper_pushnumber</A><BR>
+<A HREF="manual.html#viper_pushstring">viper_pushstring</A><BR>
+<A HREF="manual.html#viper_pushthread">viper_pushthread</A><BR>
+<A HREF="manual.html#viper_pushvalue">viper_pushvalue</A><BR>
+<A HREF="manual.html#viper_pushvfstring">viper_pushvfstring</A><BR>
+<A HREF="manual.html#viper_rawequal">viper_rawequal</A><BR>
+<A HREF="manual.html#viper_rawget">viper_rawget</A><BR>
+<A HREF="manual.html#viper_rawgeti">viper_rawgeti</A><BR>
+<A HREF="manual.html#viper_rawgetp">viper_rawgetp</A><BR>
+<A HREF="manual.html#viper_rawlen">viper_rawlen</A><BR>
+<A HREF="manual.html#viper_rawset">viper_rawset</A><BR>
+<A HREF="manual.html#viper_rawseti">viper_rawseti</A><BR>
+<A HREF="manual.html#viper_rawsetp">viper_rawsetp</A><BR>
+<A HREF="manual.html#viper_register">viper_register</A><BR>
+<A HREF="manual.html#viper_remove">viper_remove</A><BR>
+<A HREF="manual.html#viper_replace">viper_replace</A><BR>
+<A HREF="manual.html#viper_resetthread">viper_resetthread</A><BR>
+<A HREF="manual.html#viper_resume">viper_resume</A><BR>
+<A HREF="manual.html#viper_rotate">viper_rotate</A><BR>
+<A HREF="manual.html#viper_setallocf">viper_setallocf</A><BR>
+<A HREF="manual.html#viper_setfield">viper_setfield</A><BR>
+<A HREF="manual.html#viper_setglobal">viper_setglobal</A><BR>
+<A HREF="manual.html#viper_sethook">viper_sethook</A><BR>
+<A HREF="manual.html#viper_seti">viper_seti</A><BR>
+<A HREF="manual.html#viper_setiuservalue">viper_setiuservalue</A><BR>
+<A HREF="manual.html#viper_setlocal">viper_setlocal</A><BR>
+<A HREF="manual.html#viper_setmetatable">viper_setmetatable</A><BR>
+<A HREF="manual.html#viper_settable">viper_settable</A><BR>
+<A HREF="manual.html#viper_settop">viper_settop</A><BR>
+<A HREF="manual.html#viper_setupvalue">viper_setupvalue</A><BR>
+<A HREF="manual.html#viper_setwarnf">viper_setwarnf</A><BR>
+<A HREF="manual.html#viper_status">viper_status</A><BR>
+<A HREF="manual.html#viper_stringtonumber">viper_stringtonumber</A><BR>
+<A HREF="manual.html#viper_toboolean">viper_toboolean</A><BR>
+<A HREF="manual.html#viper_tocfunction">viper_tocfunction</A><BR>
+<A HREF="manual.html#viper_toclose">viper_toclose</A><BR>
+<A HREF="manual.html#viper_tointeger">viper_tointeger</A><BR>
+<A HREF="manual.html#viper_tointegerx">viper_tointegerx</A><BR>
+<A HREF="manual.html#viper_tolstring">viper_tolstring</A><BR>
+<A HREF="manual.html#viper_tonumber">viper_tonumber</A><BR>
+<A HREF="manual.html#viper_tonumberx">viper_tonumberx</A><BR>
+<A HREF="manual.html#viper_topointer">viper_topointer</A><BR>
+<A HREF="manual.html#viper_tostring">viper_tostring</A><BR>
+<A HREF="manual.html#viper_tothread">viper_tothread</A><BR>
+<A HREF="manual.html#viper_touserdata">viper_touserdata</A><BR>
+<A HREF="manual.html#viper_type">viper_type</A><BR>
+<A HREF="manual.html#viper_typename">viper_typename</A><BR>
+<A HREF="manual.html#viper_upvalueid">viper_upvalueid</A><BR>
+<A HREF="manual.html#viper_upvalueindex">viper_upvalueindex</A><BR>
+<A HREF="manual.html#viper_upvaluejoin">viper_upvaluejoin</A><BR>
+<A HREF="manual.html#viper_version">viper_version</A><BR>
+<A HREF="manual.html#viper_warning">viper_warning</A><BR>
+<A HREF="manual.html#viper_xmove">viper_xmove</A><BR>
+<A HREF="manual.html#viper_yield">viper_yield</A><BR>
+<A HREF="manual.html#viper_yieldk">viper_yieldk</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="auxlib">auxiliary library</A></H3>
 <P>
-<A HREF="manual.html#acornL_Buffer">acornL_Buffer</A><BR>
-<A HREF="manual.html#acornL_Reg">acornL_Reg</A><BR>
-<A HREF="manual.html#acornL_Stream">acornL_Stream</A><BR>
+<A HREF="manual.html#viperL_Buffer">viperL_Buffer</A><BR>
+<A HREF="manual.html#viperL_Reg">viperL_Reg</A><BR>
+<A HREF="manual.html#viperL_Stream">viperL_Stream</A><BR>
 
 <P>
-<A HREF="manual.html#acornL_addchar">acornL_addchar</A><BR>
-<A HREF="manual.html#acornL_addgsub">acornL_addgsub</A><BR>
-<A HREF="manual.html#acornL_addlstring">acornL_addlstring</A><BR>
-<A HREF="manual.html#acornL_addsize">acornL_addsize</A><BR>
-<A HREF="manual.html#acornL_addstring">acornL_addstring</A><BR>
-<A HREF="manual.html#acornL_addvalue">acornL_addvalue</A><BR>
-<A HREF="manual.html#acornL_argcheck">acornL_argcheck</A><BR>
-<A HREF="manual.html#acornL_argerror">acornL_argerror</A><BR>
-<A HREF="manual.html#acornL_argexpected">acornL_argexpected</A><BR>
-<A HREF="manual.html#acornL_buffaddr">acornL_buffaddr</A><BR>
-<A HREF="manual.html#acornL_buffinit">acornL_buffinit</A><BR>
-<A HREF="manual.html#acornL_buffinitsize">acornL_buffinitsize</A><BR>
-<A HREF="manual.html#acornL_bufflen">acornL_bufflen</A><BR>
-<A HREF="manual.html#acornL_buffsub">acornL_buffsub</A><BR>
-<A HREF="manual.html#acornL_callmeta">acornL_callmeta</A><BR>
-<A HREF="manual.html#acornL_checkany">acornL_checkany</A><BR>
-<A HREF="manual.html#acornL_checkinteger">acornL_checkinteger</A><BR>
-<A HREF="manual.html#acornL_checklstring">acornL_checklstring</A><BR>
-<A HREF="manual.html#acornL_checknumber">acornL_checknumber</A><BR>
-<A HREF="manual.html#acornL_checkoption">acornL_checkoption</A><BR>
-<A HREF="manual.html#acornL_checkstack">acornL_checkstack</A><BR>
-<A HREF="manual.html#acornL_checkstring">acornL_checkstring</A><BR>
-<A HREF="manual.html#acornL_checktype">acornL_checktype</A><BR>
-<A HREF="manual.html#acornL_checkudata">acornL_checkudata</A><BR>
-<A HREF="manual.html#acornL_checkversion">acornL_checkversion</A><BR>
-<A HREF="manual.html#acornL_dofile">acornL_dofile</A><BR>
-<A HREF="manual.html#acornL_dostring">acornL_dostring</A><BR>
-<A HREF="manual.html#acornL_error">acornL_error</A><BR>
-<A HREF="manual.html#acornL_execresult">acornL_execresult</A><BR>
-<A HREF="manual.html#acornL_fileresult">acornL_fileresult</A><BR>
-<A HREF="manual.html#acornL_getmetafield">acornL_getmetafield</A><BR>
-<A HREF="manual.html#acornL_getmetatable">acornL_getmetatable</A><BR>
-<A HREF="manual.html#acornL_getsubtable">acornL_getsubtable</A><BR>
-<A HREF="manual.html#acornL_gsub">acornL_gsub</A><BR>
-<A HREF="manual.html#acornL_len">acornL_len</A><BR>
-<A HREF="manual.html#acornL_loadbuffer">acornL_loadbuffer</A><BR>
-<A HREF="manual.html#acornL_loadbufferx">acornL_loadbufferx</A><BR>
-<A HREF="manual.html#acornL_loadfile">acornL_loadfile</A><BR>
-<A HREF="manual.html#acornL_loadfilex">acornL_loadfilex</A><BR>
-<A HREF="manual.html#acornL_loadstring">acornL_loadstring</A><BR>
-<A HREF="manual.html#acornL_newlib">acornL_newlib</A><BR>
-<A HREF="manual.html#acornL_newlibtable">acornL_newlibtable</A><BR>
-<A HREF="manual.html#acornL_newmetatable">acornL_newmetatable</A><BR>
-<A HREF="manual.html#acornL_newstate">acornL_newstate</A><BR>
-<A HREF="manual.html#acornL_openlibs">acornL_openlibs</A><BR>
-<A HREF="manual.html#acornL_opt">acornL_opt</A><BR>
-<A HREF="manual.html#acornL_optinteger">acornL_optinteger</A><BR>
-<A HREF="manual.html#acornL_optlstring">acornL_optlstring</A><BR>
-<A HREF="manual.html#acornL_optnumber">acornL_optnumber</A><BR>
-<A HREF="manual.html#acornL_optstring">acornL_optstring</A><BR>
-<A HREF="manual.html#acornL_prepbuffer">acornL_prepbuffer</A><BR>
-<A HREF="manual.html#acornL_prepbuffsize">acornL_prepbuffsize</A><BR>
-<A HREF="manual.html#acornL_pushfail">acornL_pushfail</A><BR>
-<A HREF="manual.html#acornL_pushresult">acornL_pushresult</A><BR>
-<A HREF="manual.html#acornL_pushresultsize">acornL_pushresultsize</A><BR>
-<A HREF="manual.html#acornL_ref">acornL_ref</A><BR>
-<A HREF="manual.html#acornL_requiref">acornL_requiref</A><BR>
-<A HREF="manual.html#acornL_setfuncs">acornL_setfuncs</A><BR>
-<A HREF="manual.html#acornL_setmetatable">acornL_setmetatable</A><BR>
-<A HREF="manual.html#acornL_testudata">acornL_testudata</A><BR>
-<A HREF="manual.html#acornL_tolstring">acornL_tolstring</A><BR>
-<A HREF="manual.html#acornL_traceback">acornL_traceback</A><BR>
-<A HREF="manual.html#acornL_typeerror">acornL_typeerror</A><BR>
-<A HREF="manual.html#acornL_typename">acornL_typename</A><BR>
-<A HREF="manual.html#acornL_unref">acornL_unref</A><BR>
-<A HREF="manual.html#acornL_where">acornL_where</A><BR>
+<A HREF="manual.html#viperL_addchar">viperL_addchar</A><BR>
+<A HREF="manual.html#viperL_addgsub">viperL_addgsub</A><BR>
+<A HREF="manual.html#viperL_addlstring">viperL_addlstring</A><BR>
+<A HREF="manual.html#viperL_addsize">viperL_addsize</A><BR>
+<A HREF="manual.html#viperL_addstring">viperL_addstring</A><BR>
+<A HREF="manual.html#viperL_addvalue">viperL_addvalue</A><BR>
+<A HREF="manual.html#viperL_argcheck">viperL_argcheck</A><BR>
+<A HREF="manual.html#viperL_argerror">viperL_argerror</A><BR>
+<A HREF="manual.html#viperL_argexpected">viperL_argexpected</A><BR>
+<A HREF="manual.html#viperL_buffaddr">viperL_buffaddr</A><BR>
+<A HREF="manual.html#viperL_buffinit">viperL_buffinit</A><BR>
+<A HREF="manual.html#viperL_buffinitsize">viperL_buffinitsize</A><BR>
+<A HREF="manual.html#viperL_bufflen">viperL_bufflen</A><BR>
+<A HREF="manual.html#viperL_buffsub">viperL_buffsub</A><BR>
+<A HREF="manual.html#viperL_callmeta">viperL_callmeta</A><BR>
+<A HREF="manual.html#viperL_checkany">viperL_checkany</A><BR>
+<A HREF="manual.html#viperL_checkinteger">viperL_checkinteger</A><BR>
+<A HREF="manual.html#viperL_checklstring">viperL_checklstring</A><BR>
+<A HREF="manual.html#viperL_checknumber">viperL_checknumber</A><BR>
+<A HREF="manual.html#viperL_checkoption">viperL_checkoption</A><BR>
+<A HREF="manual.html#viperL_checkstack">viperL_checkstack</A><BR>
+<A HREF="manual.html#viperL_checkstring">viperL_checkstring</A><BR>
+<A HREF="manual.html#viperL_checktype">viperL_checktype</A><BR>
+<A HREF="manual.html#viperL_checkudata">viperL_checkudata</A><BR>
+<A HREF="manual.html#viperL_checkversion">viperL_checkversion</A><BR>
+<A HREF="manual.html#viperL_dofile">viperL_dofile</A><BR>
+<A HREF="manual.html#viperL_dostring">viperL_dostring</A><BR>
+<A HREF="manual.html#viperL_error">viperL_error</A><BR>
+<A HREF="manual.html#viperL_execresult">viperL_execresult</A><BR>
+<A HREF="manual.html#viperL_fileresult">viperL_fileresult</A><BR>
+<A HREF="manual.html#viperL_getmetafield">viperL_getmetafield</A><BR>
+<A HREF="manual.html#viperL_getmetatable">viperL_getmetatable</A><BR>
+<A HREF="manual.html#viperL_getsubtable">viperL_getsubtable</A><BR>
+<A HREF="manual.html#viperL_gsub">viperL_gsub</A><BR>
+<A HREF="manual.html#viperL_len">viperL_len</A><BR>
+<A HREF="manual.html#viperL_loadbuffer">viperL_loadbuffer</A><BR>
+<A HREF="manual.html#viperL_loadbufferx">viperL_loadbufferx</A><BR>
+<A HREF="manual.html#viperL_loadfile">viperL_loadfile</A><BR>
+<A HREF="manual.html#viperL_loadfilex">viperL_loadfilex</A><BR>
+<A HREF="manual.html#viperL_loadstring">viperL_loadstring</A><BR>
+<A HREF="manual.html#viperL_newlib">viperL_newlib</A><BR>
+<A HREF="manual.html#viperL_newlibtable">viperL_newlibtable</A><BR>
+<A HREF="manual.html#viperL_newmetatable">viperL_newmetatable</A><BR>
+<A HREF="manual.html#viperL_newstate">viperL_newstate</A><BR>
+<A HREF="manual.html#viperL_openlibs">viperL_openlibs</A><BR>
+<A HREF="manual.html#viperL_opt">viperL_opt</A><BR>
+<A HREF="manual.html#viperL_optinteger">viperL_optinteger</A><BR>
+<A HREF="manual.html#viperL_optlstring">viperL_optlstring</A><BR>
+<A HREF="manual.html#viperL_optnumber">viperL_optnumber</A><BR>
+<A HREF="manual.html#viperL_optstring">viperL_optstring</A><BR>
+<A HREF="manual.html#viperL_prepbuffer">viperL_prepbuffer</A><BR>
+<A HREF="manual.html#viperL_prepbuffsize">viperL_prepbuffsize</A><BR>
+<A HREF="manual.html#viperL_pushfail">viperL_pushfail</A><BR>
+<A HREF="manual.html#viperL_pushresult">viperL_pushresult</A><BR>
+<A HREF="manual.html#viperL_pushresultsize">viperL_pushresultsize</A><BR>
+<A HREF="manual.html#viperL_ref">viperL_ref</A><BR>
+<A HREF="manual.html#viperL_requiref">viperL_requiref</A><BR>
+<A HREF="manual.html#viperL_setfuncs">viperL_setfuncs</A><BR>
+<A HREF="manual.html#viperL_setmetatable">viperL_setmetatable</A><BR>
+<A HREF="manual.html#viperL_testudata">viperL_testudata</A><BR>
+<A HREF="manual.html#viperL_tolstring">viperL_tolstring</A><BR>
+<A HREF="manual.html#viperL_traceback">viperL_traceback</A><BR>
+<A HREF="manual.html#viperL_typeerror">viperL_typeerror</A><BR>
+<A HREF="manual.html#viperL_typename">viperL_typename</A><BR>
+<A HREF="manual.html#viperL_unref">viperL_unref</A><BR>
+<A HREF="manual.html#viperL_where">viperL_where</A><BR>
 
 <H3><A NAME="library">standard library</A></H3>
 <P>
-<A HREF="manual.html#pdf-acornopen_base">acornopen_base</A><BR>
-<A HREF="manual.html#pdf-acornopen_coroutine">acornopen_coroutine</A><BR>
-<A HREF="manual.html#pdf-acornopen_debug">acornopen_debug</A><BR>
-<A HREF="manual.html#pdf-acornopen_io">acornopen_io</A><BR>
-<A HREF="manual.html#pdf-acornopen_math">acornopen_math</A><BR>
-<A HREF="manual.html#pdf-acornopen_os">acornopen_os</A><BR>
-<A HREF="manual.html#pdf-acornopen_package">acornopen_package</A><BR>
-<A HREF="manual.html#pdf-acornopen_string">acornopen_string</A><BR>
-<A HREF="manual.html#pdf-acornopen_table">acornopen_table</A><BR>
-<A HREF="manual.html#pdf-acornopen_utf8">acornopen_utf8</A><BR>
+<A HREF="manual.html#pdf-viperopen_base">viperopen_base</A><BR>
+<A HREF="manual.html#pdf-viperopen_coroutine">viperopen_coroutine</A><BR>
+<A HREF="manual.html#pdf-viperopen_debug">viperopen_debug</A><BR>
+<A HREF="manual.html#pdf-viperopen_io">viperopen_io</A><BR>
+<A HREF="manual.html#pdf-viperopen_math">viperopen_math</A><BR>
+<A HREF="manual.html#pdf-viperopen_os">viperopen_os</A><BR>
+<A HREF="manual.html#pdf-viperopen_package">viperopen_package</A><BR>
+<A HREF="manual.html#pdf-viperopen_string">viperopen_string</A><BR>
+<A HREF="manual.html#pdf-viperopen_table">viperopen_table</A><BR>
+<A HREF="manual.html#pdf-viperopen_utf8">viperopen_utf8</A><BR>
 
 <H3><A NAME="constants">constants</A></H3>
 <P>
-<A HREF="manual.html#pdf-ACORN_ERRERR">ACORN_ERRERR</A><BR>
-<A HREF="manual.html#pdf-ACORN_ERRFILE">ACORN_ERRFILE</A><BR>
-<A HREF="manual.html#pdf-ACORN_ERRMEM">ACORN_ERRMEM</A><BR>
-<A HREF="manual.html#pdf-ACORN_ERRRUN">ACORN_ERRRUN</A><BR>
-<A HREF="manual.html#pdf-ACORN_ERRSYNTAX">ACORN_ERRSYNTAX</A><BR>
-<A HREF="manual.html#pdf-ACORN_HOOKCALL">ACORN_HOOKCALL</A><BR>
-<A HREF="manual.html#pdf-ACORN_HOOKCOUNT">ACORN_HOOKCOUNT</A><BR>
-<A HREF="manual.html#pdf-ACORN_HOOKLINE">ACORN_HOOKLINE</A><BR>
-<A HREF="manual.html#pdf-ACORN_HOOKRET">ACORN_HOOKRET</A><BR>
-<A HREF="manual.html#pdf-ACORN_HOOKTAILCALL">ACORN_HOOKTAILCALL</A><BR>
-<A HREF="manual.html#pdf-ACORNL_BUFFERSIZE">ACORNL_BUFFERSIZE</A><BR>
-<A HREF="manual.html#pdf-ACORN_MASKCALL">ACORN_MASKCALL</A><BR>
-<A HREF="manual.html#pdf-ACORN_MASKCOUNT">ACORN_MASKCOUNT</A><BR>
-<A HREF="manual.html#pdf-ACORN_MASKLINE">ACORN_MASKLINE</A><BR>
-<A HREF="manual.html#pdf-ACORN_MASKRET">ACORN_MASKRET</A><BR>
-<A HREF="manual.html#pdf-ACORN_MAXINTEGER">ACORN_MAXINTEGER</A><BR>
-<A HREF="manual.html#pdf-ACORN_MININTEGER">ACORN_MININTEGER</A><BR>
-<A HREF="manual.html#pdf-ACORN_MINSTACK">ACORN_MINSTACK</A><BR>
-<A HREF="manual.html#pdf-ACORN_MULTRET">ACORN_MULTRET</A><BR>
-<A HREF="manual.html#pdf-ACORN_NOREF">ACORN_NOREF</A><BR>
-<A HREF="manual.html#pdf-ACORN_OK">ACORN_OK</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPADD">ACORN_OPADD</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPBAND">ACORN_OPBAND</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPBNOT">ACORN_OPBNOT</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPBOR">ACORN_OPBOR</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPBXOR">ACORN_OPBXOR</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPDIV">ACORN_OPDIV</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPEQ">ACORN_OPEQ</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPIDIV">ACORN_OPIDIV</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPLE">ACORN_OPLE</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPLT">ACORN_OPLT</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPMOD">ACORN_OPMOD</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPMUL">ACORN_OPMUL</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPPOW">ACORN_OPPOW</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPSHL">ACORN_OPSHL</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPSHR">ACORN_OPSHR</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPSUB">ACORN_OPSUB</A><BR>
-<A HREF="manual.html#pdf-ACORN_OPUNM">ACORN_OPUNM</A><BR>
-<A HREF="manual.html#pdf-ACORN_REFNIL">ACORN_REFNIL</A><BR>
-<A HREF="manual.html#pdf-ACORN_REGISTRYINDEX">ACORN_REGISTRYINDEX</A><BR>
-<A HREF="manual.html#pdf-ACORN_RIDX_GLOBALS">ACORN_RIDX_GLOBALS</A><BR>
-<A HREF="manual.html#pdf-ACORN_RIDX_MAINTHREAD">ACORN_RIDX_MAINTHREAD</A><BR>
-<A HREF="manual.html#pdf-ACORN_TBOOLEAN">ACORN_TBOOLEAN</A><BR>
-<A HREF="manual.html#pdf-ACORN_TFUNCTION">ACORN_TFUNCTION</A><BR>
-<A HREF="manual.html#pdf-ACORN_TLIGHTUSERDATA">ACORN_TLIGHTUSERDATA</A><BR>
-<A HREF="manual.html#pdf-ACORN_TNIL">ACORN_TNIL</A><BR>
-<A HREF="manual.html#pdf-ACORN_TNONE">ACORN_TNONE</A><BR>
-<A HREF="manual.html#pdf-ACORN_TNUMBER">ACORN_TNUMBER</A><BR>
-<A HREF="manual.html#pdf-ACORN_TSTRING">ACORN_TSTRING</A><BR>
-<A HREF="manual.html#pdf-ACORN_TTABLE">ACORN_TTABLE</A><BR>
-<A HREF="manual.html#pdf-ACORN_TTHREAD">ACORN_TTHREAD</A><BR>
-<A HREF="manual.html#pdf-ACORN_TUSERDATA">ACORN_TUSERDATA</A><BR>
-<A HREF="manual.html#pdf-ACORN_USE_APICHECK">ACORN_USE_APICHECK</A><BR>
-<A HREF="manual.html#pdf-ACORN_YIELD">ACORN_YIELD</A><BR>
+<A HREF="manual.html#pdf-VIPER_ERRERR">VIPER_ERRERR</A><BR>
+<A HREF="manual.html#pdf-VIPER_ERRFILE">VIPER_ERRFILE</A><BR>
+<A HREF="manual.html#pdf-VIPER_ERRMEM">VIPER_ERRMEM</A><BR>
+<A HREF="manual.html#pdf-VIPER_ERRRUN">VIPER_ERRRUN</A><BR>
+<A HREF="manual.html#pdf-VIPER_ERRSYNTAX">VIPER_ERRSYNTAX</A><BR>
+<A HREF="manual.html#pdf-VIPER_HOOKCALL">VIPER_HOOKCALL</A><BR>
+<A HREF="manual.html#pdf-VIPER_HOOKCOUNT">VIPER_HOOKCOUNT</A><BR>
+<A HREF="manual.html#pdf-VIPER_HOOKLINE">VIPER_HOOKLINE</A><BR>
+<A HREF="manual.html#pdf-VIPER_HOOKRET">VIPER_HOOKRET</A><BR>
+<A HREF="manual.html#pdf-VIPER_HOOKTAILCALL">VIPER_HOOKTAILCALL</A><BR>
+<A HREF="manual.html#pdf-VIPERL_BUFFERSIZE">VIPERL_BUFFERSIZE</A><BR>
+<A HREF="manual.html#pdf-VIPER_MASKCALL">VIPER_MASKCALL</A><BR>
+<A HREF="manual.html#pdf-VIPER_MASKCOUNT">VIPER_MASKCOUNT</A><BR>
+<A HREF="manual.html#pdf-VIPER_MASKLINE">VIPER_MASKLINE</A><BR>
+<A HREF="manual.html#pdf-VIPER_MASKRET">VIPER_MASKRET</A><BR>
+<A HREF="manual.html#pdf-VIPER_MAXINTEGER">VIPER_MAXINTEGER</A><BR>
+<A HREF="manual.html#pdf-VIPER_MININTEGER">VIPER_MININTEGER</A><BR>
+<A HREF="manual.html#pdf-VIPER_MINSTACK">VIPER_MINSTACK</A><BR>
+<A HREF="manual.html#pdf-VIPER_MULTRET">VIPER_MULTRET</A><BR>
+<A HREF="manual.html#pdf-VIPER_NOREF">VIPER_NOREF</A><BR>
+<A HREF="manual.html#pdf-VIPER_OK">VIPER_OK</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPADD">VIPER_OPADD</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPBAND">VIPER_OPBAND</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPBNOT">VIPER_OPBNOT</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPBOR">VIPER_OPBOR</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPBXOR">VIPER_OPBXOR</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPDIV">VIPER_OPDIV</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPEQ">VIPER_OPEQ</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPIDIV">VIPER_OPIDIV</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPLE">VIPER_OPLE</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPLT">VIPER_OPLT</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPMOD">VIPER_OPMOD</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPMUL">VIPER_OPMUL</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPPOW">VIPER_OPPOW</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPSHL">VIPER_OPSHL</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPSHR">VIPER_OPSHR</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPSUB">VIPER_OPSUB</A><BR>
+<A HREF="manual.html#pdf-VIPER_OPUNM">VIPER_OPUNM</A><BR>
+<A HREF="manual.html#pdf-VIPER_REFNIL">VIPER_REFNIL</A><BR>
+<A HREF="manual.html#pdf-VIPER_REGISTRYINDEX">VIPER_REGISTRYINDEX</A><BR>
+<A HREF="manual.html#pdf-VIPER_RIDX_GLOBALS">VIPER_RIDX_GLOBALS</A><BR>
+<A HREF="manual.html#pdf-VIPER_RIDX_MAINTHREAD">VIPER_RIDX_MAINTHREAD</A><BR>
+<A HREF="manual.html#pdf-VIPER_TBOOLEAN">VIPER_TBOOLEAN</A><BR>
+<A HREF="manual.html#pdf-VIPER_TFUNCTION">VIPER_TFUNCTION</A><BR>
+<A HREF="manual.html#pdf-VIPER_TLIGHTUSERDATA">VIPER_TLIGHTUSERDATA</A><BR>
+<A HREF="manual.html#pdf-VIPER_TNIL">VIPER_TNIL</A><BR>
+<A HREF="manual.html#pdf-VIPER_TNONE">VIPER_TNONE</A><BR>
+<A HREF="manual.html#pdf-VIPER_TNUMBER">VIPER_TNUMBER</A><BR>
+<A HREF="manual.html#pdf-VIPER_TSTRING">VIPER_TSTRING</A><BR>
+<A HREF="manual.html#pdf-VIPER_TTABLE">VIPER_TTABLE</A><BR>
+<A HREF="manual.html#pdf-VIPER_TTHREAD">VIPER_TTHREAD</A><BR>
+<A HREF="manual.html#pdf-VIPER_TUSERDATA">VIPER_TUSERDATA</A><BR>
+<A HREF="manual.html#pdf-VIPER_USE_APICHECK">VIPER_USE_APICHECK</A><BR>
+<A HREF="manual.html#pdf-VIPER_YIELD">VIPER_YIELD</A><BR>
 
 </TD>
 </TR>
@@ -667,7 +667,7 @@ Last update:
 Thu Jan 13 11:32:22 UTC 2022
 </P>
 <!--
-Last change: revised for Acorn 5.4.4
+Last change: revised for Viper 5.4.4
 -->
 
 </BODY>

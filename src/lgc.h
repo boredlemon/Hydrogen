@@ -1,7 +1,7 @@
 /*
 ** $Id: lgc.h $
 ** Garbage Collector
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #ifndef lgc_h
@@ -99,7 +99,7 @@
 #define nw2black(x)  \
 	check_exp(!iswhite(x), l_setbit((x)->marked, BLACKBIT))
 
-#define acornC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
+#define viperC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
 
 
 /* object age in generational mode */
@@ -122,11 +122,11 @@
 
 
 /* Default Values for GC parameters */
-#define ACORNI_GENMAJORMUL         100
-#define ACORNI_GENMINORMUL         20
+#define VIPERI_GENMAJORMUL         100
+#define VIPERI_GENMINORMUL         20
 
 /* wait memory to double before starting new cycle */
-#define ACORNI_GCPAUSE    200
+#define VIPERI_GCPAUSE    200
 
 /*
 ** some gc parameters are stored divided by 4 to allow a maximum value
@@ -135,15 +135,15 @@
 #define getgcparam(p)	((p) * 4)
 #define setgcparam(p,v)	((p) = (v) / 4)
 
-#define ACORNI_GCMUL      100
+#define VIPERI_GCMUL      100
 
 /* how much to allocate before next GC step (log2) */
-#define ACORNI_GCSTEPSIZE 13      /* 8 KB */
+#define VIPERI_GCSTEPSIZE 13      /* 8 KB */
 
 
 /*
 ** Check whether the declared GC mode is generational. While in
-** generational mode, the collector can Acorn temporarily to incremental
+** generational mode, the collector can Viper temporarily to incremental
 ** mode to improve performance. This is signaled by 'g->lastatomic != 0'.
 */
 #define isdecGCmodegen(g)	(g->gckind == KGC_GEN || g->lastatomic != 0)
@@ -154,7 +154,7 @@
 */
 #define GCSTPUSR	1  /* bit true when GC stopped by user */
 #define GCSTPGC		2  /* bit true when GC stopped by itself */
-#define GCSTPCLS	4  /* bit true when closing Acorn state */
+#define GCSTPCLS	4  /* bit true when closing Viper state */
 #define gcrunning(g)	((g)->gcstp == 0)
 
 
@@ -164,36 +164,36 @@
 ** 'condchangemem' is used only for heavy tests (forcing a full
 ** GC cycle on every opportunity)
 */
-#define acornC_condGC(L,pre,pos) \
-	{ if (G(L)->GCdebt > 0) { pre; acornC_step(L); pos;}; \
+#define viperC_condGC(L,pre,pos) \
+	{ if (G(L)->GCdebt > 0) { pre; viperC_step(L); pos;}; \
 	  condchangemem(L,pre,pos); }
 
 /* more often than not, 'pre'/'pos' are empty */
-#define acornC_checkGC(L)		acornC_condGC(L,(void)0,(void)0)
+#define viperC_checkGC(L)		viperC_condGC(L,(void)0,(void)0)
 
 
-#define acornC_barrier(L,p,v) (  \
+#define viperC_barrier(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
-	acornC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
+	viperC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
 
-#define acornC_barrierback(L,p,v) (  \
+#define viperC_barrierback(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
-	acornC_barrierback_(L,p) : cast_void(0))
+	viperC_barrierback_(L,p) : cast_void(0))
 
-#define acornC_objbarrier(L,p,o) (  \
+#define viperC_objbarrier(L,p,o) (  \
 	(isblack(p) && iswhite(o)) ? \
-	acornC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
+	viperC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
 
-ACORNI_FUNC void acornC_fix (acorn_State *L, GCObject *o);
-ACORNI_FUNC void acornC_freeallobjects (acorn_State *L);
-ACORNI_FUNC void acornC_step (acorn_State *L);
-ACORNI_FUNC void acornC_runtilstate (acorn_State *L, int statesmask);
-ACORNI_FUNC void acornC_fullgc (acorn_State *L, int isemergency);
-ACORNI_FUNC GCObject *acornC_newobj (acorn_State *L, int tt, size_t sz);
-ACORNI_FUNC void acornC_barrier_ (acorn_State *L, GCObject *o, GCObject *v);
-ACORNI_FUNC void acornC_barrierback_ (acorn_State *L, GCObject *o);
-ACORNI_FUNC void acornC_checkfinalizer (acorn_State *L, GCObject *o, Table *mt);
-ACORNI_FUNC void acornC_changemode (acorn_State *L, int newmode);
+VIPERI_FUNC void viperC_fix (viper_State *L, GCObject *o);
+VIPERI_FUNC void viperC_freeallobjects (viper_State *L);
+VIPERI_FUNC void viperC_step (viper_State *L);
+VIPERI_FUNC void viperC_runtilstate (viper_State *L, int statesmask);
+VIPERI_FUNC void viperC_fullgc (viper_State *L, int isemergency);
+VIPERI_FUNC GCObject *viperC_newobj (viper_State *L, int tt, size_t sz);
+VIPERI_FUNC void viperC_barrier_ (viper_State *L, GCObject *o, GCObject *v);
+VIPERI_FUNC void viperC_barrierback_ (viper_State *L, GCObject *o);
+VIPERI_FUNC void viperC_checkfinalizer (viper_State *L, GCObject *o, Table *mt);
+VIPERI_FUNC void viperC_changemode (viper_State *L, int newmode);
 
 
 #endif

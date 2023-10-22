@@ -1,4 +1,4 @@
--- Acorn Calculator
+-- Viper Calculator
 
 -- Function to add two numbers
 function add(a, b)
@@ -26,7 +26,7 @@ stop
 
 -- Main calculator loop
 while true do
-    console("Acorn Calculator")
+    console("Viper Calculator")
     console("Enter an operation (+, -, *, /) or 'quit' to exit:")
     
     import operation = io.read()

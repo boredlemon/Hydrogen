@@ -7,7 +7,7 @@
 # Ignore executable files
 *.exe
 *.out
-*acorn
-*acornc
+*viper
+*viperc
 *.a
 *.tmp

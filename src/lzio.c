@@ -1,18 +1,18 @@
 /*
 ** $Id: lzio.c $
 ** Buffered streams
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #define lzio_c
-#define ACORN_CORE
+#define VIPER_CORE
 
 #include "lprefix.h"
 
 
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "llimits.h"
 #include "lmem.h"
@@ -20,13 +20,13 @@
 #include "lzio.h"
 
 
-int acornZ_fill (ZIO *z) {
+int viperZ_fill (ZIO *z) {
   size_t size;
-  acorn_State *L = z->L;
+  viper_State *L = z->L;
   const char *buff;
-  acorn_unlock(L);
+  viper_unlock(L);
   buff = z->reader(L, z->data, &size);
-  acorn_lock(L);
+  viper_lock(L);
   if (buff == NULL || size == 0)
     return EOZ;
   z->n = size - 1;  /* discount char being returned */
@@ -35,7 +35,7 @@ int acornZ_fill (ZIO *z) {
 }
 
 
-void acornZ_init (acorn_State *L, ZIO *z, acorn_Reader reader, void *data) {
+void viperZ_init (viper_State *L, ZIO *z, viper_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;
   z->data = data;
@@ -45,14 +45,14 @@ void acornZ_init (acorn_State *L, ZIO *z, acorn_Reader reader, void *data) {
 
 
 /* --------------------------------------------------------------- read --- */
-size_t acornZ_read (ZIO *z, void *b, size_t n) {
+size_t viperZ_read (ZIO *z, void *b, size_t n) {
   while (n) {
     size_t m;
     if (z->n == 0) {  /* no bytes in buffer? */
-      if (acornZ_fill(z) == EOZ)  /* try to read more */
+      if (viperZ_fill(z) == EOZ)  /* try to read more */
         return n;  /* no more input; return number of missing bytes */
       else {
-        z->n++;  /* acornZ_fill consumed first byte; put it back */
+        z->n++;  /* viperZ_fill consumed first byte; put it back */
         z->p--;
       }
     }

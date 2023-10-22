@@ -1,7 +1,7 @@
 /*
 ** $Id: lcode.h $
-** Code generator for Acorn
-** See Copyright Notice in acorn.h
+** Code generator for Viper
+** See Copyright Notice in viper.h
 */
 
 #ifndef lcode_h
@@ -45,7 +45,7 @@ typedef enum BinOpr {
 #define foldbinop(op)	((op) <= OPR_SHR)
 
 
-#define acornK_codeABC(fs,o,a,b,c)	acornK_codeABCk(fs,o,a,b,c,0)
+#define viperK_codeABC(fs,o,a,b,c)	viperK_codeABCk(fs,o,a,b,c,0)
 
 
 typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
@@ -55,50 +55,50 @@ typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 #define getinstruction(fs,e)	((fs)->f->code[(e)->u.info])
 
 
-#define acornK_setmultret(fs,e)	acornK_setreturns(fs, e, ACORN_MULTRET)
+#define viperK_setmultret(fs,e)	viperK_setreturns(fs, e, VIPER_MULTRET)
 
-#define acornK_jumpto(fs,t)	acornK_patchlist(fs, acornK_jump(fs), t)
+#define viperK_jumpto(fs,t)	viperK_patchlist(fs, viperK_jump(fs), t)
 
-ACORNI_FUNC int acornK_code (FuncState *fs, Instruction i);
-ACORNI_FUNC int acornK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
-ACORNI_FUNC int acornK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
-ACORNI_FUNC int acornK_codeABCk (FuncState *fs, OpCode o, int A,
+VIPERI_FUNC int viperK_code (FuncState *fs, Instruction i);
+VIPERI_FUNC int viperK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
+VIPERI_FUNC int viperK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
+VIPERI_FUNC int viperK_codeABCk (FuncState *fs, OpCode o, int A,
                                             int B, int C, int k);
-ACORNI_FUNC int acornK_isKint (expdesc *e);
-ACORNI_FUNC int acornK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
-ACORNI_FUNC void acornK_fixline (FuncState *fs, int line);
-ACORNI_FUNC void acornK_nil (FuncState *fs, int from, int n);
-ACORNI_FUNC void acornK_reserveregs (FuncState *fs, int n);
-ACORNI_FUNC void acornK_checkstack (FuncState *fs, int n);
-ACORNI_FUNC void acornK_int (FuncState *fs, int reg, acorn_Integer n);
-ACORNI_FUNC void acornK_dischargevars (FuncState *fs, expdesc *e);
-ACORNI_FUNC int acornK_exp2anyreg (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_exp2anyregup (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_exp2nextreg (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_exp2val (FuncState *fs, expdesc *e);
-ACORNI_FUNC int acornK_exp2RK (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_self (FuncState *fs, expdesc *e, expdesc *key);
-ACORNI_FUNC void acornK_indexed (FuncState *fs, expdesc *t, expdesc *k);
-ACORNI_FUNC void acornK_Acorniftrue (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_Acorniffalse (FuncState *fs, expdesc *e);
-ACORNI_FUNC void acornK_storevar (FuncState *fs, expdesc *var, expdesc *e);
-ACORNI_FUNC void acornK_setreturns (FuncState *fs, expdesc *e, int nresults);
-ACORNI_FUNC void acornK_setoneret (FuncState *fs, expdesc *e);
-ACORNI_FUNC int acornK_jump (FuncState *fs);
-ACORNI_FUNC void acornK_ret (FuncState *fs, int first, int nret);
-ACORNI_FUNC void acornK_patchlist (FuncState *fs, int list, int target);
-ACORNI_FUNC void acornK_patchtohere (FuncState *fs, int list);
-ACORNI_FUNC void acornK_concat (FuncState *fs, int *l1, int l2);
-ACORNI_FUNC int acornK_getlabel (FuncState *fs);
-ACORNI_FUNC void acornK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
-ACORNI_FUNC void acornK_infix (FuncState *fs, BinOpr op, expdesc *v);
-ACORNI_FUNC void acornK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
+VIPERI_FUNC int viperK_isKint (expdesc *e);
+VIPERI_FUNC int viperK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
+VIPERI_FUNC void viperK_fixline (FuncState *fs, int line);
+VIPERI_FUNC void viperK_nil (FuncState *fs, int from, int n);
+VIPERI_FUNC void viperK_reserveregs (FuncState *fs, int n);
+VIPERI_FUNC void viperK_checkstack (FuncState *fs, int n);
+VIPERI_FUNC void viperK_int (FuncState *fs, int reg, viper_Integer n);
+VIPERI_FUNC void viperK_dischargevars (FuncState *fs, expdesc *e);
+VIPERI_FUNC int viperK_exp2anyreg (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_exp2anyregup (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_exp2nextreg (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_exp2val (FuncState *fs, expdesc *e);
+VIPERI_FUNC int viperK_exp2RK (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_self (FuncState *fs, expdesc *e, expdesc *key);
+VIPERI_FUNC void viperK_indexed (FuncState *fs, expdesc *t, expdesc *k);
+VIPERI_FUNC void viperK_Viperiftrue (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_Viperiffalse (FuncState *fs, expdesc *e);
+VIPERI_FUNC void viperK_storevar (FuncState *fs, expdesc *var, expdesc *e);
+VIPERI_FUNC void viperK_setreturns (FuncState *fs, expdesc *e, int nresults);
+VIPERI_FUNC void viperK_setoneret (FuncState *fs, expdesc *e);
+VIPERI_FUNC int viperK_jump (FuncState *fs);
+VIPERI_FUNC void viperK_ret (FuncState *fs, int first, int nret);
+VIPERI_FUNC void viperK_patchlist (FuncState *fs, int list, int target);
+VIPERI_FUNC void viperK_patchtohere (FuncState *fs, int list);
+VIPERI_FUNC void viperK_concat (FuncState *fs, int *l1, int l2);
+VIPERI_FUNC int viperK_getlabel (FuncState *fs);
+VIPERI_FUNC void viperK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
+VIPERI_FUNC void viperK_infix (FuncState *fs, BinOpr op, expdesc *v);
+VIPERI_FUNC void viperK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
                             expdesc *v2, int line);
-ACORNI_FUNC void acornK_settablesize (FuncState *fs, int pc,
+VIPERI_FUNC void viperK_settablesize (FuncState *fs, int pc,
                                   int ra, int asize, int hsize);
-ACORNI_FUNC void acornK_setlist (FuncState *fs, int base, int nelems, int tostore);
-ACORNI_FUNC void acornK_finish (FuncState *fs);
-ACORNI_FUNC l_noret acornK_semerror (LexState *ls, const char *msg);
+VIPERI_FUNC void viperK_setlist (FuncState *fs, int base, int nelems, int tostore);
+VIPERI_FUNC void viperK_finish (FuncState *fs);
+VIPERI_FUNC l_noret viperK_semerror (LexState *ls, const char *msg);
 
 
 #endif

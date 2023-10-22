@@ -1,11 +1,11 @@
 /*
 ** $Id: lstrlib.c $
 ** Standard library for string operations and pattern-matching
-** See Copyright Notice in acorn.h
+** See Copyright Notice in viper.h
 */
 
 #define lstrlib_c
-#define ACORN_LIB
+#define VIPER_LIB
 
 #include "lprefix.h"
 
@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "acorn.h"
+#include "viper.h"
 
 #include "lauxlib.h"
-#include "acornlib.h"
+#include "viperlib.h"
 
 
 /*
@@ -31,8 +31,8 @@
 ** pattern-matching. This limit is arbitrary, but must fit in
 ** an unsigned char.
 */
-#if !defined(ACORN_MAXCAPTURES)
-#define ACORN_MAXCAPTURES		32
+#if !defined(VIPER_MAXCAPTURES)
+#define VIPER_MAXCAPTURES		32
 #endif
 
 
@@ -42,7 +42,7 @@
 
 /*
 ** Some sizes are better limited to fit in 'int', but must also fit in
-** 'size_t'. (We assume that 'acorn_Integer' cannot be smaller than 'int'.)
+** 'size_t'. (We assume that 'viper_Integer' cannot be smaller than 'int'.)
 */
 #define MAX_SIZET	((size_t)(~(size_t)0))
 
@@ -52,10 +52,10 @@
 
 
 
-static int str_len (acorn_State *L) {
+static int str_len (viper_State *L) {
   size_t l;
-  acornL_checklstring(L, 1, &l);
-  acorn_pushinteger(L, (acorn_Integer)l);
+  viperL_checklstring(L, 1, &l);
+  viper_pushinteger(L, (viper_Integer)l);
   return 1;
 }
 
@@ -63,17 +63,17 @@ static int str_len (acorn_State *L) {
 /*
 ** translate a relative initial string position
 ** (negative means back from end): clip result to [1, inf).
-** The length of any string in Acorn must fit in a acorn_Integer,
+** The length of any string in Viper must fit in a viper_Integer,
 ** so there are no overflows in the casts.
 ** The inverted comparison avoids a possible overflow
 ** computing '-pos'.
 */
-static size_t posrelatI (acorn_Integer pos, size_t len) {
+static size_t posrelatI (viper_Integer pos, size_t len) {
   if (pos > 0)
     return (size_t)pos;
   else if (pos == 0)
     return 1;
-  else if (pos < -(acorn_Integer)len)  /* inverted comparison */
+  else if (pos < -(viper_Integer)len)  /* inverted comparison */
     return 1;  /* clip to 1 */
   else return len + (size_t)pos + 1;
 }
@@ -84,82 +84,82 @@ static size_t posrelatI (acorn_Integer pos, size_t len) {
 ** with default value 'def'.
 ** Negative means back from end: clip result to [0, len]
 */
-static size_t getendpos (acorn_State *L, int arg, acorn_Integer def,
+static size_t getendpos (viper_State *L, int arg, viper_Integer def,
                          size_t len) {
-  acorn_Integer pos = acornL_optinteger(L, arg, def);
-  if (pos > (acorn_Integer)len)
+  viper_Integer pos = viperL_optinteger(L, arg, def);
+  if (pos > (viper_Integer)len)
     return len;
   else if (pos >= 0)
     return (size_t)pos;
-  else if (pos < -(acorn_Integer)len)
+  else if (pos < -(viper_Integer)len)
     return 0;
   else return len + (size_t)pos + 1;
 }
 
 
-static int str_sub (acorn_State *L) {
+static int str_sub (viper_State *L) {
   size_t l;
-  const char *s = acornL_checklstring(L, 1, &l);
-  size_t start = posrelatI(acornL_checkinteger(L, 2), l);
+  const char *s = viperL_checklstring(L, 1, &l);
+  size_t start = posrelatI(viperL_checkinteger(L, 2), l);
   size_t end = getendpos(L, 3, -1, l);
   if (start <= end)
-    acorn_pushlstring(L, s + start - 1, (end - start) + 1);
-  else acorn_pushliteral(L, "");
+    viper_pushlstring(L, s + start - 1, (end - start) + 1);
+  else viper_pushliteral(L, "");
   return 1;
 }
 
 
-static int str_reverse (acorn_State *L) {
+static int str_reverse (viper_State *L) {
   size_t l, i;
-  acornL_Buffer b;
-  const char *s = acornL_checklstring(L, 1, &l);
-  char *p = acornL_buffinitsize(L, &b, l);
+  viperL_Buffer b;
+  const char *s = viperL_checklstring(L, 1, &l);
+  char *p = viperL_buffinitsize(L, &b, l);
   for (i = 0; i < l; i++)
     p[i] = s[l - i - 1];
-  acornL_pushresultsize(&b, l);
+  viperL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_lower (acorn_State *L) {
+static int str_lower (viper_State *L) {
   size_t l;
   size_t i;
-  acornL_Buffer b;
-  const char *s = acornL_checklstring(L, 1, &l);
-  char *p = acornL_buffinitsize(L, &b, l);
+  viperL_Buffer b;
+  const char *s = viperL_checklstring(L, 1, &l);
+  char *p = viperL_buffinitsize(L, &b, l);
   for (i=0; i<l; i++)
     p[i] = tolower(uchar(s[i]));
-  acornL_pushresultsize(&b, l);
+  viperL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_upper (acorn_State *L) {
+static int str_upper (viper_State *L) {
   size_t l;
   size_t i;
-  acornL_Buffer b;
-  const char *s = acornL_checklstring(L, 1, &l);
-  char *p = acornL_buffinitsize(L, &b, l);
+  viperL_Buffer b;
+  const char *s = viperL_checklstring(L, 1, &l);
+  char *p = viperL_buffinitsize(L, &b, l);
   for (i=0; i<l; i++)
     p[i] = toupper(uchar(s[i]));
-  acornL_pushresultsize(&b, l);
+  viperL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_rep (acorn_State *L) {
+static int str_rep (viper_State *L) {
   size_t l, lsep;
-  const char *s = acornL_checklstring(L, 1, &l);
-  acorn_Integer n = acornL_checkinteger(L, 2);
-  const char *sep = acornL_optlstring(L, 3, "", &lsep);
+  const char *s = viperL_checklstring(L, 1, &l);
+  viper_Integer n = viperL_checkinteger(L, 2);
+  const char *sep = viperL_optlstring(L, 3, "", &lsep);
   if (n <= 0)
-    acorn_pushliteral(L, "");
+    viper_pushliteral(L, "");
   else if (l_unlikely(l + lsep < l || l + lsep > MAXSIZE / n))
-    return acornL_error(L, "resulting string too large");
+    return viperL_error(L, "resulting string too large");
   else {
     size_t totallen = (size_t)n * l + (size_t)(n - 1) * lsep;
-    acornL_Buffer b;
-    char *p = acornL_buffinitsize(L, &b, totallen);
+    viperL_Buffer b;
+    char *p = viperL_buffinitsize(L, &b, totallen);
     while (n-- > 1) {  /* first n-1 copies (followed by separator) */
       memcpy(p, s, l * sizeof(char)); p += l;
       if (lsep > 0) {  /* empty 'memcpy' is not that cheap */
@@ -168,77 +168,77 @@ static int str_rep (acorn_State *L) {
       }
     }
     memcpy(p, s, l * sizeof(char));  /* last copy (not followed by separator) */
-    acornL_pushresultsize(&b, totallen);
+    viperL_pushresultsize(&b, totallen);
   }
   return 1;
 }
 
 
-static int str_byte (acorn_State *L) {
+static int str_byte (viper_State *L) {
   size_t l;
-  const char *s = acornL_checklstring(L, 1, &l);
-  acorn_Integer pi = acornL_optinteger(L, 2, 1);
+  const char *s = viperL_checklstring(L, 1, &l);
+  viper_Integer pi = viperL_optinteger(L, 2, 1);
   size_t posi = posrelatI(pi, l);
   size_t pose = getendpos(L, 3, pi, l);
   int n, i;
   if (posi > pose) return 0;  /* empty interval; return no values */
   if (l_unlikely(pose - posi >= (size_t)INT_MAX))  /* arithmetic overflow? */
-    return acornL_error(L, "string slice too long");
+    return viperL_error(L, "string slice too long");
   n = (int)(pose -  posi) + 1;
-  acornL_checkstack(L, n, "string slice too long");
+  viperL_checkstack(L, n, "string slice too long");
   for (i=0; i<n; i++)
-    acorn_pushinteger(L, uchar(s[posi+i-1]));
+    viper_pushinteger(L, uchar(s[posi+i-1]));
   return n;
 }
 
 
-static int str_char (acorn_State *L) {
-  int n = acorn_gettop(L);  /* number of arguments */
+static int str_char (viper_State *L) {
+  int n = viper_gettop(L);  /* number of arguments */
   int i;
-  acornL_Buffer b;
-  char *p = acornL_buffinitsize(L, &b, n);
+  viperL_Buffer b;
+  char *p = viperL_buffinitsize(L, &b, n);
   for (i=1; i<=n; i++) {
-    acorn_Unsigned c = (acorn_Unsigned)acornL_checkinteger(L, i);
-    acornL_argcheck(L, c <= (acorn_Unsigned)UCHAR_MAX, i, "value out of range");
+    viper_Unsigned c = (viper_Unsigned)viperL_checkinteger(L, i);
+    viperL_argcheck(L, c <= (viper_Unsigned)UCHAR_MAX, i, "value out of range");
     p[i - 1] = uchar(c);
   }
-  acornL_pushresultsize(&b, n);
+  viperL_pushresultsize(&b, n);
   return 1;
 }
 
 
 /*
 ** Buffer to store the result of 'string.dump'. It must be initialized
-** after the call to 'acorn_dump', to ensure that the function is on the
-** top of the stack when 'acorn_dump' is called. ('acornL_buffinit' might
+** after the call to 'viper_dump', to ensure that the function is on the
+** top of the stack when 'viper_dump' is called. ('viperL_buffinit' might
 ** push stuff.)
 */
 struct str_Writer {
   int init;  /* true iff buffer has been initialized */
-  acornL_Buffer B;
+  viperL_Buffer B;
 };
 
 
-static int writer (acorn_State *L, const void *b, size_t size, void *ud) {
+static int writer (viper_State *L, const void *b, size_t size, void *ud) {
   struct str_Writer *state = (struct str_Writer *)ud;
   if (!state->init) {
     state->init = 1;
-    acornL_buffinit(L, &state->B);
+    viperL_buffinit(L, &state->B);
   }
-  acornL_addlstring(&state->B, (const char *)b, size);
+  viperL_addlstring(&state->B, (const char *)b, size);
   return 0;
 }
 
 
-static int str_dump (acorn_State *L) {
+static int str_dump (viper_State *L) {
   struct str_Writer state;
-  int strip = acorn_toboolean(L, 2);
-  acornL_checktype(L, 1, ACORN_TFUNCTION);
-  acorn_settop(L, 1);  /* ensure function is on the top of the stack */
+  int strip = viper_toboolean(L, 2);
+  viperL_checktype(L, 1, VIPER_TFUNCTION);
+  viper_settop(L, 1);  /* ensure function is on the top of the stack */
   state.init = 0;
-  if (l_unlikely(acorn_dump(L, writer, &state, strip) != 0))
-    return acornL_error(L, "unable to dump given function");
-  acornL_pushresult(&state.B);
+  if (l_unlikely(viper_dump(L, writer, &state, strip) != 0))
+    return viperL_error(L, "unable to dump given function");
+  viperL_pushresult(&state.B);
   return 1;
 }
 
@@ -250,84 +250,84 @@ static int str_dump (acorn_State *L) {
 ** =======================================================
 */
 
-#if defined(ACORN_NOCVTS2N)	/* { */
+#if defined(VIPER_NOCVTS2N)	/* { */
 
 /* no coercion from strings to numbers */
 
-static const acornL_Reg stringmetamethods[] = {
+static const viperL_Reg stringmetamethods[] = {
   {"__index", NULL},  /* placeholder */
   {NULL, NULL}
 };
 
 #else		/* }{ */
 
-static int tonum (acorn_State *L, int arg) {
-  if (acorn_type(L, arg) == ACORN_TNUMBER) {  /* already a number? */
-    acorn_pushvalue(L, arg);
+static int tonum (viper_State *L, int arg) {
+  if (viper_type(L, arg) == VIPER_TNUMBER) {  /* already a number? */
+    viper_pushvalue(L, arg);
     return 1;
   }
   else {  /* check whether it is a numerical string */
     size_t len;
-    const char *s = acorn_tolstring(L, arg, &len);
-    return (s != NULL && acorn_stringtonumber(L, s) == len + 1);
+    const char *s = viper_tolstring(L, arg, &len);
+    return (s != NULL && viper_stringtonumber(L, s) == len + 1);
   }
 }
 
 
-static void trymt (acorn_State *L, const char *mtname) {
-  acorn_settop(L, 2);  /* back to the original arguments */
-  if (l_unlikely(acorn_type(L, 2) == ACORN_TSTRING ||
-                 !acornL_getmetafield(L, 2, mtname)))
-    acornL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
-                  acornL_typename(L, -2), acornL_typename(L, -1));
-  acorn_insert(L, -3);  /* put metamethod before arguments */
-  acorn_call(L, 2, 1);  /* call metamethod */
+static void trymt (viper_State *L, const char *mtname) {
+  viper_settop(L, 2);  /* back to the original arguments */
+  if (l_unlikely(viper_type(L, 2) == VIPER_TSTRING ||
+                 !viperL_getmetafield(L, 2, mtname)))
+    viperL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
+                  viperL_typename(L, -2), viperL_typename(L, -1));
+  viper_insert(L, -3);  /* put metamethod before arguments */
+  viper_call(L, 2, 1);  /* call metamethod */
 }
 
 
-static int arith (acorn_State *L, int op, const char *mtname) {
+static int arith (viper_State *L, int op, const char *mtname) {
   if (tonum(L, 1) && tonum(L, 2))
-    acorn_arith(L, op);  /* result will be on the top */
+    viper_arith(L, op);  /* result will be on the top */
   else
     trymt(L, mtname);
   return 1;
 }
 
 
-static int arith_add (acorn_State *L) {
-  return arith(L, ACORN_OPADD, "__add");
+static int arith_add (viper_State *L) {
+  return arith(L, VIPER_OPADD, "__add");
 }
 
-static int arith_sub (acorn_State *L) {
-  return arith(L, ACORN_OPSUB, "__sub");
+static int arith_sub (viper_State *L) {
+  return arith(L, VIPER_OPSUB, "__sub");
 }
 
-static int arith_mul (acorn_State *L) {
-  return arith(L, ACORN_OPMUL, "__mul");
+static int arith_mul (viper_State *L) {
+  return arith(L, VIPER_OPMUL, "__mul");
 }
 
-static int arith_mod (acorn_State *L) {
-  return arith(L, ACORN_OPMOD, "__mod");
+static int arith_mod (viper_State *L) {
+  return arith(L, VIPER_OPMOD, "__mod");
 }
 
-static int arith_pow (acorn_State *L) {
-  return arith(L, ACORN_OPPOW, "__pow");
+static int arith_pow (viper_State *L) {
+  return arith(L, VIPER_OPPOW, "__pow");
 }
 
-static int arith_div (acorn_State *L) {
-  return arith(L, ACORN_OPDIV, "__div");
+static int arith_div (viper_State *L) {
+  return arith(L, VIPER_OPDIV, "__div");
 }
 
-static int arith_idiv (acorn_State *L) {
-  return arith(L, ACORN_OPIDIV, "__idiv");
+static int arith_idiv (viper_State *L) {
+  return arith(L, VIPER_OPIDIV, "__idiv");
 }
 
-static int arith_unm (acorn_State *L) {
-  return arith(L, ACORN_OPUNM, "__unm");
+static int arith_unm (viper_State *L) {
+  return arith(L, VIPER_OPUNM, "__unm");
 }
 
 
-static const acornL_Reg stringmetamethods[] = {
+static const viperL_Reg stringmetamethods[] = {
   {"__add", arith_add},
   {"__sub", arith_sub},
   {"__mul", arith_mul},
@@ -359,13 +359,13 @@ typedef struct MatchState {
   const char *src_init;  /* init of source string */
   const char *src_end;  /* end ('\0') of source string */
   const char *p_end;  /* end ('\0') of pattern */
-  acorn_State *L;
+  viper_State *L;
   int matchdepth;  /* control for recursive depth (to avoid C stack overflow) */
   unsigned char level;  /* total number of captures (finished or unfinished) */
   struct {
     const char *init;
     ptrdiff_t len;
-  } capture[ACORN_MAXCAPTURES];
+  } capture[VIPER_MAXCAPTURES];
 } MatchState;
 
 
@@ -387,7 +387,7 @@ static int check_capture (MatchState *ms, int l) {
   l -= '1';
   if (l_unlikely(l < 0 || l >= ms->level ||
                  ms->capture[l].len == CAP_UNFINISHED))
-    return acornL_error(ms->L, "invalid capture index %%%d", l + 1);
+    return viperL_error(ms->L, "invalid capture index %%%d", l + 1);
   return l;
 }
 
@@ -396,7 +396,7 @@ static int capture_to_close (MatchState *ms) {
   int level = ms->level;
   for (level--; level>=0; level--)
     if (ms->capture[level].len == CAP_UNFINISHED) return level;
-  return acornL_error(ms->L, "invalid pattern capture");
+  return viperL_error(ms->L, "invalid pattern capture");
 }
 
 
@@ -404,14 +404,14 @@ static const char *classend (MatchState *ms, const char *p) {
   switch (*p++) {
     case L_ESC: {
       if (l_unlikely(p == ms->p_end))
-        acornL_error(ms->L, "malformed pattern (ends with '%%')");
+        viperL_error(ms->L, "malformed pattern (ends with '%%')");
       return p+1;
     }
     case '[': {
       if (*p == '^') p++;
       do {  /* look for a ']' */
         if (l_unlikely(p == ms->p_end))
-          acornL_error(ms->L, "malformed pattern (missing ']')");
+          viperL_error(ms->L, "malformed pattern (missing ']')");
         if (*(p++) == L_ESC && p < ms->p_end)
           p++;  /* skip escapes (e.g. '%]') */
       } while (*p != ']');
@@ -486,7 +486,7 @@ static int singlematch (MatchState *ms, const char *s, const char *p,
 static const char *matchbalance (MatchState *ms, const char *s,
                                    const char *p) {
   if (l_unlikely(p >= ms->p_end - 1))
-    acornL_error(ms->L, "malformed pattern (missing arguments to '%%b')");
+    viperL_error(ms->L, "malformed pattern (missing arguments to '%%b')");
   if (*s != *p) return NULL;
   else {
     int b = *p;
@@ -535,7 +535,7 @@ static const char *start_capture (MatchState *ms, const char *s,
                                     const char *p, int what) {
   const char *res;
   int level = ms->level;
-  if (level >= ACORN_MAXCAPTURES) acornL_error(ms->L, "too many captures");
+  if (level >= VIPER_MAXCAPTURES) viperL_error(ms->L, "too many captures");
   ms->capture[level].init = s;
   ms->capture[level].len = what;
   ms->level = level+1;
@@ -569,7 +569,7 @@ static const char *match_capture (MatchState *ms, const char *s, int l) {
 
 static const char *match (MatchState *ms, const char *s, const char *p) {
   if (l_unlikely(ms->matchdepth-- == 0))
-    acornL_error(ms->L, "pattern too complex");
+    viperL_error(ms->L, "pattern too complex");
   init: /* using goto's to optimize tail recursion */
   if (p != ms->p_end) {  /* end of pattern? */
     switch (*p) {
@@ -586,7 +586,7 @@ static const char *match (MatchState *ms, const char *s, const char *p) {
       }
       case '$': {
         if ((p + 1) != ms->p_end)  /* is the '$' the last char in pattern? */
-          goto dflt;  /* no; Acorn to default */
+          goto dflt;  /* no; Viper to default */
         s = (s == ms->src_end) ? s : NULL;  /* check end of string */
         break;
       }
@@ -603,7 +603,7 @@ static const char *match (MatchState *ms, const char *s, const char *p) {
             const char *ep; char previous;
             p += 2;
             if (l_unlikely(*p != '['))
-              acornL_error(ms->L, "missing '[' after '%%f' in pattern");
+              viperL_error(ms->L, "missing '[' after '%%f' in pattern");
             ep = classend(ms, p);  /* points to what is next */
             previous = (s == ms->src_init) ? '\0' : *(s - 1);
             if (!matchbracketclass(uchar(previous), p, ep - 1) &&
@@ -703,7 +703,7 @@ static size_t get_onecapture (MatchState *ms, int i, const char *s,
                               const char *e, const char **cap) {
   if (i >= ms->level) {
     if (l_unlikely(i != 0))
-      acornL_error(ms->L, "invalid capture index %%%d", i + 1);
+      viperL_error(ms->L, "invalid capture index %%%d", i + 1);
     *cap = s;
     return e - s;
   }
@@ -711,9 +711,9 @@ static size_t get_onecapture (MatchState *ms, int i, const char *s,
     ptrdiff_t capl = ms->capture[i].len;
     *cap = ms->capture[i].init;
     if (l_unlikely(capl == CAP_UNFINISHED))
-      acornL_error(ms->L, "unfinished capture");
+      viperL_error(ms->L, "unfinished capture");
     else if (capl == CAP_POSITION)
-      acorn_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
+      viper_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
     return capl;
   }
 }
@@ -727,7 +727,7 @@ static void push_onecapture (MatchState *ms, int i, const char *s,
   const char *cap;
   ptrdiff_t l = get_onecapture(ms, i, s, e, &cap);
   if (l != CAP_POSITION)
-    acorn_pushlstring(ms->L, cap, l);
+    viper_pushlstring(ms->L, cap, l);
   /* else position was already pushed */
 }
 
@@ -735,7 +735,7 @@ static void push_onecapture (MatchState *ms, int i, const char *s,
 static int push_captures (MatchState *ms, const char *s, const char *e) {
   int i;
   int nlevels = (ms->level == 0 && s) ? 1 : ms->level;
-  acornL_checkstack(ms->L, nlevels, "too many captures");
+  viperL_checkstack(ms->L, nlevels, "too many captures");
   for (i = 0; i < nlevels; i++)
     push_onecapture(ms, i, s, e);
   return nlevels;  /* number of strings pushed */
@@ -754,7 +754,7 @@ static int nospecials (const char *p, size_t l) {
 }
 
 
-static void prepstate (MatchState *ms, acorn_State *L,
+static void prepstate (MatchState *ms, viper_State *L,
                        const char *s, size_t ls, const char *p, size_t lp) {
   ms->L = L;
   ms->matchdepth = MAXCCALLS;
@@ -766,26 +766,26 @@ static void prepstate (MatchState *ms, acorn_State *L,
 
 static void reprepstate (MatchState *ms) {
   ms->level = 0;
-  acorn_assert(ms->matchdepth == MAXCCALLS);
+  viper_assert(ms->matchdepth == MAXCCALLS);
 }
 
 
-static int str_find_aux (acorn_State *L, int find) {
+static int str_find_aux (viper_State *L, int find) {
   size_t ls, lp;
-  const char *s = acornL_checklstring(L, 1, &ls);
-  const char *p = acornL_checklstring(L, 2, &lp);
-  size_t init = posrelatI(acornL_optinteger(L, 3, 1), ls) - 1;
+  const char *s = viperL_checklstring(L, 1, &ls);
+  const char *p = viperL_checklstring(L, 2, &lp);
+  size_t init = posrelatI(viperL_optinteger(L, 3, 1), ls) - 1;
   if (init > ls) {  /* start after string's end? */
-    acornL_pushfail(L);  /* cannot find anything */
+    viperL_pushfail(L);  /* cannot find anything */
     return 1;
   }
   /* explicit request or no special characters? */
-  if (find && (acorn_toboolean(L, 4) || nospecials(p, lp))) {
+  if (find && (viper_toboolean(L, 4) || nospecials(p, lp))) {
     /* do a plain search */
     const char *s2 = lmemfind(s + init, ls - init, p, lp);
     if (s2) {
-      acorn_pushinteger(L, (s2 - s) + 1);
-      acorn_pushinteger(L, (s2 - s) + lp);
+      viper_pushinteger(L, (s2 - s) + 1);
+      viper_pushinteger(L, (s2 - s) + lp);
       return 2;
     }
   }
@@ -802,8 +802,8 @@ static int str_find_aux (acorn_State *L, int find) {
       reprepstate(&ms);
       if ((res=match(&ms, s1, p)) != NULL) {
         if (find) {
-          acorn_pushinteger(L, (s1 - s) + 1);  /* start */
-          acorn_pushinteger(L, res - s);   /* end */
+          viper_pushinteger(L, (s1 - s) + 1);  /* start */
+          viper_pushinteger(L, res - s);   /* end */
           return push_captures(&ms, NULL, 0) + 2;
         }
         else
@@ -811,17 +811,17 @@ static int str_find_aux (acorn_State *L, int find) {
       }
     } while (s1++ < ms.src_end && !anchor);
   }
-  acornL_pushfail(L);  /* not found */
+  viperL_pushfail(L);  /* not found */
   return 1;
 }
 
 
-static int str_find (acorn_State *L) {
+static int str_find (viper_State *L) {
   return str_find_aux(L, 1);
 }
 
 
-static int str_match (acorn_State *L) {
+static int str_match (viper_State *L) {
   return str_find_aux(L, 0);
 }
 
@@ -835,8 +835,8 @@ typedef struct GMatchState {
 } GMatchState;
 
 
-static int gmatch_aux (acorn_State *L) {
-  GMatchState *gm = (GMatchState *)acorn_touserdata(L, acorn_upvalueindex(3));
+static int gmatch_aux (viper_State *L) {
+  GMatchState *gm = (GMatchState *)viper_touserdata(L, viper_upvalueindex(3));
   const char *src;
   gm->ms.L = L;
   for (src = gm->src; src <= gm->ms.src_end; src++) {
@@ -851,50 +851,50 @@ static int gmatch_aux (acorn_State *L) {
 }
 
 
-static int gmatch (acorn_State *L) {
+static int gmatch (viper_State *L) {
   size_t ls, lp;
-  const char *s = acornL_checklstring(L, 1, &ls);
-  const char *p = acornL_checklstring(L, 2, &lp);
-  size_t init = posrelatI(acornL_optinteger(L, 3, 1), ls) - 1;
+  const char *s = viperL_checklstring(L, 1, &ls);
+  const char *p = viperL_checklstring(L, 2, &lp);
+  size_t init = posrelatI(viperL_optinteger(L, 3, 1), ls) - 1;
   GMatchState *gm;
-  acorn_settop(L, 2);  /* keep strings on closure to avoid being collected */
-  gm = (GMatchState *)acorn_newuserdatauv(L, sizeof(GMatchState), 0);
+  viper_settop(L, 2);  /* keep strings on closure to avoid being collected */
+  gm = (GMatchState *)viper_newuserdatauv(L, sizeof(GMatchState), 0);
   if (init > ls)  /* start after string's end? */
     init = ls + 1;  /* avoid overflows in 's + init' */
   prepstate(&gm->ms, L, s, ls, p, lp);
   gm->src = s + init; gm->p = p; gm->lastmatch = NULL;
-  acorn_pushcclosure(L, gmatch_aux, 3);
+  viper_pushcclosure(L, gmatch_aux, 3);
   return 1;
 }
 
 
-static void add_s (MatchState *ms, acornL_Buffer *b, const char *s,
+static void add_s (MatchState *ms, viperL_Buffer *b, const char *s,
                                                    const char *e) {
   size_t l;
-  acorn_State *L = ms->L;
-  const char *news = acorn_tolstring(L, 3, &l);
+  viper_State *L = ms->L;
+  const char *news = viper_tolstring(L, 3, &l);
   const char *p;
   while ((p = (char *)memchr(news, L_ESC, l)) != NULL) {
-    acornL_addlstring(b, news, p - news);
+    viperL_addlstring(b, news, p - news);
     p++;  /* skip ESC */
     if (*p == L_ESC)  /* '%%' */
-      acornL_addchar(b, *p);
+      viperL_addchar(b, *p);
     else if (*p == '0')  /* '%0' */
-        acornL_addlstring(b, s, e - s);
+        viperL_addlstring(b, s, e - s);
     else if (isdigit(uchar(*p))) {  /* '%n' */
       const char *cap;
       ptrdiff_t resl = get_onecapture(ms, *p - '1', s, e, &cap);
       if (resl == CAP_POSITION)
-        acornL_addvalue(b);  /* add position to accumulated result */
+        viperL_addvalue(b);  /* add position to accumulated result */
       else
-        acornL_addlstring(b, cap, resl);
+        viperL_addlstring(b, cap, resl);
     }
     else
-      acornL_error(L, "invalid use of '%c' in replacement string", L_ESC);
+      viperL_error(L, "invalid use of '%c' in replacement string", L_ESC);
     l -= p + 1 - news;
     news = p + 1;
   }
-  acornL_addlstring(b, news, l);
+  viperL_addlstring(b, news, l);
 }
 
 
@@ -903,58 +903,58 @@ static void add_s (MatchState *ms, acornL_Buffer *b, const char *s,
 ** Return true if the original string was changed. (Function calls and
 ** table indexing resulting in nil or false do not change the subject.)
 */
-static int add_value (MatchState *ms, acornL_Buffer *b, const char *s,
+static int add_value (MatchState *ms, viperL_Buffer *b, const char *s,
                                       const char *e, int tr) {
-  acorn_State *L = ms->L;
+  viper_State *L = ms->L;
   switch (tr) {
-    case ACORN_TFUNCTION: {  /* call the function */
+    case VIPER_TFUNCTION: {  /* call the function */
       int n;
-      acorn_pushvalue(L, 3);  /* push the function */
+      viper_pushvalue(L, 3);  /* push the function */
       n = push_captures(ms, s, e);  /* all captures as arguments */
-      acorn_call(L, n, 1);  /* call it */
+      viper_call(L, n, 1);  /* call it */
       break;
     }
-    case ACORN_TTABLE: {  /* index the table */
+    case VIPER_TTABLE: {  /* index the table */
       push_onecapture(ms, 0, s, e);  /* first capture is the index */
-      acorn_gettable(L, 3);
+      viper_gettable(L, 3);
       break;
     }
-    default: {  /* ACORN_TNUMBER or ACORN_TSTRING */
+    default: {  /* VIPER_TNUMBER or VIPER_TSTRING */
       add_s(ms, b, s, e);  /* add value to the buffer */
       return 1;  /* something changed */
     }
   }
-  if (!acorn_toboolean(L, -1)) {  /* nil or false? */
-    acorn_pop(L, 1);  /* remove value */
-    acornL_addlstring(b, s, e - s);  /* keep original text */
+  if (!viper_toboolean(L, -1)) {  /* nil or false? */
+    viper_pop(L, 1);  /* remove value */
+    viperL_addlstring(b, s, e - s);  /* keep original text */
     return 0;  /* no changes */
   }
-  else if (l_unlikely(!acorn_isstring(L, -1)))
-    return acornL_error(L, "invalid replacement value (a %s)",
-                         acornL_typename(L, -1));
+  else if (l_unlikely(!viper_isstring(L, -1)))
+    return viperL_error(L, "invalid replacement value (a %s)",
+                         viperL_typename(L, -1));
   else {
-    acornL_addvalue(b);  /* add result to accumulator */
+    viperL_addvalue(b);  /* add result to accumulator */
     return 1;  /* something changed */
   }
 }
 
 
-static int str_gsub (acorn_State *L) {
+static int str_gsub (viper_State *L) {
   size_t srcl, lp;
-  const char *src = acornL_checklstring(L, 1, &srcl);  /* subject */
-  const char *p = acornL_checklstring(L, 2, &lp);  /* pattern */
+  const char *src = viperL_checklstring(L, 1, &srcl);  /* subject */
+  const char *p = viperL_checklstring(L, 2, &lp);  /* pattern */
   const char *lastmatch = NULL;  /* end of last match */
-  int tr = acorn_type(L, 3);  /* replacement type */
-  acorn_Integer max_s = acornL_optinteger(L, 4, srcl + 1);  /* max replacements */
+  int tr = viper_type(L, 3);  /* replacement type */
+  viper_Integer max_s = viperL_optinteger(L, 4, srcl + 1);  /* max replacements */
   int anchor = (*p == '^');
-  acorn_Integer n = 0;  /* replacement count */
+  viper_Integer n = 0;  /* replacement count */
   int changed = 0;  /* change flag */
   MatchState ms;
-  acornL_Buffer b;
-  acornL_argexpected(L, tr == ACORN_TNUMBER || tr == ACORN_TSTRING ||
-                   tr == ACORN_TFUNCTION || tr == ACORN_TTABLE, 3,
+  viperL_Buffer b;
+  viperL_argexpected(L, tr == VIPER_TNUMBER || tr == VIPER_TSTRING ||
+                   tr == VIPER_TFUNCTION || tr == VIPER_TTABLE, 3,
                       "string/function/table");
-  acornL_buffinit(L, &b);
+  viperL_buffinit(L, &b);
   if (anchor) {
     p++; lp--;  /* skip anchor character */
   }
@@ -968,17 +968,17 @@ static int str_gsub (acorn_State *L) {
       src = lastmatch = e;
     }
     else if (src < ms.src_end)  /* otherwise, skip one character */
-      acornL_addchar(&b, *src++);
+      viperL_addchar(&b, *src++);
     else break;  /* end of subject */
     if (anchor) break;
   }
   if (!changed)  /* no changes? */
-    acorn_pushvalue(L, 1);  /* return original string */
+    viper_pushvalue(L, 1);  /* return original string */
   else {  /* something changed */
-    acornL_addlstring(&b, src, ms.src_end-src);
-    acornL_pushresult(&b);  /* create and return new string */
+    viperL_addlstring(&b, src, ms.src_end-src);
+    viperL_pushresult(&b);  /* create and return new string */
   }
-  acorn_pushinteger(L, n);  /* number of substitutions */
+  viper_pushinteger(L, n);  /* number of substitutions */
   return 2;
 }
 
@@ -992,17 +992,17 @@ static int str_gsub (acorn_State *L) {
 ** =======================================================
 */
 
-#if !defined(acorn_number2strx)	/* { */
+#if !defined(viper_number2strx)	/* { */
 
 /*
 ** Hexadecimal floating-point formatter
 */
 
-#define SIZELENMOD	(sizeof(ACORN_NUMBER_FRMLEN)/sizeof(char))
+#define SIZELENMOD	(sizeof(VIPER_NUMBER_FRMLEN)/sizeof(char))
 
 
 /*
-** Number of bits that Acornes into the first digit. It can be any value
+** Number of bits that Viperes into the first digit. It can be any value
 ** between 1 and 4; the following definition tries to align the number
 ** to nibble boundaries by making what is left after that first digit a
 ** multiple of 4.
@@ -1013,25 +1013,25 @@ static int str_gsub (acorn_State *L) {
 /*
 ** Add integer part of 'x' to buffer and return new 'x'
 */
-static acorn_Number adddigit (char *buff, int n, acorn_Number x) {
-  acorn_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
+static viper_Number adddigit (char *buff, int n, viper_Number x) {
+  viper_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
   int d = (int)dd;
   buff[n] = (d < 10 ? d + '0' : d - 10 + 'a');  /* add to buffer */
   return x - dd;  /* return what is left */
 }
 
 
-static int num2straux (char *buff, int sz, acorn_Number x) {
+static int num2straux (char *buff, int sz, viper_Number x) {
   /* if 'inf' or 'NaN', format it like '%g' */
-  if (x != x || x == (acorn_Number)HUGE_VAL || x == -(acorn_Number)HUGE_VAL)
-    return l_sprintf(buff, sz, ACORN_NUMBER_FMT, (ACORNI_UACNUMBER)x);
+  if (x != x || x == (viper_Number)HUGE_VAL || x == -(viper_Number)HUGE_VAL)
+    return l_sprintf(buff, sz, VIPER_NUMBER_FMT, (VIPERI_UACNUMBER)x);
   else if (x == 0) {  /* can be -0... */
     /* create "0" or "-0" followed by exponent */
-    return l_sprintf(buff, sz, ACORN_NUMBER_FMT "x0p+0", (ACORNI_UACNUMBER)x);
+    return l_sprintf(buff, sz, VIPER_NUMBER_FMT "x0p+0", (VIPERI_UACNUMBER)x);
   }
   else {
     int e;
-    acorn_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
+    viper_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
     int n = 0;  /* character count */
     if (m < 0) {  /* is number negative? */
       buff[n++] = '-';  /* add sign */
@@ -1039,22 +1039,22 @@ static int num2straux (char *buff, int sz, acorn_Number x) {
     }
     buff[n++] = '0'; buff[n++] = 'x';  /* add "0x" */
     m = adddigit(buff, n++, m * (1 << L_NBFD));  /* add first digit */
-    e -= L_NBFD;  /* this digit Acornes before the radix point */
+    e -= L_NBFD;  /* this digit Viperes before the radix point */
     if (m > 0) {  /* more digits? */
-      buff[n++] = acorn_getlocaledecpoint();  /* add radix point */
+      buff[n++] = viper_getlocaledecpoint();  /* add radix point */
       do {  /* add as many digits as needed */
         m = adddigit(buff, n++, m * 16);
       } while (m > 0);
     }
     n += l_sprintf(buff + n, sz - n, "p%+d", e);  /* add exponent */
-    acorn_assert(n < sz);
+    viper_assert(n < sz);
     return n;
   }
 }
 
 
-static int acorn_number2strx (acorn_State *L, char *buff, int sz,
-                            const char *fmt, acorn_Number x) {
+static int viper_number2strx (viper_State *L, char *buff, int sz,
+                            const char *fmt, viper_Number x) {
   int n = num2straux(buff, sz, x);
   if (fmt[SIZELENMOD] == 'A') {
     int i;
@@ -1062,7 +1062,7 @@ static int acorn_number2strx (acorn_State *L, char *buff, int sz,
       buff[i] = toupper(uchar(buff[i]));
   }
   else if (l_unlikely(fmt[SIZELENMOD] != 'a'))
-    return acornL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
+    return viperL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
   return n;
 }
 
@@ -1119,12 +1119,12 @@ static int acorn_number2strx (acorn_State *L, char *buff, int sz,
 #define MAX_FORMAT	32
 
 
-static void addquoted (acornL_Buffer *b, const char *s, size_t len) {
-  acornL_addchar(b, '"');
+static void addquoted (viperL_Buffer *b, const char *s, size_t len) {
+  viperL_addchar(b, '"');
   while (len--) {
     if (*s == '"' || *s == '\\' || *s == '\n') {
-      acornL_addchar(b, '\\');
-      acornL_addchar(b, *s);
+      viperL_addchar(b, '\\');
+      viperL_addchar(b, *s);
     }
     else if (iscntrl(uchar(*s))) {
       char buff[10];
@@ -1132,36 +1132,36 @@ static void addquoted (acornL_Buffer *b, const char *s, size_t len) {
         l_sprintf(buff, sizeof(buff), "\\%d", (int)uchar(*s));
       else
         l_sprintf(buff, sizeof(buff), "\\%03d", (int)uchar(*s));
-      acornL_addstring(b, buff);
+      viperL_addstring(b, buff);
     }
     else
-      acornL_addchar(b, *s);
+      viperL_addchar(b, *s);
     s++;
   }
-  acornL_addchar(b, '"');
+  viperL_addchar(b, '"');
 }
 
 
 /*
 ** Serialize a floating-point number in such a way that it can be
-** scanned back by Acorn. Use hexadecimal format for "common" numbers
+** scanned back by Viper. Use hexadecimal format for "common" numbers
 ** (to preserve precision); inf, -inf, and NaN are handled separately.
 ** (NaN cannot be expressed as a numeral, so we write '(0/0)' for it.)
 */
-static int quotefloat (acorn_State *L, char *buff, acorn_Number n) {
+static int quotefloat (viper_State *L, char *buff, viper_Number n) {
   const char *s;  /* for the fixed representations */
-  if (n == (acorn_Number)HUGE_VAL)  /* inf? */
+  if (n == (viper_Number)HUGE_VAL)  /* inf? */
     s = "1e9999";
-  else if (n == -(acorn_Number)HUGE_VAL)  /* -inf? */
+  else if (n == -(viper_Number)HUGE_VAL)  /* -inf? */
     s = "-1e9999";
   else if (n != n)  /* NaN? */
     s = "(0/0)";
   else {  /* format number as hexadecimal */
-    int  nb = acorn_number2strx(L, buff, MAX_ITEM,
-                                 "%" ACORN_NUMBER_FRMLEN "a", n);
+    int  nb = viper_number2strx(L, buff, MAX_ITEM,
+                                 "%" VIPER_NUMBER_FRMLEN "a", n);
     /* ensures that 'buff' string uses a dot as the radix character */
     if (memchr(buff, '.', nb) == NULL) {  /* no dot? */
-      char point = acorn_getlocaledecpoint();  /* try locale point */
+      char point = viper_getlocaledecpoint();  /* try locale point */
       char *ppoint = (char *)memchr(buff, point, nb);
       if (ppoint) *ppoint = '.';  /* change it to a dot */
     }
@@ -1172,36 +1172,36 @@ static int quotefloat (acorn_State *L, char *buff, acorn_Number n) {
 }
 
 
-static void addliteral (acorn_State *L, acornL_Buffer *b, int arg) {
-  switch (acorn_type(L, arg)) {
-    case ACORN_TSTRING: {
+static void addliteral (viper_State *L, viperL_Buffer *b, int arg) {
+  switch (viper_type(L, arg)) {
+    case VIPER_TSTRING: {
       size_t len;
-      const char *s = acorn_tolstring(L, arg, &len);
+      const char *s = viper_tolstring(L, arg, &len);
       addquoted(b, s, len);
       break;
     }
-    case ACORN_TNUMBER: {
-      char *buff = acornL_prepbuffsize(b, MAX_ITEM);
+    case VIPER_TNUMBER: {
+      char *buff = viperL_prepbuffsize(b, MAX_ITEM);
       int nb;
-      if (!acorn_isinteger(L, arg))  /* float? */
-        nb = quotefloat(L, buff, acorn_tonumber(L, arg));
+      if (!viper_isinteger(L, arg))  /* float? */
+        nb = quotefloat(L, buff, viper_tonumber(L, arg));
       else {  /* integers */
-        acorn_Integer n = acorn_tointeger(L, arg);
-        const char *format = (n == ACORN_MININTEGER)  /* corner case? */
-                           ? "0x%" ACORN_INTEGER_FRMLEN "x"  /* use hex */
-                           : ACORN_INTEGER_FMT;  /* else use default format */
-        nb = l_sprintf(buff, MAX_ITEM, format, (ACORNI_UACINT)n);
+        viper_Integer n = viper_tointeger(L, arg);
+        const char *format = (n == VIPER_MININTEGER)  /* corner case? */
+                           ? "0x%" VIPER_INTEGER_FRMLEN "x"  /* use hex */
+                           : VIPER_INTEGER_FMT;  /* else use default format */
+        nb = l_sprintf(buff, MAX_ITEM, format, (VIPERI_UACINT)n);
       }
-      acornL_addsize(b, nb);
+      viperL_addsize(b, nb);
       break;
     }
-    case ACORN_TNIL: case ACORN_TBOOLEAN: {
-      acornL_tolstring(L, arg, NULL);
-      acornL_addvalue(b);
+    case VIPER_TNIL: case VIPER_TBOOLEAN: {
+      viperL_tolstring(L, arg, NULL);
+      viperL_addvalue(b);
       break;
     }
     default: {
-      acornL_argerror(L, arg, "value has no literal form");
+      viperL_argerror(L, arg, "value has no literal form");
     }
   }
 }
@@ -1222,7 +1222,7 @@ static const char *get2digits (const char *s) {
 ** be a valid conversion specifier. 'flags' are the accepted flags;
 ** 'precision' signals whether to accept a precision.
 */
-static void checkformat (acorn_State *L, const char *form, const char *flags,
+static void checkformat (viper_State *L, const char *form, const char *flags,
                                        int precision) {
   const char *spec = form + 1;  /* skip '%' */
   spec += strspn(spec, flags);  /* skip flags */
@@ -1233,8 +1233,8 @@ static void checkformat (acorn_State *L, const char *form, const char *flags,
       spec = get2digits(spec);  /* skip precision */
     }
   }
-  if (!isalpha(uchar(*spec)))  /* did not Acorn to the end? */
-    acornL_error(L, "invalid conversion specification: '%s'", form);
+  if (!isalpha(uchar(*spec)))  /* did not Viper to the end? */
+    viperL_error(L, "invalid conversion specification: '%s'", form);
 }
 
 
@@ -1242,14 +1242,14 @@ static void checkformat (acorn_State *L, const char *form, const char *flags,
 ** Get a conversion specification and copy it to 'form'.
 ** Return the address of its last character.
 */
-static const char *getformat (acorn_State *L, const char *strfrmt,
+static const char *getformat (viper_State *L, const char *strfrmt,
                                             char *form) {
   /* spans flags, width, and precision ('0' is included as a flag) */
   size_t len = strspn(strfrmt, L_FMTFLAGSF "123456789.");
   len++;  /* adds following character (should be the specifier) */
   /* still needs space for '%', '\0', plus a length modifier */
   if (len >= MAX_FORMAT - 10)
-    acornL_error(L, "invalid format (too long)");
+    viperL_error(L, "invalid format (too long)");
   *(form++) = '%';
   memcpy(form, strfrmt, len * sizeof(char));
   *(form + len) = '\0';
@@ -1270,32 +1270,32 @@ static void addlenmod (char *form, const char *lenmod) {
 }
 
 
-static int str_format (acorn_State *L) {
-  int top = acorn_gettop(L);
+static int str_format (viper_State *L) {
+  int top = viper_gettop(L);
   int arg = 1;
   size_t sfl;
-  const char *strfrmt = acornL_checklstring(L, arg, &sfl);
+  const char *strfrmt = viperL_checklstring(L, arg, &sfl);
   const char *strfrmt_end = strfrmt+sfl;
   const char *flags;
-  acornL_Buffer b;
-  acornL_buffinit(L, &b);
+  viperL_Buffer b;
+  viperL_buffinit(L, &b);
   while (strfrmt < strfrmt_end) {
     if (*strfrmt != L_ESC)
-      acornL_addchar(&b, *strfrmt++);
+      viperL_addchar(&b, *strfrmt++);
     else if (*++strfrmt == L_ESC)
-      acornL_addchar(&b, *strfrmt++);  /* %% */
+      viperL_addchar(&b, *strfrmt++);  /* %% */
     else { /* format item */
       char form[MAX_FORMAT];  /* to store the format ('%...') */
       int maxitem = MAX_ITEM;  /* maximum length for the result */
-      char *buff = acornL_prepbuffsize(&b, maxitem);  /* to put result */
+      char *buff = viperL_prepbuffsize(&b, maxitem);  /* to put result */
       int nb = 0;  /* number of bytes in result */
       if (++arg > top)
-        return acornL_argerror(L, arg, "no value");
+        return viperL_argerror(L, arg, "no value");
       strfrmt = getformat(L, strfrmt, form);
       switch (*strfrmt++) {
         case 'c': {
           checkformat(L, form, L_FMTFLAGSC, 0);
-          nb = l_sprintf(buff, maxitem, form, (int)acornL_checkinteger(L, arg));
+          nb = l_sprintf(buff, maxitem, form, (int)viperL_checkinteger(L, arg));
           break;
         }
         case 'd': case 'i':
@@ -1307,31 +1307,31 @@ static int str_format (acorn_State *L) {
         case 'o': case 'x': case 'X':
           flags = L_FMTFLAGSX;
          intcase: {
-          acorn_Integer n = acornL_checkinteger(L, arg);
+          viper_Integer n = viperL_checkinteger(L, arg);
           checkformat(L, form, flags, 1);
-          addlenmod(form, ACORN_INTEGER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (ACORNI_UACINT)n);
+          addlenmod(form, VIPER_INTEGER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (VIPERI_UACINT)n);
           break;
         }
         case 'a': case 'A':
           checkformat(L, form, L_FMTFLAGSF, 1);
-          addlenmod(form, ACORN_NUMBER_FRMLEN);
-          nb = acorn_number2strx(L, buff, maxitem, form,
-                                  acornL_checknumber(L, arg));
+          addlenmod(form, VIPER_NUMBER_FRMLEN);
+          nb = viper_number2strx(L, buff, maxitem, form,
+                                  viperL_checknumber(L, arg));
           break;
         case 'f':
           maxitem = MAX_ITEMF;  /* extra space for '%f' */
-          buff = acornL_prepbuffsize(&b, maxitem);
+          buff = viperL_prepbuffsize(&b, maxitem);
           /* FALLTHROUGH */
         case 'e': case 'E': case 'g': case 'G': {
-          acorn_Number n = acornL_checknumber(L, arg);
+          viper_Number n = viperL_checknumber(L, arg);
           checkformat(L, form, L_FMTFLAGSF, 1);
-          addlenmod(form, ACORN_NUMBER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (ACORNI_UACNUMBER)n);
+          addlenmod(form, VIPER_NUMBER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (VIPERI_UACNUMBER)n);
           break;
         }
         case 'p': {
-          const void *p = acorn_topointer(L, arg);
+          const void *p = viper_topointer(L, arg);
           checkformat(L, form, L_FMTFLAGSC, 0);
           if (p == NULL) {  /* avoid calling 'printf' with argument NULL */
             p = "(null)";  /* result */
@@ -1342,38 +1342,38 @@ static int str_format (acorn_State *L) {
         }
         case 'q': {
           if (form[2] != '\0')  /* modifiers? */
-            return acornL_error(L, "specifier '%%q' cannot have modifiers");
+            return viperL_error(L, "specifier '%%q' cannot have modifiers");
           addliteral(L, &b, arg);
           break;
         }
         case 's': {
           size_t l;
-          const char *s = acornL_tolstring(L, arg, &l);
+          const char *s = viperL_tolstring(L, arg, &l);
           if (form[2] == '\0')  /* no modifiers? */
-            acornL_addvalue(&b);  /* keep entire string */
+            viperL_addvalue(&b);  /* keep entire string */
           else {
-            acornL_argcheck(L, l == strlen(s), arg, "string contains zeros");
+            viperL_argcheck(L, l == strlen(s), arg, "string contains zeros");
             checkformat(L, form, L_FMTFLAGSC, 1);
             if (strchr(form, '.') == NULL && l >= 100) {
               /* no precision and string is too long to be formatted */
-              acornL_addvalue(&b);  /* keep entire string */
+              viperL_addvalue(&b);  /* keep entire string */
             }
             else {  /* format the string into 'buff' */
               nb = l_sprintf(buff, maxitem, form, s);
-              acorn_pop(L, 1);  /* remove result from 'acornL_tolstring' */
+              viper_pop(L, 1);  /* remove result from 'viperL_tolstring' */
             }
           }
           break;
         }
         default: {  /* also treat cases 'pnLlh' */
-          return acornL_error(L, "invalid conversion '%s' to 'format'", form);
+          return viperL_error(L, "invalid conversion '%s' to 'format'", form);
         }
       }
-      acorn_assert(nb < maxitem);
-      acornL_addsize(&b, nb);
+      viper_assert(nb < maxitem);
+      viperL_addsize(&b, nb);
     }
   }
-  acornL_pushresult(&b);
+  viperL_pushresult(&b);
   return 1;
 }
 
@@ -1388,8 +1388,8 @@ static int str_format (acorn_State *L) {
 
 
 /* value used for padding */
-#if !defined(ACORNL_PACKPADBYTE)
-#define ACORNL_PACKPADBYTE		0x00
+#if !defined(VIPERL_PACKPADBYTE)
+#define VIPERL_PACKPADBYTE		0x00
 #endif
 
 /* maximum size for the binary representation of an integer */
@@ -1401,8 +1401,8 @@ static int str_format (acorn_State *L) {
 /* mask for one character (NB 1's) */
 #define MC	((1 << NB) - 1)
 
-/* size of a acorn_Integer */
-#define SZINT	((int)sizeof(acorn_Integer))
+/* size of a viper_Integer */
+#define SZINT	((int)sizeof(viper_Integer))
 
 
 /* dummy union to get native endianness */
@@ -1416,7 +1416,7 @@ static const union {
 ** information to pack/unpack stuff
 */
 typedef struct Header {
-  acorn_State *L;
+  viper_State *L;
   int islittle;
   int maxalign;
 } Header;
@@ -1429,7 +1429,7 @@ typedef enum KOption {
   Kint,		/* signed integers */
   Kuint,	/* unsigned integers */
   Kfloat,	/* single-precision floating-point numbers */
-  Knumber,	/* Acorn "native" floating-point numbers */
+  Knumber,	/* Viper "native" floating-point numbers */
   Kdouble,	/* double-precision floating-point numbers */
   Kchar,	/* fixed-length strings */
   Kstring,	/* strings with prefixed length */
@@ -1466,7 +1466,7 @@ static int getnum (const char **fmt, int df) {
 static int getnumlimit (Header *h, const char **fmt, int df) {
   int sz = getnum(fmt, df);
   if (l_unlikely(sz > MAXINTSIZE || sz <= 0))
-    return acornL_error(h->L, "integral size (%d) out of limits [1,%d]",
+    return viperL_error(h->L, "integral size (%d) out of limits [1,%d]",
                             sz, MAXINTSIZE);
   return sz;
 }
@@ -1475,7 +1475,7 @@ static int getnumlimit (Header *h, const char **fmt, int df) {
 /*
 ** Initialize Header
 */
-static void initheader (acorn_State *L, Header *h) {
+static void initheader (viper_State *L, Header *h) {
   h->L = L;
   h->islittle = nativeendian.little;
   h->maxalign = 1;
@@ -1487,7 +1487,7 @@ static void initheader (acorn_State *L, Header *h) {
 */
 static KOption getoption (Header *h, const char **fmt, int *size) {
   /* dummy structure to get native alignment requirements */
-  struct cD { char c; union { ACORNI_MAXALIGN; } u; };
+  struct cD { char c; union { VIPERI_MAXALIGN; } u; };
   int opt = *((*fmt)++);
   *size = 0;  /* default */
   switch (opt) {
@@ -1497,11 +1497,11 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
     case 'H': *size = sizeof(short); return Kuint;
     case 'l': *size = sizeof(long); return Kint;
     case 'L': *size = sizeof(long); return Kuint;
-    case 'j': *size = sizeof(acorn_Integer); return Kint;
-    case 'J': *size = sizeof(acorn_Integer); return Kuint;
+    case 'j': *size = sizeof(viper_Integer); return Kint;
+    case 'J': *size = sizeof(viper_Integer); return Kuint;
     case 'T': *size = sizeof(size_t); return Kuint;
     case 'f': *size = sizeof(float); return Kfloat;
-    case 'n': *size = sizeof(acorn_Number); return Knumber;
+    case 'n': *size = sizeof(viper_Number); return Knumber;
     case 'd': *size = sizeof(double); return Kdouble;
     case 'i': *size = getnumlimit(h, fmt, sizeof(int)); return Kint;
     case 'I': *size = getnumlimit(h, fmt, sizeof(int)); return Kuint;
@@ -1509,7 +1509,7 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
     case 'c':
       *size = getnum(fmt, -1);
       if (l_unlikely(*size == -1))
-        acornL_error(h->L, "missing size for format option 'c'");
+        viperL_error(h->L, "missing size for format option 'c'");
       return Kchar;
     case 'z': return Kzstr;
     case 'x': *size = 1; return Kpadding;
@@ -1523,7 +1523,7 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
       h->maxalign = getnumlimit(h, fmt, maxalign);
       break;
     }
-    default: acornL_error(h->L, "invalid format option '%c'", opt);
+    default: viperL_error(h->L, "invalid format option '%c'", opt);
   }
   return Knop;
 }
@@ -1544,7 +1544,7 @@ static KOption getdetails (Header *h, size_t totalsize,
   int align = *psize;  /* usually, alignment follows size */
   if (opt == Kpaddalign) {  /* 'X' gets alignment from following option */
     if (**fmt == '\0' || getoption(h, fmt, &align) == Kchar || align == 0)
-      acornL_argerror(h->L, 1, "invalid next option for option 'X'");
+      viperL_argerror(h->L, 1, "invalid next option for option 'X'");
   }
   if (align <= 1 || opt == Kchar)  /* need no alignment? */
     *ntoalign = 0;
@@ -1552,7 +1552,7 @@ static KOption getdetails (Header *h, size_t totalsize,
     if (align > h->maxalign)  /* enforce maximum alignment */
       align = h->maxalign;
     if (l_unlikely((align & (align - 1)) != 0))  /* not a power of 2? */
-      acornL_argerror(h->L, 1, "format asks for alignment not power of 2");
+      viperL_argerror(h->L, 1, "format asks for alignment not power of 2");
     *ntoalign = (align - (int)(totalsize & (align - 1))) & (align - 1);
   }
   return opt;
@@ -1562,12 +1562,12 @@ static KOption getdetails (Header *h, size_t totalsize,
 /*
 ** Pack integer 'n' with 'size' bytes and 'islittle' endianness.
 ** The final 'if' handles the case when 'size' is larger than
-** the size of a Acorn integer, correcting the extra sign-extension
+** the size of a Viper integer, correcting the extra sign-extension
 ** bytes if necessary (by default they would be zeros).
 */
-static void packint (acornL_Buffer *b, acorn_Unsigned n,
+static void packint (viperL_Buffer *b, viper_Unsigned n,
                      int islittle, int size, int neg) {
-  char *buff = acornL_prepbuffsize(b, size);
+  char *buff = viperL_prepbuffsize(b, size);
   int i;
   buff[islittle ? 0 : size - 1] = (char)(n & MC);  /* first byte */
   for (i = 1; i < size; i++) {
@@ -1578,7 +1578,7 @@ static void packint (acornL_Buffer *b, acorn_Unsigned n,
     for (i = SZINT; i < size; i++)  /* correct extra bytes */
       buff[islittle ? i : size - 1 - i] = (char)MC;
   }
-  acornL_addsize(b, size);  /* add result to buffer */
+  viperL_addsize(b, size);  /* add result to buffer */
 }
 
 
@@ -1598,219 +1598,219 @@ static void copywithendian (char *dest, const char *src,
 }
 
 
-static int str_pack (acorn_State *L) {
-  acornL_Buffer b;
+static int str_pack (viper_State *L) {
+  viperL_Buffer b;
   Header h;
-  const char *fmt = acornL_checkstring(L, 1);  /* format string */
+  const char *fmt = viperL_checkstring(L, 1);  /* format string */
   int arg = 1;  /* current argument to pack */
   size_t totalsize = 0;  /* accumulate total size of result */
   initheader(L, &h);
-  acorn_pushnil(L);  /* mark to separate arguments from string buffer */
-  acornL_buffinit(L, &b);
+  viper_pushnil(L);  /* mark to separate arguments from string buffer */
+  viperL_buffinit(L, &b);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, totalsize, &fmt, &size, &ntoalign);
     totalsize += ntoalign + size;
     while (ntoalign-- > 0)
-     acornL_addchar(&b, ACORNL_PACKPADBYTE);  /* fill alignment */
+     viperL_addchar(&b, VIPERL_PACKPADBYTE);  /* fill alignment */
     arg++;
     switch (opt) {
       case Kint: {  /* signed integers */
-        acorn_Integer n = acornL_checkinteger(L, arg);
+        viper_Integer n = viperL_checkinteger(L, arg);
         if (size < SZINT) {  /* need overflow check? */
-          acorn_Integer lim = (acorn_Integer)1 << ((size * NB) - 1);
-          acornL_argcheck(L, -lim <= n && n < lim, arg, "integer overflow");
+          viper_Integer lim = (viper_Integer)1 << ((size * NB) - 1);
+          viperL_argcheck(L, -lim <= n && n < lim, arg, "integer overflow");
         }
-        packint(&b, (acorn_Unsigned)n, h.islittle, size, (n < 0));
+        packint(&b, (viper_Unsigned)n, h.islittle, size, (n < 0));
         break;
       }
       case Kuint: {  /* unsigned integers */
-        acorn_Integer n = acornL_checkinteger(L, arg);
+        viper_Integer n = viperL_checkinteger(L, arg);
         if (size < SZINT)  /* need overflow check? */
-          acornL_argcheck(L, (acorn_Unsigned)n < ((acorn_Unsigned)1 << (size * NB)),
+          viperL_argcheck(L, (viper_Unsigned)n < ((viper_Unsigned)1 << (size * NB)),
                            arg, "unsigned overflow");
-        packint(&b, (acorn_Unsigned)n, h.islittle, size, 0);
+        packint(&b, (viper_Unsigned)n, h.islittle, size, 0);
         break;
       }
       case Kfloat: {  /* C float */
-        float f = (float)acornL_checknumber(L, arg);  /* get argument */
-        char *buff = acornL_prepbuffsize(&b, sizeof(f));
+        float f = (float)viperL_checknumber(L, arg);  /* get argument */
+        char *buff = viperL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        acornL_addsize(&b, size);
+        viperL_addsize(&b, size);
         break;
       }
-      case Knumber: {  /* Acorn float */
-        acorn_Number f = acornL_checknumber(L, arg);  /* get argument */
-        char *buff = acornL_prepbuffsize(&b, sizeof(f));
+      case Knumber: {  /* Viper float */
+        viper_Number f = viperL_checknumber(L, arg);  /* get argument */
+        char *buff = viperL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        acornL_addsize(&b, size);
+        viperL_addsize(&b, size);
         break;
       }
       case Kdouble: {  /* C double */
-        double f = (double)acornL_checknumber(L, arg);  /* get argument */
-        char *buff = acornL_prepbuffsize(&b, sizeof(f));
+        double f = (double)viperL_checknumber(L, arg);  /* get argument */
+        char *buff = viperL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        acornL_addsize(&b, size);
+        viperL_addsize(&b, size);
         break;
       }
       case Kchar: {  /* fixed-size string */
         size_t len;
-        const char *s = acornL_checklstring(L, arg, &len);
-        acornL_argcheck(L, len <= (size_t)size, arg,
+        const char *s = viperL_checklstring(L, arg, &len);
+        viperL_argcheck(L, len <= (size_t)size, arg,
                          "string longer than given size");
-        acornL_addlstring(&b, s, len);  /* add string */
+        viperL_addlstring(&b, s, len);  /* add string */
         while (len++ < (size_t)size)  /* pad extra space */
-          acornL_addchar(&b, ACORNL_PACKPADBYTE);
+          viperL_addchar(&b, VIPERL_PACKPADBYTE);
         break;
       }
       case Kstring: {  /* strings with length count */
         size_t len;
-        const char *s = acornL_checklstring(L, arg, &len);
-        acornL_argcheck(L, size >= (int)sizeof(size_t) ||
+        const char *s = viperL_checklstring(L, arg, &len);
+        viperL_argcheck(L, size >= (int)sizeof(size_t) ||
                          len < ((size_t)1 << (size * NB)),
                          arg, "string length does not fit in given size");
-        packint(&b, (acorn_Unsigned)len, h.islittle, size, 0);  /* pack length */
-        acornL_addlstring(&b, s, len);
+        packint(&b, (viper_Unsigned)len, h.islittle, size, 0);  /* pack length */
+        viperL_addlstring(&b, s, len);
         totalsize += len;
         break;
       }
       case Kzstr: {  /* zero-terminated string */
         size_t len;
-        const char *s = acornL_checklstring(L, arg, &len);
-        acornL_argcheck(L, strlen(s) == len, arg, "string contains zeros");
-        acornL_addlstring(&b, s, len);
-        acornL_addchar(&b, '\0');  /* add zero at the end */
+        const char *s = viperL_checklstring(L, arg, &len);
+        viperL_argcheck(L, strlen(s) == len, arg, "string contains zeros");
+        viperL_addlstring(&b, s, len);
+        viperL_addchar(&b, '\0');  /* add zero at the end */
         totalsize += len + 1;
         break;
       }
-      case Kpadding: acornL_addchar(&b, ACORNL_PACKPADBYTE);  /* FALLTHROUGH */
+      case Kpadding: viperL_addchar(&b, VIPERL_PACKPADBYTE);  /* FALLTHROUGH */
       case Kpaddalign: case Knop:
         arg--;  /* undo increment */
         break;
     }
   }
-  acornL_pushresult(&b);
+  viperL_pushresult(&b);
   return 1;
 }
 
 
-static int str_packsize (acorn_State *L) {
+static int str_packsize (viper_State *L) {
   Header h;
-  const char *fmt = acornL_checkstring(L, 1);  /* format string */
+  const char *fmt = viperL_checkstring(L, 1);  /* format string */
   size_t totalsize = 0;  /* accumulate total size of result */
   initheader(L, &h);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, totalsize, &fmt, &size, &ntoalign);
-    acornL_argcheck(L, opt != Kstring && opt != Kzstr, 1,
+    viperL_argcheck(L, opt != Kstring && opt != Kzstr, 1,
                      "variable-length format");
     size += ntoalign;  /* total space used by option */
-    acornL_argcheck(L, totalsize <= MAXSIZE - size, 1,
+    viperL_argcheck(L, totalsize <= MAXSIZE - size, 1,
                      "format result too large");
     totalsize += size;
   }
-  acorn_pushinteger(L, (acorn_Integer)totalsize);
+  viper_pushinteger(L, (viper_Integer)totalsize);
   return 1;
 }
 
 
 /*
 ** Unpack an integer with 'size' bytes and 'islittle' endianness.
-** If size is smaller than the size of a Acorn integer and integer
+** If size is smaller than the size of a Viper integer and integer
 ** is signed, must do sign extension (propagating the sign to the
-** higher bits); if size is larger than the size of a Acorn integer,
+** higher bits); if size is larger than the size of a Viper integer,
 ** it must check the unread bytes to see whether they do not cause an
 ** overflow.
 */
-static acorn_Integer unpackint (acorn_State *L, const char *str,
+static viper_Integer unpackint (viper_State *L, const char *str,
                               int islittle, int size, int issigned) {
-  acorn_Unsigned res = 0;
+  viper_Unsigned res = 0;
   int i;
   int limit = (size  <= SZINT) ? size : SZINT;
   for (i = limit - 1; i >= 0; i--) {
     res <<= NB;
-    res |= (acorn_Unsigned)(unsigned char)str[islittle ? i : size - 1 - i];
+    res |= (viper_Unsigned)(unsigned char)str[islittle ? i : size - 1 - i];
   }
-  if (size < SZINT) {  /* real size smaller than acorn_Integer? */
+  if (size < SZINT) {  /* real size smaller than viper_Integer? */
     if (issigned) {  /* needs sign extension? */
-      acorn_Unsigned mask = (acorn_Unsigned)1 << (size*NB - 1);
+      viper_Unsigned mask = (viper_Unsigned)1 << (size*NB - 1);
       res = ((res ^ mask) - mask);  /* do sign extension */
     }
   }
   else if (size > SZINT) {  /* must check unread bytes */
-    int mask = (!issigned || (acorn_Integer)res >= 0) ? 0 : MC;
+    int mask = (!issigned || (viper_Integer)res >= 0) ? 0 : MC;
     for (i = limit; i < size; i++) {
       if (l_unlikely((unsigned char)str[islittle ? i : size - 1 - i] != mask))
-        acornL_error(L, "%d-byte integer does not fit into Acorn Integer", size);
+        viperL_error(L, "%d-byte integer does not fit into Viper Integer", size);
     }
   }
-  return (acorn_Integer)res;
+  return (viper_Integer)res;
 }
 
 
-static int str_unpack (acorn_State *L) {
+static int str_unpack (viper_State *L) {
   Header h;
-  const char *fmt = acornL_checkstring(L, 1);
+  const char *fmt = viperL_checkstring(L, 1);
   size_t ld;
-  const char *data = acornL_checklstring(L, 2, &ld);
-  size_t pos = posrelatI(acornL_optinteger(L, 3, 1), ld) - 1;
+  const char *data = viperL_checklstring(L, 2, &ld);
+  size_t pos = posrelatI(viperL_optinteger(L, 3, 1), ld) - 1;
   int n = 0;  /* number of results */
-  acornL_argcheck(L, pos <= ld, 3, "initial position out of string");
+  viperL_argcheck(L, pos <= ld, 3, "initial position out of string");
   initheader(L, &h);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, pos, &fmt, &size, &ntoalign);
-    acornL_argcheck(L, (size_t)ntoalign + size <= ld - pos, 2,
+    viperL_argcheck(L, (size_t)ntoalign + size <= ld - pos, 2,
                     "data string too short");
     pos += ntoalign;  /* skip alignment */
     /* stack space for item + next position */
-    acornL_checkstack(L, 2, "too many results");
+    viperL_checkstack(L, 2, "too many results");
     n++;
     switch (opt) {
       case Kint:
       case Kuint: {
-        acorn_Integer res = unpackint(L, data + pos, h.islittle, size,
+        viper_Integer res = unpackint(L, data + pos, h.islittle, size,
                                        (opt == Kint));
-        acorn_pushinteger(L, res);
+        viper_pushinteger(L, res);
         break;
       }
       case Kfloat: {
         float f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        acorn_pushnumber(L, (acorn_Number)f);
+        viper_pushnumber(L, (viper_Number)f);
         break;
       }
       case Knumber: {
-        acorn_Number f;
+        viper_Number f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        acorn_pushnumber(L, f);
+        viper_pushnumber(L, f);
         break;
       }
       case Kdouble: {
         double f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        acorn_pushnumber(L, (acorn_Number)f);
+        viper_pushnumber(L, (viper_Number)f);
         break;
       }
       case Kchar: {
-        acorn_pushlstring(L, data + pos, size);
+        viper_pushlstring(L, data + pos, size);
         break;
       }
       case Kstring: {
         size_t len = (size_t)unpackint(L, data + pos, h.islittle, size, 0);
-        acornL_argcheck(L, len <= ld - pos - size, 2, "data string too short");
-        acorn_pushlstring(L, data + pos + size, len);
+        viperL_argcheck(L, len <= ld - pos - size, 2, "data string too short");
+        viper_pushlstring(L, data + pos + size, len);
         pos += len;  /* skip string */
         break;
       }
       case Kzstr: {
         size_t len = strlen(data + pos);
-        acornL_argcheck(L, pos + len < ld, 2,
+        viperL_argcheck(L, pos + len < ld, 2,
                          "unfinished string for format 'z'");
-        acorn_pushlstring(L, data + pos, len);
+        viper_pushlstring(L, data + pos, len);
         pos += len + 1;  /* skip string plus final '\0' */
         break;
       }
@@ -1820,14 +1820,14 @@ static int str_unpack (acorn_State *L) {
     }
     pos += size;
   }
-  acorn_pushinteger(L, pos + 1);  /* next position */
+  viper_pushinteger(L, pos + 1);  /* next position */
   return n + 1;
 }
 
 /* }====================================================== */
 
 
-static const acornL_Reg strlib[] = {
+static const viperL_Reg strlib[] = {
   {"byte", str_byte},
   {"char", str_char},
   {"dump", str_dump},
@@ -1849,25 +1849,25 @@ static const acornL_Reg strlib[] = {
 };
 
 
-static void createmetatable (acorn_State *L) {
+static void createmetatable (viper_State *L) {
   /* table to be metatable for strings */
-  acornL_newlibtable(L, stringmetamethods);
-  acornL_setfuncs(L, stringmetamethods, 0);
-  acorn_pushliteral(L, "");  /* dummy string */
-  acorn_pushvalue(L, -2);  /* copy table */
-  acorn_setmetatable(L, -2);  /* set table as metatable for strings */
-  acorn_pop(L, 1);  /* pop dummy string */
-  acorn_pushvalue(L, -2);  /* get string library */
-  acorn_setfield(L, -2, "__index");  /* metatable.__index = string */
-  acorn_pop(L, 1);  /* pop metatable */
+  viperL_newlibtable(L, stringmetamethods);
+  viperL_setfuncs(L, stringmetamethods, 0);
+  viper_pushliteral(L, "");  /* dummy string */
+  viper_pushvalue(L, -2);  /* copy table */
+  viper_setmetatable(L, -2);  /* set table as metatable for strings */
+  viper_pop(L, 1);  /* pop dummy string */
+  viper_pushvalue(L, -2);  /* get string library */
+  viper_setfield(L, -2, "__index");  /* metatable.__index = string */
+  viper_pop(L, 1);  /* pop metatable */
 }
 
 
 /*
 ** Open string library
 */
-ACORNMOD_API int acornopen_string (acorn_State *L) {
-  acornL_newlib(L, strlib);
+VIPERMOD_API int viperopen_string (viper_State *L) {
+  viperL_newlib(L, strlib);
   createmetatable(L);
   return 1;
 }
