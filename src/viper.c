@@ -374,14 +374,13 @@ static int handle_viperinit (viper_State *L) {
 */
 
 #if !defined(VIPER_PROMPT)
-#define VIPER_PROMPT		"🐍 ==> " 
-#define VIPER_PROMPT2		"🐍🦕 ==>> "
+#define VIPER_PROMPT		"\x1b[31m🐍 ==> \x1b[0m" 
+#define VIPER_PROMPT2		"x1b[31m🐍🦕 ==>> \x1b[0m"
 #endif
 
 #if !defined(VIPER_MAXINPUT)
 #define VIPER_MAXINPUT		512
 #endif
-
 
 /*
 ** viper_stdin_is_tty detects whether the standard input is a 'tty' (that

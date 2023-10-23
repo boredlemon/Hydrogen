@@ -45,8 +45,8 @@ TO_LIB= libviper.a
 TO_MAN= viper.1 viperc.1
 
 # Viper version and release.
-V= -0.1
-R= $V.0
+V= 9.1
+R= $V.9
 
 # Targets start here.
 all:	$(PLAT)
