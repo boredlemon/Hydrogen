@@ -1,7 +1,7 @@
 # Viper - The Viper Programming Language
 This programming language was made by Coffee or Dolphin#6086 from Discord!
 
-![Viper Logo](images/viper.png)
+![Viper Logo](images/viperscript.png)
 
 Welcome to Viper, a powerful and delightful programming language that's here to quench your thirst for code!
 
