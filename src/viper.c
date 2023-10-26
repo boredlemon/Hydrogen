@@ -6,7 +6,7 @@
 
 #define viper_c
 
-#include "lprefix.h"
+#include "prefix.h"
 
 
 #include <stdio.h>
@@ -17,7 +17,7 @@
 
 #include "viper.h"
 
-#include "lauxlib.h"
+#include "auxlib.h"
 #include "viperlib.h"
 
 
@@ -375,7 +375,7 @@ static int handle_viperinit (viper_State *L) {
 
 #if !defined(VIPER_PROMPT)
 #define VIPER_PROMPT		"\x1b[31m🐍 ==> \x1b[0m" 
-#define VIPER_PROMPT2		"x1b[31m🐍🦕 ==>> \x1b[0m"
+#define VIPER_PROMPT2		"\x1b[31m🐍🐢🐛 ==>> \x1b[0m"
 #endif
 
 #if !defined(VIPER_MAXINPUT)
@@ -662,4 +662,3 @@ int main (int argc, char **argv) {
   viper_close(L);
   return (result && status == VIPER_OK) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-

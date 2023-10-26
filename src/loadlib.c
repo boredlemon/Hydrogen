@@ -11,7 +11,7 @@
 #define loadlib_c
 #define VIPER_LIB
 
-#include "lprefix.h"
+#include "prefix.h"
 
 
 #include <stdio.h>
@@ -20,7 +20,7 @@
 
 #include "viper.h"
 
-#include "lauxlib.h"
+#include "auxlib.h"
 #include "viperlib.h"
 
 
@@ -759,4 +759,3 @@ VIPERMOD_API int viperopen_package (viper_State *L) {
   viper_pop(L, 1);  /* pop global table */
   return 1;  /* return 'package' table */
 }
-

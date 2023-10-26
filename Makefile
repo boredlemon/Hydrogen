@@ -40,7 +40,7 @@ PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix
 
 # What to install.
 TO_BIN= viper viperc
-TO_INC= viper.h viperconf.h viperlib.h lauxlib.h viper.hpp
+TO_INC= viper.h viperconf.h viperlib.h auxlib.h viper.hpp
 TO_LIB= libviper.a
 TO_MAN= viper.1 viperc.1
 

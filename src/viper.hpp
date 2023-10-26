@@ -5,5 +5,5 @@
 extern "C" {
 #include "viper.h"
 #include "viperlib.h"
-#include "lauxlib.h"
+#include "auxlib.h"
 }

@@ -43,5 +43,5 @@ ___________________
 project map
 
 language grammer
-src/llex.c
-src/lbaselib.c
+src/lexer.c
+src/baselib.c

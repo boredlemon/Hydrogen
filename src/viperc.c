@@ -7,7 +7,7 @@
 #define viperc_c
 #define VIPER_CORE
 
-#include "lprefix.h"
+#include "prefix.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -16,14 +16,14 @@
 #include <string.h>
 
 #include "viper.h"
-#include "lauxlib.h"
+#include "auxlib.h"
 
-#include "ldebug.h"
-#include "lobject.h"
-#include "lopcodes.h"
-#include "lopnames.h"
-#include "lstate.h"
-#include "lundump.h"
+#include "debug.h"
+#include "object.h"
+#include "opcodes.h"
+#include "opnames.h"
+#include "state.h"
+#include "undump.h"
 
 static void PrintFunction(const Proto* f, int full);
 #define viperU_print	PrintFunction

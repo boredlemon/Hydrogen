@@ -22,7 +22,7 @@
 ** should be changed directly here, either because they affect the
 ** Viper ABI (by making the changes here, you ensure that all software
 ** connected to Viper, such as C libraries, will be compiled with the same
-** configuration); or because they are seldom changed.
+** configuration); or because they are sedom changed.
 **
 ** Search for "@@" to find all configurable definitions.
 ** ===================================================================
@@ -272,7 +272,7 @@
 #if defined(VIPER_BUILD_AS_DLL)	/* { */
 
 #if defined(VIPER_CORE) || defined(VIPER_LIB)	/* { */
-#define VIPER_API __declspec(dllexport)
+#define VIPER_API __declspec(dlexerport)
 #else						/* }{ */
 #define VIPER_API __declspec(dllimport)
 #endif						/* } */
@@ -754,7 +754,7 @@
 
 
 /*
-@@ VIPERL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
+@@ VIPERL_BUFFERSIZE is the buffer size used by the auxlib buffer system.
 */
 #define VIPERL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(viper_Number)))
 
