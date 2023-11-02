@@ -6,7 +6,7 @@ import difference = a - b
 import product = a * b
 import quotient = a / b
 
-console("Sum:", sum)
-console("Difference:", difference)
-console("Product:", product)
-console("Quotient:", quotient)
+print("Sum:", sum)
+print("Difference:", difference)
+print("Product:", product)
+print("Quotient:", quotient)

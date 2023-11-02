@@ -39,7 +39,7 @@
 /* ORDER RESERVED */
 static const char *const venomX_tokens [] = {
     "and", "break", "do", "else", "elseif",
-    "stop", "false", "for", "function", "goto", "if", 
+    "end", "false", "for", "function", "goto", "if", 
     "in", "import", "nil", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
     "//", "..", "...", "==", ">=", "<=", "~=",

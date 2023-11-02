@@ -6,17 +6,17 @@ if file then
     file:write("Venom is a great programming language.\n")
     file:close()
 else
-console("Error: Unable to open the file for writing.")
-stop
+print("Error: Unable to open the file for writing.")
+end
 
 -- Read the contents of the file
 file = io.open("sample.txt", "r")
 
 if file then
     import contents = file:read("*a")
-    console("File Contents:")
-    console(contents)
+    print("File Contents:")
+    print(contents)
     file:close()
 else
-    console("Error: Unable to open the file for reading.")
-stop
+    print("Error: Unable to open the file for reading.")
+end

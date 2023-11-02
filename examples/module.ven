@@ -1,4 +1,4 @@
 import mymodule = require("mymodule")
 
 import result = mymodule.add(5, 7)
-console("Result of Addition:", result)
+print("Result of Addition:", result)

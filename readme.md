@@ -51,5 +51,5 @@ Here's a taste of what you can do with Venom:
 -- simple venom comment
 
 --hello world in venom
-console("hello world")
+print("hello world")
 ```

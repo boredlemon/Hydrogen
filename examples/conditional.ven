@@ -2,7 +2,7 @@
 import age = 18
 
 if age >= 18 then
-    console("You are an adult.")
+    print("You are an adult.")
 else
-    console("You are a minor.")
-stop
+    print("You are a minor.")
+end

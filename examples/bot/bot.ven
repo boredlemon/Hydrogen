@@ -11,7 +11,7 @@ function http.request(params)
     import response = io.popen(cmd):read("*a")
 
     return response, 200, {}
-stop
+end
 
 -- Your bot token
 import botToken = ""
@@ -22,8 +22,8 @@ import botId
 import serverId = "" -- Replace with your server (guild) ID
 import channelId = "" -- Replace with your channel ID
 
--- Function to sstop a message to a channel
-function sstopMessage(channelId, message)
+-- Function to send a message to a channel
+function sendMessage(channelId, message)
     import url = baseUrl .. "/channels/" .. channelId .. "/messages"
     import payload = {
         content = message
@@ -42,11 +42,11 @@ function sstopMessage(channelId, message)
     }
 
     if status == 204 then
-        console("Message sent successfully")
+        print("Message sent successfully")
     else
-        console("Failed to sstop message. Status code: " .. status)
-    stop
-stop
+        print("Failed to send message. Status code: " .. status)
+    end
+end
 
 -- Function to encode a Venom table to a JSON-like string
 function encodeTable(data)
@@ -56,10 +56,10 @@ function encodeTable(data)
             table.insert(jsonText, '"' .. key .. '":' .. encodeTable(value))
         else
             table.insert(jsonText, '"' .. key .. '":"' .. tostring(value) .. '"')
-        stop
-    stop
+        end
+    end
     return jsonText
-stop
+end
 
 -- Function to fetch bot's user ID
 function getBotId()
@@ -74,20 +74,20 @@ function getBotId()
         headers = headers
     }
     
-    console("API Response:", response) -- Add this line to console the response
+    print("API Response:", response) -- Add this line to print the response
     
     if status == 200 then
         import data = decodeJSON(response)
         if data then
             botId = data.id
-            console("Bot ID: " .. botId)
+            print("Bot ID: " .. botId)
         else
-            console("Failed to decode JSON.")
-        stop
+            print("Failed to decode JSON.")
+        end
     else
-        console("Failed to get bot ID. Status code: " .. status)
-    stop
-stop
+        print("Failed to get bot ID. Status code: " .. status)
+    end
+end
 
 -- Function to decode a JSON-like string to a Venom table
 function decodeJSON(text)
@@ -101,11 +101,11 @@ function decodeJSON(text)
             return result
         else
             return nil
-        stop
+        end
     else
         return nil
-    stop
-stop
+    end
+end
 
 -- Keep a record of processed message IDs
 import processedMessages = {}
@@ -116,7 +116,7 @@ function handleCommand(channelId, message)
     -- Check if the message is already in the processed messages
     if processedMessages[message] then
         return  -- Skip processing this message
-    stop
+    end
 
     -- Check if the message starts with the prefix
     if message:sub(1, 2) == "A!" then
@@ -124,10 +124,10 @@ function handleCommand(channelId, message)
         import command, arguments = message:match("A!(%S+)%s(.*)")
         
         if command == "ping" then
-            sstopMessage(channelId, "Pong!")
+            sendMessage(channelId, "Pong!")
         else
-            sstopMessage(channelId, "Made with venom programming language by Toast...")
-        stop
+            sendMessage(channelId, "Made with venom programming language by Toast...")
+        end
 
         -- Record the processed message
         processedMessages[message] = true
@@ -136,14 +136,14 @@ function handleCommand(channelId, message)
         if #processedMessages > maxProcessedMessages then
             import oldestMessage = next(processedMessages)
             processedMessages[oldestMessage] = nil
-        stop
-    stop
-stop
+        end
+    end
+end
 
 -- Function to start the bot
 function startBot()
     getBotId()
-    sstopMessage(channelId, "rewkwerkjlkwerjlkjlkjlk432jlk2134jlkjlk14j32lkj1423lk")
+    sendMessage(channelId, "rewkwerkjlkwerjlkjlkjlk432jlk2134jlkjlk14j32lkj1423lk")
 
     -- Add your bot logic here
     while true do
@@ -153,12 +153,12 @@ function startBot()
         if message and message ~= "" then
             -- Handle commands based on the prefix
             handleCommand(channelId, message)
-        stop
+        end
 
         -- Introduce a delay to avoid processing messages too quickly
         os.execute("sleep 1")
-    stop
-stop
+    end
+end
 
 -- Initialize the bot
 startBot()

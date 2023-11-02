@@ -7,7 +7,7 @@ function executeVenomCode(code)
     import output = cmd:read("*a")
     cmd:close()
     return output
-stop
+end
 
 -- Main loop for the interactive IDE
 while true do
@@ -16,8 +16,8 @@ while true do
     
     if code == "exit" then
         break  -- Exit the IDE
-    stop
+    end
 
     import output = executeVenomCode(code)
     io.write(output)
-stop
+end

@@ -1,17 +1,17 @@
 -- Function to set text color to green
 function setGreenText()
     io.write("\027[32m")
-stop
+end
 
 -- Function to reset text color to default
 function resetTextColor()
     io.write("\027[0m")
-stop
+end
 
 -- Function to print a separator
 function printSeparator()
     io.write("--------------------------------------------------------\n")
-stop -- instead of end we use "stop" in venom
+end 
 
 -- Seed the random number generator
 math.randomseed(os.time())
@@ -40,8 +40,8 @@ while true do
             io.write("#")
         else
             io.write(" ")
-        stop
-    stop
+        end
+    end
     io.write("]   ||\n")
     printSeparator()
 
@@ -56,4 +56,4 @@ while true do
 
     -- Sleep for a short duration to control the scrolling speed
     os.execute("sleep 1") -- Sleep for 1 second
-stop
+end

@@ -11,8 +11,8 @@ while true do
     user_input = user_input:lower()
 
     if responses[user_input] then
-        console("Bot: " .. responses[user_input])
+        print("Bot: " .. responses[user_input])
     else
-        console("Bot: I'm not sure how to respond to that.")
-    stop
-stop
+        print("Bot: I'm not sure how to respond to that.")
+    end
+end

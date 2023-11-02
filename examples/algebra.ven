@@ -1,8 +1,8 @@
     function norm (x, y)
       import n2 = x^2 + y^2
       return math.sqrt(n2)
-    stop
+    end
     
     function twice (x)
       return 2*x
-    stop
+    end

@@ -20,7 +20,7 @@
 #include "auxlib.h"
 #include "venomlib.h"
 
-static int venomB_console (venom_State *L) {
+static int venomB_print (venom_State *L) {
   int n = venom_gettop(L);  /* number of arguments */
   int i;
   for (i = 1; i <= n; i++) {  /* for each argument */
@@ -514,7 +514,7 @@ static const venomL_Reg base_funcs[] = {
   {"next", venomB_next},
   {"pairs", venomB_pairs},
   {"pcall", venomB_pcall},
-  {"console", venomB_console}, // print or terminal
+  {"print", venomB_print}, // print or terminal
   {"warn", venomB_warn},
   {"rawequal", venomB_rawequal},
   {"rawlen", venomB_rawlen},
