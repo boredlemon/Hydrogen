@@ -4,12 +4,6 @@ find . -type f -name "*-e-e-e*" -exec rm {} \;
 find . -type f -name "*-e-e*" -exec rm {} \;
 find . -type f -name "*-e*" -exec rm {} \;
 
-A - Advanced
-C - Code
-O - Optimization and
-R - Resourceful
-N - Network
-
 cd examples/bot
 ---------------------------------------------
 venom pkg manager
@@ -21,10 +15,10 @@ make sure to replace exmapleuser with your actual username!
 
 ---------------------------------------------
 Change file extensions
-for file in *.neb; do mv "$file" "${file%.venom}.venom"; done
+for file in *.acn; do mv "$file" "${file%.ven}.ven"; done
 
 for the whole project
-find . -type f -name "*.cup" -exec bash -c 'mv "$0" "${0%.cup}.acn"' {} \;
+find . -type f -name "*.acn" -exec bash -c 'mv "$0" "${0%.acn}.ven"' {} \;
 _________
 change a keyword
 sed -i -e 's/.torn/.torn/g' Makefile.pre.in
