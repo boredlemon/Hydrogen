@@ -1,7 +1,7 @@
 /*
 ** $Id: do.h $
-** Stack and Call structure of Viper
-** See Copyright Notice in viper.h
+** Stack and Call structure of Venom
+** See Copyright Notice in venom.h
 */
 
 #ifndef do_h
@@ -22,13 +22,13 @@
 ** 'condmovestack' is used in heavy tests to force a stack reallocation
 ** at every check.
 */
-#define viperD_checkstackaux(L,n,pre,pos)  \
+#define venomD_checkstackaux(L,n,pre,pos)  \
 	if (l_unlikely(L->stack_last - L->top <= (n))) \
-	  { pre; viperD_growstack(L, n, 1); pos; } \
+	  { pre; venomD_growstack(L, n, 1); pos; } \
         else { condmovestack(L,pre,pos); }
 
 /* In general, 'pre'/'pos' are empty (nothing to save) */
-#define viperD_checkstack(L,n)	viperD_checkstackaux(L,n,(void)0,(void)0)
+#define venomD_checkstack(L,n)	venomD_checkstackaux(L,n,(void)0,(void)0)
 
 
 
@@ -38,42 +38,42 @@
 
 /* macro to check stack size, preserving 'p' */
 #define checkstackGCp(L,n,p)  \
-  viperD_checkstackaux(L, n, \
+  venomD_checkstackaux(L, n, \
     ptrdiff_t t__ = savestack(L, p);  /* save 'p' */ \
-    viperC_checkGC(L),  /* stack grow uses memory */ \
+    venomC_checkGC(L),  /* stack grow uses memory */ \
     p = restorestack(L, t__))  /* 'pos' part: restore 'p' */
 
 
 /* macro to check stack size and GC */
 #define checkstackGC(L,fsize)  \
-	viperD_checkstackaux(L, (fsize), viperC_checkGC(L), (void)0)
+	venomD_checkstackaux(L, (fsize), venomC_checkGC(L), (void)0)
 
 
 /* type of protected functions, to be ran by 'runprotected' */
-typedef void (*Pfunc) (viper_State *L, void *ud);
+typedef void (*Pfunc) (venom_State *L, void *ud);
 
-VIPERI_FUNC void viperD_seterrorobj (viper_State *L, int errcode, StkId oldtop);
-VIPERI_FUNC int viperD_protectedparser (viper_State *L, ZIO *z, const char *name,
+VENOMI_FUNC void venomD_seterrorobj (venom_State *L, int errcode, StkId oldtop);
+VENOMI_FUNC int venomD_protectedparser (venom_State *L, ZIO *z, const char *name,
                                                   const char *mode);
-VIPERI_FUNC void viperD_hook (viper_State *L, int event, int line,
+VENOMI_FUNC void venomD_hook (venom_State *L, int event, int line,
                                         int fTransfer, int nTransfer);
-VIPERI_FUNC void viperD_hookcall (viper_State *L, CallInfo *ci);
-VIPERI_FUNC int viperD_pretailcall (viper_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
-VIPERI_FUNC CallInfo *viperD_precall (viper_State *L, StkId func, int nResults);
-VIPERI_FUNC void viperD_call (viper_State *L, StkId func, int nResults);
-VIPERI_FUNC void viperD_callnoyield (viper_State *L, StkId func, int nResults);
-VIPERI_FUNC StkId viperD_tryfuncTM (viper_State *L, StkId func);
-VIPERI_FUNC int viperD_closeprotected (viper_State *L, ptrdiff_t level, int status);
-VIPERI_FUNC int viperD_pcall (viper_State *L, Pfunc func, void *u,
+VENOMI_FUNC void venomD_hookcall (venom_State *L, CallInfo *ci);
+VENOMI_FUNC int venomD_pretailcall (venom_State *L, CallInfo *ci, StkId func,                                                    int narg1, int delta);
+VENOMI_FUNC CallInfo *venomD_precall (venom_State *L, StkId func, int nResults);
+VENOMI_FUNC void venomD_call (venom_State *L, StkId func, int nResults);
+VENOMI_FUNC void venomD_callnoyield (venom_State *L, StkId func, int nResults);
+VENOMI_FUNC StkId venomD_tryfuncTM (venom_State *L, StkId func);
+VENOMI_FUNC int venomD_closeprotected (venom_State *L, ptrdiff_t level, int status);
+VENOMI_FUNC int venomD_pcall (venom_State *L, Pfunc func, void *u,
                                         ptrdiff_t oldtop, ptrdiff_t ef);
-VIPERI_FUNC void viperD_poscall (viper_State *L, CallInfo *ci, int nres);
-VIPERI_FUNC int viperD_reallocstack (viper_State *L, int newsize, int raiseerror);
-VIPERI_FUNC int viperD_growstack (viper_State *L, int n, int raiseerror);
-VIPERI_FUNC void viperD_shrinkstack (viper_State *L);
-VIPERI_FUNC void viperD_inctop (viper_State *L);
+VENOMI_FUNC void venomD_poscall (venom_State *L, CallInfo *ci, int nres);
+VENOMI_FUNC int venomD_reallocstack (venom_State *L, int newsize, int raiseerror);
+VENOMI_FUNC int venomD_growstack (venom_State *L, int n, int raiseerror);
+VENOMI_FUNC void venomD_shrinkstack (venom_State *L);
+VENOMI_FUNC void venomD_inctop (venom_State *L);
 
-VIPERI_FUNC l_noret viperD_throw (viper_State *L, int errcode);
-VIPERI_FUNC int viperD_rawrunprotected (viper_State *L, Pfunc f, void *ud);
+VENOMI_FUNC l_noret venomD_throw (venom_State *L, int errcode);
+VENOMI_FUNC int venomD_rawrunprotected (venom_State *L, Pfunc f, void *ud);
 
 #endif
 

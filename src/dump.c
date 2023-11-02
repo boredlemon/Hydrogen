@@ -1,18 +1,18 @@
 /*
 ** $Id: dump.c $
-** save precompiled Viper chunks
-** See Copyright Notice in viper.h
+** save precompiled Venom chunks
+** See Copyright Notice in venom.h
 */
 
 #define dump_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
 
 #include <stddef.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "object.h"
 #include "state.h"
@@ -20,8 +20,8 @@
 
 
 typedef struct {
-  viper_State *L;
-  viper_Writer writer;
+  venom_State *L;
+  venom_Writer writer;
   void *data;
   int strip;
   int status;
@@ -29,7 +29,7 @@ typedef struct {
 
 
 /*
-** All high-level dumps Viper through dumpVector; you can change it to
+** All high-level dumps Venom through dumpVector; you can change it to
 ** change the endianness of the result
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
@@ -39,9 +39,9 @@ typedef struct {
 
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    viper_unlock(D->L);
+    venom_unlock(D->L);
     D->status = (*D->writer)(D->L, b, size, D->data);
-    viper_lock(D->L);
+    venom_lock(D->L);
   }
 }
 
@@ -75,12 +75,12 @@ static void dumpInt (DumpState *D, int x) {
 }
 
 
-static void dumpNumber (DumpState *D, viper_Number x) {
+static void dumpNumber (DumpState *D, venom_Number x) {
   dumpVar(D, x);
 }
 
 
-static void dumpInteger (DumpState *D, viper_Integer x) {
+static void dumpInteger (DumpState *D, venom_Integer x) {
   dumpVar(D, x);
 }
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case VIPER_VNUMFLT:
+      case VENOM_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case VIPER_VNUMINT:
+      case VENOM_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case VIPER_VSHRSTR:
-      case VIPER_VLNGSTR:
+      case VENOM_VSHRSTR:
+      case VENOM_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        viper_assert(tt == VIPER_VNIL || tt == VIPER_VFALSE || tt == VIPER_VTRUE);
+        venom_assert(tt == VENOM_VNIL || tt == VENOM_VFALSE || tt == VENOM_VTRUE);
     }
   }
 }
@@ -195,22 +195,22 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, VIPER_SIGNATURE);
-  dumpByte(D, VIPERC_VERSION);
-  dumpByte(D, VIPERC_FORMAT);
-  dumpLiteral(D, VIPERC_DATA);
+  dumpLiteral(D, VENOM_SIGNATURE);
+  dumpByte(D, VENOMC_VERSION);
+  dumpByte(D, VENOMC_FORMAT);
+  dumpLiteral(D, VENOMC_DATA);
   dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(viper_Integer));
-  dumpByte(D, sizeof(viper_Number));
-  dumpInteger(D, VIPERC_INT);
-  dumpNumber(D, VIPERC_NUM);
+  dumpByte(D, sizeof(venom_Integer));
+  dumpByte(D, sizeof(venom_Number));
+  dumpInteger(D, VENOMC_INT);
+  dumpNumber(D, VENOMC_NUM);
 }
 
 
 /*
-** dump Viper function as precompiled chunk
+** dump Venom function as precompiled chunk
 */
-int viperU_dump(viper_State *L, const Proto *f, viper_Writer w, void *data,
+int venomU_dump(venom_State *L, const Proto *f, venom_Writer w, void *data,
               int strip) {
   DumpState D;
   D.L = L;

@@ -1,7 +1,7 @@
 /*
 ** $Id: lexer.h $
 ** Lexical Analyzer
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #ifndef lexer_h
@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(VIPER_ENV)
-#define VIPER_ENV		"_ENV"
+#if !defined(VENOM_ENV)
+#define VENOM_ENV		"_ENV"
 #endif
 
 
@@ -47,8 +47,8 @@ enum RESERVED {
 
 
 typedef union {
-  viper_Number r;
-  viper_Integer i;
+  venom_Number r;
+  venom_Integer i;
   TString *ts;
 } SemInfo;  /* semantics information */
 
@@ -68,7 +68,7 @@ typedef struct LexState {
   Token t;  /* current token */
   Token lookahead;  /* look ahead token */
   struct FuncState *fs;  /* current function (parser) */
-  struct viper_State *L;
+  struct venom_State *L;
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-VIPERI_FUNC void viperX_init (viper_State *L);
-VIPERI_FUNC void viperX_setinput (viper_State *L, LexState *ls, ZIO *z,
+VENOMI_FUNC void venomX_init (venom_State *L);
+VENOMI_FUNC void venomX_setinput (venom_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-VIPERI_FUNC TString *viperX_newstring (LexState *ls, const char *str, size_t l);
-VIPERI_FUNC void viperX_next (LexState *ls);
-VIPERI_FUNC int viperX_lookahead (LexState *ls);
-VIPERI_FUNC l_noret viperX_syntaxerror (LexState *ls, const char *s);
-VIPERI_FUNC const char *viperX_token2str (LexState *ls, int token);
+VENOMI_FUNC TString *venomX_newstring (LexState *ls, const char *str, size_t l);
+VENOMI_FUNC void venomX_next (LexState *ls);
+VENOMI_FUNC int venomX_lookahead (LexState *ls);
+VENOMI_FUNC l_noret venomX_syntaxerror (LexState *ls, const char *s);
+VENOMI_FUNC const char *venomX_token2str (LexState *ls, int token);
 
 
 #endif

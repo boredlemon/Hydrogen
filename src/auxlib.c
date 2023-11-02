@@ -1,11 +1,11 @@
 /*
 ** $Id: auxlib.c $
-** Auxiliary functions for building Viper libraries
-** See Copyright Notice in viper.h
+** Auxiliary functions for building Venom libraries
+** See Copyright Notice in venom.h
 */
 
 #define auxlib_c
-#define VIPER_LIB
+#define VENOM_LIB
 
 #include "prefix.h"
 
@@ -18,11 +18,11 @@
 
 
 /*
-** This file uses only the official API of Viper.
+** This file uses only the official API of Venom.
 ** Any function declared here could be written as an application function.
 */
 
-#include "viper.h"
+#include "venom.h"
 
 #include "auxlib.h"
 
@@ -47,27 +47,27 @@
 
 /*
 ** Search for 'objidx' in table at index -1. ('objidx' must be an
-** absolute index.) Return 1 + string at top if it found a Viperod name.
+** absolute index.) Return 1 + string at top if it found a Venomod name.
 */
-static int findfield (viper_State *L, int objidx, int level) {
-  if (level == 0 || !viper_istable(L, -1))
+static int findfield (venom_State *L, int objidx, int level) {
+  if (level == 0 || !venom_istable(L, -1))
     return 0;  /* not found */
-  viper_pushnil(L);  /* start 'next' loop */
-  while (viper_next(L, -2)) {  /* for each pair in table */
-    if (viper_type(L, -2) == VIPER_TSTRING) {  /* ignore non-string keys */
-      if (viper_rawequal(L, objidx, -1)) {  /* found object? */
-        viper_pop(L, 1);  /* remove value (but keep name) */
+  venom_pushnil(L);  /* start 'next' loop */
+  while (venom_next(L, -2)) {  /* for each pair in table */
+    if (venom_type(L, -2) == VENOM_TSTRING) {  /* ignore non-string keys */
+      if (venom_rawequal(L, objidx, -1)) {  /* found object? */
+        venom_pop(L, 1);  /* remove value (but keep name) */
         return 1;
       }
       else if (findfield(L, objidx, level - 1)) {  /* try recursively */
         /* stack: lib_name, lib_table, field_name (top) */
-        viper_pushliteral(L, ".");  /* place '.' between the two names */
-        viper_replace(L, -3);  /* (in the slot ocviperied by table) */
-        viper_concat(L, 3);  /* lib_name.field_name */
+        venom_pushliteral(L, ".");  /* place '.' between the two names */
+        venom_replace(L, -3);  /* (in the slot ocvenomied by table) */
+        venom_concat(L, 3);  /* lib_name.field_name */
         return 1;
       }
     }
-    viper_pop(L, 1);  /* remove value */
+    venom_pop(L, 1);  /* remove value */
   }
   return 0;  /* not found */
 }
@@ -76,91 +76,91 @@ static int findfield (viper_State *L, int objidx, int level) {
 /*
 ** Search for a name for a function in all loaded modules
 */
-static int pushglobalfuncname (viper_State *L, viper_Debug *ar) {
-  int top = viper_gettop(L);
-  viper_getinfo(L, "f", ar);  /* push function */
-  viper_getfield(L, VIPER_REGISTRYINDEX, VIPER_LOADED_TABLE);
+static int pushglobalfuncname (venom_State *L, venom_Debug *ar) {
+  int top = venom_gettop(L);
+  venom_getinfo(L, "f", ar);  /* push function */
+  venom_getfield(L, VENOM_REGISTRYINDEX, VENOM_LOADED_TABLE);
   if (findfield(L, top + 1, 2)) {
-    const char *name = viper_tostring(L, -1);
-    if (strncmp(name, VIPER_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
-      viper_pushstring(L, name + 3);  /* push name without prefix */
-      viper_remove(L, -2);  /* remove original name */
+    const char *name = venom_tostring(L, -1);
+    if (strncmp(name, VENOM_GNAME ".", 3) == 0) {  /* name start with '_G.'? */
+      venom_pushstring(L, name + 3);  /* push name without prefix */
+      venom_remove(L, -2);  /* remove original name */
     }
-    viper_copy(L, -1, top + 1);  /* copy name to proper place */
-    viper_settop(L, top + 1);  /* remove table "loaded" and name copy */
+    venom_copy(L, -1, top + 1);  /* copy name to proper place */
+    venom_settop(L, top + 1);  /* remove table "loaded" and name copy */
     return 1;
   }
   else {
-    viper_settop(L, top);  /* remove function and global table */
+    venom_settop(L, top);  /* remove function and global table */
     return 0;
   }
 }
 
 
-static void pushfuncname (viper_State *L, viper_Debug *ar) {
+static void pushfuncname (venom_State *L, venom_Debug *ar) {
   if (pushglobalfuncname(L, ar)) {  /* try first a global name */
-    viper_pushfstring(L, "function '%s'", viper_tostring(L, -1));
-    viper_remove(L, -2);  /* remove name */
+    venom_pushfstring(L, "function '%s'", venom_tostring(L, -1));
+    venom_remove(L, -2);  /* remove name */
   }
   else if (*ar->namewhat != '\0')  /* is there a name from code? */
-    viper_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
+    venom_pushfstring(L, "%s '%s'", ar->namewhat, ar->name);  /* use it */
   else if (*ar->what == 'm')  /* main? */
-      viper_pushliteral(L, "main chunk");
-  else if (*ar->what != 'C')  /* for Viper functions, use <file:line> */
-    viper_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
+      venom_pushliteral(L, "main chunk");
+  else if (*ar->what != 'C')  /* for Venom functions, use <file:line> */
+    venom_pushfstring(L, "function <%s:%d>", ar->short_src, ar->linedefined);
   else  /* nothing left... */
-    viper_pushliteral(L, "?");
+    venom_pushliteral(L, "?");
 }
 
 
-static int lastlevel (viper_State *L) {
-  viper_Debug ar;
+static int lastlevel (venom_State *L) {
+  venom_Debug ar;
   int li = 1, le = 1;
   /* find an upper bound */
-  while (viper_getstack(L, le, &ar)) { li = le; le *= 2; }
+  while (venom_getstack(L, le, &ar)) { li = le; le *= 2; }
   /* do a binary search */
   while (li < le) {
     int m = (li + le)/2;
-    if (viper_getstack(L, m, &ar)) li = m + 1;
+    if (venom_getstack(L, m, &ar)) li = m + 1;
     else le = m;
   }
   return le - 1;
 }
 
 
-VIPERLIB_API void viperL_traceback (viper_State *L, viper_State *L1,
+VENOMLIB_API void venomL_traceback (venom_State *L, venom_State *L1,
                                 const char *msg, int level) {
-  viperL_Buffer b;
-  viper_Debug ar;
+  venomL_Buffer b;
+  venom_Debug ar;
   int last = lastlevel(L1);
   int limit2show = (last - level > LEVELS1 + LEVELS2) ? LEVELS1 : -1;
-  viperL_buffinit(L, &b);
+  venomL_buffinit(L, &b);
   if (msg) {
-    viperL_addstring(&b, msg);
-    viperL_addchar(&b, '\n');
+    venomL_addstring(&b, msg);
+    venomL_addchar(&b, '\n');
   }
-  viperL_addstring(&b, "stack traceback:");
-  while (viper_getstack(L1, level++, &ar)) {
+  venomL_addstring(&b, "stack traceback:");
+  while (venom_getstack(L1, level++, &ar)) {
     if (limit2show-- == 0) {  /* too many levels? */
       int n = last - level - LEVELS2 + 1;  /* number of levels to skip */
-      viper_pushfstring(L, "\n\t...\t(skipping %d levels)", n);
-      viperL_addvalue(&b);  /* add warning about skip */
+      venom_pushfstring(L, "\n\t...\t(skipping %d levels)", n);
+      venomL_addvalue(&b);  /* add warning about skip */
       level += n;  /* and skip to last levels */
     }
     else {
-      viper_getinfo(L1, "Slnt", &ar);
+      venom_getinfo(L1, "Slnt", &ar);
       if (ar.currentline <= 0)
-        viper_pushfstring(L, "\n\t%s: in ", ar.short_src);
+        venom_pushfstring(L, "\n\t%s: in ", ar.short_src);
       else
-        viper_pushfstring(L, "\n\t%s:%d: in ", ar.short_src, ar.currentline);
-      viperL_addvalue(&b);
+        venom_pushfstring(L, "\n\t%s:%d: in ", ar.short_src, ar.currentline);
+      venomL_addvalue(&b);
       pushfuncname(L, &ar);
-      viperL_addvalue(&b);
+      venomL_addvalue(&b);
       if (ar.istailcall)
-        viperL_addstring(&b, "\n\t(...tail calls...)");
+        venomL_addstring(&b, "\n\t(...tail calls...)");
     }
   }
-  viperL_pushresult(&b);
+  venomL_pushresult(&b);
 }
 
 /* }====================================================== */
@@ -172,89 +172,89 @@ VIPERLIB_API void viperL_traceback (viper_State *L, viper_State *L1,
 ** =======================================================
 */
 
-VIPERLIB_API int viperL_argerror (viper_State *L, int arg, const char *extramsg) {
-  viper_Debug ar;
-  if (!viper_getstack(L, 0, &ar))  /* no stack frame? */
-    return viperL_error(L, "bad argument #%d (%s)", arg, extramsg);
-  viper_getinfo(L, "n", &ar);
+VENOMLIB_API int venomL_argerror (venom_State *L, int arg, const char *extramsg) {
+  venom_Debug ar;
+  if (!venom_getstack(L, 0, &ar))  /* no stack frame? */
+    return venomL_error(L, "bad argument #%d (%s)", arg, extramsg);
+  venom_getinfo(L, "n", &ar);
   if (strcmp(ar.namewhat, "method") == 0) {
     arg--;  /* do not count 'self' */
     if (arg == 0)  /* error is in the self argument itself? */
-      return viperL_error(L, "calling '%s' on bad self (%s)",
+      return venomL_error(L, "calling '%s' on bad self (%s)",
                            ar.name, extramsg);
   }
   if (ar.name == NULL)
-    ar.name = (pushglobalfuncname(L, &ar)) ? viper_tostring(L, -1) : "?";
-  return viperL_error(L, "bad argument #%d to '%s' (%s)",
+    ar.name = (pushglobalfuncname(L, &ar)) ? venom_tostring(L, -1) : "?";
+  return venomL_error(L, "bad argument #%d to '%s' (%s)",
                         arg, ar.name, extramsg);
 }
 
 
-VIPERLIB_API int viperL_typeerror (viper_State *L, int arg, const char *tname) {
+VENOMLIB_API int venomL_typeerror (venom_State *L, int arg, const char *tname) {
   const char *msg;
   const char *typearg;  /* name for the type of the actual argument */
-  if (viperL_getmetafield(L, arg, "__name") == VIPER_TSTRING)
-    typearg = viper_tostring(L, -1);  /* use the given type name */
-  else if (viper_type(L, arg) == VIPER_TLIGHTUSERDATA)
+  if (venomL_getmetafield(L, arg, "__name") == VENOM_TSTRING)
+    typearg = venom_tostring(L, -1);  /* use the given type name */
+  else if (venom_type(L, arg) == VENOM_TLIGHTUSERDATA)
     typearg = "light userdata";  /* special name for messages */
   else
-    typearg = viperL_typename(L, arg);  /* standard name */
-  msg = viper_pushfstring(L, "%s expected, Vipert %s", tname, typearg);
-  return viperL_argerror(L, arg, msg);
+    typearg = venomL_typename(L, arg);  /* standard name */
+  msg = venom_pushfstring(L, "%s expected, Venomt %s", tname, typearg);
+  return venomL_argerror(L, arg, msg);
 }
 
 
-static void tag_error (viper_State *L, int arg, int tag) {
-  viperL_typeerror(L, arg, viper_typename(L, tag));
+static void tag_error (venom_State *L, int arg, int tag) {
+  venomL_typeerror(L, arg, venom_typename(L, tag));
 }
 
 
 /*
-** The use of 'viper_pushfstring' ensures this function does not
+** The use of 'venom_pushfstring' ensures this function does not
 ** need reserved stack space when called.
 */
-VIPERLIB_API void viperL_where (viper_State *L, int level) {
-  viper_Debug ar;
-  if (viper_getstack(L, level, &ar)) {  /* check function at level */
-    viper_getinfo(L, "Sl", &ar);  /* get info about it */
+VENOMLIB_API void venomL_where (venom_State *L, int level) {
+  venom_Debug ar;
+  if (venom_getstack(L, level, &ar)) {  /* check function at level */
+    venom_getinfo(L, "Sl", &ar);  /* get info about it */
     if (ar.currentline > 0) {  /* is there info? */
-      viper_pushfstring(L, "%s:%d: ", ar.short_src, ar.currentline);
+      venom_pushfstring(L, "%s:%d: ", ar.short_src, ar.currentline);
       return;
     }
   }
-  viper_pushfstring(L, "");  /* else, no information available... */
+  venom_pushfstring(L, "");  /* else, no information available... */
 }
 
 
 /*
-** Again, the use of 'viper_pushvfstring' ensures this function does
+** Again, the use of 'venom_pushvfstring' ensures this function does
 ** not need reserved stack space when called. (At worst, it generates
 ** an error with "stack overflow" instead of the given message.)
 */
-VIPERLIB_API int viperL_error (viper_State *L, const char *fmt, ...) {
+VENOMLIB_API int venomL_error (venom_State *L, const char *fmt, ...) {
   va_list argp;
   va_start(argp, fmt);
-  viperL_where(L, 1);
-  viper_pushvfstring(L, fmt, argp);
+  venomL_where(L, 1);
+  venom_pushvfstring(L, fmt, argp);
   va_end(argp);
-  viper_concat(L, 2);
-  return viper_error(L);
+  venom_concat(L, 2);
+  return venom_error(L);
 }
 
 
-VIPERLIB_API int viperL_fileresult (viper_State *L, int stat, const char *fname) {
-  int en = errno;  /* calls to Viper API may change this value */
+VENOMLIB_API int venomL_fileresult (venom_State *L, int stat, const char *fname) {
+  int en = errno;  /* calls to Venom API may change this value */
   if (stat) {
-    viper_pushboolean(L, 1);
+    venom_pushboolean(L, 1);
     return 1;
   }
   else {
-    viperL_pushfail(L);
+    venomL_pushfail(L);
     if (fname)
-      viper_pushfstring(L, "%s: %s", fname, strerror(en));
+      venom_pushfstring(L, "%s: %s", fname, strerror(en));
     else
-      viper_pushstring(L, strerror(en));
-    viper_pushinteger(L, en);
+      venom_pushstring(L, strerror(en));
+    venom_pushinteger(L, en);
     return 3;
   }
 }
@@ -262,7 +262,7 @@ VIPERLIB_API int viperL_fileresult (viper_State *L, int stat, const char *fname)
 
 #if !defined(l_inspectstat)	/* { */
 
-#if defined(VIPER_USE_POSIX)
+#if defined(VENOM_USE_POSIX)
 
 #include <sys/wait.h>
 
@@ -282,18 +282,18 @@ VIPERLIB_API int viperL_fileresult (viper_State *L, int stat, const char *fname)
 #endif				/* } */
 
 
-VIPERLIB_API int viperL_execresult (viper_State *L, int stat) {
+VENOMLIB_API int venomL_execresult (venom_State *L, int stat) {
   if (stat != 0 && errno != 0)  /* error with an 'errno'? */
-    return viperL_fileresult(L, 0, NULL);
+    return venomL_fileresult(L, 0, NULL);
   else {
     const char *what = "exit";  /* type of termination */
     l_inspectstat(stat, what);  /* interpret result */
     if (*what == 'e' && stat == 0)  /* successful termination? */
-      viper_pushboolean(L, 1);
+      venom_pushboolean(L, 1);
     else
-      viperL_pushfail(L);
-    viper_pushstring(L, what);
-    viper_pushinteger(L, stat);
+      venomL_pushfail(L);
+    venom_pushstring(L, what);
+    venom_pushinteger(L, stat);
     return 3;  /* return true/fail,what,code */
   }
 }
@@ -308,33 +308,33 @@ VIPERLIB_API int viperL_execresult (viper_State *L, int stat) {
 ** =======================================================
 */
 
-VIPERLIB_API int viperL_newmetatable (viper_State *L, const char *tname) {
-  if (viperL_getmetatable(L, tname) != VIPER_TNIL)  /* name already in use? */
+VENOMLIB_API int venomL_newmetatable (venom_State *L, const char *tname) {
+  if (venomL_getmetatable(L, tname) != VENOM_TNIL)  /* name already in use? */
     return 0;  /* leave previous value on top, but return 0 */
-  viper_pop(L, 1);
-  viper_createtable(L, 0, 2);  /* create metatable */
-  viper_pushstring(L, tname);
-  viper_setfield(L, -2, "__name");  /* metatable.__name = tname */
-  viper_pushvalue(L, -1);
-  viper_setfield(L, VIPER_REGISTRYINDEX, tname);  /* registry.name = metatable */
+  venom_pop(L, 1);
+  venom_createtable(L, 0, 2);  /* create metatable */
+  venom_pushstring(L, tname);
+  venom_setfield(L, -2, "__name");  /* metatable.__name = tname */
+  venom_pushvalue(L, -1);
+  venom_setfield(L, VENOM_REGISTRYINDEX, tname);  /* registry.name = metatable */
   return 1;
 }
 
 
-VIPERLIB_API void viperL_setmetatable (viper_State *L, const char *tname) {
-  viperL_getmetatable(L, tname);
-  viper_setmetatable(L, -2);
+VENOMLIB_API void venomL_setmetatable (venom_State *L, const char *tname) {
+  venomL_getmetatable(L, tname);
+  venom_setmetatable(L, -2);
 }
 
 
-VIPERLIB_API void *viperL_testudata (viper_State *L, int ud, const char *tname) {
-  void *p = viper_touserdata(L, ud);
+VENOMLIB_API void *venomL_testudata (venom_State *L, int ud, const char *tname) {
+  void *p = venom_touserdata(L, ud);
   if (p != NULL) {  /* value is a userdata? */
-    if (viper_getmetatable(L, ud)) {  /* does it have a metatable? */
-      viperL_getmetatable(L, tname);  /* get correct metatable */
-      if (!viper_rawequal(L, -1, -2))  /* not the same? */
+    if (venom_getmetatable(L, ud)) {  /* does it have a metatable? */
+      venomL_getmetatable(L, tname);  /* get correct metatable */
+      if (!venom_rawequal(L, -1, -2))  /* not the same? */
         p = NULL;  /* value is a userdata with wrong metatable */
-      viper_pop(L, 2);  /* remove both metatables */
+      venom_pop(L, 2);  /* remove both metatables */
       return p;
     }
   }
@@ -342,9 +342,9 @@ VIPERLIB_API void *viperL_testudata (viper_State *L, int ud, const char *tname) 
 }
 
 
-VIPERLIB_API void *viperL_checkudata (viper_State *L, int ud, const char *tname) {
-  void *p = viperL_testudata(L, ud, tname);
-  viperL_argexpected(L, p != NULL, ud, tname);
+VENOMLIB_API void *venomL_checkudata (venom_State *L, int ud, const char *tname) {
+  void *p = venomL_testudata(L, ud, tname);
+  venomL_argexpected(L, p != NULL, ud, tname);
   return p;
 }
 
@@ -357,16 +357,16 @@ VIPERLIB_API void *viperL_checkudata (viper_State *L, int ud, const char *tname)
 ** =======================================================
 */
 
-VIPERLIB_API int viperL_checkoption (viper_State *L, int arg, const char *def,
+VENOMLIB_API int venomL_checkoption (venom_State *L, int arg, const char *def,
                                  const char *const lst[]) {
-  const char *name = (def) ? viperL_optstring(L, arg, def) :
-                             viperL_checkstring(L, arg);
+  const char *name = (def) ? venomL_optstring(L, arg, def) :
+                             venomL_checkstring(L, arg);
   int i;
   for (i=0; lst[i]; i++)
     if (strcmp(lst[i], name) == 0)
       return i;
-  return viperL_argerror(L, arg,
-                       viper_pushfstring(L, "invalid option '%s'", name));
+  return venomL_argerror(L, arg,
+                       venom_pushfstring(L, "invalid option '%s'", name));
 }
 
 
@@ -374,74 +374,74 @@ VIPERLIB_API int viperL_checkoption (viper_State *L, int arg, const char *def,
 ** Ensures the stack has at least 'space' extra slots, raising an error
 ** if it cannot fulfill the request. (The error handling needs a few
 ** extra slots to format the error message. In case of an error without
-** this extra space, Viper will generate the same 'stack overflow' error,
+** this extra space, Venom will generate the same 'stack overflow' error,
 ** but without 'msg'.)
 */
-VIPERLIB_API void viperL_checkstack (viper_State *L, int space, const char *msg) {
-  if (l_unlikely(!viper_checkstack(L, space))) {
+VENOMLIB_API void venomL_checkstack (venom_State *L, int space, const char *msg) {
+  if (l_unlikely(!venom_checkstack(L, space))) {
     if (msg)
-      viperL_error(L, "stack overflow (%s)", msg);
+      venomL_error(L, "stack overflow (%s)", msg);
     else
-      viperL_error(L, "stack overflow");
+      venomL_error(L, "stack overflow");
   }
 }
 
 
-VIPERLIB_API void viperL_checktype (viper_State *L, int arg, int t) {
-  if (l_unlikely(viper_type(L, arg) != t))
+VENOMLIB_API void venomL_checktype (venom_State *L, int arg, int t) {
+  if (l_unlikely(venom_type(L, arg) != t))
     tag_error(L, arg, t);
 }
 
 
-VIPERLIB_API void viperL_checkany (viper_State *L, int arg) {
-  if (l_unlikely(viper_type(L, arg) == VIPER_TNONE))
-    viperL_argerror(L, arg, "value expected");
+VENOMLIB_API void venomL_checkany (venom_State *L, int arg) {
+  if (l_unlikely(venom_type(L, arg) == VENOM_TNONE))
+    venomL_argerror(L, arg, "value expected");
 }
 
 
-VIPERLIB_API const char *viperL_checklstring (viper_State *L, int arg, size_t *len) {
-  const char *s = viper_tolstring(L, arg, len);
-  if (l_unlikely(!s)) tag_error(L, arg, VIPER_TSTRING);
+VENOMLIB_API const char *venomL_checklstring (venom_State *L, int arg, size_t *len) {
+  const char *s = venom_tolstring(L, arg, len);
+  if (l_unlikely(!s)) tag_error(L, arg, VENOM_TSTRING);
   return s;
 }
 
 
-VIPERLIB_API const char *viperL_optlstring (viper_State *L, int arg,
+VENOMLIB_API const char *venomL_optlstring (venom_State *L, int arg,
                                         const char *def, size_t *len) {
-  if (viper_isnoneornil(L, arg)) {
+  if (venom_isnoneornil(L, arg)) {
     if (len)
       *len = (def ? strlen(def) : 0);
     return def;
   }
-  else return viperL_checklstring(L, arg, len);
+  else return venomL_checklstring(L, arg, len);
 }
 
 
-VIPERLIB_API viper_Number viperL_checknumber (viper_State *L, int arg) {
+VENOMLIB_API venom_Number venomL_checknumber (venom_State *L, int arg) {
   int isnum;
-  viper_Number d = viper_tonumberx(L, arg, &isnum);
+  venom_Number d = venom_tonumberx(L, arg, &isnum);
   if (l_unlikely(!isnum))
-    tag_error(L, arg, VIPER_TNUMBER);
+    tag_error(L, arg, VENOM_TNUMBER);
   return d;
 }
 
 
-VIPERLIB_API viper_Number viperL_optnumber (viper_State *L, int arg, viper_Number def) {
-  return viperL_opt(L, viperL_checknumber, arg, def);
+VENOMLIB_API venom_Number venomL_optnumber (venom_State *L, int arg, venom_Number def) {
+  return venomL_opt(L, venomL_checknumber, arg, def);
 }
 
 
-static void interror (viper_State *L, int arg) {
-  if (viper_isnumber(L, arg))
-    viperL_argerror(L, arg, "number has no integer representation");
+static void interror (venom_State *L, int arg) {
+  if (venom_isnumber(L, arg))
+    venomL_argerror(L, arg, "number has no integer representation");
   else
-    tag_error(L, arg, VIPER_TNUMBER);
+    tag_error(L, arg, VENOM_TNUMBER);
 }
 
 
-VIPERLIB_API viper_Integer viperL_checkinteger (viper_State *L, int arg) {
+VENOMLIB_API venom_Integer venomL_checkinteger (venom_State *L, int arg) {
   int isnum;
-  viper_Integer d = viper_tointegerx(L, arg, &isnum);
+  venom_Integer d = venom_tointegerx(L, arg, &isnum);
   if (l_unlikely(!isnum)) {
     interror(L, arg);
   }
@@ -449,9 +449,9 @@ VIPERLIB_API viper_Integer viperL_checkinteger (viper_State *L, int arg) {
 }
 
 
-VIPERLIB_API viper_Integer viperL_optinteger (viper_State *L, int arg,
-                                                      viper_Integer def) {
-  return viperL_opt(L, viperL_checkinteger, arg, def);
+VENOMLIB_API venom_Integer venomL_optinteger (venom_State *L, int arg,
+                                                      venom_Integer def) {
+  return venomL_opt(L, venomL_checkinteger, arg, def);
 }
 
 /* }====================================================== */
@@ -470,14 +470,14 @@ typedef struct UBox {
 } UBox;
 
 
-static void *resizebox (viper_State *L, int idx, size_t newsize) {
+static void *resizebox (venom_State *L, int idx, size_t newsize) {
   void *ud;
-  viper_Alloc allocf = viper_getallocf(L, &ud);
-  UBox *box = (UBox *)viper_touserdata(L, idx);
+  venom_Alloc allocf = venom_getallocf(L, &ud);
+  UBox *box = (UBox *)venom_touserdata(L, idx);
   void *temp = allocf(ud, box->box, box->bsize, newsize);
   if (l_unlikely(temp == NULL && newsize > 0)) {  /* allocation error? */
-    viper_pushliteral(L, "not enough memory");
-    viper_error(L);  /* raise a memory error */
+    venom_pushliteral(L, "not enough memory");
+    venom_error(L);  /* raise a memory error */
   }
   box->box = temp;
   box->bsize = newsize;
@@ -485,26 +485,26 @@ static void *resizebox (viper_State *L, int idx, size_t newsize) {
 }
 
 
-static int boxgc (viper_State *L) {
+static int boxgc (venom_State *L) {
   resizebox(L, 1, 0);
   return 0;
 }
 
 
-static const viperL_Reg boxmt[] = {  /* box metamethods */
+static const venomL_Reg boxmt[] = {  /* box metamethods */
   {"__gc", boxgc},
   {"__close", boxgc},
   {NULL, NULL}
 };
 
 
-static void newbox (viper_State *L) {
-  UBox *box = (UBox *)viper_newuserdatauv(L, sizeof(UBox), 0);
+static void newbox (venom_State *L) {
+  UBox *box = (UBox *)venom_newuserdatauv(L, sizeof(UBox), 0);
   box->box = NULL;
   box->bsize = 0;
-  if (viperL_newmetatable(L, "_UBOX*"))  /* creating metatable? */
-    viperL_setfuncs(L, boxmt, 0);  /* set its metamethods */
-  viper_setmetatable(L, -2);
+  if (venomL_newmetatable(L, "_UBOX*"))  /* creating metatable? */
+    venomL_setfuncs(L, boxmt, 0);  /* set its metamethods */
+  venom_setmetatable(L, -2);
 }
 
 
@@ -520,18 +520,18 @@ static void newbox (viper_State *L) {
 ** cannot be NULL) or it is a placeholder for the buffer.
 */
 #define checkbufferlevel(B,idx)  \
-  viper_assert(buffonstack(B) ? viper_touserdata(B->L, idx) != NULL  \
-                            : viper_touserdata(B->L, idx) == (void*)B)
+  venom_assert(buffonstack(B) ? venom_touserdata(B->L, idx) != NULL  \
+                            : venom_touserdata(B->L, idx) == (void*)B)
 
 
 /*
 ** Compute new size for buffer 'B', enough to accommodate extra 'sz'
 ** bytes.
 */
-static size_t newbuffsize (viperL_Buffer *B, size_t sz) {
+static size_t newbuffsize (venomL_Buffer *B, size_t sz) {
   size_t newsize = B->size * 2;  /* double buffer size */
   if (l_unlikely(MAX_SIZET - sz < B->n))  /* overflow in (B->n + sz)? */
-    return viperL_error(B->L, "buffer too large");
+    return venomL_error(B->L, "buffer too large");
   if (newsize < B->n + sz)  /* double is not big enough? */
     newsize = B->n + sz;
   return newsize;
@@ -543,22 +543,22 @@ static size_t newbuffsize (viperL_Buffer *B, size_t sz) {
 ** 'B'. 'boxidx' is the relative position in the stack where is the
 ** buffer's box or its placeholder.
 */
-static char *prepbuffsize (viperL_Buffer *B, size_t sz, int boxidx) {
+static char *prepbuffsize (venomL_Buffer *B, size_t sz, int boxidx) {
   checkbufferlevel(B, boxidx);
   if (B->size - B->n >= sz)  /* enough space? */
     return B->b + B->n;
   else {
-    viper_State *L = B->L;
+    venom_State *L = B->L;
     char *newbuff;
     size_t newsize = newbuffsize(B, sz);
     /* create larger buffer */
     if (buffonstack(B))  /* buffer already has a box? */
       newbuff = (char *)resizebox(L, boxidx, newsize);  /* resize it */
     else {  /* no box yet */
-      viper_remove(L, boxidx);  /* remove placeholder */
+      venom_remove(L, boxidx);  /* remove placeholder */
       newbox(L);  /* create a new box */
-      viper_insert(L, boxidx);  /* move box to its intended position */
-      viper_toclose(L, boxidx);
+      venom_insert(L, boxidx);  /* move box to its intended position */
+      venom_toclose(L, boxidx);
       newbuff = (char *)resizebox(L, boxidx, newsize);
       memcpy(newbuff, B->b, B->n * sizeof(char));  /* copy original content */
     }
@@ -571,72 +571,72 @@ static char *prepbuffsize (viperL_Buffer *B, size_t sz, int boxidx) {
 /*
 ** returns a pointer to a free area with at least 'sz' bytes
 */
-VIPERLIB_API char *viperL_prepbuffsize (viperL_Buffer *B, size_t sz) {
+VENOMLIB_API char *venomL_prepbuffsize (venomL_Buffer *B, size_t sz) {
   return prepbuffsize(B, sz, -1);
 }
 
 
-VIPERLIB_API void viperL_addlstring (viperL_Buffer *B, const char *s, size_t l) {
+VENOMLIB_API void venomL_addlstring (venomL_Buffer *B, const char *s, size_t l) {
   if (l > 0) {  /* avoid 'memcpy' when 's' can be NULL */
     char *b = prepbuffsize(B, l, -1);
     memcpy(b, s, l * sizeof(char));
-    viperL_addsize(B, l);
+    venomL_addsize(B, l);
   }
 }
 
 
-VIPERLIB_API void viperL_addstring (viperL_Buffer *B, const char *s) {
-  viperL_addlstring(B, s, strlen(s));
+VENOMLIB_API void venomL_addstring (venomL_Buffer *B, const char *s) {
+  venomL_addlstring(B, s, strlen(s));
 }
 
 
-VIPERLIB_API void viperL_pushresult (viperL_Buffer *B) {
-  viper_State *L = B->L;
+VENOMLIB_API void venomL_pushresult (venomL_Buffer *B) {
+  venom_State *L = B->L;
   checkbufferlevel(B, -1);
-  viper_pushlstring(L, B->b, B->n);
+  venom_pushlstring(L, B->b, B->n);
   if (buffonstack(B))
-    viper_closeslot(L, -2);  /* close the box */
-  viper_remove(L, -2);  /* remove box or placeholder from the stack */
+    venom_closeslot(L, -2);  /* close the box */
+  venom_remove(L, -2);  /* remove box or placeholder from the stack */
 }
 
 
-VIPERLIB_API void viperL_pushresultsize (viperL_Buffer *B, size_t sz) {
-  viperL_addsize(B, sz);
-  viperL_pushresult(B);
+VENOMLIB_API void venomL_pushresultsize (venomL_Buffer *B, size_t sz) {
+  venomL_addsize(B, sz);
+  venomL_pushresult(B);
 }
 
 
 /*
-** 'viperL_addvalue' is the only function in the Buffer system where the
+** 'venomL_addvalue' is the only function in the Buffer system where the
 ** box (if existent) is not on the top of the stack. So, instead of
-** calling 'viperL_addlstring', it replicates the code using -2 as the
+** calling 'venomL_addlstring', it replicates the code using -2 as the
 ** last argument to 'prepbuffsize', signaling that the box is (or will
 ** be) bellow the string being added to the buffer. (Box creation can
 ** trigger an emergency GC, so we should not remove the string from the
 ** stack before we have the space guaranteed.)
 */
-VIPERLIB_API void viperL_addvalue (viperL_Buffer *B) {
-  viper_State *L = B->L;
+VENOMLIB_API void venomL_addvalue (venomL_Buffer *B) {
+  venom_State *L = B->L;
   size_t len;
-  const char *s = viper_tolstring(L, -1, &len);
+  const char *s = venom_tolstring(L, -1, &len);
   char *b = prepbuffsize(B, len, -2);
   memcpy(b, s, len * sizeof(char));
-  viperL_addsize(B, len);
-  viper_pop(L, 1);  /* pop string */
+  venomL_addsize(B, len);
+  venom_pop(L, 1);  /* pop string */
 }
 
 
-VIPERLIB_API void viperL_buffinit (viper_State *L, viperL_Buffer *B) {
+VENOMLIB_API void venomL_buffinit (venom_State *L, venomL_Buffer *B) {
   B->L = L;
   B->b = B->init.b;
   B->n = 0;
-  B->size = VIPERL_BUFFERSIZE;
-  viper_pushlightuserdata(L, (void*)B);  /* push placeholder */
+  B->size = VENOML_BUFFERSIZE;
+  venom_pushlightuserdata(L, (void*)B);  /* push placeholder */
 }
 
 
-VIPERLIB_API char *viperL_buffinitsize (viper_State *L, viperL_Buffer *B, size_t sz) {
-  viperL_buffinit(L, B);
+VENOMLIB_API char *venomL_buffinitsize (venom_State *L, venomL_Buffer *B, size_t sz) {
+  venomL_buffinit(L, B);
   return prepbuffsize(B, sz, -1);
 }
 
@@ -650,49 +650,49 @@ VIPERLIB_API char *viperL_buffinitsize (viper_State *L, viperL_Buffer *B, size_t
 */
 
 /* index of free-list header (after the predefined values) */
-#define freelist	(VIPER_RIDX_LAST + 1)
+#define freelist	(VENOM_RIDX_LAST + 1)
 
 /*
 ** The previously freed references form a linked list:
 ** t[freelist] is the index of a first free index, or zero if list is
 ** empty; t[t[freelist]] is the index of the second element; etc.
 */
-VIPERLIB_API int viperL_ref (viper_State *L, int t) {
+VENOMLIB_API int venomL_ref (venom_State *L, int t) {
   int ref;
-  if (viper_isnil(L, -1)) {
-    viper_pop(L, 1);  /* remove from stack */
-    return VIPER_REFNIL;  /* 'nil' has a unique fixed reference */
+  if (venom_isnil(L, -1)) {
+    venom_pop(L, 1);  /* remove from stack */
+    return VENOM_REFNIL;  /* 'nil' has a unique fixed reference */
   }
-  t = viper_absindex(L, t);
-  if (viper_rawgeti(L, t, freelist) == VIPER_TNIL) {  /* first access? */
+  t = venom_absindex(L, t);
+  if (venom_rawgeti(L, t, freelist) == VENOM_TNIL) {  /* first access? */
     ref = 0;  /* list is empty */
-    viper_pushinteger(L, 0);  /* initialize as an empty list */
-    viper_rawseti(L, t, freelist);  /* ref = t[freelist] = 0 */
+    venom_pushinteger(L, 0);  /* initialize as an empty list */
+    venom_rawseti(L, t, freelist);  /* ref = t[freelist] = 0 */
   }
   else {  /* already initialized */
-    viper_assert(viper_isinteger(L, -1));
-    ref = (int)viper_tointeger(L, -1);  /* ref = t[freelist] */
+    venom_assert(venom_isinteger(L, -1));
+    ref = (int)venom_tointeger(L, -1);  /* ref = t[freelist] */
   }
-  viper_pop(L, 1);  /* remove element from stack */
+  venom_pop(L, 1);  /* remove element from stack */
   if (ref != 0) {  /* any free element? */
-    viper_rawgeti(L, t, ref);  /* remove it from list */
-    viper_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
+    venom_rawgeti(L, t, ref);  /* remove it from list */
+    venom_rawseti(L, t, freelist);  /* (t[freelist] = t[ref]) */
   }
   else  /* no free elements */
-    ref = (int)viper_rawlen(L, t) + 1;  /* get a new reference */
-  viper_rawseti(L, t, ref);
+    ref = (int)venom_rawlen(L, t) + 1;  /* get a new reference */
+  venom_rawseti(L, t, ref);
   return ref;
 }
 
 
-VIPERLIB_API void viperL_unref (viper_State *L, int t, int ref) {
+VENOMLIB_API void venomL_unref (venom_State *L, int t, int ref) {
   if (ref >= 0) {
-    t = viper_absindex(L, t);
-    viper_rawgeti(L, t, freelist);
-    viper_assert(viper_isinteger(L, -1));
-    viper_rawseti(L, t, ref);  /* t[ref] = t[freelist] */
-    viper_pushinteger(L, ref);
-    viper_rawseti(L, t, freelist);  /* t[freelist] = ref */
+    t = venom_absindex(L, t);
+    venom_rawgeti(L, t, freelist);
+    venom_assert(venom_isinteger(L, -1));
+    venom_rawseti(L, t, ref);  /* t[ref] = t[freelist] */
+    venom_pushinteger(L, ref);
+    venom_rawseti(L, t, freelist);  /* t[freelist] = ref */
   }
 }
 
@@ -712,7 +712,7 @@ typedef struct LoadF {
 } LoadF;
 
 
-static const char *getF (viper_State *L, void *ud, size_t *size) {
+static const char *getF (venom_State *L, void *ud, size_t *size) {
   LoadF *lf = (LoadF *)ud;
   (void)L;  /* not used */
   if (lf->n > 0) {  /* are there pre-read characters to be read? */
@@ -730,12 +730,12 @@ static const char *getF (viper_State *L, void *ud, size_t *size) {
 }
 
 
-static int errfile (viper_State *L, const char *what, int fnameindex) {
+static int errfile (venom_State *L, const char *what, int fnameindex) {
   const char *serr = strerror(errno);
-  const char *filename = viper_tostring(L, fnameindex) + 1;
-  viper_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
-  viper_remove(L, fnameindex);
-  return VIPER_ERRFILE;
+  const char *filename = venom_tostring(L, fnameindex) + 1;
+  venom_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
+  venom_remove(L, fnameindex);
+  return VENOM_ERRFILE;
 }
 
 
@@ -773,38 +773,38 @@ static int skipcomment (LoadF *lf, int *cp) {
 }
 
 
-VIPERLIB_API int viperL_loadfilex (viper_State *L, const char *filename,
+VENOMLIB_API int venomL_loadfilex (venom_State *L, const char *filename,
                                              const char *mode) {
   LoadF lf;
   int status, readstatus;
   int c;
-  int fnameindex = viper_gettop(L) + 1;  /* index of filename on the stack */
+  int fnameindex = venom_gettop(L) + 1;  /* index of filename on the stack */
   if (filename == NULL) {
-    viper_pushliteral(L, "=stdin");
+    venom_pushliteral(L, "=stdin");
     lf.f = stdin;
   }
   else {
-    viper_pushfstring(L, "@%s", filename);
+    venom_pushfstring(L, "@%s", filename);
     lf.f = fopen(filename, "r");
     if (lf.f == NULL) return errfile(L, "open", fnameindex);
   }
   if (skipcomment(&lf, &c))  /* read initial portion */
     lf.buff[lf.n++] = '\n';  /* add line to correct line numbers */
-  if (c == VIPER_SIGNATURE[0] && filename) {  /* binary file? */
+  if (c == VENOM_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     skipcomment(&lf, &c);  /* re-read initial portion */
   }
   if (c != EOF)
     lf.buff[lf.n++] = c;  /* 'c' is the first character of the stream */
-  status = viper_load(L, getF, &lf, viper_tostring(L, -1), mode);
+  status = venom_load(L, getF, &lf, venom_tostring(L, -1), mode);
   readstatus = ferror(lf.f);
   if (filename) fclose(lf.f);  /* close file (even in case of errors) */
   if (readstatus) {
-    viper_settop(L, fnameindex);  /* ignore results from 'viper_load' */
+    venom_settop(L, fnameindex);  /* ignore results from 'venom_load' */
     return errfile(L, "read", fnameindex);
   }
-  viper_remove(L, fnameindex);
+  venom_remove(L, fnameindex);
   return status;
 }
 
@@ -815,7 +815,7 @@ typedef struct LoadS {
 } LoadS;
 
 
-static const char *getS (viper_State *L, void *ud, size_t *size) {
+static const char *getS (venom_State *L, void *ud, size_t *size) {
   LoadS *ls = (LoadS *)ud;
   (void)L;  /* not used */
   if (ls->size == 0) return NULL;
@@ -825,97 +825,97 @@ static const char *getS (viper_State *L, void *ud, size_t *size) {
 }
 
 
-VIPERLIB_API int viperL_loadbufferx (viper_State *L, const char *buff, size_t size,
+VENOMLIB_API int venomL_loadbufferx (venom_State *L, const char *buff, size_t size,
                                  const char *name, const char *mode) {
   LoadS ls;
   ls.s = buff;
   ls.size = size;
-  return viper_load(L, getS, &ls, name, mode);
+  return venom_load(L, getS, &ls, name, mode);
 }
 
 
-VIPERLIB_API int viperL_loadstring (viper_State *L, const char *s) {
-  return viperL_loadbuffer(L, s, strlen(s), s);
+VENOMLIB_API int venomL_loadstring (venom_State *L, const char *s) {
+  return venomL_loadbuffer(L, s, strlen(s), s);
 }
 
 /* }====================================================== */
 
 
 
-VIPERLIB_API int viperL_getmetafield (viper_State *L, int obj, const char *event) {
-  if (!viper_getmetatable(L, obj))  /* no metatable? */
-    return VIPER_TNIL;
+VENOMLIB_API int venomL_getmetafield (venom_State *L, int obj, const char *event) {
+  if (!venom_getmetatable(L, obj))  /* no metatable? */
+    return VENOM_TNIL;
   else {
     int tt;
-    viper_pushstring(L, event);
-    tt = viper_rawget(L, -2);
-    if (tt == VIPER_TNIL)  /* is metafield nil? */
-      viper_pop(L, 2);  /* remove metatable and metafield */
+    venom_pushstring(L, event);
+    tt = venom_rawget(L, -2);
+    if (tt == VENOM_TNIL)  /* is metafield nil? */
+      venom_pop(L, 2);  /* remove metatable and metafield */
     else
-      viper_remove(L, -2);  /* remove only metatable */
+      venom_remove(L, -2);  /* remove only metatable */
     return tt;  /* return metafield type */
   }
 }
 
 
-VIPERLIB_API int viperL_callmeta (viper_State *L, int obj, const char *event) {
-  obj = viper_absindex(L, obj);
-  if (viperL_getmetafield(L, obj, event) == VIPER_TNIL)  /* no metafield? */
+VENOMLIB_API int venomL_callmeta (venom_State *L, int obj, const char *event) {
+  obj = venom_absindex(L, obj);
+  if (venomL_getmetafield(L, obj, event) == VENOM_TNIL)  /* no metafield? */
     return 0;
-  viper_pushvalue(L, obj);
-  viper_call(L, 1, 1);
+  venom_pushvalue(L, obj);
+  venom_call(L, 1, 1);
   return 1;
 }
 
 
-VIPERLIB_API viper_Integer viperL_len (viper_State *L, int idx) {
-  viper_Integer l;
+VENOMLIB_API venom_Integer venomL_len (venom_State *L, int idx) {
+  venom_Integer l;
   int isnum;
-  viper_len(L, idx);
-  l = viper_tointegerx(L, -1, &isnum);
+  venom_len(L, idx);
+  l = venom_tointegerx(L, -1, &isnum);
   if (l_unlikely(!isnum))
-    viperL_error(L, "object length is not an integer");
-  viper_pop(L, 1);  /* remove object */
+    venomL_error(L, "object length is not an integer");
+  venom_pop(L, 1);  /* remove object */
   return l;
 }
 
 
-VIPERLIB_API const char *viperL_tolstring (viper_State *L, int idx, size_t *len) {
-  idx = viper_absindex(L,idx);
-  if (viperL_callmeta(L, idx, "__tostring")) {  /* metafield? */
-    if (!viper_isstring(L, -1))
-      viperL_error(L, "'__tostring' must return a string");
+VENOMLIB_API const char *venomL_tolstring (venom_State *L, int idx, size_t *len) {
+  idx = venom_absindex(L,idx);
+  if (venomL_callmeta(L, idx, "__tostring")) {  /* metafield? */
+    if (!venom_isstring(L, -1))
+      venomL_error(L, "'__tostring' must return a string");
   }
   else {
-    switch (viper_type(L, idx)) {
-      case VIPER_TNUMBER: {
-        if (viper_isinteger(L, idx))
-          viper_pushfstring(L, "%I", (VIPERI_UACINT)viper_tointeger(L, idx));
+    switch (venom_type(L, idx)) {
+      case VENOM_TNUMBER: {
+        if (venom_isinteger(L, idx))
+          venom_pushfstring(L, "%I", (VENOMI_UACINT)venom_tointeger(L, idx));
         else
-          viper_pushfstring(L, "%f", (VIPERI_UACNUMBER)viper_tonumber(L, idx));
+          venom_pushfstring(L, "%f", (VENOMI_UACNUMBER)venom_tonumber(L, idx));
         break;
       }
-      case VIPER_TSTRING:
-        viper_pushvalue(L, idx);
+      case VENOM_TSTRING:
+        venom_pushvalue(L, idx);
         break;
-      case VIPER_TBOOLEAN:
-        viper_pushstring(L, (viper_toboolean(L, idx) ? "true" : "false"));
+      case VENOM_TBOOLEAN:
+        venom_pushstring(L, (venom_toboolean(L, idx) ? "true" : "false"));
         break;
-      case VIPER_TNIL:
-        viper_pushliteral(L, "nil");
+      case VENOM_TNIL:
+        venom_pushliteral(L, "nil");
         break;
       default: {
-        int tt = viperL_getmetafield(L, idx, "__name");  /* try name */
-        const char *kind = (tt == VIPER_TSTRING) ? viper_tostring(L, -1) :
-                                                 viperL_typename(L, idx);
-        viper_pushfstring(L, "%s: %p", kind, viper_topointer(L, idx));
-        if (tt != VIPER_TNIL)
-          viper_remove(L, -2);  /* remove '__name' */
+        int tt = venomL_getmetafield(L, idx, "__name");  /* try name */
+        const char *kind = (tt == VENOM_TSTRING) ? venom_tostring(L, -1) :
+                                                 venomL_typename(L, idx);
+        venom_pushfstring(L, "%s: %p", kind, venom_topointer(L, idx));
+        if (tt != VENOM_TNIL)
+          venom_remove(L, -2);  /* remove '__name' */
         break;
       }
     }
   }
-  return viper_tolstring(L, -1, len);
+  return venom_tolstring(L, -1, len);
 }
 
 
@@ -924,20 +924,20 @@ VIPERLIB_API const char *viperL_tolstring (viper_State *L, int idx, size_t *len)
 ** function gets the 'nup' elements at the top as upvalues.
 ** Returns with only the table at the stack.
 */
-VIPERLIB_API void viperL_setfuncs (viper_State *L, const viperL_Reg *l, int nup) {
-  viperL_checkstack(L, nup, "too many upvalues");
+VENOMLIB_API void venomL_setfuncs (venom_State *L, const venomL_Reg *l, int nup) {
+  venomL_checkstack(L, nup, "too many upvalues");
   for (; l->name != NULL; l++) {  /* fill the table with given functions */
     if (l->func == NULL)  /* place holder? */
-      viper_pushboolean(L, 0);
+      venom_pushboolean(L, 0);
     else {
       int i;
       for (i = 0; i < nup; i++)  /* copy upvalues to the top */
-        viper_pushvalue(L, -nup);
-      viper_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+        venom_pushvalue(L, -nup);
+      venom_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
     }
-    viper_setfield(L, -(nup + 2), l->name);
+    venom_setfield(L, -(nup + 2), l->name);
   }
-  viper_pop(L, nup);  /* remove upvalues */
+  venom_pop(L, nup);  /* remove upvalues */
 }
 
 
@@ -945,15 +945,15 @@ VIPERLIB_API void viperL_setfuncs (viper_State *L, const viperL_Reg *l, int nup)
 ** ensure that stack[idx][fname] has a table and push that table
 ** into the stack
 */
-VIPERLIB_API int viperL_getsubtable (viper_State *L, int idx, const char *fname) {
-  if (viper_getfield(L, idx, fname) == VIPER_TTABLE)
+VENOMLIB_API int venomL_getsubtable (venom_State *L, int idx, const char *fname) {
+  if (venom_getfield(L, idx, fname) == VENOM_TTABLE)
     return 1;  /* table already there */
   else {
-    viper_pop(L, 1);  /* remove previous result */
-    idx = viper_absindex(L, idx);
-    viper_newtable(L);
-    viper_pushvalue(L, -1);  /* copy to be left at top */
-    viper_setfield(L, idx, fname);  /* assign new table to field */
+    venom_pop(L, 1);  /* remove previous result */
+    idx = venom_absindex(L, idx);
+    venom_newtable(L);
+    venom_pushvalue(L, -1);  /* copy to be left at top */
+    venom_setfield(L, idx, fname);  /* assign new table to field */
     return 0;  /* false, because did not find table there */
   }
 }
@@ -965,46 +965,46 @@ VIPERLIB_API int viperL_getsubtable (viper_State *L, int idx, const char *fname)
 ** if 'glb' is true, also registers the result in the global table.
 ** Leaves resulting module on the top.
 */
-VIPERLIB_API void viperL_requiref (viper_State *L, const char *modname,
-                               viper_CFunction openf, int glb) {
-  viperL_getsubtable(L, VIPER_REGISTRYINDEX, VIPER_LOADED_TABLE);
-  viper_getfield(L, -1, modname);  /* LOADED[modname] */
-  if (!viper_toboolean(L, -1)) {  /* package not already loaded? */
-    viper_pop(L, 1);  /* remove field */
-    viper_pushcfunction(L, openf);
-    viper_pushstring(L, modname);  /* argument to open function */
-    viper_call(L, 1, 1);  /* call 'openf' to open module */
-    viper_pushvalue(L, -1);  /* make copy of module (call result) */
-    viper_setfield(L, -3, modname);  /* LOADED[modname] = module */
+VENOMLIB_API void venomL_requiref (venom_State *L, const char *modname,
+                               venom_CFunction openf, int glb) {
+  venomL_getsubtable(L, VENOM_REGISTRYINDEX, VENOM_LOADED_TABLE);
+  venom_getfield(L, -1, modname);  /* LOADED[modname] */
+  if (!venom_toboolean(L, -1)) {  /* package not already loaded? */
+    venom_pop(L, 1);  /* remove field */
+    venom_pushcfunction(L, openf);
+    venom_pushstring(L, modname);  /* argument to open function */
+    venom_call(L, 1, 1);  /* call 'openf' to open module */
+    venom_pushvalue(L, -1);  /* make copy of module (call result) */
+    venom_setfield(L, -3, modname);  /* LOADED[modname] = module */
   }
-  viper_remove(L, -2);  /* remove LOADED table */
+  venom_remove(L, -2);  /* remove LOADED table */
   if (glb) {
-    viper_pushvalue(L, -1);  /* copy of module */
-    viper_setglobal(L, modname);  /* _G[modname] = module */
+    venom_pushvalue(L, -1);  /* copy of module */
+    venom_setglobal(L, modname);  /* _G[modname] = module */
   }
 }
 
 
-VIPERLIB_API void viperL_addgsub (viperL_Buffer *b, const char *s,
+VENOMLIB_API void venomL_addgsub (venomL_Buffer *b, const char *s,
                                      const char *p, const char *r) {
   const char *wild;
   size_t l = strlen(p);
   while ((wild = strstr(s, p)) != NULL) {
-    viperL_addlstring(b, s, wild - s);  /* push prefix */
-    viperL_addstring(b, r);  /* push replacement in place of pattern */
+    venomL_addlstring(b, s, wild - s);  /* push prefix */
+    venomL_addstring(b, r);  /* push replacement in place of pattern */
     s = wild + l;  /* continue after 'p' */
   }
-  viperL_addstring(b, s);  /* push last suffix */
+  venomL_addstring(b, s);  /* push last suffix */
 }
 
 
-VIPERLIB_API const char *viperL_gsub (viper_State *L, const char *s,
+VENOMLIB_API const char *venomL_gsub (venom_State *L, const char *s,
                                   const char *p, const char *r) {
-  viperL_Buffer b;
-  viperL_buffinit(L, &b);
-  viperL_addgsub(&b, s, p, r);
-  viperL_pushresult(&b);
-  return viper_tostring(L, -1);
+  venomL_Buffer b;
+  venomL_buffinit(L, &b);
+  venomL_addgsub(&b, s, p, r);
+  venomL_pushresult(&b);
+  return venom_tostring(L, -1);
 }
 
 
@@ -1019,12 +1019,12 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 }
 
 
-static int panic (viper_State *L) {
-  const char *msg = viper_tostring(L, -1);
+static int panic (venom_State *L) {
+  const char *msg = venom_tostring(L, -1);
   if (msg == NULL) msg = "error object is not a string";
-  viper_writestringerror("PANIC: unprotected error in call to Viper API (%s)\n",
+  venom_writestringerror("PANIC: unprotected error in call to Venom API (%s)\n",
                         msg);
-  return 0;  /* return to Viper to abort */
+  return 0;  /* return to Venom to abort */
 }
 
 
@@ -1043,21 +1043,21 @@ static void warnfcont (void *ud, const char *message, int tocont);
 ** Check whether message is a control message. If so, execute the
 ** control or ignore it if unknown.
 */
-static int checkcontrol (viper_State *L, const char *message, int tocont) {
+static int checkcontrol (venom_State *L, const char *message, int tocont) {
   if (tocont || *(message++) != '@')  /* not a control message? */
     return 0;
   else {
     if (strcmp(message, "off") == 0)
-      viper_setwarnf(L, warnfoff, L);  /* turn warnings off */
+      venom_setwarnf(L, warnfoff, L);  /* turn warnings off */
     else if (strcmp(message, "on") == 0)
-      viper_setwarnf(L, warnfon, L);   /* turn warnings on */
+      venom_setwarnf(L, warnfon, L);   /* turn warnings on */
     return 1;  /* it was a control message */
   }
 }
 
 
 static void warnfoff (void *ud, const char *message, int tocont) {
-  checkcontrol((viper_State *)ud, message, tocont);
+  checkcontrol((venom_State *)ud, message, tocont);
 }
 
 
@@ -1066,40 +1066,40 @@ static void warnfoff (void *ud, const char *message, int tocont) {
 ** if needed and setting the next warn function.
 */
 static void warnfcont (void *ud, const char *message, int tocont) {
-  viper_State *L = (viper_State *)ud;
-  viper_writestringerror("%s", message);  /* write message */
+  venom_State *L = (venom_State *)ud;
+  venom_writestringerror("%s", message);  /* write message */
   if (tocont)  /* not the last part? */
-    viper_setwarnf(L, warnfcont, L);  /* to be continued */
+    venom_setwarnf(L, warnfcont, L);  /* to be continued */
   else {  /* last part */
-    viper_writestringerror("%s", "\n");  /* finish message with end-of-line */
-    viper_setwarnf(L, warnfon, L);  /* next call is a new message */
+    venom_writestringerror("%s", "\n");  /* finish message with end-of-line */
+    venom_setwarnf(L, warnfon, L);  /* next call is a new message */
   }
 }
 
 
 static void warnfon (void *ud, const char *message, int tocont) {
-  if (checkcontrol((viper_State *)ud, message, tocont))  /* control message? */
+  if (checkcontrol((venom_State *)ud, message, tocont))  /* control message? */
     return;  /* nothing else to be done */
-  viper_writestringerror("%s", "Viper warning: ");  /* start a new warning */
+  venom_writestringerror("%s", "Venom warning: ");  /* start a new warning */
   warnfcont(ud, message, tocont);  /* finish processing */
 }
 
 
-VIPERLIB_API viper_State *viperL_newstate (void) {
-  viper_State *L = viper_newstate(l_alloc, NULL);
+VENOMLIB_API venom_State *venomL_newstate (void) {
+  venom_State *L = venom_newstate(l_alloc, NULL);
   if (l_likely(L)) {
-    viper_atpanic(L, &panic);
-    viper_setwarnf(L, warnfoff, L);  /* default is warnings off */
+    venom_atpanic(L, &panic);
+    venom_setwarnf(L, warnfoff, L);  /* default is warnings off */
   }
   return L;
 }
 
 
-VIPERLIB_API void viperL_checkversion_ (viper_State *L, viper_Number ver, size_t sz) {
-  viper_Number v = viper_version(L);
-  if (sz != VIPERL_NUMSIZES)  /* check numeric types */
-    viperL_error(L, "core and library have incompatible numeric types");
+VENOMLIB_API void venomL_checkversion_ (venom_State *L, venom_Number ver, size_t sz) {
+  venom_Number v = venom_version(L);
+  if (sz != VENOML_NUMSIZES)  /* check numeric types */
+    venomL_error(L, "core and library have incompatible numeric types");
   else if (v != ver)
-    viperL_error(L, "version mismatch: app. needs %f, Viper core provides %f",
-                  (VIPERI_UACNUMBER)ver, (VIPERI_UACNUMBER)v);
+    venomL_error(L, "version mismatch: app. needs %f, Venom core provides %f",
+                  (VENOMI_UACNUMBER)ver, (VENOMI_UACNUMBER)v);
 }

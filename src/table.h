@@ -1,7 +1,7 @@
 /*
 ** $Id: table.h $
-** Viper tables (hash)
-** See Copyright Notice in viper.h
+** Venom tables (hash)
+** See Copyright Notice in venom.h
 */
 
 #ifndef table_h
@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-VIPERI_FUNC const TValue *viperH_getint (Table *t, viper_Integer key);
-VIPERI_FUNC void viperH_setint (viper_State *L, Table *t, viper_Integer key,
+VENOMI_FUNC const TValue *venomH_getint (Table *t, venom_Integer key);
+VENOMI_FUNC void venomH_setint (venom_State *L, Table *t, venom_Integer key,
                                                     TValue *value);
-VIPERI_FUNC const TValue *viperH_getshortstr (Table *t, TString *key);
-VIPERI_FUNC const TValue *viperH_getstr (Table *t, TString *key);
-VIPERI_FUNC const TValue *viperH_get (Table *t, const TValue *key);
-VIPERI_FUNC void viperH_newkey (viper_State *L, Table *t, const TValue *key,
+VENOMI_FUNC const TValue *venomH_getshortstr (Table *t, TString *key);
+VENOMI_FUNC const TValue *venomH_getstr (Table *t, TString *key);
+VENOMI_FUNC const TValue *venomH_get (Table *t, const TValue *key);
+VENOMI_FUNC void venomH_newkey (venom_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-VIPERI_FUNC void viperH_set (viper_State *L, Table *t, const TValue *key,
+VENOMI_FUNC void venomH_set (venom_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-VIPERI_FUNC void viperH_finishset (viper_State *L, Table *t, const TValue *key,
+VENOMI_FUNC void venomH_finishset (venom_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-VIPERI_FUNC Table *viperH_new (viper_State *L);
-VIPERI_FUNC void viperH_resize (viper_State *L, Table *t, unsigned int nasize,
+VENOMI_FUNC Table *venomH_new (venom_State *L);
+VENOMI_FUNC void venomH_resize (venom_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-VIPERI_FUNC void viperH_resizearray (viper_State *L, Table *t, unsigned int nasize);
-VIPERI_FUNC void viperH_free (viper_State *L, Table *t);
-VIPERI_FUNC int viperH_next (viper_State *L, Table *t, StkId key);
-VIPERI_FUNC viper_Unsigned viperH_getn (Table *t);
-VIPERI_FUNC unsigned int viperH_realasize (const Table *t);
+VENOMI_FUNC void venomH_resizearray (venom_State *L, Table *t, unsigned int nasize);
+VENOMI_FUNC void venomH_free (venom_State *L, Table *t);
+VENOMI_FUNC int venomH_next (venom_State *L, Table *t, StkId key);
+VENOMI_FUNC venom_Unsigned venomH_getn (Table *t);
+VENOMI_FUNC unsigned int venomH_realasize (const Table *t);
 
 
-#if defined(VIPER_DEBUG)
-VIPERI_FUNC Node *viperH_mainposition (const Table *t, const TValue *key);
-VIPERI_FUNC int viperH_isdummy (const Table *t);
+#if defined(VENOM_DEBUG)
+VENOMI_FUNC Node *venomH_mainposition (const Table *t, const TValue *key);
+VENOMI_FUNC int venomH_isdummy (const Table *t);
 #endif
 
 

@@ -1,14 +1,14 @@
 /*
 ** $Id: zio.h $
 ** Buffered streams
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 
 #ifndef zio_h
 #define zio_h
 
-#include "viper.h"
+#include "venom.h"
 
 #include "memory.h"
 
@@ -17,7 +17,7 @@
 
 typedef struct Zio ZIO;
 
-#define zgetc(z)  (((z)->n--)>0 ?  cast_uchar(*(z)->p++) : viperZ_fill(z))
+#define zgetc(z)  (((z)->n--)>0 ?  cast_uchar(*(z)->p++) : venomZ_fill(z))
 
 
 typedef struct Mbuffer {
@@ -26,27 +26,27 @@ typedef struct Mbuffer {
   size_t buffsize;
 } Mbuffer;
 
-#define viperZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
+#define venomZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
 
-#define viperZ_buffer(buff)	((buff)->buffer)
-#define viperZ_sizebuffer(buff)	((buff)->buffsize)
-#define viperZ_bufflen(buff)	((buff)->n)
+#define venomZ_buffer(buff)	((buff)->buffer)
+#define venomZ_sizebuffer(buff)	((buff)->buffsize)
+#define venomZ_bufflen(buff)	((buff)->n)
 
-#define viperZ_buffremove(buff,i)	((buff)->n -= (i))
-#define viperZ_resetbuffer(buff) ((buff)->n = 0)
+#define venomZ_buffremove(buff,i)	((buff)->n -= (i))
+#define venomZ_resetbuffer(buff) ((buff)->n = 0)
 
 
-#define viperZ_resizebuffer(L, buff, size) \
-	((buff)->buffer = viperM_reallocvchar(L, (buff)->buffer, \
+#define venomZ_resizebuffer(L, buff, size) \
+	((buff)->buffer = venomM_reallocvchar(L, (buff)->buffer, \
 				(buff)->buffsize, size), \
 	(buff)->buffsize = size)
 
-#define viperZ_freebuffer(L, buff)	viperZ_resizebuffer(L, buff, 0)
+#define venomZ_freebuffer(L, buff)	venomZ_resizebuffer(L, buff, 0)
 
 
-VIPERI_FUNC void viperZ_init (viper_State *L, ZIO *z, viper_Reader reader,
+VENOMI_FUNC void venomZ_init (venom_State *L, ZIO *z, venom_Reader reader,
                                         void *data);
-VIPERI_FUNC size_t viperZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
+VENOMI_FUNC size_t venomZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes */
 
 
 
@@ -55,12 +55,12 @@ VIPERI_FUNC size_t viperZ_read (ZIO* z, void *b, size_t n);	/* read next n bytes
 struct Zio {
   size_t n;			/* bytes still unread */
   const char *p;		/* current position in buffer */
-  viper_Reader reader;		/* reader function */
+  venom_Reader reader;		/* reader function */
   void *data;			/* additional data */
-  viper_State *L;			/* Viper state (for reader) */
+  venom_State *L;			/* Venom state (for reader) */
 };
 
 
-VIPERI_FUNC int viperZ_fill (ZIO *z);
+VENOMI_FUNC int venomZ_fill (ZIO *z);
 
 #endif

@@ -1,11 +1,11 @@
 /*
 ** $Id: virtualMachine.c $
-** Viper virtual machine
-** See Copyright Notice in viper.h
+** Venom virtual machine
+** See Copyright Notice in venom.h
 */
 
 #define virtualMachine_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "debug.h"
 #include "do.h"
@@ -35,11 +35,11 @@
 ** By default, use jump tables in the main interpreter loop on gcc
 ** and compatible compilers.
 */
-#if !defined(VIPER_USE_JUMPTABLE)
+#if !defined(VENOM_USE_JUMPTABLE)
 #if defined(__GNUC__)
-#define VIPER_USE_JUMPTABLE	1
+#define VENOM_USE_JUMPTABLE	1
 #else
-#define VIPER_USE_JUMPTABLE	0
+#define VENOM_USE_JUMPTABLE	0
 #endif
 #endif
 
@@ -64,11 +64,11 @@
 ** of an integer. In a worst case, NBM == 113 for long double and
 ** sizeof(long) == 32.)
 */
-#if ((((VIPER_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
+#if ((((VENOM_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
 	>> (NBM - (3 * (NBM / 4))))  >  0
 
 /* limit for integers that fit in a float */
-#define MAXINTFITSF	((viper_Unsigned)1 << NBM)
+#define MAXINTFITSF	((venom_Unsigned)1 << NBM)
 
 /* check whether 'i' is in the interval [-MAXINTFITSF, MAXINTFITSF] */
 #define l_intfitsf(i)	((MAXINTFITSF + l_castS2U(i)) <= (2 * MAXINTFITSF))
@@ -88,11 +88,11 @@
 ** and return 0.
 */
 static int l_strton (const TValue *obj, TValue *result) {
-  viper_assert(obj != result);
+  venom_assert(obj != result);
   if (!cvt2num(obj))  /* is object not a string? */
     return 0;
   else
-    return (viperO_str2num(svalue(obj), result) == vslen(obj) + 1);
+    return (venomO_str2num(svalue(obj), result) == vslen(obj) + 1);
 }
 
 
@@ -100,14 +100,14 @@ static int l_strton (const TValue *obj, TValue *result) {
 ** Try to convert a value to a float. The float case is already handled
 ** by the macro 'tonumber'.
 */
-int viperV_tonumber_ (const TValue *obj, viper_Number *n) {
+int venomV_tonumber_ (const TValue *obj, venom_Number *n) {
   TValue v;
   if (ttisinteger(obj)) {
     *n = cast_num(ivalue(obj));
     return 1;
   }
   else if (l_strton(obj, &v)) {  /* string coercible to number? */
-    *n = nvalue(&v);  /* convert result of 'viperO_str2num' to a float */
+    *n = nvalue(&v);  /* convert result of 'venomO_str2num' to a float */
     return 1;
   }
   else
@@ -118,14 +118,14 @@ int viperV_tonumber_ (const TValue *obj, viper_Number *n) {
 /*
 ** try to convert a float to an integer, rounding according to 'mode'.
 */
-int viperV_flttointeger (viper_Number n, viper_Integer *p, F2Imod mode) {
-  viper_Number f = l_floor(n);
+int venomV_flttointeger (venom_Number n, venom_Integer *p, F2Imod mode) {
+  venom_Number f = l_floor(n);
   if (n != f) {  /* not an integral value? */
     if (mode == F2Ieq) return 0;  /* fails if mode demands integral value */
     else if (mode == F2Iceil)  /* needs ceil? */
       f += 1;  /* convert floor to ceil (remember: n != f) */
   }
-  return viper_numbertointeger(f, p);
+  return venom_numbertointeger(f, p);
 }
 
 
@@ -134,9 +134,9 @@ int viperV_flttointeger (viper_Number n, viper_Integer *p, F2Imod mode) {
 ** without string coercion.
 ** ("Fast track" handled by macro 'tointegerns'.)
 */
-int viperV_tointegerns (const TValue *obj, viper_Integer *p, F2Imod mode) {
+int venomV_tointegerns (const TValue *obj, venom_Integer *p, F2Imod mode) {
   if (ttisfloat(obj))
-    return viperV_flttointeger(fltvalue(obj), p, mode);
+    return venomV_flttointeger(fltvalue(obj), p, mode);
   else if (ttisinteger(obj)) {
     *p = ivalue(obj);
     return 1;
@@ -149,11 +149,11 @@ int viperV_tointegerns (const TValue *obj, viper_Integer *p, F2Imod mode) {
 /*
 ** try to convert a value to an integer.
 */
-int viperV_tointeger (const TValue *obj, viper_Integer *p, F2Imod mode) {
+int venomV_tointeger (const TValue *obj, venom_Integer *p, F2Imod mode) {
   TValue v;
   if (l_strton(obj, &v))  /* does 'obj' point to a numerical string? */
     obj = &v;  /* change it to point to its corresponding number */
-  return viperV_tointegerns(obj, p, mode);
+  return venomV_tointegerns(obj, p, mode);
 }
 
 
@@ -166,28 +166,28 @@ int viperV_tointeger (const TValue *obj, viper_Integer *p, F2Imod mode) {
 ** If the limit is an integer or can be converted to an integer,
 ** rounding down, that is the limit.
 ** Otherwise, check whether the limit can be converted to a float. If
-** the float is too large, clip it to VIPER_MAXINTEGER.  If the float
+** the float is too large, clip it to VENOM_MAXINTEGER.  If the float
 ** is too negative, the loop should not run, because any initial
 ** integer value is greater than such limit; so, the function returns
 ** true to signal that. (For this latter case, no integer limit would be
-** correct; even a limit of VIPER_MININTEGER would run the loop once for
-** an initial value equal to VIPER_MININTEGER.)
+** correct; even a limit of VENOM_MININTEGER would run the loop once for
+** an initial value equal to VENOM_MININTEGER.)
 */
-static int forlimit (viper_State *L, viper_Integer init, const TValue *lim,
-                                   viper_Integer *p, viper_Integer step) {
-  if (!viperV_tointeger(lim, p, (step < 0 ? F2Iceil : F2Ifloor))) {
+static int forlimit (venom_State *L, venom_Integer init, const TValue *lim,
+                                   venom_Integer *p, venom_Integer step) {
+  if (!venomV_tointeger(lim, p, (step < 0 ? F2Iceil : F2Ifloor))) {
     /* not coercible to in integer */
-    viper_Number flim;  /* try to convert to float */
+    venom_Number flim;  /* try to convert to float */
     if (!tonumber(lim, &flim)) /* cannot convert to float? */
-      viperG_forerror(L, lim, "limit");
+      venomG_forerror(L, lim, "limit");
     /* else 'flim' is a float out of integer bounds */
-    if (viperi_numlt(0, flim)) {  /* if it is positive, it is too large */
+    if (venomi_numlt(0, flim)) {  /* if it is positive, it is too large */
       if (step < 0) return 1;  /* initial value must be less than it */
-      *p = VIPER_MAXINTEGER;  /* truncate */
+      *p = VENOM_MAXINTEGER;  /* truncate */
     }
     else {  /* it is less than min integer */
       if (step > 0) return 1;  /* initial value must be greater than it */
-      *p = VIPER_MININTEGER;  /* truncate */
+      *p = VENOM_MININTEGER;  /* truncate */
     }
   }
   return (step > 0 ? init > *p : init < *p);  /* not to run? */
@@ -203,21 +203,21 @@ static int forlimit (viper_State *L, viper_Integer init, const TValue *lim,
 **   ra + 2 : step
 **   ra + 3 : control variable
 */
-static int forprep (viper_State *L, StkId ra) {
+static int forprep (venom_State *L, StkId ra) {
   TValue *pinit = s2v(ra);
   TValue *plimit = s2v(ra + 1);
   TValue *pstep = s2v(ra + 2);
   if (ttisinteger(pinit) && ttisinteger(pstep)) { /* integer loop? */
-    viper_Integer init = ivalue(pinit);
-    viper_Integer step = ivalue(pstep);
-    viper_Integer limit;
+    venom_Integer init = ivalue(pinit);
+    venom_Integer step = ivalue(pstep);
+    venom_Integer limit;
     if (step == 0)
-      viperG_runerror(L, "'for' step is zero");
+      venomG_runerror(L, "'for' step is zero");
     setivalue(s2v(ra + 3), init);  /* control variable */
     if (forlimit(L, init, plimit, &limit, step))
       return 1;  /* skip the loop */
     else {  /* prepare loop counter */
-      viper_Unsigned count;
+      venom_Unsigned count;
       if (step > 0) {  /* ascending loop? */
         count = l_castS2U(limit) - l_castS2U(init);
         if (step != 1)  /* avoid division in the too common case */
@@ -234,17 +234,17 @@ static int forprep (viper_State *L, StkId ra) {
     }
   }
   else {  /* try making all values floats */
-    viper_Number init; viper_Number limit; viper_Number step;
+    venom_Number init; venom_Number limit; venom_Number step;
     if (l_unlikely(!tonumber(plimit, &limit)))
-      viperG_forerror(L, plimit, "limit");
+      venomG_forerror(L, plimit, "limit");
     if (l_unlikely(!tonumber(pstep, &step)))
-      viperG_forerror(L, pstep, "step");
+      venomG_forerror(L, pstep, "step");
     if (l_unlikely(!tonumber(pinit, &init)))
-      viperG_forerror(L, pinit, "initial value");
+      venomG_forerror(L, pinit, "initial value");
     if (step == 0)
-      viperG_runerror(L, "'for' step is zero");
-    if (viperi_numlt(0, step) ? viperi_numlt(limit, init)
-                            : viperi_numlt(init, limit))
+      venomG_runerror(L, "'for' step is zero");
+    if (venomi_numlt(0, step) ? venomi_numlt(limit, init)
+                            : venomi_numlt(init, limit))
       return 1;  /* skip the loop */
     else {
       /* make sure internal values are all floats */
@@ -264,12 +264,12 @@ static int forprep (viper_State *L, StkId ra) {
 ** written online with opcode OP_FORLOOP, for performance.)
 */
 static int floatforloop (StkId ra) {
-  viper_Number step = fltvalue(s2v(ra + 2));
-  viper_Number limit = fltvalue(s2v(ra + 1));
-  viper_Number idx = fltvalue(s2v(ra));  /* internal index */
-  idx = viperi_numadd(L, idx, step);  /* increment index */
-  if (viperi_numlt(0, step) ? viperi_numle(idx, limit)
-                          : viperi_numle(limit, idx)) {
+  venom_Number step = fltvalue(s2v(ra + 2));
+  venom_Number limit = fltvalue(s2v(ra + 1));
+  venom_Number idx = fltvalue(s2v(ra));  /* internal index */
+  idx = venomi_numadd(L, idx, step);  /* increment index */
+  if (venomi_numlt(0, step) ? venomi_numle(idx, limit)
+                          : venomi_numle(limit, idx)) {
     chgfltvalue(s2v(ra), idx);  /* update internal index */
     setfltvalue(s2v(ra + 3), idx);  /* and control variable */
     return 1;  /* jump back */
@@ -284,20 +284,20 @@ static int floatforloop (StkId ra) {
 ** if 'slot' is NULL, 't' is not a table; otherwise, 'slot' points to
 ** t[k] entry (which must be empty).
 */
-void viperV_finishget (viper_State *L, const TValue *t, TValue *key, StkId val,
+void venomV_finishget (venom_State *L, const TValue *t, TValue *key, StkId val,
                       const TValue *slot) {
   int loop;  /* counter to avoid infinite loops */
   const TValue *tm;  /* metamethod */
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     if (slot == NULL) {  /* 't' is not a table? */
-      viper_assert(!ttistable(t));
-      tm = viperT_gettmbyobj(L, t, TM_INDEX);
+      venom_assert(!ttistable(t));
+      tm = venomT_gettmbyobj(L, t, TM_INDEX);
       if (l_unlikely(notm(tm)))
-        viperG_typeerror(L, t, "index");  /* no metamethod */
+        venomG_typeerror(L, t, "index");  /* no metamethod */
       /* else will try the metamethod */
     }
     else {  /* 't' is a table */
-      viper_assert(isempty(slot));
+      venom_assert(isempty(slot));
       tm = fasttm(L, hvalue(t)->metatable, TM_INDEX);  /* table's metamethod */
       if (tm == NULL) {  /* no metamethod? */
         setnilvalue(s2v(val));  /* result is nil */
@@ -306,17 +306,17 @@ void viperV_finishget (viper_State *L, const TValue *t, TValue *key, StkId val,
       /* else will try the metamethod */
     }
     if (ttisfunction(tm)) {  /* is metamethod a function? */
-      viperT_caltagMethodsres(L, tm, t, key, val);  /* call it */
+      venomT_caltagMethodsres(L, tm, t, key, val);  /* call it */
       return;
     }
     t = tm;  /* else try to access 'tm[key]' */
-    if (viperV_fastget(L, t, key, slot, viperH_get)) {  /* fast track? */
+    if (venomV_fastget(L, t, key, slot, venomH_get)) {  /* fast track? */
       setobj2s(L, val, slot);  /* done */
       return;
     }
-    /* else repeat (tail call 'viperV_finishget') */
+    /* else repeat (tail call 'venomV_finishget') */
   }
-  viperG_runerror(L, "'__index' chain too long; possible loop");
+  venomG_runerror(L, "'__index' chain too long; possible loop");
 }
 
 
@@ -325,43 +325,43 @@ void viperV_finishget (viper_State *L, const TValue *t, TValue *key, StkId val,
 ** If 'slot' is NULL, 't' is not a table.  Otherwise, 'slot' points
 ** to the entry 't[key]', or to a value with an absent key if there
 ** is no such entry.  (The value at 'slot' must be empty, otherwise
-** 'viperV_fastget' would have done the job.)
+** 'venomV_fastget' would have done the job.)
 */
-void viperV_finishset (viper_State *L, const TValue *t, TValue *key,
+void venomV_finishset (venom_State *L, const TValue *t, TValue *key,
                      TValue *val, const TValue *slot) {
   int loop;  /* counter to avoid infinite loops */
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;  /* '__newindex' metamethod */
     if (slot != NULL) {  /* is 't' a table? */
       Table *h = hvalue(t);  /* save 't' table */
-      viper_assert(isempty(slot));  /* slot must be empty */
+      venom_assert(isempty(slot));  /* slot must be empty */
       tm = fasttm(L, h->metatable, TM_NEWINDEX);  /* get metamethod */
       if (tm == NULL) {  /* no metamethod? */
-        viperH_finishset(L, h, key, slot, val);  /* set new value */
+        venomH_finishset(L, h, key, slot, val);  /* set new value */
         invalidateTMcache(h);
-        viperC_barrierback(L, obj2gco(h), val);
+        venomC_barrierback(L, obj2gco(h), val);
         return;
       }
       /* else will try the metamethod */
     }
     else {  /* not a table; check metamethod */
-      tm = viperT_gettmbyobj(L, t, TM_NEWINDEX);
+      tm = venomT_gettmbyobj(L, t, TM_NEWINDEX);
       if (l_unlikely(notm(tm)))
-        viperG_typeerror(L, t, "index");
+        venomG_typeerror(L, t, "index");
     }
     /* try the metamethod */
     if (ttisfunction(tm)) {
-      viperT_caltagMethods(L, tm, t, key, val);
+      venomT_caltagMethods(L, tm, t, key, val);
       return;
     }
     t = tm;  /* else repeat assignment over 'tm' */
-    if (viperV_fastget(L, t, key, slot, viperH_get)) {
-      viperV_finishfastset(L, t, slot, val);
+    if (venomV_fastget(L, t, key, slot, venomH_get)) {
+      venomV_finishfastset(L, t, slot, val);
       return;  /* done */
     }
-    /* else 'return viperV_finishset(L, t, key, val, slot)' (loop) */
+    /* else 'return venomV_finishset(L, t, key, val, slot)' (loop) */
   }
-  viperG_runerror(L, "'__newindex' chain too long; possible loop");
+  venomG_runerror(L, "'__newindex' chain too long; possible loop");
 }
 
 
@@ -387,7 +387,7 @@ static int l_strcmp (const TString *ls, const TString *rs) {
         return (len == ll) ? 0 : 1;  /* check 'ls' */
       else if (len == ll)  /* 'ls' is finished? */
         return -1;  /* 'ls' is less than 'rs' ('rs' is not finished) */
-      /* both strings longer than 'len'; Viper on comparing after the '\0' */
+      /* both strings longer than 'len'; Venom on comparing after the '\0' */
       len++;
       l += len; ll -= len; r += len; lr -= len;
     }
@@ -406,12 +406,12 @@ static int l_strcmp (const TString *ls, const TString *rs) {
 ** from float to int.)
 ** When 'f' is NaN, comparisons must result in false.
 */
-l_sinline int LTintfloat (viper_Integer i, viper_Number f) {
+l_sinline int LTintfloat (venom_Integer i, venom_Number f) {
   if (l_intfitsf(i))
-    return viperi_numlt(cast_num(i), f);  /* compare them as floats */
+    return venomi_numlt(cast_num(i), f);  /* compare them as floats */
   else {  /* i < f <=> i < ceil(f) */
-    viper_Integer fi;
-    if (viperV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
+    venom_Integer fi;
+    if (venomV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
       return i < fi;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f > 0;  /* greater? */
@@ -423,12 +423,12 @@ l_sinline int LTintfloat (viper_Integer i, viper_Number f) {
 ** Check whether integer 'i' is less than or equal to float 'f'.
 ** See comments on previous function.
 */
-l_sinline int LEintfloat (viper_Integer i, viper_Number f) {
+l_sinline int LEintfloat (venom_Integer i, venom_Number f) {
   if (l_intfitsf(i))
-    return viperi_numle(cast_num(i), f);  /* compare them as floats */
+    return venomi_numle(cast_num(i), f);  /* compare them as floats */
   else {  /* i <= f <=> i <= floor(f) */
-    viper_Integer fi;
-    if (viperV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
+    venom_Integer fi;
+    if (venomV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
       return i <= fi;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f > 0;  /* greater? */
@@ -440,12 +440,12 @@ l_sinline int LEintfloat (viper_Integer i, viper_Number f) {
 ** Check whether float 'f' is less than integer 'i'.
 ** See comments on previous function.
 */
-l_sinline int LTfloatint (viper_Number f, viper_Integer i) {
+l_sinline int LTfloatint (venom_Number f, venom_Integer i) {
   if (l_intfitsf(i))
-    return viperi_numlt(f, cast_num(i));  /* compare them as floats */
+    return venomi_numlt(f, cast_num(i));  /* compare them as floats */
   else {  /* f < i <=> floor(f) < i */
-    viper_Integer fi;
-    if (viperV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
+    venom_Integer fi;
+    if (venomV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
       return fi < i;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f < 0;  /* less? */
@@ -457,12 +457,12 @@ l_sinline int LTfloatint (viper_Number f, viper_Integer i) {
 ** Check whether float 'f' is less than or equal to integer 'i'.
 ** See comments on previous function.
 */
-l_sinline int LEfloatint (viper_Number f, viper_Integer i) {
+l_sinline int LEfloatint (venom_Number f, venom_Integer i) {
   if (l_intfitsf(i))
-    return viperi_numle(f, cast_num(i));  /* compare them as floats */
+    return venomi_numle(f, cast_num(i));  /* compare them as floats */
   else {  /* f <= i <=> ceil(f) <= i */
-    viper_Integer fi;
-    if (viperV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
+    venom_Integer fi;
+    if (venomV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
       return fi <= i;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f < 0;  /* less? */
@@ -474,18 +474,18 @@ l_sinline int LEfloatint (viper_Number f, viper_Integer i) {
 ** Return 'l < r', for numbers.
 */
 l_sinline int LTnum (const TValue *l, const TValue *r) {
-  viper_assert(ttisnumber(l) && ttisnumber(r));
+  venom_assert(ttisnumber(l) && ttisnumber(r));
   if (ttisinteger(l)) {
-    viper_Integer li = ivalue(l);
+    venom_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li < ivalue(r);  /* both are integers */
     else  /* 'l' is int and 'r' is float */
       return LTintfloat(li, fltvalue(r));  /* l < r ? */
   }
   else {
-    viper_Number lf = fltvalue(l);  /* 'l' must be float */
+    venom_Number lf = fltvalue(l);  /* 'l' must be float */
     if (ttisfloat(r))
-      return viperi_numlt(lf, fltvalue(r));  /* both are float */
+      return venomi_numlt(lf, fltvalue(r));  /* both are float */
     else  /* 'l' is float and 'r' is int */
       return LTfloatint(lf, ivalue(r));
   }
@@ -496,18 +496,18 @@ l_sinline int LTnum (const TValue *l, const TValue *r) {
 ** Return 'l <= r', for numbers.
 */
 l_sinline int LEnum (const TValue *l, const TValue *r) {
-  viper_assert(ttisnumber(l) && ttisnumber(r));
+  venom_assert(ttisnumber(l) && ttisnumber(r));
   if (ttisinteger(l)) {
-    viper_Integer li = ivalue(l);
+    venom_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li <= ivalue(r);  /* both are integers */
     else  /* 'l' is int and 'r' is float */
       return LEintfloat(li, fltvalue(r));  /* l <= r ? */
   }
   else {
-    viper_Number lf = fltvalue(l);  /* 'l' must be float */
+    venom_Number lf = fltvalue(l);  /* 'l' must be float */
     if (ttisfloat(r))
-      return viperi_numle(lf, fltvalue(r));  /* both are float */
+      return venomi_numle(lf, fltvalue(r));  /* both are float */
     else  /* 'l' is float and 'r' is int */
       return LEfloatint(lf, ivalue(r));
   }
@@ -517,19 +517,19 @@ l_sinline int LEnum (const TValue *l, const TValue *r) {
 /*
 ** return 'l < r' for non-numbers.
 */
-static int lessthanothers (viper_State *L, const TValue *l, const TValue *r) {
-  viper_assert(!ttisnumber(l) || !ttisnumber(r));
+static int lessthanothers (venom_State *L, const TValue *l, const TValue *r) {
+  venom_assert(!ttisnumber(l) || !ttisnumber(r));
   if (ttisstring(l) && ttisstring(r))  /* both are strings? */
     return l_strcmp(tsvalue(l), tsvalue(r)) < 0;
   else
-    return viperT_callorderTM(L, l, r, TM_LT);
+    return venomT_callorderTM(L, l, r, TM_LT);
 }
 
 
 /*
 ** Main operation less than; return 'l < r'.
 */
-int viperV_lessthan (viper_State *L, const TValue *l, const TValue *r) {
+int venomV_lessthan (venom_State *L, const TValue *l, const TValue *r) {
   if (ttisnumber(l) && ttisnumber(r))  /* both operands are numbers? */
     return LTnum(l, r);
   else return lessthanothers(L, l, r);
@@ -539,19 +539,19 @@ int viperV_lessthan (viper_State *L, const TValue *l, const TValue *r) {
 /*
 ** return 'l <= r' for non-numbers.
 */
-static int lessequalothers (viper_State *L, const TValue *l, const TValue *r) {
-  viper_assert(!ttisnumber(l) || !ttisnumber(r));
+static int lessequalothers (venom_State *L, const TValue *l, const TValue *r) {
+  venom_assert(!ttisnumber(l) || !ttisnumber(r));
   if (ttisstring(l) && ttisstring(r))  /* both are strings? */
     return l_strcmp(tsvalue(l), tsvalue(r)) <= 0;
   else
-    return viperT_callorderTM(L, l, r, TM_LE);
+    return venomT_callorderTM(L, l, r, TM_LE);
 }
 
 
 /*
 ** Main operation less than or equal to; return 'l <= r'.
 */
-int viperV_lessequal (viper_State *L, const TValue *l, const TValue *r) {
+int venomV_lessequal (venom_State *L, const TValue *l, const TValue *r) {
   if (ttisnumber(l) && ttisnumber(r))  /* both operands are numbers? */
     return LEnum(l, r);
   else return lessequalothers(L, l, r);
@@ -559,34 +559,34 @@ int viperV_lessequal (viper_State *L, const TValue *l, const TValue *r) {
 
 
 /*
-** Main operation for equality of Viper values; return 't1 == t2'.
+** Main operation for equality of Venom values; return 't1 == t2'.
 ** L == NULL means raw equality (no metamethods)
 */
-int viperV_equalobj (viper_State *L, const TValue *t1, const TValue *t2) {
+int venomV_equalobj (venom_State *L, const TValue *t1, const TValue *t2) {
   const TValue *tm;
   if (ttypetag(t1) != ttypetag(t2)) {  /* not the same variant? */
-    if (ttype(t1) != ttype(t2) || ttype(t1) != VIPER_TNUMBER)
+    if (ttype(t1) != ttype(t2) || ttype(t1) != VENOM_TNUMBER)
       return 0;  /* only numbers can be equal with different variants */
     else {  /* two numbers with different variants */
       /* One of them is an integer. If the other does not have an
          integer value, they cannot be equal; otherwise, compare their
          integer values. */
-      viper_Integer i1, i2;
-      return (viperV_tointegerns(t1, &i1, F2Ieq) &&
-              viperV_tointegerns(t2, &i2, F2Ieq) &&
+      venom_Integer i1, i2;
+      return (venomV_tointegerns(t1, &i1, F2Ieq) &&
+              venomV_tointegerns(t2, &i2, F2Ieq) &&
               i1 == i2);
     }
   }
   /* values have same type and same variant */
   switch (ttypetag(t1)) {
-    case VIPER_VNIL: case VIPER_VFALSE: case VIPER_VTRUE: return 1;
-    case VIPER_VNUMINT: return (ivalue(t1) == ivalue(t2));
-    case VIPER_VNUMFLT: return viperi_numeq(fltvalue(t1), fltvalue(t2));
-    case VIPER_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
-    case VIPER_VLCF: return fvalue(t1) == fvalue(t2);
-    case VIPER_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
-    case VIPER_VLNGSTR: return viperS_eqlngstr(tsvalue(t1), tsvalue(t2));
-    case VIPER_VUSERDATA: {
+    case VENOM_VNIL: case VENOM_VFALSE: case VENOM_VTRUE: return 1;
+    case VENOM_VNUMINT: return (ivalue(t1) == ivalue(t2));
+    case VENOM_VNUMFLT: return venomi_numeq(fltvalue(t1), fltvalue(t2));
+    case VENOM_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
+    case VENOM_VLCF: return fvalue(t1) == fvalue(t2);
+    case VENOM_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
+    case VENOM_VLNGSTR: return venomS_eqlngstr(tsvalue(t1), tsvalue(t2));
+    case VENOM_VUSERDATA: {
       if (uvalue(t1) == uvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, uvalue(t1)->metatable, TM_EQ);
@@ -594,7 +594,7 @@ int viperV_equalobj (viper_State *L, const TValue *t1, const TValue *t2) {
         tm = fasttm(L, uvalue(t2)->metatable, TM_EQ);
       break;  /* will try TM */
     }
-    case VIPER_VTABLE: {
+    case VENOM_VTABLE: {
       if (hvalue(t1) == hvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, hvalue(t1)->metatable, TM_EQ);
@@ -608,15 +608,15 @@ int viperV_equalobj (viper_State *L, const TValue *t1, const TValue *t2) {
   if (tm == NULL)  /* no TM? */
     return 0;  /* objects are different */
   else {
-    viperT_caltagMethodsres(L, tm, t1, t2, L->top);  /* call TM */
+    venomT_caltagMethodsres(L, tm, t1, t2, L->top);  /* call TM */
     return !l_isfalse(s2v(L->top));
   }
 }
 
 
-/* macro used by 'viperV_concat' to ensure that element at 'o' is a string */
+/* macro used by 'venomV_concat' to ensure that element at 'o' is a string */
 #define tostring(L,o)  \
-	(ttisstring(o) || (cvt2str(o) && (viperO_tostring(L, o), 1)))
+	(ttisstring(o) || (cvt2str(o) && (venomO_tostring(L, o), 1)))
 
 #define isemptystr(o)	(ttisshrstring(o) && tsvalue(o)->shrlen == 0)
 
@@ -635,7 +635,7 @@ static void copy2buff (StkId top, int n, char *buff) {
 ** Main operation for concatenation: concat 'total' values in the stack,
 ** from 'L->top - total' up to 'L->top - 1'.
 */
-void viperV_concat (viper_State *L, int total) {
+void venomV_concat (venom_State *L, int total) {
   if (total == 1)
     return;  /* "all" values already concatenated */
   do {
@@ -643,7 +643,7 @@ void viperV_concat (viper_State *L, int total) {
     int n = 2;  /* number of elements handled in this pass (at least 2) */
     if (!(ttisstring(s2v(top - 2)) || cvt2str(s2v(top - 2))) ||
         !tostring(L, s2v(top - 1)))
-      viperT_tryconcatTM(L);
+      venomT_tryconcatTM(L);
     else if (isemptystr(s2v(top - 1)))  /* second operand is empty? */
       cast_void(tostring(L, s2v(top - 2)));  /* result is first operand */
     else if (isemptystr(s2v(top - 2))) {  /* first operand is empty string? */
@@ -657,21 +657,21 @@ void viperV_concat (viper_State *L, int total) {
       for (n = 1; n < total && tostring(L, s2v(top - n - 1)); n++) {
         size_t l = vslen(s2v(top - n - 1));
         if (l_unlikely(l >= (MAX_SIZE/sizeof(char)) - tl))
-          viperG_runerror(L, "string length overflow");
+          venomG_runerror(L, "string length overflow");
         tl += l;
       }
-      if (tl <= VIPERI_MAXSHORTLEN) {  /* is result a short string? */
-        char buff[VIPERI_MAXSHORTLEN];
+      if (tl <= VENOMI_MAXSHORTLEN) {  /* is result a short string? */
+        char buff[VENOMI_MAXSHORTLEN];
         copy2buff(top, n, buff);  /* copy strings to buffer */
-        ts = viperS_newlstr(L, buff, tl);
+        ts = venomS_newlstr(L, buff, tl);
       }
       else {  /* long string; copy strings directly to final result */
-        ts = viperS_createlngstrobj(L, tl);
+        ts = venomS_createlngstrobj(L, tl);
         copy2buff(top, n, getstr(ts));
       }
       setsvalue2s(L, top - n, ts);  /* create result */
     }
-    total -= n-1;  /* Vipert 'n' strings to create 1 new */
+    total -= n-1;  /* Venomt 'n' strings to create 1 new */
     L->top -= n-1;  /* popped 'n' strings and pushed one */
   } while (total > 1);  /* repeat until only 1 result left */
 }
@@ -680,32 +680,32 @@ void viperV_concat (viper_State *L, int total) {
 /*
 ** Main operation 'ra = #rb'.
 */
-void viperV_objlen (viper_State *L, StkId ra, const TValue *rb) {
+void venomV_objlen (venom_State *L, StkId ra, const TValue *rb) {
   const TValue *tm;
   switch (ttypetag(rb)) {
-    case VIPER_VTABLE: {
+    case VENOM_VTABLE: {
       Table *h = hvalue(rb);
       tm = fasttm(L, h->metatable, TM_LEN);
       if (tm) break;  /* metamethod? break switch to call it */
-      setivalue(s2v(ra), viperH_getn(h));  /* else primitive len */
+      setivalue(s2v(ra), venomH_getn(h));  /* else primitive len */
       return;
     }
-    case VIPER_VSHRSTR: {
+    case VENOM_VSHRSTR: {
       setivalue(s2v(ra), tsvalue(rb)->shrlen);
       return;
     }
-    case VIPER_VLNGSTR: {
+    case VENOM_VLNGSTR: {
       setivalue(s2v(ra), tsvalue(rb)->u.lnglen);
       return;
     }
     default: {  /* try metamethod */
-      tm = viperT_gettmbyobj(L, rb, TM_LEN);
+      tm = venomT_gettmbyobj(L, rb, TM_LEN);
       if (l_unlikely(notm(tm)))  /* no metamethod? */
-        viperG_typeerror(L, rb, "get length of");
+        venomG_typeerror(L, rb, "get length of");
       break;
     }
   }
-  viperT_caltagMethodsres(L, tm, rb, rb, ra);
+  venomT_caltagMethodsres(L, tm, rb, rb, ra);
 }
 
 
@@ -715,14 +715,14 @@ void viperV_objlen (viper_State *L, StkId ra, const TValue *rb) {
 ** 'floor(q) == trunc(q)' when 'q >= 0' or when 'q' is integer,
 ** otherwise 'floor(q) == trunc(q) - 1'.
 */
-viper_Integer viperV_idiv (viper_State *L, viper_Integer m, viper_Integer n) {
+venom_Integer venomV_idiv (venom_State *L, venom_Integer m, venom_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      viperG_runerror(L, "attempt to divide by zero");
+      venomG_runerror(L, "attempt to divide by zero");
     return intop(-, 0, m);   /* n==-1; avoid overflow with 0x80000...//-1 */
   }
   else {
-    viper_Integer q = m / n;  /* perform C division */
+    venom_Integer q = m / n;  /* perform C division */
     if ((m ^ n) < 0 && m % n != 0)  /* 'm/n' would be negative non-integer? */
       q -= 1;  /* correct result for different rounding */
     return q;
@@ -733,16 +733,16 @@ viper_Integer viperV_idiv (viper_State *L, viper_Integer m, viper_Integer n) {
 /*
 ** Integer modulus; return 'm % n'. (Assume that C '%' with
 ** negative operands follows C99 behavior. See previous comment
-** about viperV_idiv.)
+** about venomV_idiv.)
 */
-viper_Integer viperV_mod (viper_State *L, viper_Integer m, viper_Integer n) {
+venom_Integer venomV_mod (venom_State *L, venom_Integer m, venom_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      viperG_runerror(L, "attempt to perform 'n%%0'");
+      venomG_runerror(L, "attempt to perform 'n%%0'");
     return 0;   /* m % -1 == 0; avoid overflow with 0x80000...%-1 */
   }
   else {
-    viper_Integer r = m % n;
+    venom_Integer r = m % n;
     if (r != 0 && (r ^ n) < 0)  /* 'm/n' would be non-integer negative? */
       r += n;  /* correct result for different rounding */
     return r;
@@ -753,23 +753,23 @@ viper_Integer viperV_mod (viper_State *L, viper_Integer m, viper_Integer n) {
 /*
 ** Float modulus
 */
-viper_Number viperV_modf (viper_State *L, viper_Number m, viper_Number n) {
-  viper_Number r;
-  viperi_nummod(L, m, n, r);
+venom_Number venomV_modf (venom_State *L, venom_Number m, venom_Number n) {
+  venom_Number r;
+  venomi_nummod(L, m, n, r);
   return r;
 }
 
 
 /* number of bits in an integer */
-#define NBITS	cast_int(sizeof(viper_Integer) * CHAR_BIT)
+#define NBITS	cast_int(sizeof(venom_Integer) * CHAR_BIT)
 
 /*
 ** Shift left operation. (Shift right just negates 'y'.)
 */
-#define viperV_shiftr(x,y)	viperV_shiftl(x,intop(-, 0, y))
+#define venomV_shiftr(x,y)	venomV_shiftl(x,intop(-, 0, y))
 
 
-viper_Integer viperV_shiftl (viper_Integer x, viper_Integer y) {
+venom_Integer venomV_shiftl (venom_Integer x, venom_Integer y) {
   if (y < 0) {  /* shift right? */
     if (y <= -NBITS) return 0;
     else return intop(>>, x, -y);
@@ -782,23 +782,23 @@ viper_Integer viperV_shiftl (viper_Integer x, viper_Integer y) {
 
 
 /*
-** create a new Viper closure, push it in the stack, and initialize
+** create a new Venom closure, push it in the stack, and initialize
 ** its upvalues.
 */
-static void pushclosure (viper_State *L, Proto *p, UpVal **enviper, StkId base,
+static void pushclosure (venom_State *L, Proto *p, UpVal **envenom, StkId base,
                          StkId ra) {
   int nup = p->sizeupvalues;
   Upvaldesc *uv = p->upvalues;
   int i;
-  LClosure *ncl = viperF_newLclosure(L, nup);
+  LClosure *ncl = venomF_newLclosure(L, nup);
   ncl->p = p;
   setclLvalue2s(L, ra, ncl);  /* anchor new closure in stack */
   for (i = 0; i < nup; i++) {  /* fill in its upvalues */
     if (uv[i].instack)  /* upvalue refers to local variable? */
-      ncl->upvals[i] = viperF_findupval(L, base + uv[i].idx);
+      ncl->upvals[i] = venomF_findupval(L, base + uv[i].idx);
     else  /* get upvalue from enclosing function */
-      ncl->upvals[i] = enviper[uv[i].idx];
-    viperC_objbarrier(L, ncl, ncl->upvals[i]);
+      ncl->upvals[i] = envenom[uv[i].idx];
+    venomC_objbarrier(L, ncl, ncl->upvals[i]);
   }
 }
 
@@ -806,7 +806,7 @@ static void pushclosure (viper_State *L, Proto *p, UpVal **enviper, StkId base,
 /*
 ** finish execution of an opcode interrupted by a yield
 */
-void viperV_finishOp (viper_State *L) {
+void venomV_finishOp (venom_State *L) {
   CallInfo *ci = L->ci;
   StkId base = ci->func + 1;
   Instruction inst = *(ci->u.l.savedpc - 1);  /* interrupted instruction */
@@ -828,24 +828,24 @@ void viperV_finishOp (viper_State *L) {
     case OP_EQ: {  /* note that 'OP_EQI'/'OP_EQK' cannot yield */
       int res = !l_isfalse(s2v(L->top - 1));
       L->top--;
-#if defined(VIPER_COMPAT_LT_LE)
+#if defined(VENOM_COMPAT_LT_LE)
       if (ci->callstatus & CIST_LEQ) {  /* "<=" using "<" instead? */
         ci->callstatus ^= CIST_LEQ;  /* clear mark */
         res = !res;  /* negate result */
       }
 #endif
-      viper_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_JMP);
+      venom_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_JMP);
       if (res != GETARG_k(inst))  /* condition failed? */
         ci->u.l.savedpc++;  /* skip jump instruction */
       break;
     }
     case OP_CONCAT: {
-      StkId top = L->top - 1;  /* top when 'viperT_tryconcatTM' was called */
+      StkId top = L->top - 1;  /* top when 'venomT_tryconcatTM' was called */
       int a = GETARG_A(inst);      /* first element to concatenate */
       int total = cast_int(top - 1 - (base + a));  /* yet to concatenate */
       setobjs2s(L, top - 2, top);  /* put TM result in proper position */
       L->top = top - 1;  /* top is one after last element (at top-2) */
-      viperV_concat(L, total);  /* concat them (may yield again) */
+      venomV_concat(L, total);  /* concat them (may yield again) */
       break;
     }
     case OP_CLOSE: {  /* yielded closing variables */
@@ -863,7 +863,7 @@ void viperV_finishOp (viper_State *L) {
     }
     default: {
       /* only these other opcodes can yield */
-      viper_assert(op == OP_TFORCALL || op == OP_CALL ||
+      venom_assert(op == OP_TFORCALL || op == OP_CALL ||
            op == OP_TAILCALL || op == OP_SETTABUP || op == OP_SETTABLE ||
            op == OP_SETI || op == OP_SETFIELD);
       break;
@@ -876,7 +876,7 @@ void viperV_finishOp (viper_State *L) {
 
 /*
 ** {==================================================================
-** Macros for arithmetic/bitwise/comparison opcodes in 'viperV_execute'
+** Macros for arithmetic/bitwise/comparison opcodes in 'venomV_execute'
 ** ===================================================================
 */
 
@@ -901,12 +901,12 @@ void viperV_finishOp (viper_State *L) {
   TValue *v1 = vRB(i);  \
   int imm = GETARG_sC(i);  \
   if (ttisinteger(v1)) {  \
-    viper_Integer iv1 = ivalue(v1);  \
+    venom_Integer iv1 = ivalue(v1);  \
     pc++; setivalue(s2v(ra), iop(L, iv1, imm));  \
   }  \
   else if (ttisfloat(v1)) {  \
-    viper_Number nb = fltvalue(v1);  \
-    viper_Number fimm = cast_num(imm);  \
+    venom_Number nb = fltvalue(v1);  \
+    venom_Number fimm = cast_num(imm);  \
     pc++; setfltvalue(s2v(ra), fop(L, nb, fimm)); \
   }}
 
@@ -916,7 +916,7 @@ void viperV_finishOp (viper_State *L) {
 ** with two register operands.
 */
 #define op_arithf_aux(L,v1,v2,fop) {  \
-  viper_Number n1; viper_Number n2;  \
+  venom_Number n1; venom_Number n2;  \
   if (tonumberns(v1, n1) && tonumberns(v2, n2)) {  \
     pc++; setfltvalue(s2v(ra), fop(L, n1, n2));  \
   }}
@@ -936,7 +936,7 @@ void viperV_finishOp (viper_State *L) {
 */
 #define op_arithfK(L,fop) {  \
   TValue *v1 = vRB(i);  \
-  TValue *v2 = KC(i); viper_assert(ttisnumber(v2));  \
+  TValue *v2 = KC(i); venom_assert(ttisnumber(v2));  \
   op_arithf_aux(L, v1, v2, fop); }
 
 
@@ -945,7 +945,7 @@ void viperV_finishOp (viper_State *L) {
 */
 #define op_arith_aux(L,v1,v2,iop,fop) {  \
   if (ttisinteger(v1) && ttisinteger(v2)) {  \
-    viper_Integer i1 = ivalue(v1); viper_Integer i2 = ivalue(v2);  \
+    venom_Integer i1 = ivalue(v1); venom_Integer i2 = ivalue(v2);  \
     pc++; setivalue(s2v(ra), iop(L, i1, i2));  \
   }  \
   else op_arithf_aux(L, v1, v2, fop); }
@@ -965,7 +965,7 @@ void viperV_finishOp (viper_State *L) {
 */
 #define op_arithK(L,iop,fop) {  \
   TValue *v1 = vRB(i);  \
-  TValue *v2 = KC(i); viper_assert(ttisnumber(v2));  \
+  TValue *v2 = KC(i); venom_assert(ttisnumber(v2));  \
   op_arith_aux(L, v1, v2, iop, fop); }
 
 
@@ -975,8 +975,8 @@ void viperV_finishOp (viper_State *L) {
 #define op_bitwiseK(L,op) {  \
   TValue *v1 = vRB(i);  \
   TValue *v2 = KC(i);  \
-  viper_Integer i1;  \
-  viper_Integer i2 = ivalue(v2);  \
+  venom_Integer i1;  \
+  venom_Integer i2 = ivalue(v2);  \
   if (tointegerns(v1, &i1)) {  \
     pc++; setivalue(s2v(ra), op(i1, i2));  \
   }}
@@ -988,7 +988,7 @@ void viperV_finishOp (viper_State *L) {
 #define op_bitwise(L,op) {  \
   TValue *v1 = vRB(i);  \
   TValue *v2 = vRC(i);  \
-  viper_Integer i1; viper_Integer i2;  \
+  venom_Integer i1; venom_Integer i2;  \
   if (tointegerns(v1, &i1) && tointegerns(v2, &i2)) {  \
     pc++; setivalue(s2v(ra), op(i1, i2));  \
   }}
@@ -1003,8 +1003,8 @@ void viperV_finishOp (viper_State *L) {
         int cond;  \
         TValue *rb = vRB(i);  \
         if (ttisinteger(s2v(ra)) && ttisinteger(rb)) {  \
-          viper_Integer ia = ivalue(s2v(ra));  \
-          viper_Integer ib = ivalue(rb);  \
+          venom_Integer ia = ivalue(s2v(ra));  \
+          venom_Integer ib = ivalue(rb);  \
           cond = opi(ia, ib);  \
         }  \
         else if (ttisnumber(s2v(ra)) && ttisnumber(rb))  \
@@ -1024,13 +1024,13 @@ void viperV_finishOp (viper_State *L) {
         if (ttisinteger(s2v(ra)))  \
           cond = opi(ivalue(s2v(ra)), im);  \
         else if (ttisfloat(s2v(ra))) {  \
-          viper_Number fa = fltvalue(s2v(ra));  \
-          viper_Number fim = cast_num(im);  \
+          venom_Number fa = fltvalue(s2v(ra));  \
+          venom_Number fim = cast_num(im);  \
           cond = opf(fa, fim);  \
         }  \
         else {  \
           int isf = GETARG_C(i);  \
-          Protect(cond = viperT_callorderiTM(L, s2v(ra), im, inv, isf, tm));  \
+          Protect(cond = venomT_callorderiTM(L, s2v(ra), im, inv, isf, tm));  \
         }  \
         docondjump(); }
 
@@ -1039,12 +1039,12 @@ void viperV_finishOp (viper_State *L) {
 
 /*
 ** {==================================================================
-** Function 'viperV_execute': main interpreter loop
+** Function 'venomV_execute': main interpreter loop
 ** ===================================================================
 */
 
 /*
-** some macros for common tasks in 'viperV_execute'
+** some macros for common tasks in 'venomV_execute'
 */
 
 
@@ -1116,15 +1116,15 @@ void viperV_finishOp (viper_State *L) {
 
 /* 'c' is the limit of live values in the stack */
 #define checkGC(L,c)  \
-	{ viperC_condGC(L, (savepc(L), L->top = (c)), \
+	{ venomC_condGC(L, (savepc(L), L->top = (c)), \
                          updatetrap(ci)); \
-           viperi_threadyield(L); }
+           venomi_threadyield(L); }
 
 
 /* fetch an instruction and prepare its execution */
 #define vmfetch()	{ \
   if (l_unlikely(trap)) {  /* stack reallocation or hooks? */ \
-    trap = viperG_traceexec(L, pc);  /* handle hooks */ \
+    trap = venomG_traceexec(L, pc);  /* handle hooks */ \
     updatebase(ci);  /* correct stack */ \
   } \
   i = *(pc++); \
@@ -1136,13 +1136,13 @@ void viperV_finishOp (viper_State *L) {
 #define vmbreak		break
 
 
-void viperV_execute (viper_State *L, CallInfo *ci) {
+void venomV_execute (venom_State *L, CallInfo *ci) {
   LClosure *cl;
   TValue *k;
   StkId base;
   const Instruction *pc;
   int trap;
-#if VIPER_USE_JUMPTABLE
+#if VENOM_USE_JUMPTABLE
 #include "jumptab.h"
 #endif
  startfunc:
@@ -1156,7 +1156,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       if (cl->p->is_vararg)
         trap = 0;  /* hooks will start after VARARGPREP instruction */
       else  /* check 'call' hook */
-        viperD_hookcall(L, ci);
+        venomD_hookcall(L, ci);
     }
     ci->u.l.trap = 1;  /* assume trap is on, for now */
   }
@@ -1167,20 +1167,20 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
     StkId ra;  /* instruction's A register */
     vmfetch();
     #if 0
-      /* low-level line tracing for debugging Viper */
-      printf("line: %d\n", viperG_getfuncline(cl->p, pcRel(pc, cl->p)));
+      /* low-level line tracing for debugging Venom */
+      printf("line: %d\n", venomG_getfuncline(cl->p, pcRel(pc, cl->p)));
     #endif
-    viper_assert(base == ci->func + 1);
-    viper_assert(base <= L->top && L->top < L->stack_last);
+    venom_assert(base == ci->func + 1);
+    venom_assert(base <= L->top && L->top < L->stack_last);
     /* invalidate top for instructions not expecting it */
-    viper_assert(isIT(i) || (cast_void(L->top = base), 1));
+    venom_assert(isIT(i) || (cast_void(L->top = base), 1));
     vmdispatch (GET_OPCODE(i)) {
       vmcase(OP_MOVE) {
         setobjs2s(L, ra, RB(i));
         vmbreak;
       }
       vmcase(OP_LOADI) {
-        viper_Integer b = GETARG_sBx(i);
+        venom_Integer b = GETARG_sBx(i);
         setivalue(s2v(ra), b);
         vmbreak;
       }
@@ -1228,7 +1228,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       vmcase(OP_SETUPVAL) {
         UpVal *uv = cl->upvals[GETARG_B(i)];
         setobj(L, uv->v, s2v(ra));
-        viperC_barrier(L, uv, s2v(ra));
+        venomC_barrier(L, uv, s2v(ra));
         vmbreak;
       }
       vmcase(OP_GETTABUP) {
@@ -1236,38 +1236,38 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *upval = cl->upvals[GETARG_B(i)]->v;
         TValue *rc = KC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
-        if (viperV_fastget(L, upval, key, slot, viperH_getshortstr)) {
+        if (venomV_fastget(L, upval, key, slot, venomH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(viperV_finishget(L, upval, rc, ra, slot));
+          Protect(venomV_finishget(L, upval, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_GETTABLE) {
         const TValue *slot;
         TValue *rb = vRB(i);
         TValue *rc = vRC(i);
-        viper_Unsigned n;
+        venom_Unsigned n;
         if (ttisinteger(rc)  /* fast track for integers? */
-            ? (cast_void(n = ivalue(rc)), viperV_fastgeti(L, rb, n, slot))
-            : viperV_fastget(L, rb, rc, slot, viperH_get)) {
+            ? (cast_void(n = ivalue(rc)), venomV_fastgeti(L, rb, n, slot))
+            : venomV_fastget(L, rb, rc, slot, venomH_get)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(viperV_finishget(L, rb, rc, ra, slot));
+          Protect(venomV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_GETI) {
         const TValue *slot;
         TValue *rb = vRB(i);
         int c = GETARG_C(i);
-        if (viperV_fastgeti(L, rb, c, slot)) {
+        if (venomV_fastgeti(L, rb, c, slot)) {
           setobj2s(L, ra, slot);
         }
         else {
           TValue key;
           setivalue(&key, c);
-          Protect(viperV_finishget(L, rb, &key, ra, slot));
+          Protect(venomV_finishget(L, rb, &key, ra, slot));
         }
         vmbreak;
       }
@@ -1276,11 +1276,11 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *rb = vRB(i);
         TValue *rc = KC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
-        if (viperV_fastget(L, rb, key, slot, viperH_getshortstr)) {
+        if (venomV_fastget(L, rb, key, slot, venomH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(viperV_finishget(L, rb, rc, ra, slot));
+          Protect(venomV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_SETTABUP) {
@@ -1289,38 +1289,38 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
         TString *key = tsvalue(rb);  /* key must be a string */
-        if (viperV_fastget(L, upval, key, slot, viperH_getshortstr)) {
-          viperV_finishfastset(L, upval, slot, rc);
+        if (venomV_fastget(L, upval, key, slot, venomH_getshortstr)) {
+          venomV_finishfastset(L, upval, slot, rc);
         }
         else
-          Protect(viperV_finishset(L, upval, rb, rc, slot));
+          Protect(venomV_finishset(L, upval, rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_SETTABLE) {
         const TValue *slot;
         TValue *rb = vRB(i);  /* key (table is in 'ra') */
         TValue *rc = RKC(i);  /* value */
-        viper_Unsigned n;
+        venom_Unsigned n;
         if (ttisinteger(rb)  /* fast track for integers? */
-            ? (cast_void(n = ivalue(rb)), viperV_fastgeti(L, s2v(ra), n, slot))
-            : viperV_fastget(L, s2v(ra), rb, slot, viperH_get)) {
-          viperV_finishfastset(L, s2v(ra), slot, rc);
+            ? (cast_void(n = ivalue(rb)), venomV_fastgeti(L, s2v(ra), n, slot))
+            : venomV_fastget(L, s2v(ra), rb, slot, venomH_get)) {
+          venomV_finishfastset(L, s2v(ra), slot, rc);
         }
         else
-          Protect(viperV_finishset(L, s2v(ra), rb, rc, slot));
+          Protect(venomV_finishset(L, s2v(ra), rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_SETI) {
         const TValue *slot;
         int c = GETARG_B(i);
         TValue *rc = RKC(i);
-        if (viperV_fastgeti(L, s2v(ra), c, slot)) {
-          viperV_finishfastset(L, s2v(ra), slot, rc);
+        if (venomV_fastgeti(L, s2v(ra), c, slot)) {
+          venomV_finishfastset(L, s2v(ra), slot, rc);
         }
         else {
           TValue key;
           setivalue(&key, c);
-          Protect(viperV_finishset(L, s2v(ra), &key, rc, slot));
+          Protect(venomV_finishset(L, s2v(ra), &key, rc, slot));
         }
         vmbreak;
       }
@@ -1329,11 +1329,11 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
         TString *key = tsvalue(rb);  /* key must be a string */
-        if (viperV_fastget(L, s2v(ra), key, slot, viperH_getshortstr)) {
-          viperV_finishfastset(L, s2v(ra), slot, rc);
+        if (venomV_fastget(L, s2v(ra), key, slot, venomH_getshortstr)) {
+          venomV_finishfastset(L, s2v(ra), slot, rc);
         }
         else
-          Protect(viperV_finishset(L, s2v(ra), rb, rc, slot));
+          Protect(venomV_finishset(L, s2v(ra), rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_NEWTABLE) {
@@ -1342,15 +1342,15 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         Table *t;
         if (b > 0)
           b = 1 << (b - 1);  /* size is 2^(b - 1) */
-        viper_assert((!TESTARG_k(i)) == (GETARG_Ax(*pc) == 0));
+        venom_assert((!TESTARG_k(i)) == (GETARG_Ax(*pc) == 0));
         if (TESTARG_k(i))  /* non-zero extra argument? */
           c += GETARG_Ax(*pc) * (MAXARG_C + 1);  /* add it to size */
         pc++;  /* skip extra argument */
         L->top = ra + 1;  /* correct top in case of emergency GC */
-        t = viperH_new(L);  /* memory allocation */
+        t = venomH_new(L);  /* memory allocation */
         sethvalue2s(L, ra, t);
         if (b != 0 || c != 0)
-          viperH_resize(L, t, c, b);  /* idem */
+          venomH_resize(L, t, c, b);  /* idem */
         checkGC(L, ra + 1);
         vmbreak;
       }
@@ -1360,43 +1360,43 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *rc = RKC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
         setobj2s(L, ra + 1, rb);
-        if (viperV_fastget(L, rb, key, slot, viperH_getstr)) {
+        if (venomV_fastget(L, rb, key, slot, venomH_getstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(viperV_finishget(L, rb, rc, ra, slot));
+          Protect(venomV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_ADDI) {
-        op_arithI(L, l_addi, viperi_numadd);
+        op_arithI(L, l_addi, venomi_numadd);
         vmbreak;
       }
       vmcase(OP_ADDK) {
-        op_arithK(L, l_addi, viperi_numadd);
+        op_arithK(L, l_addi, venomi_numadd);
         vmbreak;
       }
       vmcase(OP_SUBK) {
-        op_arithK(L, l_subi, viperi_numsub);
+        op_arithK(L, l_subi, venomi_numsub);
         vmbreak;
       }
       vmcase(OP_MULK) {
-        op_arithK(L, l_muli, viperi_nummul);
+        op_arithK(L, l_muli, venomi_nummul);
         vmbreak;
       }
       vmcase(OP_MODK) {
-        op_arithK(L, viperV_mod, viperV_modf);
+        op_arithK(L, venomV_mod, venomV_modf);
         vmbreak;
       }
       vmcase(OP_POWK) {
-        op_arithfK(L, viperi_numpow);
+        op_arithfK(L, venomi_numpow);
         vmbreak;
       }
       vmcase(OP_DIVK) {
-        op_arithfK(L, viperi_numdiv);
+        op_arithfK(L, venomi_numdiv);
         vmbreak;
       }
       vmcase(OP_IDIVK) {
-        op_arithK(L, viperV_idiv, viperi_numidiv);
+        op_arithK(L, venomV_idiv, venomi_numidiv);
         vmbreak;
       }
       vmcase(OP_BANDK) {
@@ -1414,47 +1414,47 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       vmcase(OP_SHRI) {
         TValue *rb = vRB(i);
         int ic = GETARG_sC(i);
-        viper_Integer ib;
+        venom_Integer ib;
         if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), viperV_shiftl(ib, -ic));
+          pc++; setivalue(s2v(ra), venomV_shiftl(ib, -ic));
         }
         vmbreak;
       }
       vmcase(OP_SHLI) {
         TValue *rb = vRB(i);
         int ic = GETARG_sC(i);
-        viper_Integer ib;
+        venom_Integer ib;
         if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), viperV_shiftl(ic, ib));
+          pc++; setivalue(s2v(ra), venomV_shiftl(ic, ib));
         }
         vmbreak;
       }
       vmcase(OP_ADD) {
-        op_arith(L, l_addi, viperi_numadd);
+        op_arith(L, l_addi, venomi_numadd);
         vmbreak;
       }
       vmcase(OP_SUB) {
-        op_arith(L, l_subi, viperi_numsub);
+        op_arith(L, l_subi, venomi_numsub);
         vmbreak;
       }
       vmcase(OP_MUL) {
-        op_arith(L, l_muli, viperi_nummul);
+        op_arith(L, l_muli, venomi_nummul);
         vmbreak;
       }
       vmcase(OP_MOD) {
-        op_arith(L, viperV_mod, viperV_modf);
+        op_arith(L, venomV_mod, venomV_modf);
         vmbreak;
       }
       vmcase(OP_POW) {
-        op_arithf(L, viperi_numpow);
+        op_arithf(L, venomi_numpow);
         vmbreak;
       }
       vmcase(OP_DIV) {  /* float division (always with floats) */
-        op_arithf(L, viperi_numdiv);
+        op_arithf(L, venomi_numdiv);
         vmbreak;
       }
       vmcase(OP_IDIV) {  /* floor division */
-        op_arith(L, viperV_idiv, viperi_numidiv);
+        op_arith(L, venomV_idiv, venomi_numidiv);
         vmbreak;
       }
       vmcase(OP_BAND) {
@@ -1470,11 +1470,11 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_SHR) {
-        op_bitwise(L, viperV_shiftr);
+        op_bitwise(L, venomV_shiftr);
         vmbreak;
       }
       vmcase(OP_SHL) {
-        op_bitwise(L, viperV_shiftl);
+        op_bitwise(L, venomV_shiftl);
         vmbreak;
       }
       vmcase(OP_MMBIN) {
@@ -1482,8 +1482,8 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TValue *rb = vRB(i);
         TMS tm = (TMS)GETARG_C(i);
         StkId result = RA(pi);
-        viper_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_SHR);
-        Protect(viperT_trybinTM(L, s2v(ra), rb, result, tm));
+        venom_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_SHR);
+        Protect(venomT_trybinTM(L, s2v(ra), rb, result, tm));
         vmbreak;
       }
       vmcase(OP_MMBINI) {
@@ -1492,7 +1492,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TMS tm = (TMS)GETARG_C(i);
         int flip = GETARG_k(i);
         StkId result = RA(pi);
-        Protect(viperT_trybiniTM(L, s2v(ra), imm, flip, result, tm));
+        Protect(venomT_trybiniTM(L, s2v(ra), imm, flip, result, tm));
         vmbreak;
       }
       vmcase(OP_MMBINK) {
@@ -1501,31 +1501,31 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         TMS tm = (TMS)GETARG_C(i);
         int flip = GETARG_k(i);
         StkId result = RA(pi);
-        Protect(viperT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
+        Protect(venomT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
         vmbreak;
       }
       vmcase(OP_UNM) {
         TValue *rb = vRB(i);
-        viper_Number nb;
+        venom_Number nb;
         if (ttisinteger(rb)) {
-          viper_Integer ib = ivalue(rb);
+          venom_Integer ib = ivalue(rb);
           setivalue(s2v(ra), intop(-, 0, ib));
         }
         else if (tonumberns(rb, nb)) {
-          setfltvalue(s2v(ra), viperi_numunm(L, nb));
+          setfltvalue(s2v(ra), venomi_numunm(L, nb));
         }
         else
-          Protect(viperT_trybinTM(L, rb, rb, ra, TM_UNM));
+          Protect(venomT_trybinTM(L, rb, rb, ra, TM_UNM));
         vmbreak;
       }
       vmcase(OP_BNOT) {
         TValue *rb = vRB(i);
-        viper_Integer ib;
+        venom_Integer ib;
         if (tointegerns(rb, &ib)) {
           setivalue(s2v(ra), intop(^, ~l_castS2U(0), ib));
         }
         else
-          Protect(viperT_trybinTM(L, rb, rb, ra, TM_BNOT));
+          Protect(venomT_trybinTM(L, rb, rb, ra, TM_BNOT));
         vmbreak;
       }
       vmcase(OP_NOT) {
@@ -1537,23 +1537,23 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_LEN) {
-        Protect(viperV_objlen(L, ra, vRB(i)));
+        Protect(venomV_objlen(L, ra, vRB(i)));
         vmbreak;
       }
       vmcase(OP_CONCAT) {
         int n = GETARG_B(i);  /* number of elements to concatenate */
         L->top = ra + n;  /* mark the end of concat operands */
-        ProtectNT(viperV_concat(L, n));
-        checkGC(L, L->top); /* 'viperV_concat' ensures correct top */
+        ProtectNT(venomV_concat(L, n));
+        checkGC(L, L->top); /* 'venomV_concat' ensures correct top */
         vmbreak;
       }
       vmcase(OP_CLOSE) {
-        Protect(viperF_close(L, ra, VIPER_OK, 1));
+        Protect(venomF_close(L, ra, VENOM_OK, 1));
         vmbreak;
       }
       vmcase(OP_TBC) {
         /* create new to-be-closed upvalue */
-        halfProtect(viperF_newtbviperval(L, ra));
+        halfProtect(venomF_newtbvenomval(L, ra));
         vmbreak;
       }
       vmcase(OP_JMP) {
@@ -1563,7 +1563,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       vmcase(OP_EQ) {
         int cond;
         TValue *rb = vRB(i);
-        Protect(cond = viperV_equalobj(L, s2v(ra), rb));
+        Protect(cond = venomV_equalobj(L, s2v(ra), rb));
         docondjump();
         vmbreak;
       }
@@ -1578,7 +1578,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       vmcase(OP_EQK) {
         TValue *rb = KB(i);
         /* basic types do not use '__eq'; we can use raw equality */
-        int cond = viperV_rawequalobj(s2v(ra), rb);
+        int cond = venomV_rawequalobj(s2v(ra), rb);
         docondjump();
         vmbreak;
       }
@@ -1588,26 +1588,26 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         if (ttisinteger(s2v(ra)))
           cond = (ivalue(s2v(ra)) == im);
         else if (ttisfloat(s2v(ra)))
-          cond = viperi_numeq(fltvalue(s2v(ra)), cast_num(im));
+          cond = venomi_numeq(fltvalue(s2v(ra)), cast_num(im));
         else
           cond = 0;  /* other types cannot be equal to a number */
         docondjump();
         vmbreak;
       }
       vmcase(OP_LTI) {
-        op_orderI(L, l_lti, viperi_numlt, 0, TM_LT);
+        op_orderI(L, l_lti, venomi_numlt, 0, TM_LT);
         vmbreak;
       }
       vmcase(OP_LEI) {
-        op_orderI(L, l_lei, viperi_numle, 0, TM_LE);
+        op_orderI(L, l_lei, venomi_numle, 0, TM_LE);
         vmbreak;
       }
       vmcase(OP_GTI) {
-        op_orderI(L, l_gti, viperi_numgt, 1, TM_LT);
+        op_orderI(L, l_gti, venomi_numgt, 1, TM_LT);
         vmbreak;
       }
       vmcase(OP_GEI) {
-        op_orderI(L, l_gei, viperi_numge, 1, TM_LE);
+        op_orderI(L, l_gei, venomi_numge, 1, TM_LE);
         vmbreak;
       }
       vmcase(OP_TEST) {
@@ -1633,9 +1633,9 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
           L->top = ra + b;  /* top signals number of arguments */
         /* else previous instruction set top */
         savepc(L);  /* in case of errors */
-        if ((newci = viperD_precall(L, ra, nresults)) == NULL)
+        if ((newci = venomD_precall(L, ra, nresults)) == NULL)
           updatetrap(ci);  /* C call; nothing else to be done */
-        else {  /* Viper call: run function in this same C frame */
+        else {  /* Venom call: run function in this same C frame */
           ci = newci;
           goto startfunc;
         }
@@ -1653,16 +1653,16 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
           b = cast_int(L->top - ra);
         savepc(ci);  /* several calls here can raise errors */
         if (TESTARG_k(i)) {
-          viperF_closeupval(L, base);  /* close upvalues from current call */
-          viper_assert(L->tbclist < base);  /* no pending tbc variables */
-          viper_assert(base == ci->func + 1);
+          venomF_closeupval(L, base);  /* close upvalues from current call */
+          venom_assert(L->tbclist < base);  /* no pending tbc variables */
+          venom_assert(base == ci->func + 1);
         }
-        if ((n = viperD_pretailcall(L, ci, ra, b, delta)) < 0)  /* Viper function? */
+        if ((n = venomD_pretailcall(L, ci, ra, b, delta)) < 0)  /* Venom function? */
           goto startfunc;  /* execute the callee */
         else {  /* C function? */
           ci->func -= delta;  /* restore 'func' (if vararg) */
-          viperD_poscall(L, ci, n);  /* finish caller */
-          updatetrap(ci);  /* 'viperD_poscall' can change hooks */
+          venomD_poscall(L, ci, n);  /* finish caller */
+          updatetrap(ci);  /* 'venomD_poscall' can change hooks */
           goto ret;  /* caller returns after the tail call */
         }
       }
@@ -1676,22 +1676,22 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
           ci->u2.nres = n;  /* save number of returns */
           if (L->top < ci->top)
             L->top = ci->top;
-          viperF_close(L, base, CLOSEKTOP, 1);
+          venomF_close(L, base, CLOSEKTOP, 1);
           updatetrap(ci);
           updatestack(ci);
         }
         if (nparams1)  /* vararg function? */
           ci->func -= ci->u.l.nextraargs + nparams1;
-        L->top = ra + n;  /* set call for 'viperD_poscall' */
-        viperD_poscall(L, ci, n);
-        updatetrap(ci);  /* 'viperD_poscall' can change hooks */
+        L->top = ra + n;  /* set call for 'venomD_poscall' */
+        venomD_poscall(L, ci, n);
+        updatetrap(ci);  /* 'venomD_poscall' can change hooks */
         goto ret;
       }
       vmcase(OP_RETURN0) {
         if (l_unlikely(L->hookmask)) {
           L->top = ra;
           savepc(ci);
-          viperD_poscall(L, ci, 0);  /* no hurry... */
+          venomD_poscall(L, ci, 0);  /* no hurry... */
           trap = 1;
         }
         else {  /* do the 'poscall' here */
@@ -1707,7 +1707,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         if (l_unlikely(L->hookmask)) {
           L->top = ra + 1;
           savepc(ci);
-          viperD_poscall(L, ci, 1);  /* no hurry... */
+          venomD_poscall(L, ci, 1);  /* no hurry... */
           trap = 1;
         }
         else {  /* do the 'poscall' here */
@@ -1722,7 +1722,7 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
               setnilvalue(s2v(L->top++));  /* complete missing results */
           }
         }
-       ret:  /* return from a Viper function */
+       ret:  /* return from a Venom function */
         if (ci->callstatus & CIST_FRESH)
           return;  /* end this frame */
         else {
@@ -1732,10 +1732,10 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       }
       vmcase(OP_FORLOOP) {
         if (ttisinteger(s2v(ra + 2))) {  /* integer loop? */
-          viper_Unsigned count = l_castS2U(ivalue(s2v(ra + 1)));
+          venom_Unsigned count = l_castS2U(ivalue(s2v(ra + 1)));
           if (count > 0) {  /* still more iterations? */
-            viper_Integer step = ivalue(s2v(ra + 2));
-            viper_Integer idx = ivalue(s2v(ra));  /* internal index */
+            venom_Integer step = ivalue(s2v(ra + 2));
+            venom_Integer idx = ivalue(s2v(ra));  /* internal index */
             chgivalue(s2v(ra + 1), count - 1);  /* update counter */
             idx = intop(+, idx, step);  /* add step to index */
             chgivalue(s2v(ra), idx);  /* update internal index */
@@ -1756,10 +1756,10 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       }
       vmcase(OP_TFORPREP) {
         /* create to-be-closed upvalue (if needed) */
-        halfProtect(viperF_newtbviperval(L, ra + 3));
+        halfProtect(venomF_newtbvenomval(L, ra + 3));
         pc += GETARG_Bx(i);
-        i = *(pc++);  /* Viper to next instruction */
-        viper_assert(GET_OPCODE(i) == OP_TFORCALL && ra == RA(i));
+        i = *(pc++);  /* Venom to next instruction */
+        venom_assert(GET_OPCODE(i) == OP_TFORCALL && ra == RA(i));
         goto l_tforcall;
       }
       vmcase(OP_TFORCALL) {
@@ -1772,10 +1772,10 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
         /* push function, state, and control variable */
         memcpy(ra + 4, ra, 3 * sizeof(*ra));
         L->top = ra + 4 + 3;
-        ProtectNT(viperD_call(L, ra + 4, GETARG_C(i)));  /* do the call */
+        ProtectNT(venomD_call(L, ra + 4, GETARG_C(i)));  /* do the call */
         updatestack(ci);  /* stack may have changed */
-        i = *(pc++);  /* Viper to next instruction */
-        viper_assert(GET_OPCODE(i) == OP_TFORLOOP && ra == RA(i));
+        i = *(pc++);  /* Venom to next instruction */
+        venom_assert(GET_OPCODE(i) == OP_TFORLOOP && ra == RA(i));
         goto l_tforloop;
       }
       vmcase(OP_TFORLOOP) {
@@ -1799,13 +1799,13 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
           last += GETARG_Ax(*pc) * (MAXARG_C + 1);
           pc++;
         }
-        if (last > viperH_realasize(h))  /* needs more space? */
-          viperH_resizearray(L, h, last);  /* preallocate it at once */
+        if (last > venomH_realasize(h))  /* needs more space? */
+          venomH_resizearray(L, h, last);  /* preallocate it at once */
         for (; n > 0; n--) {
           TValue *val = s2v(ra + n);
           setobj2t(L, &h->array[last - 1], val);
           last--;
-          viperC_barrierback(L, obj2gco(h), val);
+          venomC_barrierback(L, obj2gco(h), val);
         }
         vmbreak;
       }
@@ -1817,20 +1817,20 @@ void viperV_execute (viper_State *L, CallInfo *ci) {
       }
       vmcase(OP_VARARG) {
         int n = GETARG_C(i) - 1;  /* required results */
-        Protect(viperT_getvarargs(L, ci, ra, n));
+        Protect(venomT_getvarargs(L, ci, ra, n));
         vmbreak;
       }
       vmcase(OP_VARARGPREP) {
-        ProtectNT(viperT_adjustvarargs(L, GETARG_A(i), ci, cl->p));
+        ProtectNT(venomT_adjustvarargs(L, GETARG_A(i), ci, cl->p));
         if (l_unlikely(trap)) {  /* previous "Protect" updated trap */
-          viperD_hookcall(L, ci);
+          venomD_hookcall(L, ci);
           L->oldpc = 1;  /* next opcode will be seen as a "new" line */
         }
         updatebase(ci);  /* function has new base after adjustment */
         vmbreak;
       }
       vmcase(OP_EXTRAARG) {
-        viper_assert(0);
+        venom_assert(0);
         vmbreak;
       }
     }

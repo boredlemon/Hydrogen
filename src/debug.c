@@ -1,11 +1,11 @@
 /*
 ** $Id: debug.c $
 ** Debug Interface
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define debug_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "api.h"
 #include "code.h"
@@ -31,15 +31,15 @@
 
 
 
-#define noViperClosure(f)		((f) == NULL || (f)->c.tt == VIPER_VCCL)
+#define noVenomClosure(f)		((f) == NULL || (f)->c.tt == VENOM_VCCL)
 
 
-static const char *funcnamefromcall (viper_State *L, CallInfo *ci,
+static const char *funcnamefromcall (venom_State *L, CallInfo *ci,
                                                    const char **name);
 
 
 static int currentpc (CallInfo *ci) {
-  viper_assert(isViper(ci));
+  venom_assert(isVenom(ci));
   return pcRel(ci->u.l.savedpc, ci_func(ci)->p);
 }
 
@@ -65,7 +65,7 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
   else {
     int i = cast_uint(pc) / MAXIWTHABS - 1;  /* get an estimate */
     /* estimate must be a lower bound of the correct base */
-    viper_assert(i < 0 ||
+    venom_assert(i < 0 ||
               (i < f->sizeabslineinfo && f->abslineinfo[i].pc <= pc));
     while (i + 1 < f->sizeabslineinfo && pc >= f->abslineinfo[i + 1].pc)
       i++;  /* low estimate; adjust it */
@@ -80,14 +80,14 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
 ** first gets a base line and from there does the increments until
 ** the desired instruction.
 */
-int viperG_getfuncline (const Proto *f, int pc) {
+int venomG_getfuncline (const Proto *f, int pc) {
   if (f->lineinfo == NULL)  /* no debug information? */
     return -1;
   else {
     int basepc;
     int baseline = getbaseline(f, pc, &basepc);
     while (basepc++ < pc) {  /* walk until given instruction */
-      viper_assert(f->lineinfo[basepc] != ABSLINEINFO);
+      venom_assert(f->lineinfo[basepc] != ABSLINEINFO);
       baseline += f->lineinfo[basepc];  /* correct line */
     }
     return baseline;
@@ -96,12 +96,12 @@ int viperG_getfuncline (const Proto *f, int pc) {
 
 
 static int getcurrentline (CallInfo *ci) {
-  return viperG_getfuncline(ci_func(ci)->p, currentpc(ci));
+  return venomG_getfuncline(ci_func(ci)->p, currentpc(ci));
 }
 
 
 /*
-** Set 'trap' for all active Viper frames.
+** Set 'trap' for all active Venom frames.
 ** This function can be called during a signal, under "reasonable"
 ** assumptions. A new 'ci' is completely linked in the list before it
 ** becomes part of the "active" list, and we assume that pointers are
@@ -109,11 +109,11 @@ static int getcurrentline (CallInfo *ci) {
 ** (A compiler doing interprocedural optimizations could, theoretically,
 ** reorder memory writes in such a way that the list could be
 ** temporarily broken while inserting a new element. We simply assume it
-** has no Viperod reasons to do that.)
+** has no Venomod reasons to do that.)
 */
 static void settraps (CallInfo *ci) {
   for (; ci != NULL; ci = ci->previous)
-    if (isViper(ci))
+    if (isVenom(ci))
       ci->u.l.trap = 1;
 }
 
@@ -126,9 +126,9 @@ static void settraps (CallInfo *ci) {
 ** values (causes at most one wrong hook call). 'hookmask' is an atomic
 ** value. We assume that pointers are atomic too (e.g., gcc ensures that
 ** for all platforms where it runs). Moreover, 'hook' is always checked
-** before being called (see 'viperD_hook').
+** before being called (see 'venomD_hook').
 */
-VIPER_API void viper_sethook (viper_State *L, viper_Hook func, int mask, int count) {
+VENOM_API void venom_sethook (venom_State *L, venom_Hook func, int mask, int count) {
   if (func == NULL || mask == 0) {  /* turn off hooks? */
     mask = 0;
     func = NULL;
@@ -138,30 +138,30 @@ VIPER_API void viper_sethook (viper_State *L, viper_Hook func, int mask, int cou
   resethookcount(L);
   L->hookmask = cast_byte(mask);
   if (mask)
-    settraps(L->ci);  /* to trace inside 'viperV_execute' */
+    settraps(L->ci);  /* to trace inside 'venomV_execute' */
 }
 
 
-VIPER_API viper_Hook viper_gethook (viper_State *L) {
+VENOM_API venom_Hook venom_gethook (venom_State *L) {
   return L->hook;
 }
 
 
-VIPER_API int viper_gethookmask (viper_State *L) {
+VENOM_API int venom_gethookmask (venom_State *L) {
   return L->hookmask;
 }
 
 
-VIPER_API int viper_gethookcount (viper_State *L) {
+VENOM_API int venom_gethookcount (venom_State *L) {
   return L->basehookcount;
 }
 
 
-VIPER_API int viper_getstack (viper_State *L, int level, viper_Debug *ar) {
+VENOM_API int venom_getstack (venom_State *L, int level, venom_Debug *ar) {
   int status;
   CallInfo *ci;
   if (level < 0) return 0;  /* invalid (negative) level */
-  viper_lock(L);
+  venom_lock(L);
   for (ci = L->ci; level > 0 && ci != &L->base_ci; ci = ci->previous)
     level--;
   if (level == 0 && ci != &L->base_ci) {  /* level found? */
@@ -169,7 +169,7 @@ VIPER_API int viper_getstack (viper_State *L, int level, viper_Debug *ar) {
     ar->i_ci = ci;
   }
   else status = 0;  /* no such level */
-  viper_unlock(L);
+  venom_unlock(L);
   return status;
 }
 
@@ -193,20 +193,20 @@ static const char *findvararg (CallInfo *ci, int n, StkId *pos) {
 }
 
 
-const char *viperG_findlocal (viper_State *L, CallInfo *ci, int n, StkId *pos) {
+const char *venomG_findlocal (venom_State *L, CallInfo *ci, int n, StkId *pos) {
   StkId base = ci->func + 1;
   const char *name = NULL;
-  if (isViper(ci)) {
+  if (isVenom(ci)) {
     if (n < 0)  /* access to vararg values? */
       return findvararg(ci, n, pos);
     else
-      name = viperF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
+      name = venomF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
   }
   if (name == NULL) {  /* no 'standard' name? */
     StkId limit = (ci == L->ci) ? L->top : ci->next->func;
     if (limit - base >= n && n > 0) {  /* is 'n' inside 'ci' stack? */
       /* generic name for any valid slot */
-      name = isViper(ci) ? "(temporary)" : "(C temporary)";
+      name = isVenom(ci) ? "(temporary)" : "(C temporary)";
     }
     else
       return NULL;  /* no name */
@@ -217,44 +217,44 @@ const char *viperG_findlocal (viper_State *L, CallInfo *ci, int n, StkId *pos) {
 }
 
 
-VIPER_API const char *viper_getlocal (viper_State *L, const viper_Debug *ar, int n) {
+VENOM_API const char *venom_getlocal (venom_State *L, const venom_Debug *ar, int n) {
   const char *name;
-  viper_lock(L);
+  venom_lock(L);
   if (ar == NULL) {  /* information about non-active function? */
-    if (!isfunctiontion(s2v(L->top - 1)))  /* not a Viper function? */
+    if (!isfunctiontion(s2v(L->top - 1)))  /* not a Venom function? */
       name = NULL;
     else  /* consider live variables at function start (parameters) */
-      name = viperF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
+      name = venomF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
   }
   else {  /* active function; get information through 'ar' */
     StkId pos = NULL;  /* to avoid warnings */
-    name = viperG_findlocal(L, ar->i_ci, n, &pos);
+    name = venomG_findlocal(L, ar->i_ci, n, &pos);
     if (name) {
       setobjs2s(L, L->top, pos);
       api_incr_top(L);
     }
   }
-  viper_unlock(L);
+  venom_unlock(L);
   return name;
 }
 
 
-VIPER_API const char *viper_setlocal (viper_State *L, const viper_Debug *ar, int n) {
+VENOM_API const char *venom_setlocal (venom_State *L, const venom_Debug *ar, int n) {
   StkId pos = NULL;  /* to avoid warnings */
   const char *name;
-  viper_lock(L);
-  name = viperG_findlocal(L, ar->i_ci, n, &pos);
+  venom_lock(L);
+  name = venomG_findlocal(L, ar->i_ci, n, &pos);
   if (name) {
     setobjs2s(L, pos, L->top - 1);
     L->top--;  /* pop value */
   }
-  viper_unlock(L);
+  venom_unlock(L);
   return name;
 }
 
 
-static void funcinfo (viper_Debug *ar, Closure *cl) {
-  if (noViperClosure(cl)) {
+static void funcinfo (venom_Debug *ar, Closure *cl) {
+  if (noVenomClosure(cl)) {
     ar->source = "=[C]";
     ar->srclen = LL("=[C]");
     ar->linedefined = -1;
@@ -273,9 +273,9 @@ static void funcinfo (viper_Debug *ar, Closure *cl) {
     }
     ar->linedefined = p->linedefined;
     ar->lastlinedefined = p->lastlinedefined;
-    ar->what = (ar->linedefined == 0) ? "main" : "Viper";
+    ar->what = (ar->linedefined == 0) ? "main" : "Venom";
   }
-  viperO_chunkid(ar->short_src, ar->source, ar->srclen);
+  venomO_chunkid(ar->short_src, ar->source, ar->srclen);
 }
 
 
@@ -283,12 +283,12 @@ static int nextline (const Proto *p, int currentline, int pc) {
   if (p->lineinfo[pc] != ABSLINEINFO)
     return currentline + p->lineinfo[pc];
   else
-    return viperG_getfuncline(p, pc);
+    return venomG_getfuncline(p, pc);
 }
 
 
-static void collectvalidlines (viper_State *L, Closure *f) {
-  if (noViperClosure(f)) {
+static void collectvalidlines (venom_State *L, Closure *f) {
+  if (noVenomClosure(f)) {
     setnilvalue(s2v(L->top));
     api_incr_top(L);
   }
@@ -297,26 +297,26 @@ static void collectvalidlines (viper_State *L, Closure *f) {
     TValue v;
     const Proto *p = f->l.p;
     int currentline = p->linedefined;
-    Table *t = viperH_new(L);  /* new table to store active lines */
+    Table *t = venomH_new(L);  /* new table to store active lines */
     sethvalue2s(L, L->top, t);  /* push it on stack */
     api_incr_top(L);
     setbtvalue(&v);  /* boolean 'true' to be the value of all indices */
     if (!p->is_vararg)  /* regular function? */
       i = 0;  /* consider all instructions */
     else {  /* vararg function */
-      viper_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
+      venom_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
       currentline = nextline(p, currentline, 0);
       i = 1;  /* skip first instruction (OP_VARARGPREP) */
     }
     for (; i < p->sizelineinfo; i++) {  /* for each instruction */
       currentline = nextline(p, currentline, i);  /* get its line */
-      viperH_setint(L, t, currentline, &v);  /* table[line] = true */
+      venomH_setint(L, t, currentline, &v);  /* table[line] = true */
     }
   }
 }
 
 
-static const char *getfuncname (viper_State *L, CallInfo *ci, const char **name) {
+static const char *getfuncname (venom_State *L, CallInfo *ci, const char **name) {
   /* calling function is a known function? */
   if (ci != NULL && !(ci->callstatus & CIST_TAIL))
     return funcnamefromcall(L, ci->previous, name);
@@ -324,7 +324,7 @@ static const char *getfuncname (viper_State *L, CallInfo *ci, const char **name)
 }
 
 
-static int auxgetinfo (viper_State *L, const char *what, viper_Debug *ar,
+static int auxgetinfo (venom_State *L, const char *what, venom_Debug *ar,
                        Closure *f, CallInfo *ci) {
   int status = 1;
   for (; *what; what++) {
@@ -334,12 +334,12 @@ static int auxgetinfo (viper_State *L, const char *what, viper_Debug *ar,
         break;
       }
       case 'l': {
-        ar->currentline = (ci && isViper(ci)) ? getcurrentline(ci) : -1;
+        ar->currentline = (ci && isVenom(ci)) ? getcurrentline(ci) : -1;
         break;
       }
       case 'u': {
         ar->nups = (f == NULL) ? 0 : f->c.nupvalues;
-        if (noViperClosure(f)) {
+        if (noVenomClosure(f)) {
           ar->isvararg = 1;
           ar->nparams = 0;
         }
@@ -371,7 +371,7 @@ static int auxgetinfo (viper_State *L, const char *what, viper_Debug *ar,
         break;
       }
       case 'L':
-      case 'f':  /* handled by viper_getinfo */
+      case 'f':  /* handled by venom_getinfo */
         break;
       default: status = 0;  /* invalid option */
     }
@@ -380,12 +380,12 @@ static int auxgetinfo (viper_State *L, const char *what, viper_Debug *ar,
 }
 
 
-VIPER_API int viper_getinfo (viper_State *L, const char *what, viper_Debug *ar) {
+VENOM_API int venom_getinfo (venom_State *L, const char *what, venom_Debug *ar) {
   int status;
   Closure *cl;
   CallInfo *ci;
   TValue *func;
-  viper_lock(L);
+  venom_lock(L);
   if (*what == '>') {
     ci = NULL;
     func = s2v(L->top - 1);
@@ -396,7 +396,7 @@ VIPER_API int viper_getinfo (viper_State *L, const char *what, viper_Debug *ar) 
   else {
     ci = ar->i_ci;
     func = s2v(ci->func);
-    viper_assert(ttisfunction(func));
+    venom_assert(ttisfunction(func));
   }
   cl = ttisclosure(func) ? clvalue(func) : NULL;
   status = auxgetinfo(L, what, ar, cl, ci);
@@ -406,7 +406,7 @@ VIPER_API int viper_getinfo (viper_State *L, const char *what, viper_Debug *ar) 
   }
   if (strchr(what, 'L'))
     collectvalidlines(L, cl);
-  viper_unlock(L);
+  venom_unlock(L);
   return status;
 }
 
@@ -519,14 +519,14 @@ static const char *gxf (const Proto *p, int pc, Instruction i, int isup) {
     name = upvalname(p, t);
   else
     getobjname(p, pc, t, &name);
-  return (name && strcmp(name, VIPER_ENV) == 0) ? "global" : "field";
+  return (name && strcmp(name, VENOM_ENV) == 0) ? "global" : "field";
 }
 
 
 static const char *getobjname (const Proto *p, int lastpc, int reg,
                                const char **name) {
   int pc;
-  *name = viperF_getlocalname(p, reg + 1, lastpc);
+  *name = venomF_getlocalname(p, reg + 1, lastpc);
   if (*name)  /* is a local? */
     return "local";
   /* else try symbolic execution */
@@ -578,7 +578,7 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
         rkname(p, pc, i, name);
         return "method";
       }
-      default: break;  /* Viper through to return NULL */
+      default: break;  /* Venom through to return NULL */
     }
   }
   return NULL;  /* could not find reasonable name */
@@ -587,11 +587,11 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
 
 /*
 ** Try to find a name for a function based on the code that called it.
-** (Only works when function was called by a Viper function.)
+** (Only works when function was called by a Venom function.)
 ** Returns what the name is (e.g., "for iterator", "method",
 ** "metamethod") and sets '*name' to point to the name.
 */
-static const char *funcnamefromcode (viper_State *L, const Proto *p,
+static const char *funcnamefromcode (venom_State *L, const Proto *p,
                                      int pc, const char **name) {
   TMS tm = (TMS)0;  /* (initial value avoids warnings) */
   Instruction i = p->code[pc];  /* calling instruction */
@@ -635,7 +635,7 @@ static const char *funcnamefromcode (viper_State *L, const Proto *p,
 /*
 ** Try to find a name for a function based on how it was called.
 */
-static const char *funcnamefromcall (viper_State *L, CallInfo *ci,
+static const char *funcnamefromcall (venom_State *L, CallInfo *ci,
                                                    const char **name) {
   if (ci->callstatus & CIST_HOOKED) {  /* was it called inside a hook? */
     *name = "?";
@@ -645,7 +645,7 @@ static const char *funcnamefromcall (viper_State *L, CallInfo *ci,
     *name = "__gc";
     return "metamethod";  /* report it as such */
   }
-  else if (isViper(ci))
+  else if (isVenom(ci))
     return funcnamefromcode(L, ci_func(ci)->p, currentpc(ci), name);
   else
     return NULL;
@@ -690,23 +690,23 @@ static const char *getupvalname (CallInfo *ci, const TValue *o,
 }
 
 
-static const char *formatvarinfo (viper_State *L, const char *kind,
+static const char *formatvarinfo (venom_State *L, const char *kind,
                                                 const char *name) {
   if (kind == NULL)
     return "";  /* no information */
   else
-    return viperO_pushfstring(L, " (%s '%s')", kind, name);
+    return venomO_pushfstring(L, " (%s '%s')", kind, name);
 }
 
 /*
 ** Build a string with a "description" for the value 'o', such as
 ** "variable 'x'" or "upvalue 'y'".
 */
-static const char *varinfo (viper_State *L, const TValue *o) {
+static const char *varinfo (venom_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = NULL;
-  if (isViper(ci)) {
+  if (isVenom(ci)) {
     kind = getupvalname(ci, o, &name);  /* check whether 'o' is an upvalue */
     if (!kind && isinstack(ci, o))  /* no? try a register */
       kind = getobjname(ci_func(ci)->p, currentpc(ci),
@@ -719,10 +719,10 @@ static const char *varinfo (viper_State *L, const TValue *o) {
 /*
 ** Raise a type error
 */
-static l_noret typeerror (viper_State *L, const TValue *o, const char *op,
+static l_noret typeerror (venom_State *L, const TValue *o, const char *op,
                           const char *extra) {
-  const char *t = viperT_objtypename(L, o);
-  viperG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
+  const char *t = venomT_objtypename(L, o);
+  venomG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
 }
 
 
@@ -730,7 +730,7 @@ static l_noret typeerror (viper_State *L, const TValue *o, const char *op,
 ** Raise a type error with "standard" information about the faulty
 ** object 'o' (using 'varinfo').
 */
-l_noret viperG_typeerror (viper_State *L, const TValue *o, const char *op) {
+l_noret venomG_typeerror (venom_State *L, const TValue *o, const char *op) {
   typeerror(L, o, op, varinfo(L, o));
 }
 
@@ -740,7 +740,7 @@ l_noret viperG_typeerror (viper_State *L, const TValue *o, const char *op) {
 ** for the object based on how it was called ('funcnamefromcall'); if it
 ** cannot get a name there, try 'varinfo'.
 */
-l_noret viperG_callerror (viper_State *L, const TValue *o) {
+l_noret venomG_callerror (venom_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = funcnamefromcall(L, ci, &name);
@@ -749,84 +749,84 @@ l_noret viperG_callerror (viper_State *L, const TValue *o) {
 }
 
 
-l_noret viperG_forerror (viper_State *L, const TValue *o, const char *what) {
-  viperG_runerror(L, "bad 'for' %s (number expected, Vipert %s)",
-                   what, viperT_objtypename(L, o));
+l_noret venomG_forerror (venom_State *L, const TValue *o, const char *what) {
+  venomG_runerror(L, "bad 'for' %s (number expected, Venomt %s)",
+                   what, venomT_objtypename(L, o));
 }
 
 
-l_noret viperG_concaterror (viper_State *L, const TValue *p1, const TValue *p2) {
+l_noret venomG_concaterror (venom_State *L, const TValue *p1, const TValue *p2) {
   if (ttisstring(p1) || cvt2str(p1)) p1 = p2;
-  viperG_typeerror(L, p1, "concatenate");
+  venomG_typeerror(L, p1, "concatenate");
 }
 
 
-l_noret viperG_opinterror (viper_State *L, const TValue *p1,
+l_noret venomG_opinterror (venom_State *L, const TValue *p1,
                          const TValue *p2, const char *msg) {
   if (!ttisnumber(p1))  /* first operand is wrong? */
     p2 = p1;  /* now second is wrong */
-  viperG_typeerror(L, p2, msg);
+  venomG_typeerror(L, p2, msg);
 }
 
 
 /*
 ** Error when both values are convertible to numbers, but not to integers
 */
-l_noret viperG_tointerror (viper_State *L, const TValue *p1, const TValue *p2) {
-  viper_Integer temp;
-  if (!viperV_tointegerns(p1, &temp, VIPER_FLOORN2I))
+l_noret venomG_tointerror (venom_State *L, const TValue *p1, const TValue *p2) {
+  venom_Integer temp;
+  if (!venomV_tointegerns(p1, &temp, VENOM_FLOORN2I))
     p2 = p1;
-  viperG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
+  venomG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
 }
 
 
-l_noret viperG_ordererror (viper_State *L, const TValue *p1, const TValue *p2) {
-  const char *t1 = viperT_objtypename(L, p1);
-  const char *t2 = viperT_objtypename(L, p2);
+l_noret venomG_ordererror (venom_State *L, const TValue *p1, const TValue *p2) {
+  const char *t1 = venomT_objtypename(L, p1);
+  const char *t2 = venomT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
-    viperG_runerror(L, "attempt to compare two %s values", t1);
+    venomG_runerror(L, "attempt to compare two %s values", t1);
   else
-    viperG_runerror(L, "attempt to compare %s with %s", t1, t2);
+    venomG_runerror(L, "attempt to compare %s with %s", t1, t2);
 }
 
 
 /* add src:line information to 'msg' */
-const char *viperG_addinfo (viper_State *L, const char *msg, TString *src,
+const char *venomG_addinfo (venom_State *L, const char *msg, TString *src,
                                         int line) {
-  char buff[VIPER_IDSIZE];
+  char buff[VENOM_IDSIZE];
   if (src)
-    viperO_chunkid(buff, getstr(src), tsslen(src));
+    venomO_chunkid(buff, getstr(src), tsslen(src));
   else {  /* no source available; use "?" instead */
     buff[0] = '?'; buff[1] = '\0';
   }
-  return viperO_pushfstring(L, "%s:%d: %s", buff, line, msg);
+  return venomO_pushfstring(L, "%s:%d: %s", buff, line, msg);
 }
 
 
-l_noret viperG_errormsg (viper_State *L) {
+l_noret venomG_errormsg (venom_State *L) {
   if (L->errfunc != 0) {  /* is there an error handling function? */
     StkId errfunc = restorestack(L, L->errfunc);
-    viper_assert(ttisfunction(s2v(errfunc)));
+    venom_assert(ttisfunction(s2v(errfunc)));
     setobjs2s(L, L->top, L->top - 1);  /* move argument */
     setobjs2s(L, L->top - 1, errfunc);  /* push function */
     L->top++;  /* assume EXTRA_STACK */
-    viperD_callnoyield(L, L->top - 2, 1);  /* call it */
+    venomD_callnoyield(L, L->top - 2, 1);  /* call it */
   }
-  viperD_throw(L, VIPER_ERRRUN);
+  venomD_throw(L, VENOM_ERRRUN);
 }
 
 
-l_noret viperG_runerror (viper_State *L, const char *fmt, ...) {
+l_noret venomG_runerror (venom_State *L, const char *fmt, ...) {
   CallInfo *ci = L->ci;
   const char *msg;
   va_list argp;
-  viperC_checkGC(L);  /* error message uses memory */
+  venomC_checkGC(L);  /* error message uses memory */
   va_start(argp, fmt);
-  msg = viperO_pushvfstring(L, fmt, argp);  /* format message */
+  msg = venomO_pushvfstring(L, fmt, argp);  /* format message */
   va_end(argp);
-  if (isViper(ci))  /* if Viper function, add source:line information */
-    viperG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
-  viperG_errormsg(L);
+  if (isVenom(ci))  /* if Venom function, add source:line information */
+    venomG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
+  venomG_errormsg(L);
 }
 
 
@@ -834,9 +834,9 @@ l_noret viperG_runerror (viper_State *L, const char *fmt, ...) {
 ** Check whether new instruction 'newpc' is in a different line from
 ** previous instruction 'oldpc'. More often than not, 'newpc' is only
 ** one or a few instructions after 'oldpc' (it must be after, see
-** caller), so try to avoid calling 'viperG_getfuncline'. If they are
-** too far apart, there is a Viperod chance of a ABSLINEINFO in the way,
-** so it Viperes directly to 'viperG_getfuncline'.
+** caller), so try to avoid calling 'venomG_getfuncline'. If they are
+** too far apart, there is a Venomod chance of a ABSLINEINFO in the way,
+** so it Venomes directly to 'venomG_getfuncline'.
 */
 static int changedline (const Proto *p, int oldpc, int newpc) {
   if (p->lineinfo == NULL)  /* no debug information? */
@@ -855,12 +855,12 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
   }
   /* either instructions are too far apart or there is an absolute line
      info in the way; compute line difference explicitly */
-  return (viperG_getfuncline(p, oldpc) != viperG_getfuncline(p, newpc));
+  return (venomG_getfuncline(p, oldpc) != venomG_getfuncline(p, newpc));
 }
 
 
 /*
-** Traces the execution of a Viper function. Called before the execution
+** Traces the execution of a Venom function. Called before the execution
 ** of each opcode, when debug is on. 'L->oldpc' stores the last
 ** instruction traced, to detect line changes. When entering a new
 ** function, 'npci' will be zero and will test as a new line whatever
@@ -871,21 +871,21 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
 ** This function is not "Protected" when called, so it should correct
 ** 'L->top' before calling anything that can run the GC.
 */
-int viperG_traceexec (viper_State *L, const Instruction *pc) {
+int venomG_traceexec (venom_State *L, const Instruction *pc) {
   CallInfo *ci = L->ci;
   lu_byte mask = L->hookmask;
   const Proto *p = ci_func(ci)->p;
   int counthook;
-  if (!(mask & (VIPER_MASKLINE | VIPER_MASKCOUNT))) {  /* no hooks? */
+  if (!(mask & (VENOM_MASKLINE | VENOM_MASKCOUNT))) {  /* no hooks? */
     ci->u.l.trap = 0;  /* don't need to stop again */
     return 0;  /* turn off 'trap' */
   }
   pc++;  /* reference is always next instruction */
   ci->u.l.savedpc = pc;  /* save 'pc' */
-  counthook = (--L->hookcount == 0 && (mask & VIPER_MASKCOUNT));
+  counthook = (--L->hookcount == 0 && (mask & VENOM_MASKCOUNT));
   if (counthook)
     resethookcount(L);  /* reset count */
-  else if (!(mask & VIPER_MASKLINE))
+  else if (!(mask & VENOM_MASKLINE))
     return 1;  /* no line hook and count != 0; nothing to be done now */
   if (ci->callstatus & CIST_HOOKYIELD) {  /* called hook last time? */
     ci->callstatus &= ~CIST_HOOKYIELD;  /* erase mark */
@@ -894,24 +894,24 @@ int viperG_traceexec (viper_State *L, const Instruction *pc) {
   if (!isIT(*(ci->u.l.savedpc - 1)))  /* top not being used? */
     L->top = ci->top;  /* correct top */
   if (counthook)
-    viperD_hook(L, VIPER_HOOKCOUNT, -1, 0, 0);  /* call count hook */
-  if (mask & VIPER_MASKLINE) {
+    venomD_hook(L, VENOM_HOOKCOUNT, -1, 0, 0);  /* call count hook */
+  if (mask & VENOM_MASKLINE) {
     /* 'L->oldpc' may be invalid; use zero in this case */
     int oldpc = (L->oldpc < p->sizecode) ? L->oldpc : 0;
     int npci = pcRel(pc, p);
     if (npci <= oldpc ||  /* call hook when jump back (loop), */
         changedline(p, oldpc, npci)) {  /* or when enter new line */
-      int newline = viperG_getfuncline(p, npci);
-      viperD_hook(L, VIPER_HOOKLINE, newline, 0, 0);  /* call line hook */
+      int newline = venomG_getfuncline(p, npci);
+      venomD_hook(L, VENOM_HOOKLINE, newline, 0, 0);  /* call line hook */
     }
     L->oldpc = npci;  /* 'pc' of last call to line hook */
   }
-  if (L->status == VIPER_YIELD) {  /* did hook yield? */
+  if (L->status == VENOM_YIELD) {  /* did hook yield? */
     if (counthook)
       L->hookcount = 1;  /* undo decrement to zero */
     ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */
     ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yielded */
-    viperD_throw(L, VIPER_YIELD);
+    venomD_throw(L, VENOM_YIELD);
   }
   return 1;  /* keep 'trap' on */
 }

@@ -1,7 +1,7 @@
 /*
 ** $Id: function.h $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #ifndef function_h
@@ -23,7 +23,7 @@
 
 
 /*
-** maximum number of upvalues in a closure (both C and Viper). (Value
+** maximum number of upvalues in a closure (both C and Venom). (Value
 ** must fit in a VM register.)
 */
 #define MAXUPVAL	255
@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-VIPERI_FUNC Proto *viperF_newproto (viper_State *L);
-VIPERI_FUNC CClosure *viperF_newCclosure (viper_State *L, int nupvals);
-VIPERI_FUNC LClosure *viperF_newLclosure (viper_State *L, int nupvals);
-VIPERI_FUNC void viperF_initupvals (viper_State *L, LClosure *cl);
-VIPERI_FUNC UpVal *viperF_findupval (viper_State *L, StkId level);
-VIPERI_FUNC void viperF_newtbviperval (viper_State *L, StkId level);
-VIPERI_FUNC void viperF_closeupval (viper_State *L, StkId level);
-VIPERI_FUNC void viperF_close (viper_State *L, StkId level, int status, int yy);
-VIPERI_FUNC void viperF_unlinkupval (UpVal *uv);
-VIPERI_FUNC void viperF_freeproto (viper_State *L, Proto *f);
-VIPERI_FUNC const char *viperF_getlocalname (const Proto *func, int local_number,
+VENOMI_FUNC Proto *venomF_newproto (venom_State *L);
+VENOMI_FUNC CClosure *venomF_newCclosure (venom_State *L, int nupvals);
+VENOMI_FUNC LClosure *venomF_newLclosure (venom_State *L, int nupvals);
+VENOMI_FUNC void venomF_initupvals (venom_State *L, LClosure *cl);
+VENOMI_FUNC UpVal *venomF_findupval (venom_State *L, StkId level);
+VENOMI_FUNC void venomF_newtbvenomval (venom_State *L, StkId level);
+VENOMI_FUNC void venomF_closeupval (venom_State *L, StkId level);
+VENOMI_FUNC void venomF_close (venom_State *L, StkId level, int status, int yy);
+VENOMI_FUNC void venomF_unlinkupval (UpVal *uv);
+VENOMI_FUNC void venomF_freeproto (venom_State *L, Proto *f);
+VENOMI_FUNC const char *venomF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

@@ -1,9 +1,9 @@
--- Define the Viper executable path
-import viper_executable = "/usr/local/bin/viper"
+-- Define the Venom executable path
+import venom_executable = "/usr/local/bin/venom"
 
--- Function to execute Viper code and capture the output
-function executeViperCode(code)
-    import cmd = io.popen(viper_executable .. " -e '" .. code .. "' 2>&1")
+-- Function to execute Venom code and capture the output
+function executeVenomCode(code)
+    import cmd = io.popen(venom_executable .. " -e '" .. code .. "' 2>&1")
     import output = cmd:read("*a")
     cmd:close()
     return output
@@ -11,13 +11,13 @@ stop
 
 -- Main loop for the interactive IDE
 while true do
-    io.write("Viper IDE > ")
+    io.write("Venom IDE > ")
     import code = io.read()
     
     if code == "exit" then
         break  -- Exit the IDE
     stop
 
-    import output = executeViperCode(code)
+    import output = executeVenomCode(code)
     io.write(output)
 stop

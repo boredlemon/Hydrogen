@@ -1,7 +1,7 @@
 /*
 ** $Id: object.h $
-** Type definitions for Viper objects
-** See Copyright Notice in viper.h
+** Type definitions for Venom objects
+** See Copyright Notice in venom.h
 */
 
 
@@ -13,27 +13,27 @@
 
 
 #include "limits.h"
-#include "viper.h"
+#include "venom.h"
 
 
 /*
 ** Extra types for collectable non-values
 */
-#define VIPER_TUPVAL	VIPER_NUMTYPES  /* upvalues */
-#define VIPER_TPROTO	(VIPER_NUMTYPES+1)  /* function prototypes */
-#define VIPER_TDEADKEY	(VIPER_NUMTYPES+2)  /* removed keys in tables */
+#define VENOM_TUPVAL	VENOM_NUMTYPES  /* upvalues */
+#define VENOM_TPROTO	(VENOM_NUMTYPES+1)  /* function prototypes */
+#define VENOM_TDEADKEY	(VENOM_NUMTYPES+2)  /* removed keys in tables */
 
 
 
 /*
-** number of all possible types (including VIPER_TNONE but excluding DEADKEY)
+** number of all possible types (including VENOM_TNONE but excluding DEADKEY)
 */
-#define VIPER_TOTALTYPES		(VIPER_TPROTO + 2)
+#define VENOM_TOTALTYPES		(VENOM_TPROTO + 2)
 
 
 /*
 ** tags for Tagged Values have the following use of bits:
-** bits 0-3: actual tag (a VIPER_T* constant)
+** bits 0-3: actual tag (a VENOM_T* constant)
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
@@ -44,19 +44,19 @@
 
 
 /*
-** Union of all Viper values
+** Union of all Venom values
 */
 typedef union Value {
   struct GCObject *gc;    /* collectable objects */
   void *p;         /* light userdata */
-  viper_CFunction f; /* light C functions */
-  viper_Integer i;   /* integer numbers */
-  viper_Number n;    /* float numbers */
+  venom_CFunction f; /* light C functions */
+  venom_Integer i;   /* integer numbers */
+  venom_Number n;    /* float numbers */
 } Value;
 
 
 /*
-** Tagged Values. This is the basic representation of values in Viper:
+** Tagged Values. This is the basic representation of values in Venom:
 ** an actual value plus a tag with its type.
 */
 
@@ -102,7 +102,7 @@ typedef struct TValue {
 ** macros using this one to be used where L is not available.
 */
 #define checkliveness(L,obj) \
-	((void)L, viper_longassert(!iscollectable(obj) || \
+	((void)L, venom_longassert(!iscollectable(obj) || \
 		(righttt(obj) && (L == NULL || !isdead(G(L),gcvalue(obj))))))
 
 
@@ -116,7 +116,7 @@ typedef struct TValue {
 #define setobj(L,obj1,obj2) \
 	{ TValue *io1=(obj1); const TValue *io2=(obj2); \
           io1->value_ = io2->value_; settt_(io1, io2->tt_); \
-	  checkliveness(L,io1); viper_assert(!isnonstrictnil(io1)); }
+	  checkliveness(L,io1); venom_assert(!isnonstrictnil(io1)); }
 
 /*
 ** Different types of assignments, according to source and destination.
@@ -136,7 +136,7 @@ typedef struct TValue {
 
 
 /*
-** Entries in a Viper stack. Field 'tbclist' forms a list of all
+** Entries in a Venom stack. Field 'tbclist' forms a list of all
 ** to-be-closed variables active in this stack. Dummy entries are
 ** used when the distance between two tbc variables does not fit
 ** in an unsigned short. They are represented by delta==0, and
@@ -167,27 +167,27 @@ typedef StackValue *StkId;
 */
 
 /* Standard nil */
-#define VIPER_VNIL	makevariant(VIPER_TNIL, 0)
+#define VENOM_VNIL	makevariant(VENOM_TNIL, 0)
 
 /* Empty slot (which might be different from a slot containing nil) */
-#define VIPER_VEMPTY	makevariant(VIPER_TNIL, 1)
+#define VENOM_VEMPTY	makevariant(VENOM_TNIL, 1)
 
 /* Value returned for a key not found in a table (absent key) */
-#define VIPER_VABSTKEY	makevariant(VIPER_TNIL, 2)
+#define VENOM_VABSTKEY	makevariant(VENOM_TNIL, 2)
 
 
 /* macro to test for (any kind of) nil */
-#define ttisnil(v)		checktype((v), VIPER_TNIL)
+#define ttisnil(v)		checktype((v), VENOM_TNIL)
 
 
 /* macro to test for a standard nil */
-#define ttisstrictnil(o)	checktag((o), VIPER_VNIL)
+#define ttisstrictnil(o)	checktag((o), VENOM_VNIL)
 
 
-#define setnilvalue(obj) settt_(obj, VIPER_VNIL)
+#define setnilvalue(obj) settt_(obj, VENOM_VNIL)
 
 
-#define isabstkey(v)		checktag((v), VIPER_VABSTKEY)
+#define isabstkey(v)		checktag((v), VENOM_VABSTKEY)
 
 
 /*
@@ -205,11 +205,11 @@ typedef StackValue *StkId;
 
 
 /* macro defining a value corresponding to an absent key */
-#define ABSTKEYCONSTANT		{NULL}, VIPER_VABSTKEY
+#define ABSTKEYCONSTANT		{NULL}, VENOM_VABSTKEY
 
 
 /* mark an entry as empty */
-#define setempty(v)		settt_(v, VIPER_VEMPTY)
+#define setempty(v)		settt_(v, VENOM_VEMPTY)
 
 
 
@@ -223,19 +223,19 @@ typedef StackValue *StkId;
 */
 
 
-#define VIPER_VFALSE	makevariant(VIPER_TBOOLEAN, 0)
-#define VIPER_VTRUE	makevariant(VIPER_TBOOLEAN, 1)
+#define VENOM_VFALSE	makevariant(VENOM_TBOOLEAN, 0)
+#define VENOM_VTRUE	makevariant(VENOM_TBOOLEAN, 1)
 
-#define ttisboolean(o)		checktype((o), VIPER_TBOOLEAN)
-#define ttisfalse(o)		checktag((o), VIPER_VFALSE)
-#define ttistrue(o)		checktag((o), VIPER_VTRUE)
+#define ttisboolean(o)		checktype((o), VENOM_TBOOLEAN)
+#define ttisfalse(o)		checktag((o), VENOM_VFALSE)
+#define ttistrue(o)		checktag((o), VENOM_VTRUE)
 
 
 #define l_isfalse(o)	(ttisfalse(o) || ttisnil(o))
 
 
-#define setbfvalue(obj)		settt_(obj, VIPER_VFALSE)
-#define setbtvalue(obj)		settt_(obj, VIPER_VTRUE)
+#define setbfvalue(obj)		settt_(obj, VENOM_VFALSE)
+#define setbtvalue(obj)		settt_(obj, VENOM_VTRUE)
 
 /* }================================================================== */
 
@@ -246,15 +246,15 @@ typedef StackValue *StkId;
 ** ===================================================================
 */
 
-#define VIPER_VTHREAD		makevariant(VIPER_TTHREAD, 0)
+#define VENOM_VTHREAD		makevariant(VENOM_TTHREAD, 0)
 
-#define ttisthread(o)		checktag((o), ctb(VIPER_VTHREAD))
+#define ttisthread(o)		checktag((o), ctb(VENOM_VTHREAD))
 
 #define thvalue(o)	check_exp(ttisthread(o), gco2th(val_(o).gc))
 
 #define setthvalue(L,obj,x) \
-  { TValue *io = (obj); viper_State *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(VIPER_VTHREAD)); \
+  { TValue *io = (obj); venom_State *x_ = (x); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(VENOM_VTHREAD)); \
     checkliveness(L,io); }
 
 #define setthvalue2s(L,o,t)	setthvalue(L,s2v(o),t)
@@ -307,12 +307,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for numbers */
-#define VIPER_VNUMINT	makevariant(VIPER_TNUMBER, 0)  /* integer numbers */
-#define VIPER_VNUMFLT	makevariant(VIPER_TNUMBER, 1)  /* float numbers */
+#define VENOM_VNUMINT	makevariant(VENOM_TNUMBER, 0)  /* integer numbers */
+#define VENOM_VNUMFLT	makevariant(VENOM_TNUMBER, 1)  /* float numbers */
 
-#define ttisnumber(o)		checktype((o), VIPER_TNUMBER)
-#define ttisfloat(o)		checktag((o), VIPER_VNUMFLT)
-#define ttisinteger(o)		checktag((o), VIPER_VNUMINT)
+#define ttisnumber(o)		checktype((o), VENOM_TNUMBER)
+#define ttisfloat(o)		checktag((o), VENOM_VNUMFLT)
+#define ttisinteger(o)		checktag((o), VENOM_VNUMINT)
 
 #define nvalue(o)	check_exp(ttisnumber(o), \
 	(ttisinteger(o) ? cast_num(ivalue(o)) : fltvalue(o)))
@@ -323,16 +323,16 @@ typedef struct GCObject {
 #define ivalueraw(v)	((v).i)
 
 #define setfltvalue(obj,x) \
-  { TValue *io=(obj); val_(io).n=(x); settt_(io, VIPER_VNUMFLT); }
+  { TValue *io=(obj); val_(io).n=(x); settt_(io, VENOM_VNUMFLT); }
 
 #define chgfltvalue(obj,x) \
-  { TValue *io=(obj); viper_assert(ttisfloat(io)); val_(io).n=(x); }
+  { TValue *io=(obj); venom_assert(ttisfloat(io)); val_(io).n=(x); }
 
 #define setivalue(obj,x) \
-  { TValue *io=(obj); val_(io).i=(x); settt_(io, VIPER_VNUMINT); }
+  { TValue *io=(obj); val_(io).i=(x); settt_(io, VENOM_VNUMINT); }
 
 #define chgivalue(obj,x) \
-  { TValue *io=(obj); viper_assert(ttisinteger(io)); val_(io).i=(x); }
+  { TValue *io=(obj); venom_assert(ttisinteger(io)); val_(io).i=(x); }
 
 /* }================================================================== */
 
@@ -344,12 +344,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for strings */
-#define VIPER_VSHRSTR	makevariant(VIPER_TSTRING, 0)  /* short strings */
-#define VIPER_VLNGSTR	makevariant(VIPER_TSTRING, 1)  /* long strings */
+#define VENOM_VSHRSTR	makevariant(VENOM_TSTRING, 0)  /* short strings */
+#define VENOM_VLNGSTR	makevariant(VENOM_TSTRING, 1)  /* long strings */
 
-#define ttisstring(o)		checktype((o), VIPER_TSTRING)
-#define ttisshrstring(o)	checktag((o), ctb(VIPER_VSHRSTR))
-#define ttislngstring(o)	checktag((o), ctb(VIPER_VLNGSTR))
+#define ttisstring(o)		checktype((o), VENOM_TSTRING)
+#define ttisshrstring(o)	checktag((o), ctb(VENOM_VSHRSTR))
+#define ttislngstring(o)	checktag((o), ctb(VENOM_VLNGSTR))
 
 #define tsvalueraw(v)	(gco2ts((v).gc))
 
@@ -390,11 +390,11 @@ typedef struct TString {
 #define getstr(ts)  ((ts)->contents)
 
 
-/* get the actual string (array of bytes) from a Viper value */
+/* get the actual string (array of bytes) from a Venom value */
 #define svalue(o)       getstr(tsvalue(o))
 
 /* get string length from 'TString *s' */
-#define tsslen(s)	((s)->tt == VIPER_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
+#define tsslen(s)	((s)->tt == VENOM_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
 
 /* get string length from 'TValue *o' */
 #define vslen(o)	tsslen(tsvalue(o))
@@ -413,12 +413,12 @@ typedef struct TString {
 ** Light userdata should be a variant of userdata, but for compatibility
 ** reasons they are also different types.
 */
-#define VIPER_VLIGHTUSERDATA	makevariant(VIPER_TLIGHTUSERDATA, 0)
+#define VENOM_VLIGHTUSERDATA	makevariant(VENOM_TLIGHTUSERDATA, 0)
 
-#define VIPER_VUSERDATA		makevariant(VIPER_TUSERDATA, 0)
+#define VENOM_VUSERDATA		makevariant(VENOM_TUSERDATA, 0)
 
-#define ttislightuserdata(o)	checktag((o), VIPER_VLIGHTUSERDATA)
-#define ttisfulluserdata(o)	checktag((o), ctb(VIPER_VUSERDATA))
+#define ttislightuserdata(o)	checktag((o), VENOM_VLIGHTUSERDATA)
+#define ttisfulluserdata(o)	checktag((o), ctb(VENOM_VUSERDATA))
 
 #define pvalue(o)	check_exp(ttislightuserdata(o), val_(o).p)
 #define uvalue(o)	check_exp(ttisfulluserdata(o), gco2u(val_(o).gc))
@@ -426,18 +426,18 @@ typedef struct TString {
 #define pvalueraw(v)	((v).p)
 
 #define setpvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, VIPER_VLIGHTUSERDATA); }
+  { TValue *io=(obj); val_(io).p=(x); settt_(io, VENOM_VLIGHTUSERDATA); }
 
 #define setuvalue(L,obj,x) \
   { TValue *io = (obj); Udata *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(VIPER_VUSERDATA)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(VENOM_VUSERDATA)); \
     checkliveness(L,io); }
 
 
 /* Ensures that addresses after this type are always fully aligned. */
 typedef union UValue {
   TValue uv;
-  VIPERI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
+  VENOMI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
 } UValue;
 
 
@@ -469,7 +469,7 @@ typedef struct Udata0 {
   unsigned short nuvalue;  /* number of user values */
   size_t len;  /* number of bytes */
   struct Table *metatable;
-  union {VIPERI_MAXALIGN;} bindata;
+  union {VENOMI_MAXALIGN;} bindata;
 } Udata0;
 
 
@@ -493,7 +493,7 @@ typedef struct Udata0 {
 ** ===================================================================
 */
 
-#define VIPER_VPROTO	makevariant(VIPER_TPROTO, 0)
+#define VENOM_VPROTO	makevariant(VENOM_TPROTO, 0)
 
 
 /*
@@ -522,8 +522,8 @@ typedef struct LocVar {
 ** Associates the absolute line source for a given instruction ('pc').
 ** The array 'lineinfo' gives, for each instruction, the difference in
 ** lines from the previous instruction. When that difference does not
-** fit into a byte, Viper saves the absolute line for that instruction.
-** (Viper also saves the absolute line periodically, to speed up the
+** fit into a byte, Venom saves the absolute line for that instruction.
+** (Venom also saves the absolute line periodically, to speed up the
 ** computation of a line number: we can use binary search in the
 ** absolute-line array, but we must traverse the 'lineinfo' array
 ** linearly to compute a line.)
@@ -570,18 +570,18 @@ typedef struct Proto {
 ** ===================================================================
 */
 
-#define VIPER_VUPVAL	makevariant(VIPER_TUPVAL, 0)
+#define VENOM_VUPVAL	makevariant(VENOM_TUPVAL, 0)
 
 
 /* Variant tags for functions */
-#define VIPER_VLCL	makevariant(VIPER_TFUNCTION, 0)  /* Viper closure */
-#define VIPER_VLCF	makevariant(VIPER_TFUNCTION, 1)  /* light C function */
-#define VIPER_VCCL	makevariant(VIPER_TFUNCTION, 2)  /* C closure */
+#define VENOM_VLCL	makevariant(VENOM_TFUNCTION, 0)  /* Venom closure */
+#define VENOM_VLCF	makevariant(VENOM_TFUNCTION, 1)  /* light C function */
+#define VENOM_VCCL	makevariant(VENOM_TFUNCTION, 2)  /* C closure */
 
-#define ttisfunction(o)		checktype(o, VIPER_TFUNCTION)
-#define ttisLclosure(o)		checktag((o), ctb(VIPER_VLCL))
-#define ttislcf(o)		checktag((o), VIPER_VLCF)
-#define ttisCclosure(o)		checktag((o), ctb(VIPER_VCCL))
+#define ttisfunction(o)		checktype(o, VENOM_TFUNCTION)
+#define ttisLclosure(o)		checktag((o), ctb(VENOM_VLCL))
+#define ttislcf(o)		checktag((o), VENOM_VLCF)
+#define ttisCclosure(o)		checktag((o), ctb(VENOM_VCCL))
 #define ttisclosure(o)         (ttisLclosure(o) || ttisCclosure(o))
 
 
@@ -596,22 +596,22 @@ typedef struct Proto {
 
 #define setclLvalue(L,obj,x) \
   { TValue *io = (obj); LClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(VIPER_VLCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(VENOM_VLCL)); \
     checkliveness(L,io); }
 
 #define setclLvalue2s(L,o,cl)	setclLvalue(L,s2v(o),cl)
 
 #define setfvalue(obj,x) \
-  { TValue *io=(obj); val_(io).f=(x); settt_(io, VIPER_VLCF); }
+  { TValue *io=(obj); val_(io).f=(x); settt_(io, VENOM_VLCF); }
 
 #define setclCvalue(L,obj,x) \
   { TValue *io = (obj); CClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(VIPER_VCCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(VENOM_VCCL)); \
     checkliveness(L,io); }
 
 
 /*
-** Upvalues for Viper closures
+** Upvalues for Venom closures
 */
 typedef struct UpVal {
   CommonHeader;
@@ -633,7 +633,7 @@ typedef struct UpVal {
 
 typedef struct CClosure {
   ClosureHeader;
-  viper_CFunction f;
+  venom_CFunction f;
   TValue upvalue[1];  /* list of upvalues */
 } CClosure;
 
@@ -662,15 +662,15 @@ typedef union Closure {
 ** ===================================================================
 */
 
-#define VIPER_VTABLE	makevariant(VIPER_TTABLE, 0)
+#define VENOM_VTABLE	makevariant(VENOM_TTABLE, 0)
 
-#define ttistable(o)		checktag((o), ctb(VIPER_VTABLE))
+#define ttistable(o)		checktag((o), ctb(VENOM_VTABLE))
 
 #define hvalue(o)	check_exp(ttistable(o), gco2t(val_(o).gc))
 
 #define sethvalue(L,obj,x) \
   { TValue *io = (obj); Table *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(VIPER_VTABLE)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(VENOM_VTABLE)); \
     checkliveness(L,io); }
 
 #define sethvalue2s(L,o,h)	sethvalue(L,s2v(o),h)
@@ -740,13 +740,13 @@ typedef struct Table {
 #define keytt(node)		((node)->u.key_tt)
 #define keyval(node)		((node)->u.key_val)
 
-#define keyisnil(node)		(keytt(node) == VIPER_TNIL)
-#define keyisinteger(node)	(keytt(node) == VIPER_VNUMINT)
+#define keyisnil(node)		(keytt(node) == VENOM_TNIL)
+#define keyisinteger(node)	(keytt(node) == VENOM_VNUMINT)
 #define keyival(node)		(keyval(node).i)
-#define keyisshrstr(node)	(keytt(node) == ctb(VIPER_VSHRSTR))
+#define keyisshrstr(node)	(keytt(node) == ctb(VENOM_VSHRSTR))
 #define keystrval(node)		(gco2ts(keyval(node).gc))
 
-#define setnilkey(node)		(keytt(node) = VIPER_TNIL)
+#define setnilkey(node)		(keytt(node) = VENOM_TNIL)
 
 #define keyiscollectable(n)	(keytt(n) & BIT_ISCOLLECTABLE)
 
@@ -760,8 +760,8 @@ typedef struct Table {
 ** be found when searched in a special way. ('next' needs that to find
 ** keys removed from a table during a traversal.)
 */
-#define setdeadkey(node)	(keytt(node) = VIPER_TDEADKEY)
-#define keyisdead(node)		(keytt(node) == VIPER_TDEADKEY)
+#define setdeadkey(node)	(keytt(node) = VENOM_TDEADKEY)
+#define keyisdead(node)		(keytt(node) == VENOM_TDEADKEY)
 
 /* }================================================================== */
 
@@ -778,22 +778,22 @@ typedef struct Table {
 #define sizenode(t)	(twoto((t)->lsizenode))
 
 
-/* size of buffer for 'viperO_utf8esc' function */
+/* size of buffer for 'venomO_utf8esc' function */
 #define UTF8BUFFSZ	8
 
-VIPERI_FUNC int viperO_utf8esc (char *buff, unsigned long x);
-VIPERI_FUNC int viperO_ceillog2 (unsigned int x);
-VIPERI_FUNC int viperO_rawarith (viper_State *L, int op, const TValue *p1,
+VENOMI_FUNC int venomO_utf8esc (char *buff, unsigned long x);
+VENOMI_FUNC int venomO_ceillog2 (unsigned int x);
+VENOMI_FUNC int venomO_rawarith (venom_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
-VIPERI_FUNC void viperO_arith (viper_State *L, int op, const TValue *p1,
+VENOMI_FUNC void venomO_arith (venom_State *L, int op, const TValue *p1,
                            const TValue *p2, StkId res);
-VIPERI_FUNC size_t viperO_str2num (const char *s, TValue *o);
-VIPERI_FUNC int viperO_hexavalue (int c);
-VIPERI_FUNC void viperO_tostring (viper_State *L, TValue *obj);
-VIPERI_FUNC const char *viperO_pushvfstring (viper_State *L, const char *fmt,
+VENOMI_FUNC size_t venomO_str2num (const char *s, TValue *o);
+VENOMI_FUNC int venomO_hexavalue (int c);
+VENOMI_FUNC void venomO_tostring (venom_State *L, TValue *obj);
+VENOMI_FUNC const char *venomO_pushvfstring (venom_State *L, const char *fmt,
                                                        va_list argp);
-VIPERI_FUNC const char *viperO_pushfstring (viper_State *L, const char *fmt, ...);
-VIPERI_FUNC void viperO_chunkid (char *out, const char *source, size_t srclen);
+VENOMI_FUNC const char *venomO_pushfstring (venom_State *L, const char *fmt, ...);
+VENOMI_FUNC void venomO_chunkid (char *out, const char *source, size_t srclen);
 
 
 #endif

@@ -2,7 +2,7 @@ import responses = {
     ["hello"] = "Hello! How can I assist you today?",
     ["how are you"] = "I'm just a computer program, but I'm functioning well. How about you?",
     ["what is your name"] = "I'm just a chat bot. I don't have a name.",
-    ["bye"] = "Viperodbye! Have a great day!",
+    ["bye"] = "Venomodbye! Have a great day!",
 }
 
 while true do

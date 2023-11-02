@@ -1,16 +1,16 @@
 /*
 ** $Id: Initialize.c $
-** Initialization of libraries for viper.c and other clients
-** See Copyright Notice in viper.h
+** Initialization of libraries for venom.c and other clients
+** See Copyright Notice in venom.h
 */
 
 
 #define Initialize_c
-#define VIPER_LIB
+#define VENOM_LIB
 
 /*
-** If you embed Viper in your program and need to open the standard
-** libraries, call viperL_openlibs in your program. If you need a
+** If you embed Venom in your program and need to open the standard
+** libraries, call venomL_openlibs in your program. If you need a
 ** different set of libraries, copy this file to your project and edit
 ** it to suit your needs.
 **
@@ -18,10 +18,10 @@
 ** open the library, which is already linked to the application.
 ** For that, do the following code:
 **
-**  viperL_getsubtable(L, VIPER_REGISTRYINDEX, VIPER_PRELOAD_TABLE);
-**  viper_pushcfunction(L, viperopen_modname);
-**  viper_setfield(L, -2, modname);
-**  viper_pop(L, 1);  // remove PRELOAD table
+**  venomL_getsubtable(L, VENOM_REGISTRYINDEX, VENOM_PRELOAD_TABLE);
+**  venom_pushcfunction(L, venomopen_modname);
+**  venom_setfield(L, -2, modname);
+**  venom_pop(L, 1);  // remove PRELOAD table
 */
 
 #include "prefix.h"
@@ -29,37 +29,37 @@
 
 #include <stddef.h>
 
-#include "viper.h"
+#include "venom.h"
 
-#include "viperlib.h"
+#include "venomlib.h"
 #include "auxlib.h"
 
 
 /*
-** these libs are loaded by viper.c and are readily available to any Viper
+** these libs are loaded by venom.c and are readily available to any Venom
 ** program
 */
-static const viperL_Reg loadedlibs[] = {
-  {VIPER_GNAME, viperopen_base},
-  {VIPER_LOADLIBNAME, viperopen_package},
-  {VIPER_COLIBNAME, viperopen_coroutine},
-  {VIPER_TABLIBNAME, viperopen_table},
-  {VIPER_IOLIBNAME, viperopen_io},
-  {VIPER_OSLIBNAME, viperopen_os},
-  {VIPER_STRLIBNAME, viperopen_string},
-  {VIPER_MATHLIBNAME, viperopen_math},
-  {VIPER_UTF8LIBNAME, viperopen_utf8},
-  {VIPER_DBLIBNAME, viperopen_debug},
+static const venomL_Reg loadedlibs[] = {
+  {VENOM_GNAME, venomopen_base},
+  {VENOM_LOADLIBNAME, venomopen_package},
+  {VENOM_COLIBNAME, venomopen_coroutine},
+  {VENOM_TABLIBNAME, venomopen_table},
+  {VENOM_IOLIBNAME, venomopen_io},
+  {VENOM_OSLIBNAME, venomopen_os},
+  {VENOM_STRLIBNAME, venomopen_string},
+  {VENOM_MATHLIBNAME, venomopen_math},
+  {VENOM_UTF8LIBNAME, venomopen_utf8},
+  {VENOM_DBLIBNAME, venomopen_debug},
   {NULL, NULL}
 };
 
 
-VIPERLIB_API void viperL_openlibs (viper_State *L) {
-  const viperL_Reg *lib;
+VENOMLIB_API void venomL_openlibs (venom_State *L) {
+  const venomL_Reg *lib;
   /* "require" functions from 'loadedlibs' and set results to global table */
   for (lib = loadedlibs; lib->func; lib++) {
-    viperL_requiref(L, lib->name, lib->func, 1);
-    viper_pop(L, 1);  /* remove lib */
+    venomL_requiref(L, lib->name, lib->func, 1);
+    venom_pop(L, 1);  /* remove lib */
   }
 }
 

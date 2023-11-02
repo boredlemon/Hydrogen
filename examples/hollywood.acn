@@ -11,7 +11,7 @@ stop
 -- Function to print a separator
 function printSeparator()
     io.write("--------------------------------------------------------\n")
-stop -- instead of end we use "stop" in viper
+stop -- instead of end we use "stop" in venom
 
 -- Seed the random number generator
 math.randomseed(os.time())

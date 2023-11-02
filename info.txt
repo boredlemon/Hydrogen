@@ -1,5 +1,4 @@
-VIPER = Creative Utility Programs
-It's Viper the coffee!☕☕☕
+
 remove those cache makefiles
 find . -type f -name "*-e-e-e*" -exec rm {} \;
 find . -type f -name "*-e-e*" -exec rm {} \;
@@ -13,7 +12,7 @@ N - Network
 
 cd examples/bot
 ---------------------------------------------
-viper pkg manager
+venom pkg manager
 tpm
 
 if its not working on mac you do
@@ -22,7 +21,7 @@ make sure to replace exmapleuser with your actual username!
 
 ---------------------------------------------
 Change file extensions
-for file in *.neb; do mv "$file" "${file%.viper}.viper"; done
+for file in *.neb; do mv "$file" "${file%.venom}.venom"; done
 
 for the whole project
 find . -type f -name "*.cup" -exec bash -c 'mv "$0" "${0%.cup}.acn"' {} \;
@@ -36,9 +35,9 @@ sed -i '' 's/lit/tpm/g' Makefile
 
 
 change it for the whole project
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/viper/viper/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/VIPER/VIPER/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Viper/Viper/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/venom/venom/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/VENOM/VENOM/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Venom/Venom/g' {} +
 ___________________
 project map
 

@@ -1,11 +1,11 @@
 /*
 ** $Id: opcodes.c $
-** Opcodes for Viper virtual machine
-** See Copyright Notice in viper.h
+** Opcodes for Venom virtual machine
+** See Copyright Notice in venom.h
 */
 
 #define opcodes_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-VIPERI_DDEF const lu_byte viperP_opmodes[NUM_OPCODES] = {
+VENOMI_DDEF const lu_byte venomP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

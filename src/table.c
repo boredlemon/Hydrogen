@@ -1,11 +1,11 @@
 /*
 ** $Id: table.c $
-** Viper tables (hash)
-** See Copyright Notice in viper.h
+** Venom tables (hash)
+** See Copyright Notice in venom.h
 */
 
 #define table_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -20,13 +20,13 @@
 ** A main invariant of these tables is that, if an element is not
 ** in its main position (i.e. the 'original' position that its hash gives
 ** to it), then the colliding element is in its own main position.
-** Hence even when the load factor reaches 100%, performance remains Viperod.
+** Hence even when the load factor reaches 100%, performance remains Venomod.
 */
 
 #include <math.h>
 #include <limits.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "debug.h"
 #include "do.h"
@@ -51,7 +51,7 @@
 ** between 2^MAXABITS and the maximum size that, measured in bytes,
 ** fits in a 'size_t'.
 */
-#define MAXASIZE	viperM_limitN(1u << MAXABITS, TValue)
+#define MAXASIZE	venomM_limitN(1u << MAXABITS, TValue)
 
 /*
 ** MAXHBITS is the largest integer such that 2^MAXHBITS fits in a
@@ -65,11 +65,11 @@
 ** between 2^MAXHBITS and the maximum size such that, measured in bytes,
 ** it fits in a 'size_t'.
 */
-#define MAXHSIZE	viperM_limitN(1u << MAXHBITS, Node)
+#define MAXHSIZE	venomM_limitN(1u << MAXHBITS, Node)
 
 
 /*
-** When the original hash value is Viperod, hashing by a power of 2
+** When the original hash value is Venomod, hashing by a power of 2
 ** avoids the cost of '%'.
 */
 #define hashpow2(t,n)		(gnode(t, lmod((n), sizenode(t))))
@@ -91,8 +91,8 @@
 #define dummynode		(&dummynode_)
 
 static const Node dummynode_ = {
-  {{NULL}, VIPER_VEMPTY,  /* value's value and type */
-   VIPER_VNIL, 0, {NULL}}  /* key type, next, and key value */
+  {{NULL}, VENOM_VEMPTY,  /* value's value and type */
+   VENOM_VNIL, 0, {NULL}}  /* key type, next, and key value */
 };
 
 
@@ -100,13 +100,13 @@ static const TValue absentkey = {ABSTKEYCONSTANT};
 
 
 /*
-** Hash for integers. To allow a Viperod hash, use the remainder operator
+** Hash for integers. To allow a Venomod hash, use the remainder operator
 ** ('%'). If integer fits as a non-negative int, compute an int
 ** remainder, which is faster. Otherwise, use an unsigned-integer
 ** remainder, which uses all bits and ensures a non-negative result.
 */
-static Node *hashint (const Table *t, viper_Integer i) {
-  viper_Unsigned ui = l_castS2U(i);
+static Node *hashint (const Table *t, venom_Integer i) {
+  venom_Unsigned ui = l_castS2U(i);
   if (ui <= (unsigned int)INT_MAX)
     return hashmod(t, cast_int(ui));
   else
@@ -128,12 +128,12 @@ static Node *hashint (const Table *t, viper_Integer i) {
 ** INT_MIN.
 */
 #if !defined(l_hashfloat)
-static int l_hashfloat (viper_Number n) {
+static int l_hashfloat (venom_Number n) {
   int i;
-  viper_Integer ni;
+  venom_Integer ni;
   n = l_mathop(frexp)(n, &i) * -cast_num(INT_MIN);
-  if (!viper_numbertointeger(n, &ni)) {  /* is 'n' inf/-inf/NaN? */
-    viper_assert(viperi_numisnan(n) || l_mathop(fabs)(n) == cast_num(HUGE_VAL));
+  if (!venom_numbertointeger(n, &ni)) {  /* is 'n' inf/-inf/NaN? */
+    venom_assert(venomi_numisnan(n) || l_mathop(fabs)(n) == cast_num(HUGE_VAL));
     return 0;
   }
   else {  /* normal case */
@@ -150,32 +150,32 @@ static int l_hashfloat (viper_Number n) {
 */
 static Node *mainpositionTV (const Table *t, const TValue *key) {
   switch (ttypetag(key)) {
-    case VIPER_VNUMINT: {
-      viper_Integer i = ivalue(key);
+    case VENOM_VNUMINT: {
+      venom_Integer i = ivalue(key);
       return hashint(t, i);
     }
-    case VIPER_VNUMFLT: {
-      viper_Number n = fltvalue(key);
+    case VENOM_VNUMFLT: {
+      venom_Number n = fltvalue(key);
       return hashmod(t, l_hashfloat(n));
     }
-    case VIPER_VSHRSTR: {
+    case VENOM_VSHRSTR: {
       TString *ts = tsvalue(key);
       return hashstr(t, ts);
     }
-    case VIPER_VLNGSTR: {
+    case VENOM_VLNGSTR: {
       TString *ts = tsvalue(key);
-      return hashpow2(t, viperS_hashlongstr(ts));
+      return hashpow2(t, venomS_hashlongstr(ts));
     }
-    case VIPER_VFALSE:
+    case VENOM_VFALSE:
       return hashboolean(t, 0);
-    case VIPER_VTRUE:
+    case VENOM_VTRUE:
       return hashboolean(t, 1);
-    case VIPER_VLIGHTUSERDATA: {
+    case VENOM_VLIGHTUSERDATA: {
       void *p = pvalue(key);
       return hashpointer(t, p);
     }
-    case VIPER_VLCF: {
-      viper_CFunction f = fvalue(key);
+    case VENOM_VLCF: {
+      venom_CFunction f = fvalue(key);
       return hashpointer(t, f);
     }
     default: {
@@ -188,7 +188,7 @@ static Node *mainpositionTV (const Table *t, const TValue *key) {
 
 l_sinline Node *mainpositionfromnode (const Table *t, Node *nd) {
   TValue key;
-  getnodekey(cast(viper_State *, NULL), &key, nd);
+  getnodekey(cast(venom_State *, NULL), &key, nd);
   return mainpositionTV(t, &key);
 }
 
@@ -218,18 +218,18 @@ static int equalkey (const TValue *k1, const Node *n2, int deadok) {
        !(deadok && keyisdead(n2) && iscollectable(k1)))
    return 0;  /* cannot be same key */
   switch (keytt(n2)) {
-    case VIPER_VNIL: case VIPER_VFALSE: case VIPER_VTRUE:
+    case VENOM_VNIL: case VENOM_VFALSE: case VENOM_VTRUE:
       return 1;
-    case VIPER_VNUMINT:
+    case VENOM_VNUMINT:
       return (ivalue(k1) == keyival(n2));
-    case VIPER_VNUMFLT:
-      return viperi_numeq(fltvalue(k1), fltvalueraw(keyval(n2)));
-    case VIPER_VLIGHTUSERDATA:
+    case VENOM_VNUMFLT:
+      return venomi_numeq(fltvalue(k1), fltvalueraw(keyval(n2)));
+    case VENOM_VLIGHTUSERDATA:
       return pvalue(k1) == pvalueraw(keyval(n2));
-    case VIPER_VLCF:
+    case VENOM_VLCF:
       return fvalue(k1) == fvalueraw(keyval(n2));
-    case ctb(VIPER_VLNGSTR):
-      return viperS_eqlngstr(tsvalue(k1), keystrval(n2));
+    case ctb(VENOM_VLNGSTR):
+      return venomS_eqlngstr(tsvalue(k1), keystrval(n2));
     default:
       return gcvalue(k1) == gcvalueraw(keyval(n2));
   }
@@ -247,7 +247,7 @@ static int equalkey (const TValue *k1, const Node *n2, int deadok) {
 /*
 ** Returns the real size of the 'array' array
 */
-VIPERI_FUNC unsigned int viperH_realasize (const Table *t) {
+VENOMI_FUNC unsigned int venomH_realasize (const Table *t) {
   if (limitequalsasize(t))
     return t->alimit;  /* this is the size */
   else {
@@ -262,7 +262,7 @@ VIPERI_FUNC unsigned int viperH_realasize (const Table *t) {
     size |= (size >> 32);  /* unsigned int has more than 32 bits */
 #endif
     size++;
-    viper_assert(ispow2(size) && size/2 < t->alimit && t->alimit < size);
+    venom_assert(ispow2(size) && size/2 < t->alimit && t->alimit < size);
     return size;
   }
 }
@@ -279,7 +279,7 @@ static int ispow2realasize (const Table *t) {
 
 
 static unsigned int setlimittosize (Table *t) {
-  t->alimit = viperH_realasize(t);
+  t->alimit = venomH_realasize(t);
   setrealasize(t);
   return t->alimit;
 }
@@ -313,7 +313,7 @@ static const TValue *getgeneric (Table *t, const TValue *key, int deadok) {
 ** returns the index for 'k' if 'k' is an appropriate key to live in
 ** the array part of a table, 0 otherwise.
 */
-static unsigned int arrayindex (viper_Integer k) {
+static unsigned int arrayindex (venom_Integer k) {
   if (l_castS2U(k) - 1u < MAXASIZE)  /* 'k' in [1, MAXASIZE]? */
     return cast_uint(k);  /* 'key' is an appropriate array index */
   else
@@ -322,11 +322,11 @@ static unsigned int arrayindex (viper_Integer k) {
 
 
 /*
-** returns the index of a 'key' for table traversals. First Viperes all
+** returns the index of a 'key' for table traversals. First Venomes all
 ** elements in the array part, then elements in the hash part. The
 ** beginning of a traversal is signaled by 0.
 */
-static unsigned int findindex (viper_State *L, Table *t, TValue *key,
+static unsigned int findindex (venom_State *L, Table *t, TValue *key,
                                unsigned int asize) {
   unsigned int i;
   if (ttisnil(key)) return 0;  /* first iteration */
@@ -336,7 +336,7 @@ static unsigned int findindex (viper_State *L, Table *t, TValue *key,
   else {
     const TValue *n = getgeneric(t, key, 1);
     if (l_unlikely(isabstkey(n)))
-      viperG_runerror(L, "invalid key to 'next'");  /* key not found */
+      venomG_runerror(L, "invalid key to 'next'");  /* key not found */
     i = cast_int(nodefromval(n) - gnode(t, 0));  /* key index in hash table */
     /* hash elements are numbered after array ones */
     return (i + 1) + asize;
@@ -344,8 +344,8 @@ static unsigned int findindex (viper_State *L, Table *t, TValue *key,
 }
 
 
-int viperH_next (viper_State *L, Table *t, StkId key) {
-  unsigned int asize = viperH_realasize(t);
+int venomH_next (venom_State *L, Table *t, StkId key) {
+  unsigned int asize = venomH_realasize(t);
   unsigned int i = findindex(L, t, s2v(key), asize);  /* find original key */
   for (; i < asize; i++) {  /* try first array part */
     if (!isempty(&t->array[i])) {  /* a non-empty entry? */
@@ -366,9 +366,9 @@ int viperH_next (viper_State *L, Table *t, StkId key) {
 }
 
 
-static void freehash (viper_State *L, Table *t) {
+static void freehash (venom_State *L, Table *t) {
   if (!isdummy(t))
-    viperM_freearray(L, t->node, cast_sizet(sizenode(t)));
+    venomM_freearray(L, t->node, cast_sizet(sizenode(t)));
 }
 
 
@@ -383,14 +383,14 @@ static void freehash (viper_State *L, Table *t) {
 ** "count array" where 'nums[i]' is the number of integers in the table
 ** between 2^(i - 1) + 1 and 2^i. 'pna' enters with the total number of
 ** integer keys in the table and leaves with the number of keys that
-** will Viper to the array part; return the optimal size.  (The condition
+** will Venom to the array part; return the optimal size.  (The condition
 ** 'twotoi > 0' in the for loop stops the loop if 'twotoi' overflows.)
 */
 static unsigned int computesizes (unsigned int nums[], unsigned int *pna) {
   int i;
   unsigned int twotoi;  /* 2^i (candidate for optimal size) */
   unsigned int a = 0;  /* number of elements smaller than 2^i */
-  unsigned int na = 0;  /* number of elements to Viper to array part */
+  unsigned int na = 0;  /* number of elements to Venom to array part */
   unsigned int optimal = 0;  /* optimal size for array part */
   /* loop while keys can fill more than half of total size */
   for (i = 0, twotoi = 1;
@@ -399,19 +399,19 @@ static unsigned int computesizes (unsigned int nums[], unsigned int *pna) {
     a += nums[i];
     if (a > twotoi/2) {  /* more than half elements present? */
       optimal = twotoi;  /* optimal size (till now) */
-      na = a;  /* all elements up to 'optimal' will Viper to array part */
+      na = a;  /* all elements up to 'optimal' will Venom to array part */
     }
   }
-  viper_assert((optimal == 0 || optimal / 2 < na) && na <= optimal);
+  venom_assert((optimal == 0 || optimal / 2 < na) && na <= optimal);
   *pna = na;
   return optimal;
 }
 
 
-static int countint (viper_Integer key, unsigned int *nums) {
+static int countint (venom_Integer key, unsigned int *nums) {
   unsigned int k = arrayindex(key);
   if (k != 0) {  /* is 'key' an appropriate array index? */
-    nums[viperO_ceillog2(k)]++;  /* count as such */
+    nums[venomO_ceillog2(k)]++;  /* count as such */
     return 1;
   }
   else
@@ -421,7 +421,7 @@ static int countint (viper_Integer key, unsigned int *nums) {
 
 /*
 ** Count keys in array part of table 't': Fill 'nums[i]' with
-** number of keys that will Viper into corresponding slice and return
+** number of keys that will Venom into corresponding slice and return
 ** total number of non-nil keys.
 */
 static unsigned int numusearray (const Table *t, unsigned int *nums) {
@@ -453,7 +453,7 @@ static unsigned int numusearray (const Table *t, unsigned int *nums) {
 
 static int numusehash (const Table *t, unsigned int *nums, unsigned int *pna) {
   int totaluse = 0;  /* total number of elements */
-  int ause = 0;  /* elements added to 'nums' (can Viper to array part) */
+  int ause = 0;  /* elements added to 'nums' (can Venom to array part) */
   int i = sizenode(t);
   while (i--) {
     Node *n = &t->node[i];
@@ -475,7 +475,7 @@ static int numusehash (const Table *t, unsigned int *nums, unsigned int *pna) {
 ** comparison ensures that the shift in the second one does not
 ** overflow.
 */
-static void setnodevector (viper_State *L, Table *t, unsigned int size) {
+static void setnodevector (venom_State *L, Table *t, unsigned int size) {
   if (size == 0) {  /* no elements to hash part? */
     t->node = cast(Node *, dummynode);  /* use common 'dummynode' */
     t->lsizenode = 0;
@@ -483,11 +483,11 @@ static void setnodevector (viper_State *L, Table *t, unsigned int size) {
   }
   else {
     int i;
-    int lsize = viperO_ceillog2(size);
+    int lsize = venomO_ceillog2(size);
     if (lsize > MAXHBITS || (1u << lsize) > MAXHSIZE)
-      viperG_runerror(L, "table overflow");
+      venomG_runerror(L, "table overflow");
     size = twoto(lsize);
-    t->node = viperM_newvector(L, size, Node);
+    t->node = venomM_newvector(L, size, Node);
     for (i = 0; i < (int)size; i++) {
       Node *n = gnode(t, i);
       gnext(n) = 0;
@@ -503,7 +503,7 @@ static void setnodevector (viper_State *L, Table *t, unsigned int size) {
 /*
 ** (Re)insert all elements from the hash part of 'ot' into table 't'.
 */
-static void reinsert (viper_State *L, Table *ot, Table *t) {
+static void reinsert (venom_State *L, Table *ot, Table *t) {
   int j;
   int size = sizenode(ot);
   for (j = 0; j < size; j++) {
@@ -513,7 +513,7 @@ static void reinsert (viper_State *L, Table *ot, Table *t) {
          already present in the table */
       TValue k;
       getnodekey(L, &k, old);
-      viperH_set(L, t, &k, gval(old));
+      venomH_set(L, t, &k, gval(old));
     }
   }
 }
@@ -548,7 +548,7 @@ static void exchangehashpart (Table *t1, Table *t2) {
 ** nils and reinserts the elements of the old hash back into the new
 ** parts of the table.
 */
-void viperH_resize (viper_State *L, Table *t, unsigned int newasize,
+void venomH_resize (venom_State *L, Table *t, unsigned int newasize,
                                           unsigned int nhsize) {
   unsigned int i;
   Table newt;  /* to keep the new hash part */
@@ -562,16 +562,16 @@ void viperH_resize (viper_State *L, Table *t, unsigned int newasize,
     /* re-insert into the new hash the elements from vanishing slice */
     for (i = newasize; i < oldasize; i++) {
       if (!isempty(&t->array[i]))
-        viperH_setint(L, t, i + 1, &t->array[i]);
+        venomH_setint(L, t, i + 1, &t->array[i]);
     }
     t->alimit = oldasize;  /* restore current size... */
     exchangehashpart(t, &newt);  /* and hash (in case of errors) */
   }
   /* allocate new array */
-  newarray = viperM_reallocvector(L, t->array, oldasize, newasize, TValue);
+  newarray = venomM_reallocvector(L, t->array, oldasize, newasize, TValue);
   if (l_unlikely(newarray == NULL && newasize > 0)) {  /* allocation failed? */
     freehash(L, &newt);  /* release new hash part */
-    viperM_error(L);  /* raise error (with array unchanged) */
+    venomM_error(L);  /* raise error (with array unchanged) */
   }
   /* allocation ok; initialize new part of the array */
   exchangehashpart(t, &newt);  /* 't' has the new hash ('newt' has the old) */
@@ -585,15 +585,15 @@ void viperH_resize (viper_State *L, Table *t, unsigned int newasize,
 }
 
 
-void viperH_resizearray (viper_State *L, Table *t, unsigned int nasize) {
+void venomH_resizearray (venom_State *L, Table *t, unsigned int nasize) {
   int nsize = allocsizenode(t);
-  viperH_resize(L, t, nasize, nsize);
+  venomH_resize(L, t, nasize, nsize);
 }
 
 /*
 ** nums[i] = number of keys 'k' where 2^(i - 1) < k <= 2^i
 */
-static void rehash (viper_State *L, Table *t, const TValue *ek) {
+static void rehash (venom_State *L, Table *t, const TValue *ek) {
   unsigned int asize;  /* optimal size for array part */
   unsigned int na;  /* number of keys in the array part */
   unsigned int nums[MAXABITS + 1];
@@ -611,7 +611,7 @@ static void rehash (viper_State *L, Table *t, const TValue *ek) {
   /* compute new size for array part */
   asize = computesizes(nums, &na);
   /* resize the table to new computed sizes */
-  viperH_resize(L, t, asize, totaluse - na);
+  venomH_resize(L, t, asize, totaluse - na);
 }
 
 
@@ -621,8 +621,8 @@ static void rehash (viper_State *L, Table *t, const TValue *ek) {
 */
 
 
-Table *viperH_new (viper_State *L) {
-  GCObject *o = viperC_newobj(L, VIPER_VTABLE, sizeof(Table));
+Table *venomH_new (venom_State *L) {
+  GCObject *o = venomC_newobj(L, VENOM_VTABLE, sizeof(Table));
   Table *t = gco2t(o);
   t->metatable = NULL;
   t->flags = cast_byte(maskflags);  /* table has no metamethod fields */
@@ -633,10 +633,10 @@ Table *viperH_new (viper_State *L) {
 }
 
 
-void viperH_free (viper_State *L, Table *t) {
+void venomH_free (venom_State *L, Table *t) {
   freehash(L, t);
-  viperM_freearray(L, t->array, viperH_realasize(t));
-  viperM_free(L, t);
+  venomM_freearray(L, t->array, venomH_realasize(t));
+  venomM_free(L, t);
 }
 
 
@@ -658,22 +658,22 @@ static Node *getfreepos (Table *t) {
 ** position is free. If not, check whether colliding node is in its main
 ** position or not: if it is not, move colliding node to an empty place and
 ** put new key in its main position; otherwise (colliding node is in its main
-** position), new key Viperes to an empty position.
+** position), new key Venomes to an empty position.
 */
-void viperH_newkey (viper_State *L, Table *t, const TValue *key, TValue *value) {
+void venomH_newkey (venom_State *L, Table *t, const TValue *key, TValue *value) {
   Node *mp;
   TValue aux;
   if (l_unlikely(ttisnil(key)))
-    viperG_runerror(L, "table index is nil");
+    venomG_runerror(L, "table index is nil");
   else if (ttisfloat(key)) {
-    viper_Number f = fltvalue(key);
-    viper_Integer k;
-    if (viperV_flttointeger(f, &k, F2Ieq)) {  /* does key fit in an integer? */
+    venom_Number f = fltvalue(key);
+    venom_Integer k;
+    if (venomV_flttointeger(f, &k, F2Ieq)) {  /* does key fit in an integer? */
       setivalue(&aux, k);
       key = &aux;  /* insert it as an integer */
     }
-    else if (l_unlikely(viperi_numisnan(f)))
-      viperG_runerror(L, "table index is NaN");
+    else if (l_unlikely(venomi_numisnan(f)))
+      venomG_runerror(L, "table index is NaN");
   }
   if (ttisnil(value))
     return;  /* do not insert nil values */
@@ -684,17 +684,17 @@ void viperH_newkey (viper_State *L, Table *t, const TValue *key, TValue *value) 
     if (f == NULL) {  /* cannot find a free place? */
       rehash(L, t, key);  /* grow table */
       /* whatever called 'newkey' takes care of TM cache */
-      viperH_set(L, t, key, value);  /* insert key into grown table */
+      venomH_set(L, t, key, value);  /* insert key into grown table */
       return;
     }
-    viper_assert(!isdummy(t));
+    venom_assert(!isdummy(t));
     othern = mainpositionfromnode(t, mp);
     if (othern != mp) {  /* is colliding node out of its main position? */
       /* yes; move colliding node into free position */
       while (othern + gnext(othern) != mp)  /* find previous */
         othern += gnext(othern);
       gnext(othern) = cast_int(f - othern);  /* rechain to point to 'f' */
-      *f = *mp;  /* copy colliding node into free pos. (mp->next also Viperes) */
+      *f = *mp;  /* copy colliding node into free pos. (mp->next also Venomes) */
       if (gnext(mp) != 0) {
         gnext(f) += cast_int(mp - f);  /* correct 'next' */
         gnext(mp) = 0;  /* now 'mp' is free */
@@ -702,17 +702,17 @@ void viperH_newkey (viper_State *L, Table *t, const TValue *key, TValue *value) 
       setempty(gval(mp));
     }
     else {  /* colliding node is in its own main position */
-      /* new node will Viper into free position */
+      /* new node will Venom into free position */
       if (gnext(mp) != 0)
         gnext(f) = cast_int((mp + gnext(mp)) - f);  /* chain new position */
-      else viper_assert(gnext(f) == 0);
+      else venom_assert(gnext(f) == 0);
       gnext(mp) = cast_int(f - mp);
       mp = f;
     }
   }
   setnodekey(L, mp, key);
-  viperC_barrierback(L, obj2gco(t), key);
-  viper_assert(isempty(gval(mp)));
+  venomC_barrierback(L, obj2gco(t), key);
+  venom_assert(isempty(gval(mp)));
   setobj2t(L, gval(mp), value);
 }
 
@@ -721,16 +721,16 @@ void viperH_newkey (viper_State *L, Table *t, const TValue *key, TValue *value) 
 ** Search function for integers. If integer is inside 'alimit', get it
 ** directly from the array part. Otherwise, if 'alimit' is not equal to
 ** the real size of the array, key still can be in the array part. In
-** this case, try to avoid a call to 'viperH_realasize' when key is just
+** this case, try to avoid a call to 'venomH_realasize' when key is just
 ** one more than the limit (so that it can be incremented without
 ** changing the real size of the array).
 */
-const TValue *viperH_getint (Table *t, viper_Integer key) {
+const TValue *venomH_getint (Table *t, venom_Integer key) {
   if (l_castS2U(key) - 1u < t->alimit)  /* 'key' in [1, t->alimit]? */
     return &t->array[key - 1];
   else if (!limitequalsasize(t) &&  /* key still may be in the array part? */
            (l_castS2U(key) == t->alimit + 1 ||
-            l_castS2U(key) - 1u < viperH_realasize(t))) {
+            l_castS2U(key) - 1u < venomH_realasize(t))) {
     t->alimit = cast_uint(key);  /* probably '#t' is here now */
     return &t->array[key - 1];
   }
@@ -753,9 +753,9 @@ const TValue *viperH_getint (Table *t, viper_Integer key) {
 /*
 ** search function for short strings
 */
-const TValue *viperH_getshortstr (Table *t, TString *key) {
+const TValue *venomH_getshortstr (Table *t, TString *key) {
   Node *n = hashstr(t, key);
-  viper_assert(key->tt == VIPER_VSHRSTR);
+  venom_assert(key->tt == VENOM_VSHRSTR);
   for (;;) {  /* check whether 'key' is somewhere in the chain */
     if (keyisshrstr(n) && eqshrstr(keystrval(n), key))
       return gval(n);  /* that's it */
@@ -769,12 +769,12 @@ const TValue *viperH_getshortstr (Table *t, TString *key) {
 }
 
 
-const TValue *viperH_getstr (Table *t, TString *key) {
-  if (key->tt == VIPER_VSHRSTR)
-    return viperH_getshortstr(t, key);
+const TValue *venomH_getstr (Table *t, TString *key) {
+  if (key->tt == VENOM_VSHRSTR)
+    return venomH_getshortstr(t, key);
   else {  /* for long strings, use generic case */
     TValue ko;
-    setsvalue(cast(viper_State *, NULL), &ko, key);
+    setsvalue(cast(venom_State *, NULL), &ko, key);
     return getgeneric(t, &ko, 0);
   }
 }
@@ -783,15 +783,15 @@ const TValue *viperH_getstr (Table *t, TString *key) {
 /*
 ** main search function
 */
-const TValue *viperH_get (Table *t, const TValue *key) {
+const TValue *venomH_get (Table *t, const TValue *key) {
   switch (ttypetag(key)) {
-    case VIPER_VSHRSTR: return viperH_getshortstr(t, tsvalue(key));
-    case VIPER_VNUMINT: return viperH_getint(t, ivalue(key));
-    case VIPER_VNIL: return &absentkey;
-    case VIPER_VNUMFLT: {
-      viper_Integer k;
-      if (viperV_flttointeger(fltvalue(key), &k, F2Ieq)) /* integral index? */
-        return viperH_getint(t, k);  /* use specialized version */
+    case VENOM_VSHRSTR: return venomH_getshortstr(t, tsvalue(key));
+    case VENOM_VNUMINT: return venomH_getint(t, ivalue(key));
+    case VENOM_VNIL: return &absentkey;
+    case VENOM_VNUMFLT: {
+      venom_Integer k;
+      if (venomV_flttointeger(fltvalue(key), &k, F2Ieq)) /* integral index? */
+        return venomH_getint(t, k);  /* use specialized version */
       /* else... */
     }  /* FALLTHROUGH */
     default:
@@ -806,10 +806,10 @@ const TValue *viperH_get (Table *t, const TValue *key) {
 ** Beware: when using this function you probably need to check a GC
 ** barrier and invalidate the TM cache.
 */
-void viperH_finishset (viper_State *L, Table *t, const TValue *key,
+void venomH_finishset (venom_State *L, Table *t, const TValue *key,
                                    const TValue *slot, TValue *value) {
   if (isabstkey(slot))
-    viperH_newkey(L, t, key, value);
+    venomH_newkey(L, t, key, value);
   else
     setobj2t(L, cast(TValue *, slot), value);
 }
@@ -819,18 +819,18 @@ void viperH_finishset (viper_State *L, Table *t, const TValue *key,
 ** beware: when using this function you probably need to check a GC
 ** barrier and invalidate the TM cache.
 */
-void viperH_set (viper_State *L, Table *t, const TValue *key, TValue *value) {
-  const TValue *slot = viperH_get(t, key);
-  viperH_finishset(L, t, key, slot, value);
+void venomH_set (venom_State *L, Table *t, const TValue *key, TValue *value) {
+  const TValue *slot = venomH_get(t, key);
+  venomH_finishset(L, t, key, slot, value);
 }
 
 
-void viperH_setint (viper_State *L, Table *t, viper_Integer key, TValue *value) {
-  const TValue *p = viperH_getint(t, key);
+void venomH_setint (venom_State *L, Table *t, venom_Integer key, TValue *value) {
+  const TValue *p = venomH_getint(t, key);
   if (isabstkey(p)) {
     TValue k;
     setivalue(&k, key);
-    viperH_newkey(L, t, &k, value);
+    venomH_newkey(L, t, &k, value);
   }
   else
     setobj2t(L, cast(TValue *, p), value);
@@ -843,32 +843,32 @@ void viperH_setint (viper_State *L, Table *t, viper_Integer key, TValue *value) 
 ** present. We want to find a larger key that is absent from the
 ** table, so that we can do a binary search between the two keys to
 ** find a boundary. We keep doubling 'j' until we get an absent index.
-** If the doubling would overflow, we try VIPER_MAXINTEGER. If it is
+** If the doubling would overflow, we try VENOM_MAXINTEGER. If it is
 ** absent, we are ready for the binary search. ('j', being max integer,
 ** is larger or equal to 'i', but it cannot be equal because it is
 ** absent while 'i' is present; so 'j > i'.) Otherwise, 'j' is a
 ** boundary. ('j + 1' cannot be a present integer key because it is
-** not a valid integer in Viper.)
+** not a valid integer in Venom.)
 */
-static viper_Unsigned hash_search (Table *t, viper_Unsigned j) {
-  viper_Unsigned i;
+static venom_Unsigned hash_search (Table *t, venom_Unsigned j) {
+  venom_Unsigned i;
   if (j == 0) j++;  /* the caller ensures 'j + 1' is present */
   do {
     i = j;  /* 'i' is a present index */
-    if (j <= l_castS2U(VIPER_MAXINTEGER) / 2)
+    if (j <= l_castS2U(VENOM_MAXINTEGER) / 2)
       j *= 2;
     else {
-      j = VIPER_MAXINTEGER;
-      if (isempty(viperH_getint(t, j)))  /* t[j] not present? */
+      j = VENOM_MAXINTEGER;
+      if (isempty(venomH_getint(t, j)))  /* t[j] not present? */
         break;  /* 'j' now is an absent index */
       else  /* weird case */
         return j;  /* well, max integer is a boundary... */
     }
-  } while (!isempty(viperH_getint(t, j)));  /* repeat until an absent t[j] */
+  } while (!isempty(venomH_getint(t, j)));  /* repeat until an absent t[j] */
   /* i < j  &&  t[i] present  &&  t[j] absent */
   while (j - i > 1u) {  /* do a binary search between them */
-    viper_Unsigned m = (i + j) / 2;
-    if (isempty(viperH_getint(t, m))) j = m;
+    venom_Unsigned m = (i + j) / 2;
+    if (isempty(venomH_getint(t, m))) j = m;
     else i = m;
   }
   return i;
@@ -890,7 +890,7 @@ static unsigned int binsearch (const TValue *array, unsigned int i,
 ** Try to find a boundary in table 't'. (A 'boundary' is an integer index
 ** such that t[i] is present and t[i+1] is absent, or 0 if t[1] is absent
 ** and 'maxinteger' if t[maxinteger] is present.)
-** (In the next explanation, we use Viper indices, that is, with base 1.
+** (In the next explanation, we use Venom indices, that is, with base 1.
 ** The code itself uses base 0 when indexing the array part of the table.)
 ** The code starts with 'limit = t->alimit', a position in the array
 ** part that may be a boundary.
@@ -918,7 +918,7 @@ static unsigned int binsearch (const TValue *array, unsigned int i,
 ** (In those cases, the boundary is not inside the array part, and
 ** therefore cannot be used as a new limit.)
 */
-viper_Unsigned viperH_getn (Table *t) {
+venom_Unsigned venomH_getn (Table *t) {
   unsigned int limit = t->alimit;
   if (limit > 0 && isempty(&t->array[limit - 1])) {  /* (1)? */
     /* there must be a boundary before 'limit' */
@@ -933,7 +933,7 @@ viper_Unsigned viperH_getn (Table *t) {
     else {  /* must search for a boundary in [0, limit] */
       unsigned int boundary = binsearch(t->array, 0, limit);
       /* can this boundary represent the real size of the array? */
-      if (ispow2realasize(t) && boundary > viperH_realasize(t) / 2) {
+      if (ispow2realasize(t) && boundary > venomH_realasize(t) / 2) {
         t->alimit = boundary;  /* use it as the new limit */
         setnorealasize(t);
       }
@@ -946,7 +946,7 @@ viper_Unsigned viperH_getn (Table *t) {
     if (isempty(&t->array[limit]))  /* 'limit + 1' is empty? */
       return limit;  /* this is the boundary */
     /* else, try last element in the array */
-    limit = viperH_realasize(t);
+    limit = venomH_realasize(t);
     if (isempty(&t->array[limit - 1])) {  /* empty? */
       /* there must be a boundary in the array after old limit,
          and it must be a valid new limit */
@@ -957,9 +957,9 @@ viper_Unsigned viperH_getn (Table *t) {
     /* else, new limit is present in the table; check the hash part */
   }
   /* (3) 'limit' is the last element and either is zero or present in table */
-  viper_assert(limit == viperH_realasize(t) &&
+  venom_assert(limit == venomH_realasize(t) &&
              (limit == 0 || !isempty(&t->array[limit - 1])));
-  if (isdummy(t) || isempty(viperH_getint(t, cast(viper_Integer, limit + 1))))
+  if (isdummy(t) || isempty(venomH_getint(t, cast(venom_Integer, limit + 1))))
     return limit;  /* 'limit + 1' is absent */
   else  /* 'limit + 1' is also present */
     return hash_search(t, limit);
@@ -967,14 +967,14 @@ viper_Unsigned viperH_getn (Table *t) {
 
 
 
-#if defined(VIPER_DEBUG)
+#if defined(VENOM_DEBUG)
 
 /* export these functions for the test library */
 
-Node *viperH_mainposition (const Table *t, const TValue *key) {
+Node *venomH_mainposition (const Table *t, const TValue *key) {
   return mainpositionTV(t, key);
 }
 
-int viperH_isdummy (const Table *t) { return isdummy(t); }
+int venomH_isdummy (const Table *t) { return isdummy(t); }
 
 #endif

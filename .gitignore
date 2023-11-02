@@ -7,7 +7,7 @@
 # Ignore executable files
 *.exe
 *.out
-*viper
-*viperc
+*venom
+*venomc
 *.a
 *.tmp

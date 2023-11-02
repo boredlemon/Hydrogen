@@ -1,11 +1,11 @@
 /*
 ** $Id: state.c $
 ** Global State
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define state_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -13,7 +13,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "api.h"
 #include "debug.h"
@@ -33,8 +33,8 @@
 ** thread state + extra space
 */
 typedef struct LX {
-  lu_byte extra_[VIPER_EXTRASPACE];
-  viper_State l;
+  lu_byte extra_[VENOM_EXTRASPACE];
+  venom_State l;
 } LX;
 
 
@@ -55,7 +55,7 @@ typedef struct LG {
 ** A macro to create a "random" seed when a state is created;
 ** the seed is used to randomize string hashes.
 */
-#if !defined(viperi_makeseed)
+#if !defined(venomi_makeseed)
 
 #include <time.h>
 
@@ -68,15 +68,15 @@ typedef struct LG {
   { size_t t = cast_sizet(e); \
     memcpy(b + p, &t, sizeof(t)); p += sizeof(t); }
 
-static unsigned int viperi_makeseed (viper_State *L) {
+static unsigned int venomi_makeseed (venom_State *L) {
   char buff[3 * sizeof(size_t)];
   unsigned int h = cast_uint(time(NULL));
   int p = 0;
   addbuff(buff, p, L);  /* heap variable */
   addbuff(buff, p, &h);  /* local variable */
-  addbuff(buff, p, &viper_newstate);  /* public function */
-  viper_assert(p == sizeof(buff));
-  return viperS_hash(buff, p, h);
+  addbuff(buff, p, &venom_newstate);  /* public function */
+  venom_assert(p == sizeof(buff));
+  return venomS_hash(buff, p, h);
 }
 
 #endif
@@ -86,9 +86,9 @@ static unsigned int viperi_makeseed (viper_State *L) {
 ** set GCdebt to a new value keeping the value (totalbytes + GCdebt)
 ** invariant (and avoiding underflows in 'totalbytes')
 */
-void viperE_setdebt (global_State *g, l_mem debt) {
+void venomE_setdebt (global_State *g, l_mem debt) {
   l_mem tb = gettotalbytes(g);
-  viper_assert(tb > 0);
+  venom_assert(tb > 0);
   if (debt < tb - MAX_memory)
     debt = tb - MAX_memory;  /* will make 'totalbytes == MAX_memory' */
   g->totalbytes = tb - debt;
@@ -96,17 +96,17 @@ void viperE_setdebt (global_State *g, l_mem debt) {
 }
 
 
-VIPER_API int viper_setcstacklimit (viper_State *L, unsigned int limit) {
+VENOM_API int venom_setcstacklimit (venom_State *L, unsigned int limit) {
   UNUSED(L); UNUSED(limit);
-  return VIPERI_MAXCCALLS;  /* warning?? */
+  return VENOMI_MAXCCALLS;  /* warning?? */
 }
 
 
-CallInfo *viperE_extendCI (viper_State *L) {
+CallInfo *venomE_extendCI (venom_State *L) {
   CallInfo *ci;
-  viper_assert(L->ci->next == NULL);
-  ci = viperM_new(L, CallInfo);
-  viper_assert(L->ci->next == NULL);
+  venom_assert(L->ci->next == NULL);
+  ci = venomM_new(L, CallInfo);
+  venom_assert(L->ci->next == NULL);
   L->ci->next = ci;
   ci->previous = L->ci;
   ci->next = NULL;
@@ -119,13 +119,13 @@ CallInfo *viperE_extendCI (viper_State *L) {
 /*
 ** free all CallInfo structures not in use by a thread
 */
-void viperE_freeCI (viper_State *L) {
+void venomE_freeCI (venom_State *L) {
   CallInfo *ci = L->ci;
   CallInfo *next = ci->next;
   ci->next = NULL;
   while ((ci = next) != NULL) {
     next = ci->next;
-    viperM_free(L, ci);
+    venomM_free(L, ci);
     L->nci--;
   }
 }
@@ -135,7 +135,7 @@ void viperE_freeCI (viper_State *L) {
 ** free half of the CallInfo structures not in use by a thread,
 ** keeping the first one.
 */
-void viperE_shrinkCI (viper_State *L) {
+void venomE_shrinkCI (venom_State *L) {
   CallInfo *ci = L->ci->next;  /* first free CallInfo */
   CallInfo *next;
   if (ci == NULL)
@@ -144,7 +144,7 @@ void viperE_shrinkCI (viper_State *L) {
     CallInfo *next2 = next->next;  /* next's next */
     ci->next = next2;  /* remove next from the list */
     L->nci--;
-    viperM_free(L, next);  /* free next */
+    venomM_free(L, next);  /* free next */
     if (next2 == NULL)
       break;  /* no more elements */
     else {
@@ -156,31 +156,31 @@ void viperE_shrinkCI (viper_State *L) {
 
 
 /*
-** Called when 'getCcalls(L)' larger or equal to VIPERI_MAXCCALLS.
+** Called when 'getCcalls(L)' larger or equal to VENOMI_MAXCCALLS.
 ** If equal, raises an overflow error. If value is larger than
-** VIPERI_MAXCCALLS (which means it is handling an overflow) but
+** VENOMI_MAXCCALLS (which means it is handling an overflow) but
 ** not much larger, does not report an error (to allow overflow
 ** handling to work).
 */
-void viperE_checkcstack (viper_State *L) {
-  if (getCcalls(L) == VIPERI_MAXCCALLS)
-    viperG_runerror(L, "C stack overflow");
-  else if (getCcalls(L) >= (VIPERI_MAXCCALLS / 10 * 11))
-    viperD_throw(L, VIPER_ERRERR);  /* error while handling stack error */
+void venomE_checkcstack (venom_State *L) {
+  if (getCcalls(L) == VENOMI_MAXCCALLS)
+    venomG_runerror(L, "C stack overflow");
+  else if (getCcalls(L) >= (VENOMI_MAXCCALLS / 10 * 11))
+    venomD_throw(L, VENOM_ERRERR);  /* error while handling stack error */
 }
 
 
-VIPERI_FUNC void viperE_incCstack (viper_State *L) {
+VENOMI_FUNC void venomE_incCstack (venom_State *L) {
   L->nCcalls++;
-  if (l_unlikely(getCcalls(L) >= VIPERI_MAXCCALLS))
-    viperE_checkcstack(L);
+  if (l_unlikely(getCcalls(L) >= VENOMI_MAXCCALLS))
+    venomE_checkcstack(L);
 }
 
 
-static void stack_init (viper_State *L1, viper_State *L) {
+static void stack_init (venom_State *L1, venom_State *L) {
   int i; CallInfo *ci;
   /* initialize stack array */
-  L1->stack = viperM_newvector(L, BASIC_STACK_SIZE + EXTRA_STACK, StackValue);
+  L1->stack = venomM_newvector(L, BASIC_STACK_SIZE + EXTRA_STACK, StackValue);
   L1->tbclist = L1->stack;
   for (i = 0; i < BASIC_STACK_SIZE + EXTRA_STACK; i++)
     setnilvalue(s2v(L1->stack + i));  /* erase new stack */
@@ -195,50 +195,50 @@ static void stack_init (viper_State *L1, viper_State *L) {
   ci->nresults = 0;
   setnilvalue(s2v(L1->top));  /* 'function' entry for this 'ci' */
   L1->top++;
-  ci->top = L1->top + VIPER_MINSTACK;
+  ci->top = L1->top + VENOM_MINSTACK;
   L1->ci = ci;
 }
 
 
-static void freestack (viper_State *L) {
+static void freestack (venom_State *L) {
   if (L->stack == NULL)
     return;  /* stack not completely built yet */
   L->ci = &L->base_ci;  /* free the entire 'ci' list */
-  viperE_freeCI(L);
-  viper_assert(L->nci == 0);
-  viperM_freearray(L, L->stack, stacksize(L) + EXTRA_STACK);  /* free stack */
+  venomE_freeCI(L);
+  venom_assert(L->nci == 0);
+  venomM_freearray(L, L->stack, stacksize(L) + EXTRA_STACK);  /* free stack */
 }
 
 
 /*
 ** Create registry table and its predefined values
 */
-static void init_registry (viper_State *L, global_State *g) {
+static void init_registry (venom_State *L, global_State *g) {
   /* create registry */
-  Table *registry = viperH_new(L);
+  Table *registry = venomH_new(L);
   sethvalue(L, &g->l_registry, registry);
-  viperH_resize(L, registry, VIPER_RIDX_LAST, 0);
-  /* registry[VIPER_RIDX_MAINTHREAD] = L */
-  setthvalue(L, &registry->array[VIPER_RIDX_MAINTHREAD - 1], L);
-  /* registry[VIPER_RIDX_GLOBALS] = new table (table of globals) */
-  sethvalue(L, &registry->array[VIPER_RIDX_GLOBALS - 1], viperH_new(L));
+  venomH_resize(L, registry, VENOM_RIDX_LAST, 0);
+  /* registry[VENOM_RIDX_MAINTHREAD] = L */
+  setthvalue(L, &registry->array[VENOM_RIDX_MAINTHREAD - 1], L);
+  /* registry[VENOM_RIDX_GLOBALS] = new table (table of globals) */
+  sethvalue(L, &registry->array[VENOM_RIDX_GLOBALS - 1], venomH_new(L));
 }
 
 
 /*
 ** open parts of the state that may cause memory-allocation errors.
 */
-static void f_viperopen (viper_State *L, void *ud) {
+static void f_venomopen (venom_State *L, void *ud) {
   global_State *g = G(L);
   UNUSED(ud);
   stack_init(L, L);  /* init stack */
   init_registry(L, g);
-  viperS_init(L);
-  viperT_init(L);
-  viperX_init(L);
+  venomS_init(L);
+  venomT_init(L);
+  venomX_init(L);
   g->gcstp = 0;  /* allow gc */
   setnilvalue(&g->nilvalue);  /* now state is complete */
-  viperi_userstateopen(L);
+  venomi_userstateopen(L);
 }
 
 
@@ -246,7 +246,7 @@ static void f_viperopen (viper_State *L, void *ud) {
 ** preinitialize a thread with consistent values without allocating
 ** any memory (to avoid errors)
 */
-static void preinit_thread (viper_State *L, global_State *g) {
+static void preinit_thread (venom_State *L, global_State *g) {
   G(L) = g;
   L->stack = NULL;
   L->ci = NULL;
@@ -260,39 +260,39 @@ static void preinit_thread (viper_State *L, global_State *g) {
   L->allowhook = 1;
   resethookcount(L);
   L->openupval = NULL;
-  L->status = VIPER_OK;
+  L->status = VENOM_OK;
   L->errfunc = 0;
   L->oldpc = 0;
 }
 
 
-static void close_state (viper_State *L) {
+static void close_state (venom_State *L) {
   global_State *g = G(L);
   if (!completestate(g))  /* closing a partially built state? */
-    viperC_freealobjects(L);  /* just collect its objects */
+    venomC_freealobjects(L);  /* just collect its objects */
   else {  /* closing a fully built state */
     L->ci = &L->base_ci;  /* unwind CallInfo list */
-    viperD_closeprotected(L, 1, VIPER_OK);  /* close all upvalues */
-    viperC_freealobjects(L);  /* collect all objects */
-    viperi_userstateclose(L);
+    venomD_closeprotected(L, 1, VENOM_OK);  /* close all upvalues */
+    venomC_freealobjects(L);  /* collect all objects */
+    venomi_userstateclose(L);
   }
-  viperM_freearray(L, G(L)->strt.hash, G(L)->strt.size);
+  venomM_freearray(L, G(L)->strt.hash, G(L)->strt.size);
   freestack(L);
-  viper_assert(gettotalbytes(g) == sizeof(LG));
+  venom_assert(gettotalbytes(g) == sizeof(LG));
   (*g->frealloc)(g->ud, fromstate(L), sizeof(LG), 0);  /* free main block */
 }
 
 
-VIPER_API viper_State *viper_newthread (viper_State *L) {
+VENOM_API venom_State *venom_newthread (venom_State *L) {
   global_State *g;
-  viper_State *L1;
-  viper_lock(L);
+  venom_State *L1;
+  venom_lock(L);
   g = G(L);
-  viperC_checkGC(L);
+  venomC_checkGC(L);
   /* create new thread */
-  L1 = &cast(LX *, viperM_newobject(L, VIPER_TTHREAD, sizeof(LX)))->l;
-  L1->marked = viperC_white(g);
-  L1->tt = VIPER_VTHREAD;
+  L1 = &cast(LX *, venomM_newobject(L, VENOM_TTHREAD, sizeof(LX)))->l;
+  L1->marked = venomC_white(g);
+  L1->tt = VENOM_VTHREAD;
   /* link it on list 'allgarbageCollection' */
   L1->next = g->allgarbageCollection;
   g->allgarbageCollection = obj2gco(L1);
@@ -305,64 +305,64 @@ VIPER_API viper_State *viper_newthread (viper_State *L) {
   L1->hook = L->hook;
   resethookcount(L1);
   /* initialize L1 extra space */
-  memcpy(viper_getextraspace(L1), viper_getextraspace(g->mainthread),
-         VIPER_EXTRASPACE);
-  viperi_userstatethread(L, L1);
+  memcpy(venom_getextraspace(L1), venom_getextraspace(g->mainthread),
+         VENOM_EXTRASPACE);
+  venomi_userstatethread(L, L1);
   stack_init(L1, L);  /* init stack */
-  viper_unlock(L);
+  venom_unlock(L);
   return L1;
 }
 
 
-void viperE_freethread (viper_State *L, viper_State *L1) {
+void venomE_freethread (venom_State *L, venom_State *L1) {
   LX *l = fromstate(L1);
-  viperF_closeupval(L1, L1->stack);  /* close all upvalues */
-  viper_assert(L1->openupval == NULL);
-  viperi_userstatefree(L, L1);
+  venomF_closeupval(L1, L1->stack);  /* close all upvalues */
+  venom_assert(L1->openupval == NULL);
+  venomi_userstatefree(L, L1);
   freestack(L1);
-  viperM_free(L, l);
+  venomM_free(L, l);
 }
 
 
-int viperE_resetthread (viper_State *L, int status) {
+int venomE_resetthread (venom_State *L, int status) {
   CallInfo *ci = L->ci = &L->base_ci;  /* unwind CallInfo list */
   setnilvalue(s2v(L->stack));  /* 'function' entry for basic 'ci' */
   ci->func = L->stack;
   ci->callstatus = CIST_C;
-  if (status == VIPER_YIELD)
-    status = VIPER_OK;
-  L->status = VIPER_OK;  /* so it can run __close metamethods */
-  status = viperD_closeprotected(L, 1, status);
-  if (status != VIPER_OK)  /* errors? */
-    viperD_seterrorobj(L, status, L->stack + 1);
+  if (status == VENOM_YIELD)
+    status = VENOM_OK;
+  L->status = VENOM_OK;  /* so it can run __close metamethods */
+  status = venomD_closeprotected(L, 1, status);
+  if (status != VENOM_OK)  /* errors? */
+    venomD_seterrorobj(L, status, L->stack + 1);
   else
     L->top = L->stack + 1;
-  ci->top = L->top + VIPER_MINSTACK;
-  viperD_reallocstack(L, cast_int(ci->top - L->stack), 0);
+  ci->top = L->top + VENOM_MINSTACK;
+  venomD_reallocstack(L, cast_int(ci->top - L->stack), 0);
   return status;
 }
 
 
-VIPER_API int viper_resetthread (viper_State *L) {
+VENOM_API int venom_resetthread (venom_State *L) {
   int status;
-  viper_lock(L);
-  status = viperE_resetthread(L, L->status);
-  viper_unlock(L);
+  venom_lock(L);
+  status = venomE_resetthread(L, L->status);
+  venom_unlock(L);
   return status;
 }
 
 
-VIPER_API viper_State *viper_newstate (viper_Alloc f, void *ud) {
+VENOM_API venom_State *venom_newstate (venom_Alloc f, void *ud) {
   int i;
-  viper_State *L;
+  venom_State *L;
   global_State *g;
-  LG *l = cast(LG *, (*f)(ud, NULL, VIPER_TTHREAD, sizeof(LG)));
+  LG *l = cast(LG *, (*f)(ud, NULL, VENOM_TTHREAD, sizeof(LG)));
   if (l == NULL) return NULL;
   L = &l->l.l;
   g = &l->g;
-  L->tt = VIPER_VTHREAD;
+  L->tt = VENOM_VTHREAD;
   g->currentwhite = bitmask(WHITE0BIT);
-  L->marked = viperC_white(g);
+  L->marked = venomC_white(g);
   preinit_thread(L, g);
   g->allgarbageCollection = obj2gco(L);  /* by now, only object is the main thread */
   L->next = NULL;
@@ -372,7 +372,7 @@ VIPER_API viper_State *viper_newstate (viper_Alloc f, void *ud) {
   g->warnf = NULL;
   g->ud_warn = NULL;
   g->mainthread = L;
-  g->seed = viperi_makeseed(L);
+  g->seed = venomi_makeseed(L);
   g->gcstp = GCSTPGC;  /* no GC while building state */
   g->strt.size = g->strt.nuse = 0;
   g->strt.hash = NULL;
@@ -393,13 +393,13 @@ VIPER_API viper_State *viper_newstate (viper_Alloc f, void *ud) {
   g->GCdebt = 0;
   g->lastatomic = 0;
   setivalue(&g->nilvalue, 0);  /* to signal that state is not yet built */
-  setgcparam(g->gcpause, VIPERI_GCPAUSE);
-  setgcparam(g->gcstepmul, VIPERI_GCMUL);
-  g->gcstepsize = VIPERI_GCSTEPSIZE;
-  setgcparam(g->genmajormul, VIPERI_GENMAJORMUL);
-  g->genminormul = VIPERI_GENMINORMUL;
-  for (i=0; i < VIPER_NUMTAGS; i++) g->mt[i] = NULL;
-  if (viperD_rawrunprotected(L, f_viperopen, NULL) != VIPER_OK) {
+  setgcparam(g->gcpause, VENOMI_GCPAUSE);
+  setgcparam(g->gcstepmul, VENOMI_GCMUL);
+  g->gcstepsize = VENOMI_GCSTEPSIZE;
+  setgcparam(g->genmajormul, VENOMI_GENMAJORMUL);
+  g->genminormul = VENOMI_GENMINORMUL;
+  for (i=0; i < VENOM_NUMTAGS; i++) g->mt[i] = NULL;
+  if (venomD_rawrunprotected(L, f_venomopen, NULL) != VENOM_OK) {
     /* memory allocation error: free partial state */
     close_state(L);
     L = NULL;
@@ -408,15 +408,15 @@ VIPER_API viper_State *viper_newstate (viper_Alloc f, void *ud) {
 }
 
 
-VIPER_API void viper_close (viper_State *L) {
-  viper_lock(L);
+VENOM_API void venom_close (venom_State *L) {
+  venom_lock(L);
   L = G(L)->mainthread;  /* only the main thread can be closed */
   close_state(L);
 }
 
 
-void viperE_warning (viper_State *L, const char *msg, int tocont) {
-  viper_WarnFunction wf = G(L)->warnf;
+void venomE_warning (venom_State *L, const char *msg, int tocont) {
+  venom_WarnFunction wf = G(L)->warnf;
   if (wf != NULL)
     wf(G(L)->ud_warn, msg, tocont);
 }
@@ -425,16 +425,16 @@ void viperE_warning (viper_State *L, const char *msg, int tocont) {
 /*
 ** Generate a warning from an error message
 */
-void viperE_warnerror (viper_State *L, const char *where) {
+void venomE_warnerror (venom_State *L, const char *where) {
   TValue *errobj = s2v(L->top - 1);  /* error object */
   const char *msg = (ttisstring(errobj))
                   ? svalue(errobj)
                   : "error object is not a string";
   /* produce warning "error in %s (%s)" (where, msg) */
-  viperE_warning(L, "error in ", 1);
-  viperE_warning(L, where, 1);
-  viperE_warning(L, " (", 1);
-  viperE_warning(L, msg, 1);
-  viperE_warning(L, ")", 0);
+  venomE_warning(L, "error in ", 1);
+  venomE_warning(L, where, 1);
+  venomE_warning(L, " (", 1);
+  venomE_warning(L, msg, 1);
+  venomE_warning(L, ")", 0);
 }
 

@@ -1,7 +1,7 @@
 /*
 ** $Id: lapi.h $
-** Auxiliary functions from Viper API
-** See Copyright Notice in viper.h
+** Auxiliary functions from Venom API
+** See Copyright Notice in venom.h
 */
 
 #ifndef api_h
@@ -23,7 +23,7 @@
 ** increases its stack space ('L->ci->top').
 */
 #define adjustresults(L,nres) \
-    { if ((nres) <= VIPER_MULTRET && L->ci->top < L->top) L->ci->top = L->top; }
+    { if ((nres) <= VENOM_MULTRET && L->ci->top < L->top) L->ci->top = L->top; }
 
 
 /* Ensure the stack has at least 'n' elements */
@@ -40,7 +40,7 @@
 ** variables to be closed, have an extra check.
 */
 
-#define hastocloseCfunc(n)	((n) < VIPER_MULTRET)
+#define hastocloseCfunc(n)	((n) < VENOM_MULTRET)
 
 /* Map [-1, inf) (range of 'nresults') into (-inf, -2] */
 #define codeNresults(n)		(-(n) - 3)

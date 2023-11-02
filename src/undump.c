@@ -1,11 +1,11 @@
 /*
 ** $Id: undump.c $
-** load precompiled Viper chunks
-** See Copyright Notice in viper.h
+** load precompiled Venom chunks
+** See Copyright Notice in venom.h
 */
 
 #define undump_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
@@ -13,7 +13,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "debug.h"
 #include "do.h"
@@ -25,32 +25,32 @@
 #include "zio.h"
 
 
-#if !defined(viperi_verifycode)
-#define viperi_verifycode(L,f)  /* empty */
+#if !defined(venomi_verifycode)
+#define venomi_verifycode(L,f)  /* empty */
 #endif
 
 
 typedef struct {
-  viper_State *L;
+  venom_State *L;
   ZIO *Z;
   const char *name;
 } LoadState;
 
 
 static l_noret error (LoadState *S, const char *why) {
-  viperO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
-  viperD_throw(S->L, VIPER_ERRSYNTAX);
+  venomO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
+  venomD_throw(S->L, VENOM_ERRSYNTAX);
 }
 
 
 /*
-** All high-level loads Viper through loadVector; you can change it to
+** All high-level loads Venom through loadVector; you can change it to
 ** adapt to the endianness of the input
 */
 #define loadVector(S,b,n)	loadBlock(S,b,(n)*sizeof((b)[0]))
 
 static void loadBlock (LoadState *S, void *b, size_t size) {
-  if (viperZ_read(S->Z, b, size) != 0)
+  if (venomZ_read(S->Z, b, size) != 0)
     error(S, "truncated chunk");
 }
 
@@ -90,15 +90,15 @@ static int loadInt (LoadState *S) {
 }
 
 
-static viper_Number loadNumber (LoadState *S) {
-  viper_Number x;
+static venom_Number loadNumber (LoadState *S) {
+  venom_Number x;
   loadVar(S, x);
   return x;
 }
 
 
-static viper_Integer loadInteger (LoadState *S) {
-  viper_Integer x;
+static venom_Integer loadInteger (LoadState *S) {
+  venom_Integer x;
   loadVar(S, x);
   return x;
 }
@@ -108,24 +108,24 @@ static viper_Integer loadInteger (LoadState *S) {
 ** Load a nullable string into prototype 'p'.
 */
 static TString *loadStringN (LoadState *S, Proto *p) {
-  viper_State *L = S->L;
+  venom_State *L = S->L;
   TString *ts;
   size_t size = loadSize(S);
   if (size == 0)  /* no string? */
     return NULL;
-  else if (--size <= VIPERI_MAXSHORTLEN) {  /* short string? */
-    char buff[VIPERI_MAXSHORTLEN];
+  else if (--size <= VENOMI_MAXSHORTLEN) {  /* short string? */
+    char buff[VENOMI_MAXSHORTLEN];
     loadVector(S, buff, size);  /* load string into buffer */
-    ts = viperS_newlstr(L, buff, size);  /* create string */
+    ts = venomS_newlstr(L, buff, size);  /* create string */
   }
   else {  /* long string */
-    ts = viperS_createlngstrobj(L, size);  /* create string */
+    ts = venomS_createlngstrobj(L, size);  /* create string */
     setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) */
-    viperD_inctop(L);
+    venomD_inctop(L);
     loadVector(S, getstr(ts), size);  /* load directly in final place */
     L->top--;  /* pop string */
   }
-  viperC_objbarrier(L, p, ts);
+  venomC_objbarrier(L, p, ts);
   return ts;
 }
 
@@ -143,7 +143,7 @@ static TString *loadString (LoadState *S, Proto *p) {
 
 static void loadCode (LoadState *S, Proto *f) {
   int n = loadInt(S);
-  f->code = viperM_newvectorchecked(S->L, n, Instruction);
+  f->code = venomM_newvectorchecked(S->L, n, Instruction);
   f->sizecode = n;
   loadVector(S, f->code, n);
 }
@@ -155,7 +155,7 @@ static void loadFunction(LoadState *S, Proto *f, TString *psource);
 static void loadConstants (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->k = viperM_newvectorchecked(S->L, n, TValue);
+  f->k = venomM_newvectorchecked(S->L, n, TValue);
   f->sizek = n;
   for (i = 0; i < n; i++)
     setnilvalue(&f->k[i]);
@@ -163,26 +163,26 @@ static void loadConstants (LoadState *S, Proto *f) {
     TValue *o = &f->k[i];
     int t = loadByte(S);
     switch (t) {
-      case VIPER_VNIL:
+      case VENOM_VNIL:
         setnilvalue(o);
         break;
-      case VIPER_VFALSE:
+      case VENOM_VFALSE:
         setbfvalue(o);
         break;
-      case VIPER_VTRUE:
+      case VENOM_VTRUE:
         setbtvalue(o);
         break;
-      case VIPER_VNUMFLT:
+      case VENOM_VNUMFLT:
         setfltvalue(o, loadNumber(S));
         break;
-      case VIPER_VNUMINT:
+      case VENOM_VNUMINT:
         setivalue(o, loadInteger(S));
         break;
-      case VIPER_VSHRSTR:
-      case VIPER_VLNGSTR:
+      case VENOM_VSHRSTR:
+      case VENOM_VLNGSTR:
         setsvalue2n(S->L, o, loadString(S, f));
         break;
-      default: viper_assert(0);
+      default: venom_assert(0);
     }
   }
 }
@@ -191,13 +191,13 @@ static void loadConstants (LoadState *S, Proto *f) {
 static void loadProtos (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->p = viperM_newvectorchecked(S->L, n, Proto *);
+  f->p = venomM_newvectorchecked(S->L, n, Proto *);
   f->sizep = n;
   for (i = 0; i < n; i++)
     f->p[i] = NULL;
   for (i = 0; i < n; i++) {
-    f->p[i] = viperF_newproto(S->L);
-    viperC_objbarrier(S->L, f, f->p[i]);
+    f->p[i] = venomF_newproto(S->L);
+    venomC_objbarrier(S->L, f, f->p[i]);
     loadFunction(S, f->p[i], f->source);
   }
 }
@@ -212,7 +212,7 @@ static void loadProtos (LoadState *S, Proto *f) {
 static void loadUpvalues (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->upvalues = viperM_newvectorchecked(S->L, n, Upvaldesc);
+  f->upvalues = venomM_newvectorchecked(S->L, n, Upvaldesc);
   f->sizeupvalues = n;
   for (i = 0; i < n; i++)  /* make array valid for GC */
     f->upvalues[i].name = NULL;
@@ -227,18 +227,18 @@ static void loadUpvalues (LoadState *S, Proto *f) {
 static void loadDebug (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->lineinfo = viperM_newvectorchecked(S->L, n, ls_byte);
+  f->lineinfo = venomM_newvectorchecked(S->L, n, ls_byte);
   f->sizelineinfo = n;
   loadVector(S, f->lineinfo, n);
   n = loadInt(S);
-  f->abslineinfo = viperM_newvectorchecked(S->L, n, AbsLineInfo);
+  f->abslineinfo = venomM_newvectorchecked(S->L, n, AbsLineInfo);
   f->sizeabslineinfo = n;
   for (i = 0; i < n; i++) {
     f->abslineinfo[i].pc = loadInt(S);
     f->abslineinfo[i].line = loadInt(S);
   }
   n = loadInt(S);
-  f->locvars = viperM_newvectorchecked(S->L, n, LocVar);
+  f->locvars = venomM_newvectorchecked(S->L, n, LocVar);
   f->sizelocvars = n;
   for (i = 0; i < n; i++)
     f->locvars[i].varname = NULL;
@@ -271,7 +271,7 @@ static void loadFunction (LoadState *S, Proto *f, TString *psource) {
 
 
 static void checkliteral (LoadState *S, const char *s, const char *msg) {
-  char buff[sizeof(VIPER_SIGNATURE) + sizeof(VIPERC_DATA)]; /* larger than both */
+  char buff[sizeof(VENOM_SIGNATURE) + sizeof(VENOMC_DATA)]; /* larger than both */
   size_t len = strlen(s);
   loadVector(S, buff, len);
   if (memcmp(s, buff, len) != 0)
@@ -281,7 +281,7 @@ static void checkliteral (LoadState *S, const char *s, const char *msg) {
 
 static void fchecksize (LoadState *S, size_t size, const char *tname) {
   if (loadByte(S) != size)
-    error(S, viperO_pushfstring(S->L, "%s size mismatch", tname));
+    error(S, venomO_pushfstring(S->L, "%s size mismatch", tname));
 }
 
 
@@ -289,18 +289,18 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 
 static void checkHeader (LoadState *S) {
   /* skip 1st char (already read and checked) */
-  checkliteral(S, &VIPER_SIGNATURE[1], "not a binary chunk");
-  if (loadByte(S) != VIPERC_VERSION)
+  checkliteral(S, &VENOM_SIGNATURE[1], "not a binary chunk");
+  if (loadByte(S) != VENOMC_VERSION)
     error(S, "version mismatch");
-  if (loadByte(S) != VIPERC_FORMAT)
+  if (loadByte(S) != VENOMC_FORMAT)
     error(S, "format mismatch");
-  checkliteral(S, VIPERC_DATA, "corrupted chunk");
+  checkliteral(S, VENOMC_DATA, "corrupted chunk");
   checksize(S, Instruction);
-  checksize(S, viper_Integer);
-  checksize(S, viper_Number);
-  if (loadInteger(S) != VIPERC_INT)
+  checksize(S, venom_Integer);
+  checksize(S, venom_Number);
+  if (loadInteger(S) != VENOMC_INT)
     error(S, "integer format mismatch");
-  if (loadNumber(S) != VIPERC_NUM)
+  if (loadNumber(S) != VENOMC_NUM)
     error(S, "float format mismatch");
 }
 
@@ -308,26 +308,26 @@ static void checkHeader (LoadState *S) {
 /*
 ** Load precompiled chunk.
 */
-LClosure *viperU_undump(viper_State *L, ZIO *Z, const char *name) {
+LClosure *venomU_undump(venom_State *L, ZIO *Z, const char *name) {
   LoadState S;
   LClosure *cl;
   if (*name == '@' || *name == '=')
     S.name = name + 1;
-  else if (*name == VIPER_SIGNATURE[0])
+  else if (*name == VENOM_SIGNATURE[0])
     S.name = "binary string";
   else
     S.name = name;
   S.L = L;
   S.Z = Z;
   checkHeader(&S);
-  cl = viperF_newLclosure(L, loadByte(&S));
+  cl = venomF_newLclosure(L, loadByte(&S));
   setclLvalue2s(L, L->top, cl);
-  viperD_inctop(L);
-  cl->p = viperF_newproto(L);
-  viperC_objbarrier(L, cl, cl->p);
+  venomD_inctop(L);
+  cl->p = venomF_newproto(L);
+  venomC_objbarrier(L, cl, cl->p);
   loadFunction(&S, cl->p, NULL);
-  viper_assert(cl->nupvalues == cl->p->sizeupvalues);
-  viperi_verifycode(L, cl->p);
+  venom_assert(cl->nupvalues == cl->p->sizeupvalues);
+  venomi_verifycode(L, cl->p);
   return cl;
 }
 

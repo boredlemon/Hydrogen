@@ -1,7 +1,7 @@
 /*
 ** $Id: auxlib.h $
-** Auxiliary functions for building Viper libraries
-** See Copyright Notice in viper.h
+** Auxiliary functions for building Venom libraries
+** See Copyright Notice in venom.h
 */
 
 
@@ -12,110 +12,110 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "viperconf.h"
-#include "viper.h"
+#include "venomconf.h"
+#include "venom.h"
 
 
 /* global table */
-#define VIPER_GNAME	"_G"
+#define VENOM_GNAME	"_G"
 
 
-typedef struct viperL_Buffer viperL_Buffer;
+typedef struct venomL_Buffer venomL_Buffer;
 
 
-/* extra error code for 'viperL_loadfilex' */
-#define VIPER_ERRFILE     (VIPER_ERRERR+1)
+/* extra error code for 'venomL_loadfilex' */
+#define VENOM_ERRFILE     (VENOM_ERRERR+1)
 
 
 /* key, in the registry, for table of loaded modules */
-#define VIPER_LOADED_TABLE	"_LOADED"
+#define VENOM_LOADED_TABLE	"_LOADED"
 
 
 /* key, in the registry, for table of preloaded loaders */
-#define VIPER_PRELOAD_TABLE	"_PRELOAD"
+#define VENOM_PRELOAD_TABLE	"_PRELOAD"
 
 
-typedef struct viperL_Reg {
+typedef struct venomL_Reg {
   const char *name;
-  viper_CFunction func;
-} viperL_Reg;
+  venom_CFunction func;
+} venomL_Reg;
 
 
-#define VIPERL_NUMSIZES	(sizeof(viper_Integer)*16 + sizeof(viper_Number))
+#define VENOML_NUMSIZES	(sizeof(venom_Integer)*16 + sizeof(venom_Number))
 
-VIPERLIB_API void (viperL_checkversion_) (viper_State *L, viper_Number ver, size_t sz);
-#define viperL_checkversion(L)  \
-	  viperL_checkversion_(L, VIPER_VERSION_NUM, VIPERL_NUMSIZES)
+VENOMLIB_API void (venomL_checkversion_) (venom_State *L, venom_Number ver, size_t sz);
+#define venomL_checkversion(L)  \
+	  venomL_checkversion_(L, VENOM_VERSION_NUM, VENOML_NUMSIZES)
 
-VIPERLIB_API int (viperL_getmetafield) (viper_State *L, int obj, const char *e);
-VIPERLIB_API int (viperL_callmeta) (viper_State *L, int obj, const char *e);
-VIPERLIB_API const char *(viperL_tolstring) (viper_State *L, int idx, size_t *len);
-VIPERLIB_API int (viperL_argerror) (viper_State *L, int arg, const char *extramsg);
-VIPERLIB_API int (viperL_typeerror) (viper_State *L, int arg, const char *tname);
-VIPERLIB_API const char *(viperL_checklstring) (viper_State *L, int arg,
+VENOMLIB_API int (venomL_getmetafield) (venom_State *L, int obj, const char *e);
+VENOMLIB_API int (venomL_callmeta) (venom_State *L, int obj, const char *e);
+VENOMLIB_API const char *(venomL_tolstring) (venom_State *L, int idx, size_t *len);
+VENOMLIB_API int (venomL_argerror) (venom_State *L, int arg, const char *extramsg);
+VENOMLIB_API int (venomL_typeerror) (venom_State *L, int arg, const char *tname);
+VENOMLIB_API const char *(venomL_checklstring) (venom_State *L, int arg,
                                                           size_t *l);
-VIPERLIB_API const char *(viperL_optlstring) (viper_State *L, int arg,
+VENOMLIB_API const char *(venomL_optlstring) (venom_State *L, int arg,
                                           const char *def, size_t *l);
-VIPERLIB_API viper_Number (viperL_checknumber) (viper_State *L, int arg);
-VIPERLIB_API viper_Number (viperL_optnumber) (viper_State *L, int arg, viper_Number def);
+VENOMLIB_API venom_Number (venomL_checknumber) (venom_State *L, int arg);
+VENOMLIB_API venom_Number (venomL_optnumber) (venom_State *L, int arg, venom_Number def);
 
-VIPERLIB_API viper_Integer (viperL_checkinteger) (viper_State *L, int arg);
-VIPERLIB_API viper_Integer (viperL_optinteger) (viper_State *L, int arg,
-                                          viper_Integer def);
+VENOMLIB_API venom_Integer (venomL_checkinteger) (venom_State *L, int arg);
+VENOMLIB_API venom_Integer (venomL_optinteger) (venom_State *L, int arg,
+                                          venom_Integer def);
 
-VIPERLIB_API void (viperL_checkstack) (viper_State *L, int sz, const char *msg);
-VIPERLIB_API void (viperL_checktype) (viper_State *L, int arg, int t);
-VIPERLIB_API void (viperL_checkany) (viper_State *L, int arg);
+VENOMLIB_API void (venomL_checkstack) (venom_State *L, int sz, const char *msg);
+VENOMLIB_API void (venomL_checktype) (venom_State *L, int arg, int t);
+VENOMLIB_API void (venomL_checkany) (venom_State *L, int arg);
 
-VIPERLIB_API int   (viperL_newmetatable) (viper_State *L, const char *tname);
-VIPERLIB_API void  (viperL_setmetatable) (viper_State *L, const char *tname);
-VIPERLIB_API void *(viperL_testudata) (viper_State *L, int ud, const char *tname);
-VIPERLIB_API void *(viperL_checkudata) (viper_State *L, int ud, const char *tname);
+VENOMLIB_API int   (venomL_newmetatable) (venom_State *L, const char *tname);
+VENOMLIB_API void  (venomL_setmetatable) (venom_State *L, const char *tname);
+VENOMLIB_API void *(venomL_testudata) (venom_State *L, int ud, const char *tname);
+VENOMLIB_API void *(venomL_checkudata) (venom_State *L, int ud, const char *tname);
 
-VIPERLIB_API void (viperL_where) (viper_State *L, int lvl);
-VIPERLIB_API int (viperL_error) (viper_State *L, const char *fmt, ...);
+VENOMLIB_API void (venomL_where) (venom_State *L, int lvl);
+VENOMLIB_API int (venomL_error) (venom_State *L, const char *fmt, ...);
 
-VIPERLIB_API int (viperL_checkoption) (viper_State *L, int arg, const char *def,
+VENOMLIB_API int (venomL_checkoption) (venom_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-VIPERLIB_API int (viperL_fileresult) (viper_State *L, int stat, const char *fname);
-VIPERLIB_API int (viperL_execresult) (viper_State *L, int stat);
+VENOMLIB_API int (venomL_fileresult) (venom_State *L, int stat, const char *fname);
+VENOMLIB_API int (venomL_execresult) (venom_State *L, int stat);
 
 
 /* predefined references */
-#define VIPER_NOREF       (-2)
-#define VIPER_REFNIL      (-1)
+#define VENOM_NOREF       (-2)
+#define VENOM_REFNIL      (-1)
 
-VIPERLIB_API int (viperL_ref) (viper_State *L, int t);
-VIPERLIB_API void (viperL_unref) (viper_State *L, int t, int ref);
+VENOMLIB_API int (venomL_ref) (venom_State *L, int t);
+VENOMLIB_API void (venomL_unref) (venom_State *L, int t, int ref);
 
-VIPERLIB_API int (viperL_loadfilex) (viper_State *L, const char *filename,
+VENOMLIB_API int (venomL_loadfilex) (venom_State *L, const char *filename,
                                                const char *mode);
 
-#define viperL_loadfile(L,f)	viperL_loadfilex(L,f,NULL)
+#define venomL_loadfile(L,f)	venomL_loadfilex(L,f,NULL)
 
-VIPERLIB_API int (viperL_loadbufferx) (viper_State *L, const char *buff, size_t sz,
+VENOMLIB_API int (venomL_loadbufferx) (venom_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-VIPERLIB_API int (viperL_loadstring) (viper_State *L, const char *s);
+VENOMLIB_API int (venomL_loadstring) (venom_State *L, const char *s);
 
-VIPERLIB_API viper_State *(viperL_newstate) (void);
+VENOMLIB_API venom_State *(venomL_newstate) (void);
 
-VIPERLIB_API viper_Integer (viperL_len) (viper_State *L, int idx);
+VENOMLIB_API venom_Integer (venomL_len) (venom_State *L, int idx);
 
-VIPERLIB_API void (viperL_addgsub) (viperL_Buffer *b, const char *s,
+VENOMLIB_API void (venomL_addgsub) (venomL_Buffer *b, const char *s,
                                      const char *p, const char *r);
-VIPERLIB_API const char *(viperL_gsub) (viper_State *L, const char *s,
+VENOMLIB_API const char *(venomL_gsub) (venom_State *L, const char *s,
                                     const char *p, const char *r);
 
-VIPERLIB_API void (viperL_setfuncs) (viper_State *L, const viperL_Reg *l, int nup);
+VENOMLIB_API void (venomL_setfuncs) (venom_State *L, const venomL_Reg *l, int nup);
 
-VIPERLIB_API int (viperL_getsubtable) (viper_State *L, int idx, const char *fname);
+VENOMLIB_API int (venomL_getsubtable) (venom_State *L, int idx, const char *fname);
 
-VIPERLIB_API void (viperL_traceback) (viper_State *L, viper_State *L1,
+VENOMLIB_API void (venomL_traceback) (venom_State *L, venom_State *L1,
                                   const char *msg, int level);
 
-VIPERLIB_API void (viperL_requiref) (viper_State *L, const char *modname,
-                                 viper_CFunction openf, int glb);
+VENOMLIB_API void (venomL_requiref) (venom_State *L, const char *modname,
+                                 venom_CFunction openf, int glb);
 
 /*
 ** ===============================================================
@@ -124,58 +124,58 @@ VIPERLIB_API void (viperL_requiref) (viper_State *L, const char *modname,
 */
 
 
-#define viperL_newlibtable(L,l)	\
-  viper_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#define venomL_newlibtable(L,l)	\
+  venom_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
-#define viperL_newlib(L,l)  \
-  (viperL_checkversion(L), viperL_newlibtable(L,l), viperL_setfuncs(L,l,0))
+#define venomL_newlib(L,l)  \
+  (venomL_checkversion(L), venomL_newlibtable(L,l), venomL_setfuncs(L,l,0))
 
-#define viperL_argcheck(L, cond,arg,extramsg)	\
-	((void)(viperi_likely(cond) || viperL_argerror(L, (arg), (extramsg))))
+#define venomL_argcheck(L, cond,arg,extramsg)	\
+	((void)(venomi_likely(cond) || venomL_argerror(L, (arg), (extramsg))))
 
-#define viperL_argexpected(L,cond,arg,tname)	\
-	((void)(viperi_likely(cond) || viperL_typeerror(L, (arg), (tname))))
+#define venomL_argexpected(L,cond,arg,tname)	\
+	((void)(venomi_likely(cond) || venomL_typeerror(L, (arg), (tname))))
 
-#define viperL_checkstring(L,n)	(viperL_checklstring(L, (n), NULL))
-#define viperL_optstring(L,n,d)	(viperL_optlstring(L, (n), (d), NULL))
+#define venomL_checkstring(L,n)	(venomL_checklstring(L, (n), NULL))
+#define venomL_optstring(L,n,d)	(venomL_optlstring(L, (n), (d), NULL))
 
-#define viperL_typename(L,i)	viper_typename(L, viper_type(L,(i)))
+#define venomL_typename(L,i)	venom_typename(L, venom_type(L,(i)))
 
-#define viperL_dofile(L, fn) \
-	(viperL_loadfile(L, fn) || viper_pcall(L, 0, VIPER_MULTRET, 0))
+#define venomL_dofile(L, fn) \
+	(venomL_loadfile(L, fn) || venom_pcall(L, 0, VENOM_MULTRET, 0))
 
-#define viperL_dostring(L, s) \
-	(viperL_loadstring(L, s) || viper_pcall(L, 0, VIPER_MULTRET, 0))
+#define venomL_dostring(L, s) \
+	(venomL_loadstring(L, s) || venom_pcall(L, 0, VENOM_MULTRET, 0))
 
-#define viperL_getmetatable(L,n)	(viper_getfield(L, VIPER_REGISTRYINDEX, (n)))
+#define venomL_getmetatable(L,n)	(venom_getfield(L, VENOM_REGISTRYINDEX, (n)))
 
-#define viperL_opt(L,f,n,d)	(viper_isnoneornil(L,(n)) ? (d) : f(L,(n)))
+#define venomL_opt(L,f,n,d)	(venom_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
-#define viperL_loadbuffer(L,s,sz,n)	viperL_loadbufferx(L,s,sz,n,NULL)
+#define venomL_loadbuffer(L,s,sz,n)	venomL_loadbufferx(L,s,sz,n,NULL)
 
 
 /*
-** Perform arithmetic operations on viper_Integer values with wrap-around
-** semantics, as the Viper core does.
+** Perform arithmetic operations on venom_Integer values with wrap-around
+** semantics, as the Venom core does.
 */
-#define viperL_intop(op,v1,v2)  \
-	((viper_Integer)((viper_Unsigned)(v1) op (viper_Unsigned)(v2)))
+#define venomL_intop(op,v1,v2)  \
+	((venom_Integer)((venom_Unsigned)(v1) op (venom_Unsigned)(v2)))
 
 
 /* push the value used to represent failure/error */
-#define viperL_pushfail(L)	viper_pushnil(L)
+#define venomL_pushfail(L)	venom_pushnil(L)
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if !defined(viper_assert)
+#if !defined(venom_assert)
 
-#if defined VIPERI_ASSERT
+#if defined VENOMI_ASSERT
   #include <assert.h>
-  #define viper_assert(c)		assert(c)
+  #define venom_assert(c)		assert(c)
 #else
-  #define viper_assert(c)		((void)0)
+  #define venom_assert(c)		((void)0)
 #endif
 
 #endif
@@ -188,40 +188,40 @@ VIPERLIB_API void (viperL_requiref) (viper_State *L, const char *modname,
 ** =======================================================
 */
 
-struct viperL_Buffer {
+struct venomL_Buffer {
   char *b;  /* buffer address */
   size_t size;  /* buffer size */
   size_t n;  /* number of characters in buffer */
-  viper_State *L;
+  venom_State *L;
   union {
-    VIPERI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[VIPERL_BUFFERSIZE];  /* initial buffer */
+    VENOMI_MAXALIGN;  /* ensure maximum alignment for buffer */
+    char b[VENOML_BUFFERSIZE];  /* initial buffer */
   } init;
 };
 
 
-#define viperL_bufflen(bf)	((bf)->n)
-#define viperL_buffaddr(bf)	((bf)->b)
+#define venomL_bufflen(bf)	((bf)->n)
+#define venomL_buffaddr(bf)	((bf)->b)
 
 
-#define viperL_addchar(B,c) \
-  ((void)((B)->n < (B)->size || viperL_prepbuffsize((B), 1)), \
+#define venomL_addchar(B,c) \
+  ((void)((B)->n < (B)->size || venomL_prepbuffsize((B), 1)), \
    ((B)->b[(B)->n++] = (c)))
 
-#define viperL_addsize(B,s)	((B)->n += (s))
+#define venomL_addsize(B,s)	((B)->n += (s))
 
-#define viperL_buffsub(B,s)	((B)->n -= (s))
+#define venomL_buffsub(B,s)	((B)->n -= (s))
 
-VIPERLIB_API void (viperL_buffinit) (viper_State *L, viperL_Buffer *B);
-VIPERLIB_API char *(viperL_prepbuffsize) (viperL_Buffer *B, size_t sz);
-VIPERLIB_API void (viperL_addlstring) (viperL_Buffer *B, const char *s, size_t l);
-VIPERLIB_API void (viperL_addstring) (viperL_Buffer *B, const char *s);
-VIPERLIB_API void (viperL_addvalue) (viperL_Buffer *B);
-VIPERLIB_API void (viperL_pushresult) (viperL_Buffer *B);
-VIPERLIB_API void (viperL_pushresultsize) (viperL_Buffer *B, size_t sz);
-VIPERLIB_API char *(viperL_buffinitsize) (viper_State *L, viperL_Buffer *B, size_t sz);
+VENOMLIB_API void (venomL_buffinit) (venom_State *L, venomL_Buffer *B);
+VENOMLIB_API char *(venomL_prepbuffsize) (venomL_Buffer *B, size_t sz);
+VENOMLIB_API void (venomL_addlstring) (venomL_Buffer *B, const char *s, size_t l);
+VENOMLIB_API void (venomL_addstring) (venomL_Buffer *B, const char *s);
+VENOMLIB_API void (venomL_addvalue) (venomL_Buffer *B);
+VENOMLIB_API void (venomL_pushresult) (venomL_Buffer *B);
+VENOMLIB_API void (venomL_pushresultsize) (venomL_Buffer *B, size_t sz);
+VENOMLIB_API char *(venomL_buffinitsize) (venom_State *L, venomL_Buffer *B, size_t sz);
 
-#define viperL_prepbuffer(B)	viperL_prepbuffsize(B, VIPERL_BUFFERSIZE)
+#define venomL_prepbuffer(B)	venomL_prepbuffsize(B, VENOML_BUFFERSIZE)
 
 /* }====================================================== */
 
@@ -234,18 +234,18 @@ VIPERLIB_API char *(viperL_buffinitsize) (viper_State *L, viperL_Buffer *B, size
 */
 
 /*
-** A file handle is a userdata with metatable 'VIPER_FILEHANDLE' and
-** initial structure 'viperL_Stream' (it may contain other fields
+** A file handle is a userdata with metatable 'VENOM_FILEHANDLE' and
+** initial structure 'venomL_Stream' (it may contain other fields
 ** after that initial structure).
 */
 
-#define VIPER_FILEHANDLE          "FILE*"
+#define VENOM_FILEHANDLE          "FILE*"
 
 
-typedef struct viperL_Stream {
+typedef struct venomL_Stream {
   FILE *f;  /* stream (NULL for incompletely created streams) */
-  viper_CFunction closef;  /* to close stream (NULL for closed streams) */
-} viperL_Stream;
+  venom_CFunction closef;  /* to close stream (NULL for closed streams) */
+} venomL_Stream;
 
 /* }====================================================== */
 
@@ -256,18 +256,18 @@ typedef struct viperL_Stream {
 */
 
 /* print a string */
-#if !defined(viper_writestring)
-#define viper_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+#if !defined(venom_writestring)
+#define venom_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #endif
 
 /* print a newline and flush the output */
-#if !defined(viper_writeline)
-#define viper_writeline()        (viper_writestring("\n", 1), fflush(stdout))
+#if !defined(venom_writeline)
+#define venom_writeline()        (venom_writestring("\n", 1), fflush(stdout))
 #endif
 
 /* print an error message */
-#if !defined(viper_writestringerror)
-#define viper_writestringerror(s,p) \
+#if !defined(venom_writestringerror)
+#define venom_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
 #endif
 
@@ -279,17 +279,17 @@ typedef struct viperL_Stream {
 ** Compatibility with deprecated conversions
 ** =============================================================
 */
-#if defined(VIPER_COMPAT_APIINTCASTS)
+#if defined(VENOM_COMPAT_APIINTCASTS)
 
-#define viperL_checkunsigned(L,a)	((viper_Unsigned)viperL_checkinteger(L,a))
-#define viperL_optunsigned(L,a,d)	\
-	((viper_Unsigned)viperL_optinteger(L,a,(viper_Integer)(d)))
+#define venomL_checkunsigned(L,a)	((venom_Unsigned)venomL_checkinteger(L,a))
+#define venomL_optunsigned(L,a,d)	\
+	((venom_Unsigned)venomL_optinteger(L,a,(venom_Integer)(d)))
 
-#define viperL_checkint(L,n)	((int)viperL_checkinteger(L, (n)))
-#define viperL_optint(L,n,d)	((int)viperL_optinteger(L, (n), (d)))
+#define venomL_checkint(L,n)	((int)venomL_checkinteger(L, (n)))
+#define venomL_optint(L,n,d)	((int)venomL_optinteger(L, (n), (d)))
 
-#define viperL_checklong(L,n)	((long)viperL_checkinteger(L, (n)))
-#define viperL_optlong(L,n,d)	((long)viperL_optinteger(L, (n), (d)))
+#define venomL_checklong(L,n)	((long)venomL_checkinteger(L, (n)))
+#define venomL_optlong(L,n,d)	((long)venomL_optinteger(L, (n), (d)))
 
 #endif
 /* }============================================================ */

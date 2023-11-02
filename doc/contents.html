@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Viper 5.4 Reference Manual - contents</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="css/viper.css">
+<TITLE>Venom 5.4 Reference Manual - contents</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="css/venom.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="css/index.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 </HEAD>
@@ -10,15 +10,15 @@
 <BODY>
 
 <H1>
-<A HREF="http://www.viper.org/"><IMG SRC="img/viperscript.png" ALT="Viper"></A>
-Viper 5.4 Reference Manual
+<A HREF="http://www.venom.org/"><IMG SRC="img/venomscript.png" ALT="Venom"></A>
+Venom 5.4 Reference Manual
 </H1>
 
 <P>
-The reference manual is the official definition of the Viper language.
+The reference manual is the official definition of the Venom language.
 <BR>
-For a complete introduction to Viper programming, see the book
-<A HREF="http://www.viper.org/pil/">Programming in Viper</A>.
+For a complete introduction to Venom programming, see the book
+<A HREF="http://www.venom.org/pil/">Programming in Venom</A>.
 
 <DIV CLASS="menubar">
 <A HREF="manual.html">start</A>
@@ -27,127 +27,127 @@ For a complete introduction to Viper programming, see the book
 &middot;
 <A HREF="#index">index</A>
 &middot;
-<A HREF="http://www.viper.org/manual/">other versions</A>
+<A HREF="http://www.venom.org/manual/">other versions</A>
 </DIV>
 
 <P>
 <SMALL>
-Copyright &copy; 2020&nviper;2022 Viper.org, PUC-Rio.
+Copyright &copy; 2020&nvenom;2022 Venom.org, PUC-Rio.
 Freely available under the terms of the
-<A HREF="http://www.viper.org/license.html">Viper license</A>.
+<A HREF="http://www.venom.org/license.html">Venom license</A>.
 </SMALL>
 
 <H2><A NAME="contents">Contents</A></H2>
 <UL CLASS="contents menubar">
-<LI><A HREF="manual.html">1 &nviper; Introduction</A>
+<LI><A HREF="manual.html">1 &nvenom; Introduction</A>
 <P>
-<LI><A HREF="manual.html#2">2 &nviper; Basic Concepts</A>
+<LI><A HREF="manual.html#2">2 &nvenom; Basic Concepts</A>
 <UL>
-<LI><A HREF="manual.html#2.1">2.1 &nviper; Values and Types</A>
-<LI><A HREF="manual.html#2.2">2.2 &nviper; Environments and the Global Environment</A>
-<LI><A HREF="manual.html#2.3">2.3 &nviper; Error Handling</A>
-<LI><A HREF="manual.html#2.4">2.4 &nviper; Metatables and Metamethods</A>
-<LI><A HREF="manual.html#2.5">2.5 &nviper; Garbage Collection</A>
+<LI><A HREF="manual.html#2.1">2.1 &nvenom; Values and Types</A>
+<LI><A HREF="manual.html#2.2">2.2 &nvenom; Environments and the Global Environment</A>
+<LI><A HREF="manual.html#2.3">2.3 &nvenom; Error Handling</A>
+<LI><A HREF="manual.html#2.4">2.4 &nvenom; Metatables and Metamethods</A>
+<LI><A HREF="manual.html#2.5">2.5 &nvenom; Garbage Collection</A>
 <UL>
-<LI><A HREF="manual.html#2.5.1">2.5.1 &nviper; Incremental Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.2">2.5.2 &nviper; Generational Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.3">2.5.3 &nviper; Garbage-Collection Metamethods</A>
-<LI><A HREF="manual.html#2.5.4">2.5.4 &nviper; Weak Tables</A>
+<LI><A HREF="manual.html#2.5.1">2.5.1 &nvenom; Incremental Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.2">2.5.2 &nvenom; Generational Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.3">2.5.3 &nvenom; Garbage-Collection Metamethods</A>
+<LI><A HREF="manual.html#2.5.4">2.5.4 &nvenom; Weak Tables</A>
 </UL>
-<LI><A HREF="manual.html#2.6">2.6 &nviper; Coroutines</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#3">3 &nviper; The Language</A>
-<UL>
-<LI><A HREF="manual.html#3.1">3.1 &nviper; Lexical Conventions</A>
-<LI><A HREF="manual.html#3.2">3.2 &nviper; Variables</A>
-<LI><A HREF="manual.html#3.3">3.3 &nviper; Statements</A>
-<UL>
-<LI><A HREF="manual.html#3.3.1">3.3.1 &nviper; Blocks</A>
-<LI><A HREF="manual.html#3.3.2">3.3.2 &nviper; Chunks</A>
-<LI><A HREF="manual.html#3.3.3">3.3.3 &nviper; Assignment</A>
-<LI><A HREF="manual.html#3.3.4">3.3.4 &nviper; Control Structures</A>
-<LI><A HREF="manual.html#3.3.5">3.3.5 &nviper; For Statement</A>
-<LI><A HREF="manual.html#3.3.6">3.3.6 &nviper; Function Calls as Statements</A>
-<LI><A HREF="manual.html#3.3.7">3.3.7 &nviper; Local Declarations</A>
-<LI><A HREF="manual.html#3.3.8">3.3.8 &nviper; To-be-closed Variables</A>
-</UL>
-<LI><A HREF="manual.html#3.4">3.4 &nviper; Expressions</A>
-<UL>
-<LI><A HREF="manual.html#3.4.1">3.4.1 &nviper; Arithmetic Operators</A>
-<LI><A HREF="manual.html#3.4.2">3.4.2 &nviper; Bitwise Operators</A>
-<LI><A HREF="manual.html#3.4.3">3.4.3 &nviper; Coercions and Conversions</A>
-<LI><A HREF="manual.html#3.4.4">3.4.4 &nviper; Relational Operators</A>
-<LI><A HREF="manual.html#3.4.5">3.4.5 &nviper; Logical Operators</A>
-<LI><A HREF="manual.html#3.4.6">3.4.6 &nviper; Concatenation</A>
-<LI><A HREF="manual.html#3.4.7">3.4.7 &nviper; The Length Operator</A>
-<LI><A HREF="manual.html#3.4.8">3.4.8 &nviper; Precedence</A>
-<LI><A HREF="manual.html#3.4.9">3.4.9 &nviper; Table Constructors</A>
-<LI><A HREF="manual.html#3.4.10">3.4.10 &nviper; Function Calls</A>
-<LI><A HREF="manual.html#3.4.11">3.4.11 &nviper; Function Definitions</A>
-</UL>
-<LI><A HREF="manual.html#3.5">3.5 &nviper; Visibility Rules</A>
+<LI><A HREF="manual.html#2.6">2.6 &nvenom; Coroutines</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#4">4 &nviper; The Application Program Interface</A>
+<LI><A HREF="manual.html#3">3 &nvenom; The Language</A>
 <UL>
-<LI><A HREF="manual.html#4.1">4.1 &nviper; The Stack</A>
+<LI><A HREF="manual.html#3.1">3.1 &nvenom; Lexical Conventions</A>
+<LI><A HREF="manual.html#3.2">3.2 &nvenom; Variables</A>
+<LI><A HREF="manual.html#3.3">3.3 &nvenom; Statements</A>
 <UL>
-<LI><A HREF="manual.html#4.1.1">4.1.1 &nviper; Stack Size</A>
-<LI><A HREF="manual.html#4.1.2">4.1.2 &nviper; Valid and Acceptable Indices</A>
-<LI><A HREF="manual.html#4.1.3">4.1.3 &nviper; Pointers to strings</A>
+<LI><A HREF="manual.html#3.3.1">3.3.1 &nvenom; Blocks</A>
+<LI><A HREF="manual.html#3.3.2">3.3.2 &nvenom; Chunks</A>
+<LI><A HREF="manual.html#3.3.3">3.3.3 &nvenom; Assignment</A>
+<LI><A HREF="manual.html#3.3.4">3.3.4 &nvenom; Control Structures</A>
+<LI><A HREF="manual.html#3.3.5">3.3.5 &nvenom; For Statement</A>
+<LI><A HREF="manual.html#3.3.6">3.3.6 &nvenom; Function Calls as Statements</A>
+<LI><A HREF="manual.html#3.3.7">3.3.7 &nvenom; Local Declarations</A>
+<LI><A HREF="manual.html#3.3.8">3.3.8 &nvenom; To-be-closed Variables</A>
 </UL>
-<LI><A HREF="manual.html#4.2">4.2 &nviper; C Closures</A>
-<LI><A HREF="manual.html#4.3">4.3 &nviper; Registry</A>
-<LI><A HREF="manual.html#4.4">4.4 &nviper; Error Handling in C</A>
+<LI><A HREF="manual.html#3.4">3.4 &nvenom; Expressions</A>
 <UL>
-<LI><A HREF="manual.html#4.4.1">4.4.1 &nviper; Status Codes</A>
+<LI><A HREF="manual.html#3.4.1">3.4.1 &nvenom; Arithmetic Operators</A>
+<LI><A HREF="manual.html#3.4.2">3.4.2 &nvenom; Bitwise Operators</A>
+<LI><A HREF="manual.html#3.4.3">3.4.3 &nvenom; Coercions and Conversions</A>
+<LI><A HREF="manual.html#3.4.4">3.4.4 &nvenom; Relational Operators</A>
+<LI><A HREF="manual.html#3.4.5">3.4.5 &nvenom; Logical Operators</A>
+<LI><A HREF="manual.html#3.4.6">3.4.6 &nvenom; Concatenation</A>
+<LI><A HREF="manual.html#3.4.7">3.4.7 &nvenom; The Length Operator</A>
+<LI><A HREF="manual.html#3.4.8">3.4.8 &nvenom; Precedence</A>
+<LI><A HREF="manual.html#3.4.9">3.4.9 &nvenom; Table Constructors</A>
+<LI><A HREF="manual.html#3.4.10">3.4.10 &nvenom; Function Calls</A>
+<LI><A HREF="manual.html#3.4.11">3.4.11 &nvenom; Function Definitions</A>
 </UL>
-<LI><A HREF="manual.html#4.5">4.5 &nviper; Handling Yields in C</A>
-<LI><A HREF="manual.html#4.6">4.6 &nviper; Functions and Types</A>
-<LI><A HREF="manual.html#4.7">4.7 &nviper; The Debug Interface</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#5">5 &nviper; The Auxiliary Library</A>
-<UL>
-<LI><A HREF="manual.html#5.1">5.1 &nviper; Functions and Types</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#6">6 &nviper; The Standard Libraries</A>
-<UL>
-<LI><A HREF="manual.html#6.1">6.1 &nviper; Basic Functions</A>
-<LI><A HREF="manual.html#6.2">6.2 &nviper; Coroutine Manipulation</A>
-<LI><A HREF="manual.html#6.3">6.3 &nviper; Modules</A>
-<LI><A HREF="manual.html#6.4">6.4 &nviper; String Manipulation</A>
-<UL>
-<LI><A HREF="manual.html#6.4.1">6.4.1 &nviper; Patterns</A>
-<LI><A HREF="manual.html#6.4.2">6.4.2 &nviper; Format Strings for Pack and Unpack</A>
-</UL>
-<LI><A HREF="manual.html#6.5">6.5 &nviper; UTF-8 Support</A>
-<LI><A HREF="manual.html#6.6">6.6 &nviper; Table Manipulation</A>
-<LI><A HREF="manual.html#6.7">6.7 &nviper; Mathematical Functions</A>
-<LI><A HREF="manual.html#6.8">6.8 &nviper; Input and Output Facilities</A>
-<LI><A HREF="manual.html#6.9">6.9 &nviper; Operating System Facilities</A>
-<LI><A HREF="manual.html#6.10">6.10 &nviper; The Debug Library</A>
+<LI><A HREF="manual.html#3.5">3.5 &nvenom; Visibility Rules</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#7">7 &nviper; Viper Standalone</A>
-<P>
-<LI><A HREF="manual.html#8">8 &nviper; Incompatibilities with the Previous Version</A>
+<LI><A HREF="manual.html#4">4 &nvenom; The Application Program Interface</A>
 <UL>
-<LI><A HREF="manual.html#8.1">8.1 &nviper; Incompatibilities in the Language</A>
-<LI><A HREF="manual.html#8.2">8.2 &nviper; Incompatibilities in the Libraries</A>
-<LI><A HREF="manual.html#8.3">8.3 &nviper; Incompatibilities in the API</A>
+<LI><A HREF="manual.html#4.1">4.1 &nvenom; The Stack</A>
+<UL>
+<LI><A HREF="manual.html#4.1.1">4.1.1 &nvenom; Stack Size</A>
+<LI><A HREF="manual.html#4.1.2">4.1.2 &nvenom; Valid and Acceptable Indices</A>
+<LI><A HREF="manual.html#4.1.3">4.1.3 &nvenom; Pointers to strings</A>
+</UL>
+<LI><A HREF="manual.html#4.2">4.2 &nvenom; C Closures</A>
+<LI><A HREF="manual.html#4.3">4.3 &nvenom; Registry</A>
+<LI><A HREF="manual.html#4.4">4.4 &nvenom; Error Handling in C</A>
+<UL>
+<LI><A HREF="manual.html#4.4.1">4.4.1 &nvenom; Status Codes</A>
+</UL>
+<LI><A HREF="manual.html#4.5">4.5 &nvenom; Handling Yields in C</A>
+<LI><A HREF="manual.html#4.6">4.6 &nvenom; Functions and Types</A>
+<LI><A HREF="manual.html#4.7">4.7 &nvenom; The Debug Interface</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#9">9 &nviper; The Complete Syntax of Viper</A>
+<LI><A HREF="manual.html#5">5 &nvenom; The Auxiliary Library</A>
+<UL>
+<LI><A HREF="manual.html#5.1">5.1 &nvenom; Functions and Types</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#6">6 &nvenom; The Standard Libraries</A>
+<UL>
+<LI><A HREF="manual.html#6.1">6.1 &nvenom; Basic Functions</A>
+<LI><A HREF="manual.html#6.2">6.2 &nvenom; Coroutine Manipulation</A>
+<LI><A HREF="manual.html#6.3">6.3 &nvenom; Modules</A>
+<LI><A HREF="manual.html#6.4">6.4 &nvenom; String Manipulation</A>
+<UL>
+<LI><A HREF="manual.html#6.4.1">6.4.1 &nvenom; Patterns</A>
+<LI><A HREF="manual.html#6.4.2">6.4.2 &nvenom; Format Strings for Pack and Unpack</A>
+</UL>
+<LI><A HREF="manual.html#6.5">6.5 &nvenom; UTF-8 Support</A>
+<LI><A HREF="manual.html#6.6">6.6 &nvenom; Table Manipulation</A>
+<LI><A HREF="manual.html#6.7">6.7 &nvenom; Mathematical Functions</A>
+<LI><A HREF="manual.html#6.8">6.8 &nvenom; Input and Output Facilities</A>
+<LI><A HREF="manual.html#6.9">6.9 &nvenom; Operating System Facilities</A>
+<LI><A HREF="manual.html#6.10">6.10 &nvenom; The Debug Library</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#7">7 &nvenom; Venom Standalone</A>
+<P>
+<LI><A HREF="manual.html#8">8 &nvenom; Incompatibilities with the Previous Version</A>
+<UL>
+<LI><A HREF="manual.html#8.1">8.1 &nvenom; Incompatibilities in the Language</A>
+<LI><A HREF="manual.html#8.2">8.2 &nvenom; Incompatibilities in the Libraries</A>
+<LI><A HREF="manual.html#8.3">8.3 &nvenom; Incompatibilities in the API</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#9">9 &nvenom; The Complete Syntax of Venom</A>
 </UL>
 
 <H2><A NAME="index">Index</A></H2>
 <TABLE CLASS="menubar" WIDTH="100%">
 <TR>
 <TD>
-<H3><A NAME="functions">Viper functions</A></H3>
+<H3><A NAME="functions">Venom functions</A></H3>
 <P>
 <A HREF="manual.html#6.1">basic</A><BR>
 <A HREF="manual.html#pdf-_G">_G</A><BR>
@@ -351,7 +351,7 @@ Freely available under the terms of the
 <A HREF="manual.html#2.4">__mod</A><BR>
 <A HREF="manual.html#2.5.4">__mode</A><BR>
 <A HREF="manual.html#2.4">__mul</A><BR>
-<A HREF="manual.html#viperL_newmetatable">__name</A><BR>
+<A HREF="manual.html#venomL_newmetatable">__name</A><BR>
 <A HREF="manual.html#2.4">__newindex</A><BR>
 <A HREF="manual.html#pdf-pairs">__pairs</A><BR>
 <A HREF="manual.html#2.4">__pow</A><BR>
@@ -363,300 +363,300 @@ Freely available under the terms of the
 
 <H3><A NAME="env">environment<BR>variables</A></H3>
 <P>
-<A HREF="manual.html#pdf-VIPER_CPATH">VIPER_CPATH</A><BR>
-<A HREF="manual.html#pdf-VIPER_CPATH_5_4">VIPER_CPATH_5_4</A><BR>
-<A HREF="manual.html#pdf-VIPER_INIT">VIPER_INIT</A><BR>
-<A HREF="manual.html#pdf-VIPER_INIT_5_4">VIPER_INIT_5_4</A><BR>
-<A HREF="manual.html#pdf-VIPER_PATH">VIPER_PATH</A><BR>
-<A HREF="manual.html#pdf-VIPER_PATH_5_4">VIPER_PATH_5_4</A><BR>
+<A HREF="manual.html#pdf-VENOM_CPATH">VENOM_CPATH</A><BR>
+<A HREF="manual.html#pdf-VENOM_CPATH_5_4">VENOM_CPATH_5_4</A><BR>
+<A HREF="manual.html#pdf-VENOM_INIT">VENOM_INIT</A><BR>
+<A HREF="manual.html#pdf-VENOM_INIT_5_4">VENOM_INIT_5_4</A><BR>
+<A HREF="manual.html#pdf-VENOM_PATH">VENOM_PATH</A><BR>
+<A HREF="manual.html#pdf-VENOM_PATH_5_4">VENOM_PATH_5_4</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="api">C API</A></H3>
 <P>
-<A HREF="manual.html#viper_Alloc">viper_Alloc</A><BR>
-<A HREF="manual.html#viper_CFunction">viper_CFunction</A><BR>
-<A HREF="manual.html#viper_Debug">viper_Debug</A><BR>
-<A HREF="manual.html#viper_Hook">viper_Hook</A><BR>
-<A HREF="manual.html#viper_Integer">viper_Integer</A><BR>
-<A HREF="manual.html#viper_KContext">viper_KContext</A><BR>
-<A HREF="manual.html#viper_KFunction">viper_KFunction</A><BR>
-<A HREF="manual.html#viper_Number">viper_Number</A><BR>
-<A HREF="manual.html#viper_Reader">viper_Reader</A><BR>
-<A HREF="manual.html#viper_State">viper_State</A><BR>
-<A HREF="manual.html#viper_Unsigned">viper_Unsigned</A><BR>
-<A HREF="manual.html#viper_WarnFunction">viper_WarnFunction</A><BR>
-<A HREF="manual.html#viper_Writer">viper_Writer</A><BR>
+<A HREF="manual.html#venom_Alloc">venom_Alloc</A><BR>
+<A HREF="manual.html#venom_CFunction">venom_CFunction</A><BR>
+<A HREF="manual.html#venom_Debug">venom_Debug</A><BR>
+<A HREF="manual.html#venom_Hook">venom_Hook</A><BR>
+<A HREF="manual.html#venom_Integer">venom_Integer</A><BR>
+<A HREF="manual.html#venom_KContext">venom_KContext</A><BR>
+<A HREF="manual.html#venom_KFunction">venom_KFunction</A><BR>
+<A HREF="manual.html#venom_Number">venom_Number</A><BR>
+<A HREF="manual.html#venom_Reader">venom_Reader</A><BR>
+<A HREF="manual.html#venom_State">venom_State</A><BR>
+<A HREF="manual.html#venom_Unsigned">venom_Unsigned</A><BR>
+<A HREF="manual.html#venom_WarnFunction">venom_WarnFunction</A><BR>
+<A HREF="manual.html#venom_Writer">venom_Writer</A><BR>
 
 <P>
-<A HREF="manual.html#viper_absindex">viper_absindex</A><BR>
-<A HREF="manual.html#viper_arith">viper_arith</A><BR>
-<A HREF="manual.html#viper_atpanic">viper_atpanic</A><BR>
-<A HREF="manual.html#viper_call">viper_call</A><BR>
-<A HREF="manual.html#viper_callk">viper_callk</A><BR>
-<A HREF="manual.html#viper_checkstack">viper_checkstack</A><BR>
-<A HREF="manual.html#viper_close">viper_close</A><BR>
-<A HREF="manual.html#viper_closeslot">viper_closeslot</A><BR>
-<A HREF="manual.html#viper_compare">viper_compare</A><BR>
-<A HREF="manual.html#viper_concat">viper_concat</A><BR>
-<A HREF="manual.html#viper_copy">viper_copy</A><BR>
-<A HREF="manual.html#viper_createtable">viper_createtable</A><BR>
-<A HREF="manual.html#viper_dump">viper_dump</A><BR>
-<A HREF="manual.html#viper_error">viper_error</A><BR>
-<A HREF="manual.html#viper_gc">viper_gc</A><BR>
-<A HREF="manual.html#viper_getallocf">viper_getallocf</A><BR>
-<A HREF="manual.html#viper_getextraspace">viper_getextraspace</A><BR>
-<A HREF="manual.html#viper_getfield">viper_getfield</A><BR>
-<A HREF="manual.html#viper_getglobal">viper_getglobal</A><BR>
-<A HREF="manual.html#viper_gethook">viper_gethook</A><BR>
-<A HREF="manual.html#viper_gethookcount">viper_gethookcount</A><BR>
-<A HREF="manual.html#viper_gethookmask">viper_gethookmask</A><BR>
-<A HREF="manual.html#viper_geti">viper_geti</A><BR>
-<A HREF="manual.html#viper_getinfo">viper_getinfo</A><BR>
-<A HREF="manual.html#viper_getiuservalue">viper_getiuservalue</A><BR>
-<A HREF="manual.html#viper_getlocal">viper_getlocal</A><BR>
-<A HREF="manual.html#viper_getmetatable">viper_getmetatable</A><BR>
-<A HREF="manual.html#viper_getstack">viper_getstack</A><BR>
-<A HREF="manual.html#viper_gettable">viper_gettable</A><BR>
-<A HREF="manual.html#viper_gettop">viper_gettop</A><BR>
-<A HREF="manual.html#viper_getupvalue">viper_getupvalue</A><BR>
-<A HREF="manual.html#viper_insert">viper_insert</A><BR>
-<A HREF="manual.html#viper_isboolean">viper_isboolean</A><BR>
-<A HREF="manual.html#viper_iscfunction">viper_iscfunction</A><BR>
-<A HREF="manual.html#viper_isfunction">viper_isfunction</A><BR>
-<A HREF="manual.html#viper_isinteger">viper_isinteger</A><BR>
-<A HREF="manual.html#viper_islightuserdata">viper_islightuserdata</A><BR>
-<A HREF="manual.html#viper_isnil">viper_isnil</A><BR>
-<A HREF="manual.html#viper_isnone">viper_isnone</A><BR>
-<A HREF="manual.html#viper_isnoneornil">viper_isnoneornil</A><BR>
-<A HREF="manual.html#viper_isnumber">viper_isnumber</A><BR>
-<A HREF="manual.html#viper_isstring">viper_isstring</A><BR>
-<A HREF="manual.html#viper_istable">viper_istable</A><BR>
-<A HREF="manual.html#viper_isthread">viper_isthread</A><BR>
-<A HREF="manual.html#viper_isuserdata">viper_isuserdata</A><BR>
-<A HREF="manual.html#viper_isyieldable">viper_isyieldable</A><BR>
-<A HREF="manual.html#viper_len">viper_len</A><BR>
-<A HREF="manual.html#viper_load">viper_load</A><BR>
-<A HREF="manual.html#viper_newstate">viper_newstate</A><BR>
-<A HREF="manual.html#viper_newtable">viper_newtable</A><BR>
-<A HREF="manual.html#viper_newthread">viper_newthread</A><BR>
-<A HREF="manual.html#viper_newuserdatauv">viper_newuserdatauv</A><BR>
-<A HREF="manual.html#viper_next">viper_next</A><BR>
-<A HREF="manual.html#viper_numbertointeger">viper_numbertointeger</A><BR>
-<A HREF="manual.html#viper_pcall">viper_pcall</A><BR>
-<A HREF="manual.html#viper_pcallk">viper_pcallk</A><BR>
-<A HREF="manual.html#viper_pop">viper_pop</A><BR>
-<A HREF="manual.html#viper_pushboolean">viper_pushboolean</A><BR>
-<A HREF="manual.html#viper_pushcclosure">viper_pushcclosure</A><BR>
-<A HREF="manual.html#viper_pushcfunction">viper_pushcfunction</A><BR>
-<A HREF="manual.html#viper_pushfstring">viper_pushfstring</A><BR>
-<A HREF="manual.html#viper_pushglobatable">viper_pushglobatable</A><BR>
-<A HREF="manual.html#viper_pushinteger">viper_pushinteger</A><BR>
-<A HREF="manual.html#viper_pushlightuserdata">viper_pushlightuserdata</A><BR>
-<A HREF="manual.html#viper_pushliteral">viper_pushliteral</A><BR>
-<A HREF="manual.html#viper_pushstring">viper_pushstring</A><BR>
-<A HREF="manual.html#viper_pushnil">viper_pushnil</A><BR>
-<A HREF="manual.html#viper_pushnumber">viper_pushnumber</A><BR>
-<A HREF="manual.html#viper_pushstring">viper_pushstring</A><BR>
-<A HREF="manual.html#viper_pushthread">viper_pushthread</A><BR>
-<A HREF="manual.html#viper_pushvalue">viper_pushvalue</A><BR>
-<A HREF="manual.html#viper_pushvfstring">viper_pushvfstring</A><BR>
-<A HREF="manual.html#viper_rawequal">viper_rawequal</A><BR>
-<A HREF="manual.html#viper_rawget">viper_rawget</A><BR>
-<A HREF="manual.html#viper_rawgeti">viper_rawgeti</A><BR>
-<A HREF="manual.html#viper_rawgetp">viper_rawgetp</A><BR>
-<A HREF="manual.html#viper_rawlen">viper_rawlen</A><BR>
-<A HREF="manual.html#viper_rawset">viper_rawset</A><BR>
-<A HREF="manual.html#viper_rawseti">viper_rawseti</A><BR>
-<A HREF="manual.html#viper_rawsetp">viper_rawsetp</A><BR>
-<A HREF="manual.html#viper_register">viper_register</A><BR>
-<A HREF="manual.html#viper_remove">viper_remove</A><BR>
-<A HREF="manual.html#viper_replace">viper_replace</A><BR>
-<A HREF="manual.html#viper_resetthread">viper_resetthread</A><BR>
-<A HREF="manual.html#viper_resume">viper_resume</A><BR>
-<A HREF="manual.html#viper_rotate">viper_rotate</A><BR>
-<A HREF="manual.html#viper_setallocf">viper_setallocf</A><BR>
-<A HREF="manual.html#viper_setfield">viper_setfield</A><BR>
-<A HREF="manual.html#viper_setglobal">viper_setglobal</A><BR>
-<A HREF="manual.html#viper_sethook">viper_sethook</A><BR>
-<A HREF="manual.html#viper_seti">viper_seti</A><BR>
-<A HREF="manual.html#viper_setiuservalue">viper_setiuservalue</A><BR>
-<A HREF="manual.html#viper_setlocal">viper_setlocal</A><BR>
-<A HREF="manual.html#viper_setmetatable">viper_setmetatable</A><BR>
-<A HREF="manual.html#viper_settable">viper_settable</A><BR>
-<A HREF="manual.html#viper_settop">viper_settop</A><BR>
-<A HREF="manual.html#viper_setupvalue">viper_setupvalue</A><BR>
-<A HREF="manual.html#viper_setwarnf">viper_setwarnf</A><BR>
-<A HREF="manual.html#viper_status">viper_status</A><BR>
-<A HREF="manual.html#viper_stringtonumber">viper_stringtonumber</A><BR>
-<A HREF="manual.html#viper_toboolean">viper_toboolean</A><BR>
-<A HREF="manual.html#viper_tocfunction">viper_tocfunction</A><BR>
-<A HREF="manual.html#viper_toclose">viper_toclose</A><BR>
-<A HREF="manual.html#viper_tointeger">viper_tointeger</A><BR>
-<A HREF="manual.html#viper_tointegerx">viper_tointegerx</A><BR>
-<A HREF="manual.html#viper_tostring">viper_tostring</A><BR>
-<A HREF="manual.html#viper_tonumber">viper_tonumber</A><BR>
-<A HREF="manual.html#viper_tonumberx">viper_tonumberx</A><BR>
-<A HREF="manual.html#viper_topointer">viper_topointer</A><BR>
-<A HREF="manual.html#viper_tostring">viper_tostring</A><BR>
-<A HREF="manual.html#viper_tothread">viper_tothread</A><BR>
-<A HREF="manual.html#viper_touserdata">viper_touserdata</A><BR>
-<A HREF="manual.html#viper_type">viper_type</A><BR>
-<A HREF="manual.html#viper_typename">viper_typename</A><BR>
-<A HREF="manual.html#viper_upvalueid">viper_upvalueid</A><BR>
-<A HREF="manual.html#viper_upvalueindex">viper_upvalueindex</A><BR>
-<A HREF="manual.html#viper_upvaluejoin">viper_upvaluejoin</A><BR>
-<A HREF="manual.html#viper_version">viper_version</A><BR>
-<A HREF="manual.html#viper_warning">viper_warning</A><BR>
-<A HREF="manual.html#viper_xmove">viper_xmove</A><BR>
-<A HREF="manual.html#viper_yield">viper_yield</A><BR>
-<A HREF="manual.html#viper_yieldk">viper_yieldk</A><BR>
+<A HREF="manual.html#venom_absindex">venom_absindex</A><BR>
+<A HREF="manual.html#venom_arith">venom_arith</A><BR>
+<A HREF="manual.html#venom_atpanic">venom_atpanic</A><BR>
+<A HREF="manual.html#venom_call">venom_call</A><BR>
+<A HREF="manual.html#venom_callk">venom_callk</A><BR>
+<A HREF="manual.html#venom_checkstack">venom_checkstack</A><BR>
+<A HREF="manual.html#venom_close">venom_close</A><BR>
+<A HREF="manual.html#venom_closeslot">venom_closeslot</A><BR>
+<A HREF="manual.html#venom_compare">venom_compare</A><BR>
+<A HREF="manual.html#venom_concat">venom_concat</A><BR>
+<A HREF="manual.html#venom_copy">venom_copy</A><BR>
+<A HREF="manual.html#venom_createtable">venom_createtable</A><BR>
+<A HREF="manual.html#venom_dump">venom_dump</A><BR>
+<A HREF="manual.html#venom_error">venom_error</A><BR>
+<A HREF="manual.html#venom_gc">venom_gc</A><BR>
+<A HREF="manual.html#venom_getallocf">venom_getallocf</A><BR>
+<A HREF="manual.html#venom_getextraspace">venom_getextraspace</A><BR>
+<A HREF="manual.html#venom_getfield">venom_getfield</A><BR>
+<A HREF="manual.html#venom_getglobal">venom_getglobal</A><BR>
+<A HREF="manual.html#venom_gethook">venom_gethook</A><BR>
+<A HREF="manual.html#venom_gethookcount">venom_gethookcount</A><BR>
+<A HREF="manual.html#venom_gethookmask">venom_gethookmask</A><BR>
+<A HREF="manual.html#venom_geti">venom_geti</A><BR>
+<A HREF="manual.html#venom_getinfo">venom_getinfo</A><BR>
+<A HREF="manual.html#venom_getiuservalue">venom_getiuservalue</A><BR>
+<A HREF="manual.html#venom_getlocal">venom_getlocal</A><BR>
+<A HREF="manual.html#venom_getmetatable">venom_getmetatable</A><BR>
+<A HREF="manual.html#venom_getstack">venom_getstack</A><BR>
+<A HREF="manual.html#venom_gettable">venom_gettable</A><BR>
+<A HREF="manual.html#venom_gettop">venom_gettop</A><BR>
+<A HREF="manual.html#venom_getupvalue">venom_getupvalue</A><BR>
+<A HREF="manual.html#venom_insert">venom_insert</A><BR>
+<A HREF="manual.html#venom_isboolean">venom_isboolean</A><BR>
+<A HREF="manual.html#venom_iscfunction">venom_iscfunction</A><BR>
+<A HREF="manual.html#venom_isfunction">venom_isfunction</A><BR>
+<A HREF="manual.html#venom_isinteger">venom_isinteger</A><BR>
+<A HREF="manual.html#venom_islightuserdata">venom_islightuserdata</A><BR>
+<A HREF="manual.html#venom_isnil">venom_isnil</A><BR>
+<A HREF="manual.html#venom_isnone">venom_isnone</A><BR>
+<A HREF="manual.html#venom_isnoneornil">venom_isnoneornil</A><BR>
+<A HREF="manual.html#venom_isnumber">venom_isnumber</A><BR>
+<A HREF="manual.html#venom_isstring">venom_isstring</A><BR>
+<A HREF="manual.html#venom_istable">venom_istable</A><BR>
+<A HREF="manual.html#venom_isthread">venom_isthread</A><BR>
+<A HREF="manual.html#venom_isuserdata">venom_isuserdata</A><BR>
+<A HREF="manual.html#venom_isyieldable">venom_isyieldable</A><BR>
+<A HREF="manual.html#venom_len">venom_len</A><BR>
+<A HREF="manual.html#venom_load">venom_load</A><BR>
+<A HREF="manual.html#venom_newstate">venom_newstate</A><BR>
+<A HREF="manual.html#venom_newtable">venom_newtable</A><BR>
+<A HREF="manual.html#venom_newthread">venom_newthread</A><BR>
+<A HREF="manual.html#venom_newuserdatauv">venom_newuserdatauv</A><BR>
+<A HREF="manual.html#venom_next">venom_next</A><BR>
+<A HREF="manual.html#venom_numbertointeger">venom_numbertointeger</A><BR>
+<A HREF="manual.html#venom_pcall">venom_pcall</A><BR>
+<A HREF="manual.html#venom_pcallk">venom_pcallk</A><BR>
+<A HREF="manual.html#venom_pop">venom_pop</A><BR>
+<A HREF="manual.html#venom_pushboolean">venom_pushboolean</A><BR>
+<A HREF="manual.html#venom_pushcclosure">venom_pushcclosure</A><BR>
+<A HREF="manual.html#venom_pushcfunction">venom_pushcfunction</A><BR>
+<A HREF="manual.html#venom_pushfstring">venom_pushfstring</A><BR>
+<A HREF="manual.html#venom_pushglobatable">venom_pushglobatable</A><BR>
+<A HREF="manual.html#venom_pushinteger">venom_pushinteger</A><BR>
+<A HREF="manual.html#venom_pushlightuserdata">venom_pushlightuserdata</A><BR>
+<A HREF="manual.html#venom_pushliteral">venom_pushliteral</A><BR>
+<A HREF="manual.html#venom_pushstring">venom_pushstring</A><BR>
+<A HREF="manual.html#venom_pushnil">venom_pushnil</A><BR>
+<A HREF="manual.html#venom_pushnumber">venom_pushnumber</A><BR>
+<A HREF="manual.html#venom_pushstring">venom_pushstring</A><BR>
+<A HREF="manual.html#venom_pushthread">venom_pushthread</A><BR>
+<A HREF="manual.html#venom_pushvalue">venom_pushvalue</A><BR>
+<A HREF="manual.html#venom_pushvfstring">venom_pushvfstring</A><BR>
+<A HREF="manual.html#venom_rawequal">venom_rawequal</A><BR>
+<A HREF="manual.html#venom_rawget">venom_rawget</A><BR>
+<A HREF="manual.html#venom_rawgeti">venom_rawgeti</A><BR>
+<A HREF="manual.html#venom_rawgetp">venom_rawgetp</A><BR>
+<A HREF="manual.html#venom_rawlen">venom_rawlen</A><BR>
+<A HREF="manual.html#venom_rawset">venom_rawset</A><BR>
+<A HREF="manual.html#venom_rawseti">venom_rawseti</A><BR>
+<A HREF="manual.html#venom_rawsetp">venom_rawsetp</A><BR>
+<A HREF="manual.html#venom_register">venom_register</A><BR>
+<A HREF="manual.html#venom_remove">venom_remove</A><BR>
+<A HREF="manual.html#venom_replace">venom_replace</A><BR>
+<A HREF="manual.html#venom_resetthread">venom_resetthread</A><BR>
+<A HREF="manual.html#venom_resume">venom_resume</A><BR>
+<A HREF="manual.html#venom_rotate">venom_rotate</A><BR>
+<A HREF="manual.html#venom_setallocf">venom_setallocf</A><BR>
+<A HREF="manual.html#venom_setfield">venom_setfield</A><BR>
+<A HREF="manual.html#venom_setglobal">venom_setglobal</A><BR>
+<A HREF="manual.html#venom_sethook">venom_sethook</A><BR>
+<A HREF="manual.html#venom_seti">venom_seti</A><BR>
+<A HREF="manual.html#venom_setiuservalue">venom_setiuservalue</A><BR>
+<A HREF="manual.html#venom_setlocal">venom_setlocal</A><BR>
+<A HREF="manual.html#venom_setmetatable">venom_setmetatable</A><BR>
+<A HREF="manual.html#venom_settable">venom_settable</A><BR>
+<A HREF="manual.html#venom_settop">venom_settop</A><BR>
+<A HREF="manual.html#venom_setupvalue">venom_setupvalue</A><BR>
+<A HREF="manual.html#venom_setwarnf">venom_setwarnf</A><BR>
+<A HREF="manual.html#venom_status">venom_status</A><BR>
+<A HREF="manual.html#venom_stringtonumber">venom_stringtonumber</A><BR>
+<A HREF="manual.html#venom_toboolean">venom_toboolean</A><BR>
+<A HREF="manual.html#venom_tocfunction">venom_tocfunction</A><BR>
+<A HREF="manual.html#venom_toclose">venom_toclose</A><BR>
+<A HREF="manual.html#venom_tointeger">venom_tointeger</A><BR>
+<A HREF="manual.html#venom_tointegerx">venom_tointegerx</A><BR>
+<A HREF="manual.html#venom_tostring">venom_tostring</A><BR>
+<A HREF="manual.html#venom_tonumber">venom_tonumber</A><BR>
+<A HREF="manual.html#venom_tonumberx">venom_tonumberx</A><BR>
+<A HREF="manual.html#venom_topointer">venom_topointer</A><BR>
+<A HREF="manual.html#venom_tostring">venom_tostring</A><BR>
+<A HREF="manual.html#venom_tothread">venom_tothread</A><BR>
+<A HREF="manual.html#venom_touserdata">venom_touserdata</A><BR>
+<A HREF="manual.html#venom_type">venom_type</A><BR>
+<A HREF="manual.html#venom_typename">venom_typename</A><BR>
+<A HREF="manual.html#venom_upvalueid">venom_upvalueid</A><BR>
+<A HREF="manual.html#venom_upvalueindex">venom_upvalueindex</A><BR>
+<A HREF="manual.html#venom_upvaluejoin">venom_upvaluejoin</A><BR>
+<A HREF="manual.html#venom_version">venom_version</A><BR>
+<A HREF="manual.html#venom_warning">venom_warning</A><BR>
+<A HREF="manual.html#venom_xmove">venom_xmove</A><BR>
+<A HREF="manual.html#venom_yield">venom_yield</A><BR>
+<A HREF="manual.html#venom_yieldk">venom_yieldk</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="auxlib">auxiliary library</A></H3>
 <P>
-<A HREF="manual.html#viperL_Buffer">viperL_Buffer</A><BR>
-<A HREF="manual.html#viperL_Reg">viperL_Reg</A><BR>
-<A HREF="manual.html#viperL_Stream">viperL_Stream</A><BR>
+<A HREF="manual.html#venomL_Buffer">venomL_Buffer</A><BR>
+<A HREF="manual.html#venomL_Reg">venomL_Reg</A><BR>
+<A HREF="manual.html#venomL_Stream">venomL_Stream</A><BR>
 
 <P>
-<A HREF="manual.html#viperL_addchar">viperL_addchar</A><BR>
-<A HREF="manual.html#viperL_addgsub">viperL_addgsub</A><BR>
-<A HREF="manual.html#viperL_addstring">viperL_addstring</A><BR>
-<A HREF="manual.html#viperL_addsize">viperL_addsize</A><BR>
-<A HREF="manual.html#viperL_addstring">viperL_addstring</A><BR>
-<A HREF="manual.html#viperL_addvalue">viperL_addvalue</A><BR>
-<A HREF="manual.html#viperL_argcheck">viperL_argcheck</A><BR>
-<A HREF="manual.html#viperL_argerror">viperL_argerror</A><BR>
-<A HREF="manual.html#viperL_argexpected">viperL_argexpected</A><BR>
-<A HREF="manual.html#viperL_buffaddr">viperL_buffaddr</A><BR>
-<A HREF="manual.html#viperL_buffinit">viperL_buffinit</A><BR>
-<A HREF="manual.html#viperL_buffinitsize">viperL_buffinitsize</A><BR>
-<A HREF="manual.html#viperL_bufflen">viperL_bufflen</A><BR>
-<A HREF="manual.html#viperL_buffsub">viperL_buffsub</A><BR>
-<A HREF="manual.html#viperL_callmeta">viperL_callmeta</A><BR>
-<A HREF="manual.html#viperL_checkany">viperL_checkany</A><BR>
-<A HREF="manual.html#viperL_checkinteger">viperL_checkinteger</A><BR>
-<A HREF="manual.html#viperL_checkstring">viperL_checkstring</A><BR>
-<A HREF="manual.html#viperL_checknumber">viperL_checknumber</A><BR>
-<A HREF="manual.html#viperL_checkoption">viperL_checkoption</A><BR>
-<A HREF="manual.html#viperL_checkstack">viperL_checkstack</A><BR>
-<A HREF="manual.html#viperL_checkstring">viperL_checkstring</A><BR>
-<A HREF="manual.html#viperL_checktype">viperL_checktype</A><BR>
-<A HREF="manual.html#viperL_checkudata">viperL_checkudata</A><BR>
-<A HREF="manual.html#viperL_checkversion">viperL_checkversion</A><BR>
-<A HREF="manual.html#viperL_dofile">viperL_dofile</A><BR>
-<A HREF="manual.html#viperL_dostring">viperL_dostring</A><BR>
-<A HREF="manual.html#viperL_error">viperL_error</A><BR>
-<A HREF="manual.html#viperL_execresult">viperL_execresult</A><BR>
-<A HREF="manual.html#viperL_fileresult">viperL_fileresult</A><BR>
-<A HREF="manual.html#viperL_getmetafield">viperL_getmetafield</A><BR>
-<A HREF="manual.html#viperL_getmetatable">viperL_getmetatable</A><BR>
-<A HREF="manual.html#viperL_getsubtable">viperL_getsubtable</A><BR>
-<A HREF="manual.html#viperL_gsub">viperL_gsub</A><BR>
-<A HREF="manual.html#viperL_len">viperL_len</A><BR>
-<A HREF="manual.html#viperL_loadbuffer">viperL_loadbuffer</A><BR>
-<A HREF="manual.html#viperL_loadbufferx">viperL_loadbufferx</A><BR>
-<A HREF="manual.html#viperL_loadfile">viperL_loadfile</A><BR>
-<A HREF="manual.html#viperL_loadfilex">viperL_loadfilex</A><BR>
-<A HREF="manual.html#viperL_loadstring">viperL_loadstring</A><BR>
-<A HREF="manual.html#viperL_newlib">viperL_newlib</A><BR>
-<A HREF="manual.html#viperL_newlibtable">viperL_newlibtable</A><BR>
-<A HREF="manual.html#viperL_newmetatable">viperL_newmetatable</A><BR>
-<A HREF="manual.html#viperL_newstate">viperL_newstate</A><BR>
-<A HREF="manual.html#viperL_openlibs">viperL_openlibs</A><BR>
-<A HREF="manual.html#viperL_opt">viperL_opt</A><BR>
-<A HREF="manual.html#viperL_optinteger">viperL_optinteger</A><BR>
-<A HREF="manual.html#viperL_optstring">viperL_optstring</A><BR>
-<A HREF="manual.html#viperL_optnumber">viperL_optnumber</A><BR>
-<A HREF="manual.html#viperL_optstring">viperL_optstring</A><BR>
-<A HREF="manual.html#viperL_prepbuffer">viperL_prepbuffer</A><BR>
-<A HREF="manual.html#viperL_prepbuffsize">viperL_prepbuffsize</A><BR>
-<A HREF="manual.html#viperL_pushfail">viperL_pushfail</A><BR>
-<A HREF="manual.html#viperL_pushresult">viperL_pushresult</A><BR>
-<A HREF="manual.html#viperL_pushresultsize">viperL_pushresultsize</A><BR>
-<A HREF="manual.html#viperL_ref">viperL_ref</A><BR>
-<A HREF="manual.html#viperL_requiref">viperL_requiref</A><BR>
-<A HREF="manual.html#viperL_setfuncs">viperL_setfuncs</A><BR>
-<A HREF="manual.html#viperL_setmetatable">viperL_setmetatable</A><BR>
-<A HREF="manual.html#viperL_testudata">viperL_testudata</A><BR>
-<A HREF="manual.html#viperL_tostring">viperL_tostring</A><BR>
-<A HREF="manual.html#viperL_traceback">viperL_traceback</A><BR>
-<A HREF="manual.html#viperL_typeerror">viperL_typeerror</A><BR>
-<A HREF="manual.html#viperL_typename">viperL_typename</A><BR>
-<A HREF="manual.html#viperL_unref">viperL_unref</A><BR>
-<A HREF="manual.html#viperL_where">viperL_where</A><BR>
+<A HREF="manual.html#venomL_addchar">venomL_addchar</A><BR>
+<A HREF="manual.html#venomL_addgsub">venomL_addgsub</A><BR>
+<A HREF="manual.html#venomL_addstring">venomL_addstring</A><BR>
+<A HREF="manual.html#venomL_addsize">venomL_addsize</A><BR>
+<A HREF="manual.html#venomL_addstring">venomL_addstring</A><BR>
+<A HREF="manual.html#venomL_addvalue">venomL_addvalue</A><BR>
+<A HREF="manual.html#venomL_argcheck">venomL_argcheck</A><BR>
+<A HREF="manual.html#venomL_argerror">venomL_argerror</A><BR>
+<A HREF="manual.html#venomL_argexpected">venomL_argexpected</A><BR>
+<A HREF="manual.html#venomL_buffaddr">venomL_buffaddr</A><BR>
+<A HREF="manual.html#venomL_buffinit">venomL_buffinit</A><BR>
+<A HREF="manual.html#venomL_buffinitsize">venomL_buffinitsize</A><BR>
+<A HREF="manual.html#venomL_bufflen">venomL_bufflen</A><BR>
+<A HREF="manual.html#venomL_buffsub">venomL_buffsub</A><BR>
+<A HREF="manual.html#venomL_callmeta">venomL_callmeta</A><BR>
+<A HREF="manual.html#venomL_checkany">venomL_checkany</A><BR>
+<A HREF="manual.html#venomL_checkinteger">venomL_checkinteger</A><BR>
+<A HREF="manual.html#venomL_checkstring">venomL_checkstring</A><BR>
+<A HREF="manual.html#venomL_checknumber">venomL_checknumber</A><BR>
+<A HREF="manual.html#venomL_checkoption">venomL_checkoption</A><BR>
+<A HREF="manual.html#venomL_checkstack">venomL_checkstack</A><BR>
+<A HREF="manual.html#venomL_checkstring">venomL_checkstring</A><BR>
+<A HREF="manual.html#venomL_checktype">venomL_checktype</A><BR>
+<A HREF="manual.html#venomL_checkudata">venomL_checkudata</A><BR>
+<A HREF="manual.html#venomL_checkversion">venomL_checkversion</A><BR>
+<A HREF="manual.html#venomL_dofile">venomL_dofile</A><BR>
+<A HREF="manual.html#venomL_dostring">venomL_dostring</A><BR>
+<A HREF="manual.html#venomL_error">venomL_error</A><BR>
+<A HREF="manual.html#venomL_execresult">venomL_execresult</A><BR>
+<A HREF="manual.html#venomL_fileresult">venomL_fileresult</A><BR>
+<A HREF="manual.html#venomL_getmetafield">venomL_getmetafield</A><BR>
+<A HREF="manual.html#venomL_getmetatable">venomL_getmetatable</A><BR>
+<A HREF="manual.html#venomL_getsubtable">venomL_getsubtable</A><BR>
+<A HREF="manual.html#venomL_gsub">venomL_gsub</A><BR>
+<A HREF="manual.html#venomL_len">venomL_len</A><BR>
+<A HREF="manual.html#venomL_loadbuffer">venomL_loadbuffer</A><BR>
+<A HREF="manual.html#venomL_loadbufferx">venomL_loadbufferx</A><BR>
+<A HREF="manual.html#venomL_loadfile">venomL_loadfile</A><BR>
+<A HREF="manual.html#venomL_loadfilex">venomL_loadfilex</A><BR>
+<A HREF="manual.html#venomL_loadstring">venomL_loadstring</A><BR>
+<A HREF="manual.html#venomL_newlib">venomL_newlib</A><BR>
+<A HREF="manual.html#venomL_newlibtable">venomL_newlibtable</A><BR>
+<A HREF="manual.html#venomL_newmetatable">venomL_newmetatable</A><BR>
+<A HREF="manual.html#venomL_newstate">venomL_newstate</A><BR>
+<A HREF="manual.html#venomL_openlibs">venomL_openlibs</A><BR>
+<A HREF="manual.html#venomL_opt">venomL_opt</A><BR>
+<A HREF="manual.html#venomL_optinteger">venomL_optinteger</A><BR>
+<A HREF="manual.html#venomL_optstring">venomL_optstring</A><BR>
+<A HREF="manual.html#venomL_optnumber">venomL_optnumber</A><BR>
+<A HREF="manual.html#venomL_optstring">venomL_optstring</A><BR>
+<A HREF="manual.html#venomL_prepbuffer">venomL_prepbuffer</A><BR>
+<A HREF="manual.html#venomL_prepbuffsize">venomL_prepbuffsize</A><BR>
+<A HREF="manual.html#venomL_pushfail">venomL_pushfail</A><BR>
+<A HREF="manual.html#venomL_pushresult">venomL_pushresult</A><BR>
+<A HREF="manual.html#venomL_pushresultsize">venomL_pushresultsize</A><BR>
+<A HREF="manual.html#venomL_ref">venomL_ref</A><BR>
+<A HREF="manual.html#venomL_requiref">venomL_requiref</A><BR>
+<A HREF="manual.html#venomL_setfuncs">venomL_setfuncs</A><BR>
+<A HREF="manual.html#venomL_setmetatable">venomL_setmetatable</A><BR>
+<A HREF="manual.html#venomL_testudata">venomL_testudata</A><BR>
+<A HREF="manual.html#venomL_tostring">venomL_tostring</A><BR>
+<A HREF="manual.html#venomL_traceback">venomL_traceback</A><BR>
+<A HREF="manual.html#venomL_typeerror">venomL_typeerror</A><BR>
+<A HREF="manual.html#venomL_typename">venomL_typename</A><BR>
+<A HREF="manual.html#venomL_unref">venomL_unref</A><BR>
+<A HREF="manual.html#venomL_where">venomL_where</A><BR>
 
 <H3><A NAME="library">standard library</A></H3>
 <P>
-<A HREF="manual.html#pdf-viperopen_base">viperopen_base</A><BR>
-<A HREF="manual.html#pdf-viperopen_coroutine">viperopen_coroutine</A><BR>
-<A HREF="manual.html#pdf-viperopen_debug">viperopen_debug</A><BR>
-<A HREF="manual.html#pdf-viperopen_io">viperopen_io</A><BR>
-<A HREF="manual.html#pdf-viperopen_math">viperopen_math</A><BR>
-<A HREF="manual.html#pdf-viperopen_os">viperopen_os</A><BR>
-<A HREF="manual.html#pdf-viperopen_package">viperopen_package</A><BR>
-<A HREF="manual.html#pdf-viperopen_string">viperopen_string</A><BR>
-<A HREF="manual.html#pdf-viperopen_table">viperopen_table</A><BR>
-<A HREF="manual.html#pdf-viperopen_utf8">viperopen_utf8</A><BR>
+<A HREF="manual.html#pdf-venomopen_base">venomopen_base</A><BR>
+<A HREF="manual.html#pdf-venomopen_coroutine">venomopen_coroutine</A><BR>
+<A HREF="manual.html#pdf-venomopen_debug">venomopen_debug</A><BR>
+<A HREF="manual.html#pdf-venomopen_io">venomopen_io</A><BR>
+<A HREF="manual.html#pdf-venomopen_math">venomopen_math</A><BR>
+<A HREF="manual.html#pdf-venomopen_os">venomopen_os</A><BR>
+<A HREF="manual.html#pdf-venomopen_package">venomopen_package</A><BR>
+<A HREF="manual.html#pdf-venomopen_string">venomopen_string</A><BR>
+<A HREF="manual.html#pdf-venomopen_table">venomopen_table</A><BR>
+<A HREF="manual.html#pdf-venomopen_utf8">venomopen_utf8</A><BR>
 
 <H3><A NAME="constants">constants</A></H3>
 <P>
-<A HREF="manual.html#pdf-VIPER_ERRERR">VIPER_ERRERR</A><BR>
-<A HREF="manual.html#pdf-VIPER_ERRFILE">VIPER_ERRFILE</A><BR>
-<A HREF="manual.html#pdf-VIPER_ERRMEM">VIPER_ERRMEM</A><BR>
-<A HREF="manual.html#pdf-VIPER_ERRRUN">VIPER_ERRRUN</A><BR>
-<A HREF="manual.html#pdf-VIPER_ERRSYNTAX">VIPER_ERRSYNTAX</A><BR>
-<A HREF="manual.html#pdf-VIPER_HOOKCALL">VIPER_HOOKCALL</A><BR>
-<A HREF="manual.html#pdf-VIPER_HOOKCOUNT">VIPER_HOOKCOUNT</A><BR>
-<A HREF="manual.html#pdf-VIPER_HOOKLINE">VIPER_HOOKLINE</A><BR>
-<A HREF="manual.html#pdf-VIPER_HOOKRET">VIPER_HOOKRET</A><BR>
-<A HREF="manual.html#pdf-VIPER_HOOKTAILCALL">VIPER_HOOKTAILCALL</A><BR>
-<A HREF="manual.html#pdf-VIPERL_BUFFERSIZE">VIPERL_BUFFERSIZE</A><BR>
-<A HREF="manual.html#pdf-VIPER_MASKCALL">VIPER_MASKCALL</A><BR>
-<A HREF="manual.html#pdf-VIPER_MASKCOUNT">VIPER_MASKCOUNT</A><BR>
-<A HREF="manual.html#pdf-VIPER_MASKLINE">VIPER_MASKLINE</A><BR>
-<A HREF="manual.html#pdf-VIPER_MASKRET">VIPER_MASKRET</A><BR>
-<A HREF="manual.html#pdf-VIPER_MAXINTEGER">VIPER_MAXINTEGER</A><BR>
-<A HREF="manual.html#pdf-VIPER_MININTEGER">VIPER_MININTEGER</A><BR>
-<A HREF="manual.html#pdf-VIPER_MINSTACK">VIPER_MINSTACK</A><BR>
-<A HREF="manual.html#pdf-VIPER_MULTRET">VIPER_MULTRET</A><BR>
-<A HREF="manual.html#pdf-VIPER_NOREF">VIPER_NOREF</A><BR>
-<A HREF="manual.html#pdf-VIPER_OK">VIPER_OK</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPADD">VIPER_OPADD</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPBAND">VIPER_OPBAND</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPBNOT">VIPER_OPBNOT</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPBOR">VIPER_OPBOR</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPBXOR">VIPER_OPBXOR</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPDIV">VIPER_OPDIV</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPEQ">VIPER_OPEQ</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPIDIV">VIPER_OPIDIV</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPLE">VIPER_OPLE</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPLT">VIPER_OPLT</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPMOD">VIPER_OPMOD</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPMUL">VIPER_OPMUL</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPPOW">VIPER_OPPOW</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPSHL">VIPER_OPSHL</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPSHR">VIPER_OPSHR</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPSUB">VIPER_OPSUB</A><BR>
-<A HREF="manual.html#pdf-VIPER_OPUNM">VIPER_OPUNM</A><BR>
-<A HREF="manual.html#pdf-VIPER_REFNIL">VIPER_REFNIL</A><BR>
-<A HREF="manual.html#pdf-VIPER_REGISTRYINDEX">VIPER_REGISTRYINDEX</A><BR>
-<A HREF="manual.html#pdf-VIPER_RIDX_GLOBALS">VIPER_RIDX_GLOBALS</A><BR>
-<A HREF="manual.html#pdf-VIPER_RIDX_MAINTHREAD">VIPER_RIDX_MAINTHREAD</A><BR>
-<A HREF="manual.html#pdf-VIPER_TBOOLEAN">VIPER_TBOOLEAN</A><BR>
-<A HREF="manual.html#pdf-VIPER_TFUNCTION">VIPER_TFUNCTION</A><BR>
-<A HREF="manual.html#pdf-VIPER_TLIGHTUSERDATA">VIPER_TLIGHTUSERDATA</A><BR>
-<A HREF="manual.html#pdf-VIPER_TNIL">VIPER_TNIL</A><BR>
-<A HREF="manual.html#pdf-VIPER_TNONE">VIPER_TNONE</A><BR>
-<A HREF="manual.html#pdf-VIPER_TNUMBER">VIPER_TNUMBER</A><BR>
-<A HREF="manual.html#pdf-VIPER_TSTRING">VIPER_TSTRING</A><BR>
-<A HREF="manual.html#pdf-VIPER_TTABLE">VIPER_TTABLE</A><BR>
-<A HREF="manual.html#pdf-VIPER_TTHREAD">VIPER_TTHREAD</A><BR>
-<A HREF="manual.html#pdf-VIPER_TUSERDATA">VIPER_TUSERDATA</A><BR>
-<A HREF="manual.html#pdf-VIPER_USE_APICHECK">VIPER_USE_APICHECK</A><BR>
-<A HREF="manual.html#pdf-VIPER_YIELD">VIPER_YIELD</A><BR>
+<A HREF="manual.html#pdf-VENOM_ERRERR">VENOM_ERRERR</A><BR>
+<A HREF="manual.html#pdf-VENOM_ERRFILE">VENOM_ERRFILE</A><BR>
+<A HREF="manual.html#pdf-VENOM_ERRMEM">VENOM_ERRMEM</A><BR>
+<A HREF="manual.html#pdf-VENOM_ERRRUN">VENOM_ERRRUN</A><BR>
+<A HREF="manual.html#pdf-VENOM_ERRSYNTAX">VENOM_ERRSYNTAX</A><BR>
+<A HREF="manual.html#pdf-VENOM_HOOKCALL">VENOM_HOOKCALL</A><BR>
+<A HREF="manual.html#pdf-VENOM_HOOKCOUNT">VENOM_HOOKCOUNT</A><BR>
+<A HREF="manual.html#pdf-VENOM_HOOKLINE">VENOM_HOOKLINE</A><BR>
+<A HREF="manual.html#pdf-VENOM_HOOKRET">VENOM_HOOKRET</A><BR>
+<A HREF="manual.html#pdf-VENOM_HOOKTAILCALL">VENOM_HOOKTAILCALL</A><BR>
+<A HREF="manual.html#pdf-VENOML_BUFFERSIZE">VENOML_BUFFERSIZE</A><BR>
+<A HREF="manual.html#pdf-VENOM_MASKCALL">VENOM_MASKCALL</A><BR>
+<A HREF="manual.html#pdf-VENOM_MASKCOUNT">VENOM_MASKCOUNT</A><BR>
+<A HREF="manual.html#pdf-VENOM_MASKLINE">VENOM_MASKLINE</A><BR>
+<A HREF="manual.html#pdf-VENOM_MASKRET">VENOM_MASKRET</A><BR>
+<A HREF="manual.html#pdf-VENOM_MAXINTEGER">VENOM_MAXINTEGER</A><BR>
+<A HREF="manual.html#pdf-VENOM_MININTEGER">VENOM_MININTEGER</A><BR>
+<A HREF="manual.html#pdf-VENOM_MINSTACK">VENOM_MINSTACK</A><BR>
+<A HREF="manual.html#pdf-VENOM_MULTRET">VENOM_MULTRET</A><BR>
+<A HREF="manual.html#pdf-VENOM_NOREF">VENOM_NOREF</A><BR>
+<A HREF="manual.html#pdf-VENOM_OK">VENOM_OK</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPADD">VENOM_OPADD</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPBAND">VENOM_OPBAND</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPBNOT">VENOM_OPBNOT</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPBOR">VENOM_OPBOR</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPBXOR">VENOM_OPBXOR</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPDIV">VENOM_OPDIV</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPEQ">VENOM_OPEQ</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPIDIV">VENOM_OPIDIV</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPLE">VENOM_OPLE</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPLT">VENOM_OPLT</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPMOD">VENOM_OPMOD</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPMUL">VENOM_OPMUL</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPPOW">VENOM_OPPOW</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPSHL">VENOM_OPSHL</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPSHR">VENOM_OPSHR</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPSUB">VENOM_OPSUB</A><BR>
+<A HREF="manual.html#pdf-VENOM_OPUNM">VENOM_OPUNM</A><BR>
+<A HREF="manual.html#pdf-VENOM_REFNIL">VENOM_REFNIL</A><BR>
+<A HREF="manual.html#pdf-VENOM_REGISTRYINDEX">VENOM_REGISTRYINDEX</A><BR>
+<A HREF="manual.html#pdf-VENOM_RIDX_GLOBALS">VENOM_RIDX_GLOBALS</A><BR>
+<A HREF="manual.html#pdf-VENOM_RIDX_MAINTHREAD">VENOM_RIDX_MAINTHREAD</A><BR>
+<A HREF="manual.html#pdf-VENOM_TBOOLEAN">VENOM_TBOOLEAN</A><BR>
+<A HREF="manual.html#pdf-VENOM_TFUNCTION">VENOM_TFUNCTION</A><BR>
+<A HREF="manual.html#pdf-VENOM_TLIGHTUSERDATA">VENOM_TLIGHTUSERDATA</A><BR>
+<A HREF="manual.html#pdf-VENOM_TNIL">VENOM_TNIL</A><BR>
+<A HREF="manual.html#pdf-VENOM_TNONE">VENOM_TNONE</A><BR>
+<A HREF="manual.html#pdf-VENOM_TNUMBER">VENOM_TNUMBER</A><BR>
+<A HREF="manual.html#pdf-VENOM_TSTRING">VENOM_TSTRING</A><BR>
+<A HREF="manual.html#pdf-VENOM_TTABLE">VENOM_TTABLE</A><BR>
+<A HREF="manual.html#pdf-VENOM_TTHREAD">VENOM_TTHREAD</A><BR>
+<A HREF="manual.html#pdf-VENOM_TUSERDATA">VENOM_TUSERDATA</A><BR>
+<A HREF="manual.html#pdf-VENOM_USE_APICHECK">VENOM_USE_APICHECK</A><BR>
+<A HREF="manual.html#pdf-VENOM_YIELD">VENOM_YIELD</A><BR>
 
 </TD>
 </TR>
@@ -667,7 +667,7 @@ Last update:
 Thu Jan 13 11:32:22 UTC 2022
 </P>
 <!--
-Last change: revised for Viper 5.4.4
+Last change: revised for Venom 5.4.4
 -->
 
 </BODY>

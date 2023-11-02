@@ -1,9 +1,9 @@
-.\" $Id: viper.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
-.TH VIPER 1 "$Date: 2020/05/21 19:31:21 $"
+.\" $Id: venom.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
+.TH VENOM 1 "$Date: 2020/05/21 19:31:21 $"
 .SH NAME
-viper \- Viper interpreter
+venom \- Venom interpreter
 .SH SYNOPSIS
-.B viper
+.B venom
 [
 .I options
 ]
@@ -14,20 +14,20 @@ viper \- Viper interpreter
 ]
 ]
 .SH DESCRIPTION
-.B viper
-is the standalone Viper interpreter.
-It loads and executes Viper programs,
+.B venom
+is the standalone Venom interpreter.
+It loads and executes Venom programs,
 either in textual source form or
 in precompiled binary form.
 (Precompiled binaries are output by
-.BR viperc ,
-the Viper compiler.)
-.B viper
+.BR venomc ,
+the Venom compiler.)
+.B venom
 can be used as a batch interpreter and also interactively.
 .LP
 After handling the
 .IR options ,
-the Viper program in file
+the Venom program in file
 .I script
 is loaded and executed.
 The
@@ -38,43 +38,43 @@ as strings in a global table named
 .B arg
 and also as arguments to its main function.
 When called without arguments,
-.B viper
+.B venom
 behaves as
-.B "viper \-v \-i"
+.B "venom \-v \-i"
 if the standard input is a terminal,
 and as
-.B "viper \-"
+.B "venom \-"
 otherwise.
 .LP
 In interactive mode,
-.B viper
+.B venom
 prompts the user,
 reads lines from the standard input,
 and executes them as they are read.
 If the line contains an expression,
-then the line is evaviperted and the result is printed.
+then the line is evavenomted and the result is printed.
 If a line does not contain a complete statement,
 then a secondary prompt is displayed and
 lines are read until a complete statement is formed or
 a syntax error is found.
 .LP
 Before handling command line options and scripts,
-.B viper
+.B venom
 checks the contents of the environment variables
-.B VIPER_INIT_5_4
+.B VENOM_INIT_5_4
 and
-.BR VIPER_INIT ,
+.BR VENOM_INIT ,
 in that order.
 If the contents are of the form
 .RI '@ filename ',
 then
 .I filename
 is executed.
-Otherwise, the contents are assumed to be a Viper statement and is executed.
+Otherwise, the contents are assumed to be a Venom statement and is executed.
 When
-.B VIPER_INIT_5_4
+.B VENOM_INIT_5_4
 is defined,
-.B VIPER_INIT
+.B VENOM_INIT
 is ignored.
 .SH OPTIONS
 .TP
@@ -108,28 +108,28 @@ stop handling options.
 stop handling options and execute the standard input as a file.
 .SH ENVIRONMENT VARIABLES
 The following environment variables affect the execution of
-.BR viper .
+.BR venom .
 When defined,
 the version-specific variants take priority
 and the version-neutral variants are ignored.
 .TP
-.B VIPER_INIT, VIPER_INIT_5_4
+.B VENOM_INIT, VENOM_INIT_5_4
 Code to be executed before command line options and scripts.
 .TP
-.B VIPER_PATH, VIPER_PATH_5_4
+.B VENOM_PATH, VENOM_PATH_5_4
 Initial value of package.cpath,
-the path used by require to search for Viper loaders.
+the path used by require to search for Venom loaders.
 .TP
-.B VIPER_CPATH, VIPER_CPATH_5_4
+.B VENOM_CPATH, VENOM_CPATH_5_4
 Initial value of package.cpath,
 the path used by require to search for C loaders.
 .SH EXIT STATUS
 If a script calls os.exit,
 then
-.B viper
+.B venom
 exits with the given exit status.
 Otherwise,
-.B viper
+.B venom
 exits
 with EXIT_SUCCESS (0 on POSIX systems) if there were no errors
 and
@@ -138,9 +138,9 @@ Errors raised in interactive mode do not cause exits.
 .SH DIAGNOSTICS
 Error messages should be self explanatory.
 .SH "SEE ALSO"
-.BR viperc (1)
+.BR venomc (1)
 .br
-The documentation at viper.org,
+The documentation at venom.org,
 especially section 7 of the reference manual.
 .SH AUTHORS
 R. Ierusalimschy,

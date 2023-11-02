@@ -1,7 +1,7 @@
 /*
 ** $Id: opcodes.h $
-** Opcodes for Viper virtual machine
-** See Copyright Notice in viper.h
+** Opcodes for Venom virtual machine
+** See Copyright Notice in venom.h
 */
 
 #ifndef opcodes_h
@@ -200,7 +200,7 @@ typedef enum {
 ------------------------------------------------------------------------*/
 OP_MOVE,/*	A B	R[A] := R[B]					*/
 OP_LOADI,/*	A sBx	R[A] := sBx					*/
-OP_LOADF,/*	A sBx	R[A] := (viper_Number)sBx				*/
+OP_LOADF,/*	A sBx	R[A] := (venom_Number)sBx				*/
 OP_LOADK,/*	A Bx	R[A] := K[Bx]					*/
 OP_LOADKX,/*	A	R[A] := K[extra arg]				*/
 OP_LOADFALSE,/*	A	R[A] := false					*/
@@ -378,14 +378,14 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 ** bit 7: instruction is an MM instruction (call a metamethod)
 */
 
-VIPERI_DDEC(const lu_byte viperP_opmodes[NUM_OPCODES];)
+VENOMI_DDEC(const lu_byte venomP_opmodes[NUM_OPCODES];)
 
-#define getOpMode(m)	(cast(enum OpMode, viperP_opmodes[m] & 7))
-#define testAMode(m)	(viperP_opmodes[m] & (1 << 3))
-#define testTMode(m)	(viperP_opmodes[m] & (1 << 4))
-#define testITMode(m)	(viperP_opmodes[m] & (1 << 5))
-#define testOTMode(m)	(viperP_opmodes[m] & (1 << 6))
-#define testMMMode(m)	(viperP_opmodes[m] & (1 << 7))
+#define getOpMode(m)	(cast(enum OpMode, venomP_opmodes[m] & 7))
+#define testAMode(m)	(venomP_opmodes[m] & (1 << 3))
+#define testTMode(m)	(venomP_opmodes[m] & (1 << 4))
+#define testITMode(m)	(venomP_opmodes[m] & (1 << 5))
+#define testOTMode(m)	(venomP_opmodes[m] & (1 << 6))
+#define testMMMode(m)	(venomP_opmodes[m] & (1 << 7))
 
 /* "out top" (set top for next instruction) */
 #define isOT(i)  \

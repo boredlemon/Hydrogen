@@ -1,7 +1,7 @@
 /*
 ** $Id: code.h $
-** Code generator for Viper
-** See Copyright Notice in viper.h
+** Code generator for Venom
+** See Copyright Notice in venom.h
 */
 
 #ifndef code_h
@@ -45,7 +45,7 @@ typedef enum BinOpr {
 #define foldbinop(op)	((op) <= OPR_SHR)
 
 
-#define viperK_codeABC(fs,o,a,b,c)	viperK_codeABCk(fs,o,a,b,c,0)
+#define venomK_codeABC(fs,o,a,b,c)	venomK_codeABCk(fs,o,a,b,c,0)
 
 
 typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
@@ -55,50 +55,50 @@ typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 #define getinstruction(fs,e)	((fs)->f->code[(e)->u.info])
 
 
-#define viperK_setmultret(fs,e)	viperK_setreturns(fs, e, VIPER_MULTRET)
+#define venomK_setmultret(fs,e)	venomK_setreturns(fs, e, VENOM_MULTRET)
 
-#define viperK_jumpto(fs,t)	viperK_patchlist(fs, viperK_jump(fs), t)
+#define venomK_jumpto(fs,t)	venomK_patchlist(fs, venomK_jump(fs), t)
 
-VIPERI_FUNC int viperK_code (FuncState *fs, Instruction i);
-VIPERI_FUNC int viperK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
-VIPERI_FUNC int viperK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
-VIPERI_FUNC int viperK_codeABCk (FuncState *fs, OpCode o, int A,
+VENOMI_FUNC int venomK_code (FuncState *fs, Instruction i);
+VENOMI_FUNC int venomK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
+VENOMI_FUNC int venomK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
+VENOMI_FUNC int venomK_codeABCk (FuncState *fs, OpCode o, int A,
                                             int B, int C, int k);
-VIPERI_FUNC int viperK_isKint (expdesc *e);
-VIPERI_FUNC int viperK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
-VIPERI_FUNC void viperK_fixline (FuncState *fs, int line);
-VIPERI_FUNC void viperK_nil (FuncState *fs, int from, int n);
-VIPERI_FUNC void viperK_reserveregs (FuncState *fs, int n);
-VIPERI_FUNC void viperK_checkstack (FuncState *fs, int n);
-VIPERI_FUNC void viperK_int (FuncState *fs, int reg, viper_Integer n);
-VIPERI_FUNC void viperK_dischargevars (FuncState *fs, expdesc *e);
-VIPERI_FUNC int viperK_exp2anyreg (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_exp2anyregup (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_exp2nextreg (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_exp2val (FuncState *fs, expdesc *e);
-VIPERI_FUNC int viperK_exp2RK (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_self (FuncState *fs, expdesc *e, expdesc *key);
-VIPERI_FUNC void viperK_indexed (FuncState *fs, expdesc *t, expdesc *k);
-VIPERI_FUNC void viperK_Viperiftrue (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_Viperiffalse (FuncState *fs, expdesc *e);
-VIPERI_FUNC void viperK_storevar (FuncState *fs, expdesc *var, expdesc *e);
-VIPERI_FUNC void viperK_setreturns (FuncState *fs, expdesc *e, int nresults);
-VIPERI_FUNC void viperK_setoneret (FuncState *fs, expdesc *e);
-VIPERI_FUNC int viperK_jump (FuncState *fs);
-VIPERI_FUNC void viperK_ret (FuncState *fs, int first, int nret);
-VIPERI_FUNC void viperK_patchlist (FuncState *fs, int list, int target);
-VIPERI_FUNC void viperK_patchtohere (FuncState *fs, int list);
-VIPERI_FUNC void viperK_concat (FuncState *fs, int *l1, int l2);
-VIPERI_FUNC int viperK_getlabel (FuncState *fs);
-VIPERI_FUNC void viperK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
-VIPERI_FUNC void viperK_infix (FuncState *fs, BinOpr op, expdesc *v);
-VIPERI_FUNC void viperK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
+VENOMI_FUNC int venomK_isKint (expdesc *e);
+VENOMI_FUNC int venomK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
+VENOMI_FUNC void venomK_fixline (FuncState *fs, int line);
+VENOMI_FUNC void venomK_nil (FuncState *fs, int from, int n);
+VENOMI_FUNC void venomK_reserveregs (FuncState *fs, int n);
+VENOMI_FUNC void venomK_checkstack (FuncState *fs, int n);
+VENOMI_FUNC void venomK_int (FuncState *fs, int reg, venom_Integer n);
+VENOMI_FUNC void venomK_dischargevars (FuncState *fs, expdesc *e);
+VENOMI_FUNC int venomK_exp2anyreg (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_exp2anyregup (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_exp2nextreg (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_exp2val (FuncState *fs, expdesc *e);
+VENOMI_FUNC int venomK_exp2RK (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_self (FuncState *fs, expdesc *e, expdesc *key);
+VENOMI_FUNC void venomK_indexed (FuncState *fs, expdesc *t, expdesc *k);
+VENOMI_FUNC void venomK_Venomiftrue (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_Venomiffalse (FuncState *fs, expdesc *e);
+VENOMI_FUNC void venomK_storevar (FuncState *fs, expdesc *var, expdesc *e);
+VENOMI_FUNC void venomK_setreturns (FuncState *fs, expdesc *e, int nresults);
+VENOMI_FUNC void venomK_setoneret (FuncState *fs, expdesc *e);
+VENOMI_FUNC int venomK_jump (FuncState *fs);
+VENOMI_FUNC void venomK_ret (FuncState *fs, int first, int nret);
+VENOMI_FUNC void venomK_patchlist (FuncState *fs, int list, int target);
+VENOMI_FUNC void venomK_patchtohere (FuncState *fs, int list);
+VENOMI_FUNC void venomK_concat (FuncState *fs, int *l1, int l2);
+VENOMI_FUNC int venomK_getlabel (FuncState *fs);
+VENOMI_FUNC void venomK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
+VENOMI_FUNC void venomK_infix (FuncState *fs, BinOpr op, expdesc *v);
+VENOMI_FUNC void venomK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
                             expdesc *v2, int line);
-VIPERI_FUNC void viperK_settablesize (FuncState *fs, int pc,
+VENOMI_FUNC void venomK_settablesize (FuncState *fs, int pc,
                                   int ra, int asize, int hsize);
-VIPERI_FUNC void viperK_setlist (FuncState *fs, int base, int nelems, int tostore);
-VIPERI_FUNC void viperK_finish (FuncState *fs);
-VIPERI_FUNC l_noret viperK_semerror (LexState *ls, const char *msg);
+VENOMI_FUNC void venomK_setlist (FuncState *fs, int base, int nelems, int tostore);
+VENOMI_FUNC void venomK_finish (FuncState *fs);
+VENOMI_FUNC l_noret venomK_semerror (LexState *ls, const char *msg);
 
 
 #endif

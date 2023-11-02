@@ -1,7 +1,7 @@
 /*
 ** $Id: tagMethods.h $
 ** Tag methods
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #ifndef tagMethods_h
@@ -62,41 +62,41 @@ typedef enum {
 
 
 #define gfasttm(g,et,e) ((et) == NULL ? NULL : \
-  ((et)->flags & (1u<<(e))) ? NULL : viperT_gettm(et, e, (g)->tmname[e]))
+  ((et)->flags & (1u<<(e))) ? NULL : venomT_gettm(et, e, (g)->tmname[e]))
 
 #define fasttm(l,et,e)	gfasttm(G(l), et, e)
 
-#define ttypename(x)	viperT_typenames_[(x) + 1]
+#define ttypename(x)	venomT_typenames_[(x) + 1]
 
-VIPERI_DDEC(const char *const viperT_typenames_[VIPER_TOTALTYPES];)
+VENOMI_DDEC(const char *const venomT_typenames_[VENOM_TOTALTYPES];)
 
 
-VIPERI_FUNC const char *viperT_objtypename (viper_State *L, const TValue *o);
+VENOMI_FUNC const char *venomT_objtypename (venom_State *L, const TValue *o);
 
-VIPERI_FUNC const TValue *viperT_gettm (Table *events, TMS event, TString *ename);
-VIPERI_FUNC const TValue *viperT_gettmbyobj (viper_State *L, const TValue *o,
+VENOMI_FUNC const TValue *venomT_gettm (Table *events, TMS event, TString *ename);
+VENOMI_FUNC const TValue *venomT_gettmbyobj (venom_State *L, const TValue *o,
                                                        TMS event);
-VIPERI_FUNC void viperT_init (viper_State *L);
+VENOMI_FUNC void venomT_init (venom_State *L);
 
-VIPERI_FUNC void viperT_caltagMethods (viper_State *L, const TValue *f, const TValue *p1,
+VENOMI_FUNC void venomT_caltagMethods (venom_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
-VIPERI_FUNC void viperT_caltagMethodsres (viper_State *L, const TValue *f,
+VENOMI_FUNC void venomT_caltagMethodsres (venom_State *L, const TValue *f,
                             const TValue *p1, const TValue *p2, StkId p3);
-VIPERI_FUNC void viperT_trybinTM (viper_State *L, const TValue *p1, const TValue *p2,
+VENOMI_FUNC void venomT_trybinTM (venom_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
-VIPERI_FUNC void viperT_tryconcatTM (viper_State *L);
-VIPERI_FUNC void viperT_trybinassocTM (viper_State *L, const TValue *p1,
+VENOMI_FUNC void venomT_tryconcatTM (venom_State *L);
+VENOMI_FUNC void venomT_trybinassocTM (venom_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
-VIPERI_FUNC void viperT_trybiniTM (viper_State *L, const TValue *p1, viper_Integer i2,
+VENOMI_FUNC void venomT_trybiniTM (venom_State *L, const TValue *p1, venom_Integer i2,
                                int inv, StkId res, TMS event);
-VIPERI_FUNC int viperT_callorderTM (viper_State *L, const TValue *p1,
+VENOMI_FUNC int venomT_callorderTM (venom_State *L, const TValue *p1,
                                 const TValue *p2, TMS event);
-VIPERI_FUNC int viperT_callorderiTM (viper_State *L, const TValue *p1, int v2,
+VENOMI_FUNC int venomT_callorderiTM (venom_State *L, const TValue *p1, int v2,
                                  int inv, int isfloat, TMS event);
 
-VIPERI_FUNC void viperT_adjustvarargs (viper_State *L, int nfixparams,
+VENOMI_FUNC void venomT_adjustvarargs (venom_State *L, int nfixparams,
                                    struct CallInfo *ci, const Proto *p);
-VIPERI_FUNC void viperT_getvarargs (viper_State *L, struct CallInfo *ci,
+VENOMI_FUNC void venomT_getvarargs (venom_State *L, struct CallInfo *ci,
                                               StkId where, int wanted);
 
 

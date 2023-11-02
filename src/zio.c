@@ -1,18 +1,18 @@
 /*
 ** $Id: zio.c $
 ** Buffered streams
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define zio_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
 
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "limits.h"
 #include "memory.h"
@@ -20,13 +20,13 @@
 #include "zio.h"
 
 
-int viperZ_fill (ZIO *z) {
+int venomZ_fill (ZIO *z) {
   size_t size;
-  viper_State *L = z->L;
+  venom_State *L = z->L;
   const char *buff;
-  viper_unlock(L);
+  venom_unlock(L);
   buff = z->reader(L, z->data, &size);
-  viper_lock(L);
+  venom_lock(L);
   if (buff == NULL || size == 0)
     return EOZ;
   z->n = size - 1;  /* discount char being returned */
@@ -35,7 +35,7 @@ int viperZ_fill (ZIO *z) {
 }
 
 
-void viperZ_init (viper_State *L, ZIO *z, viper_Reader reader, void *data) {
+void venomZ_init (venom_State *L, ZIO *z, venom_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;
   z->data = data;
@@ -45,14 +45,14 @@ void viperZ_init (viper_State *L, ZIO *z, viper_Reader reader, void *data) {
 
 
 /* --------------------------------------------------------------- read --- */
-size_t viperZ_read (ZIO *z, void *b, size_t n) {
+size_t venomZ_read (ZIO *z, void *b, size_t n) {
   while (n) {
     size_t m;
     if (z->n == 0) {  /* no bytes in buffer? */
-      if (viperZ_fill(z) == EOZ)  /* try to read more */
+      if (venomZ_fill(z) == EOZ)  /* try to read more */
         return n;  /* no more input; return number of missing bytes */
       else {
-        z->n++;  /* viperZ_fill consumed first byte; put it back */
+        z->n++;  /* venomZ_fill consumed first byte; put it back */
         z->p--;
       }
     }

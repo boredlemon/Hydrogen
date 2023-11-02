@@ -1,23 +1,23 @@
 /*
 ** $Id: ctype.c $
-** 'ctype' functions for Viper
-** See Copyright Notice in viper.h
+** 'ctype' functions for Venom
+** See Copyright Notice in venom.h
 */
 
 #define ctype_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
 
 #include "ctype.h"
 
-#if !VIPER_USE_CTYPE	/* { */
+#if !VENOM_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (VIPER_UCID)		/* accept UniCode IDentifiers? */
+#if defined (VENOM_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-VIPERI_DDEF const lu_byte viperi_ctype_[UCHAR_MAX + 2] = {
+VENOMI_DDEF const lu_byte venomi_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

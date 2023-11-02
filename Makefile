@@ -1,4 +1,4 @@
-# Makefile for installing Viper
+# Makefile for installing Venom
 # See doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -9,17 +9,17 @@ PLAT= guess
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
-# VIPER_ROOT, VIPER_LDIR, and VIPER_CDIR in viperconf.h.
+# VENOM_ROOT, VENOM_LDIR, and VENOM_CDIR in venomconf.h.
 INSTALL_TOP= /usr/local
 INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
 INSTALL_MAN= $(INSTALL_TOP)/man/man1
-INSTALL_LMOD= $(INSTALL_TOP)/share/viper/$V
-INSTALL_CMOD= $(INSTALL_TOP)/lib/viper/$V
+INSTALL_LMOD= $(INSTALL_TOP)/share/venom/$V
+INSTALL_CMOD= $(INSTALL_TOP)/lib/venom/$V
 
 # How to install. If your install program does not support "-p", then
-# you may have to run ranlib on the installed libviper.a.
+# you may have to run ranlib on the installed libvenom.a.
 INSTALL= install -p
 INSTALL_EXEC= $(INSTALL) -m 0755
 INSTALL_DATA= $(INSTALL) -m 0644
@@ -39,12 +39,12 @@ RM= rm -f
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
 # What to install.
-TO_BIN= viper viperc
-TO_INC= viper.h viperconf.h viperlib.h auxlib.h viper.hpp
-TO_LIB= libviper.a
-TO_MAN= viper.1 viperc.1
+TO_BIN= venom venomc
+TO_INC= venom.h venomconf.h venomlib.h auxlib.h venom.hpp
+TO_LIB= libvenom.a
+TO_MAN= venom.1 venomc.1
 
-# Viper version and release.
+# Venom version and release.
 V= 9.1
 R= $V.9
 

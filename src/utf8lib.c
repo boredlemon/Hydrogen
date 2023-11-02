@@ -1,11 +1,11 @@
 /*
 ** $Id: utf8lib.c $
 ** Standard library for UTF-8 manipulation
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define utf8lib_c
-#define VIPER_LIB
+#define VENOM_LIB
 
 #include "prefix.h"
 
@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "auxlib.h"
-#include "viperlib.h"
+#include "venomlib.h"
 
 
 #define MAXUNICODE	0x10FFFFu
@@ -40,10 +40,10 @@ typedef unsigned long utfint;
 
 /* from strlib */
 /* translate a relative string position: negative means back from end */
-static viper_Integer u_posrelat (viper_Integer pos, size_t len) {
+static venom_Integer u_posrelat (venom_Integer pos, size_t len) {
   if (pos >= 0) return pos;
   else if (0u - (size_t)pos > len) return 0;
-  else return (viper_Integer)len + pos + 1;
+  else return (venom_Integer)len + pos + 1;
 }
 
 
@@ -89,28 +89,28 @@ static const char *utf8_decode (const char *s, utfint *val, int strict) {
 ** start in the range [i,j], or nil + current position if 's' is not
 ** well formed in that interval
 */
-static int utflen (viper_State *L) {
-  viper_Integer n = 0;  /* counter for the number of characters */
+static int utflen (venom_State *L) {
+  venom_Integer n = 0;  /* counter for the number of characters */
   size_t len;  /* string length in bytes */
-  const char *s = viperL_checklstring(L, 1, &len);
-  viper_Integer posi = u_posrelat(viperL_optinteger(L, 2, 1), len);
-  viper_Integer posj = u_posrelat(viperL_optinteger(L, 3, -1), len);
-  int lax = viper_toboolean(L, 4);
-  viperL_argcheck(L, 1 <= posi && --posi <= (viper_Integer)len, 2,
+  const char *s = venomL_checklstring(L, 1, &len);
+  venom_Integer posi = u_posrelat(venomL_optinteger(L, 2, 1), len);
+  venom_Integer posj = u_posrelat(venomL_optinteger(L, 3, -1), len);
+  int lax = venom_toboolean(L, 4);
+  venomL_argcheck(L, 1 <= posi && --posi <= (venom_Integer)len, 2,
                    "initial position out of bounds");
-  viperL_argcheck(L, --posj < (viper_Integer)len, 3,
+  venomL_argcheck(L, --posj < (venom_Integer)len, 3,
                    "final position out of bounds");
   while (posi <= posj) {
     const char *s1 = utf8_decode(s + posi, NULL, !lax);
     if (s1 == NULL) {  /* conversion error? */
-      viperL_pushfail(L);  /* return fail ... */
-      viper_pushinteger(L, posi + 1);  /* ... and current position */
+      venomL_pushfail(L);  /* return fail ... */
+      venom_pushinteger(L, posi + 1);  /* ... and current position */
       return 2;
     }
     posi = s1 - s;
     n++;
   }
-  viper_pushinteger(L, n);
+  venom_pushinteger(L, n);
   return 1;
 }
 
@@ -119,58 +119,58 @@ static int utflen (viper_State *L) {
 ** codepoint(s, [i, [j [, lax]]]) -> returns codepoints for all
 ** characters that start in the range [i,j]
 */
-static int codepoint (viper_State *L) {
+static int codepoint (venom_State *L) {
   size_t len;
-  const char *s = viperL_checklstring(L, 1, &len);
-  viper_Integer posi = u_posrelat(viperL_optinteger(L, 2, 1), len);
-  viper_Integer pose = u_posrelat(viperL_optinteger(L, 3, posi), len);
-  int lax = viper_toboolean(L, 4);
+  const char *s = venomL_checklstring(L, 1, &len);
+  venom_Integer posi = u_posrelat(venomL_optinteger(L, 2, 1), len);
+  venom_Integer pose = u_posrelat(venomL_optinteger(L, 3, posi), len);
+  int lax = venom_toboolean(L, 4);
   int n;
   const char *se;
-  viperL_argcheck(L, posi >= 1, 2, "out of bounds");
-  viperL_argcheck(L, pose <= (viper_Integer)len, 3, "out of bounds");
+  venomL_argcheck(L, posi >= 1, 2, "out of bounds");
+  venomL_argcheck(L, pose <= (venom_Integer)len, 3, "out of bounds");
   if (posi > pose) return 0;  /* empty interval; return no values */
-  if (pose - posi >= INT_MAX)  /* (viper_Integer -> int) overflow? */
-    return viperL_error(L, "string slice too long");
+  if (pose - posi >= INT_MAX)  /* (venom_Integer -> int) overflow? */
+    return venomL_error(L, "string slice too long");
   n = (int)(pose -  posi) + 1;  /* upper bound for number of returns */
-  viperL_checkstack(L, n, "string slice too long");
+  venomL_checkstack(L, n, "string slice too long");
   n = 0;  /* count the number of returns */
   se = s + pose;  /* string end */
   for (s += posi - 1; s < se;) {
     utfint code;
     s = utf8_decode(s, &code, !lax);
     if (s == NULL)
-      return viperL_error(L, "invalid UTF-8 code");
-    viper_pushinteger(L, code);
+      return venomL_error(L, "invalid UTF-8 code");
+    venom_pushinteger(L, code);
     n++;
   }
   return n;
 }
 
 
-static void pushutfchar (viper_State *L, int arg) {
-  viper_Unsigned code = (viper_Unsigned)viperL_checkinteger(L, arg);
-  viperL_argcheck(L, code <= MAXUTF, arg, "value out of range");
-  viper_pushfstring(L, "%U", (long)code);
+static void pushutfchar (venom_State *L, int arg) {
+  venom_Unsigned code = (venom_Unsigned)venomL_checkinteger(L, arg);
+  venomL_argcheck(L, code <= MAXUTF, arg, "value out of range");
+  venom_pushfstring(L, "%U", (long)code);
 }
 
 
 /*
 ** utfchar(n1, n2, ...)  -> char(n1)..char(n2)...
 */
-static int utfchar (viper_State *L) {
-  int n = viper_gettop(L);  /* number of arguments */
+static int utfchar (venom_State *L) {
+  int n = venom_gettop(L);  /* number of arguments */
   if (n == 1)  /* optimize common case of single char */
     pushutfchar(L, 1);
   else {
     int i;
-    viperL_Buffer b;
-    viperL_buffinit(L, &b);
+    venomL_Buffer b;
+    venomL_buffinit(L, &b);
     for (i = 1; i <= n; i++) {
       pushutfchar(L, i);
-      viperL_addvalue(&b);
+      venomL_addvalue(&b);
     }
-    viperL_pushresult(&b);
+    venomL_pushresult(&b);
   }
   return 1;
 }
@@ -180,13 +180,13 @@ static int utfchar (viper_State *L) {
 ** offset(s, n, [i])  -> index where n-th character counting from
 **   position 'i' starts; 0 means character at 'i'.
 */
-static int byteoffset (viper_State *L) {
+static int byteoffset (venom_State *L) {
   size_t len;
-  const char *s = viperL_checklstring(L, 1, &len);
-  viper_Integer n  = viperL_checkinteger(L, 2);
-  viper_Integer posi = (n >= 0) ? 1 : len + 1;
-  posi = u_posrelat(viperL_optinteger(L, 3, posi), len);
-  viperL_argcheck(L, 1 <= posi && --posi <= (viper_Integer)len, 3,
+  const char *s = venomL_checklstring(L, 1, &len);
+  venom_Integer n  = venomL_checkinteger(L, 2);
+  venom_Integer posi = (n >= 0) ? 1 : len + 1;
+  posi = u_posrelat(venomL_optinteger(L, 3, posi), len);
+  venomL_argcheck(L, 1 <= posi && --posi <= (venom_Integer)len, 3,
                    "position out of bounds");
   if (n == 0) {
     /* find beginning of current byte sequence */
@@ -194,7 +194,7 @@ static int byteoffset (viper_State *L) {
   }
   else {
     if (iscont(s + posi))
-      return viperL_error(L, "initial position is a continuation byte");
+      return venomL_error(L, "initial position is a continuation byte");
     if (n < 0) {
        while (n < 0 && posi > 0) {  /* move back */
          do {  /* find beginning of previous character */
@@ -205,7 +205,7 @@ static int byteoffset (viper_State *L) {
      }
      else {
        n--;  /* do not move for 1st character */
-       while (n > 0 && posi < (viper_Integer)len) {
+       while (n > 0 && posi < (venom_Integer)len) {
          do {  /* find beginning of next character */
            posi++;
          } while (iscont(s + posi));  /* (cannot pass final '\0') */
@@ -214,17 +214,17 @@ static int byteoffset (viper_State *L) {
      }
   }
   if (n == 0)  /* did it find given character? */
-    viper_pushinteger(L, posi + 1);
+    venom_pushinteger(L, posi + 1);
   else  /* no such character */
-    viperL_pushfail(L);
+    venomL_pushfail(L);
   return 1;
 }
 
 
-static int iter_aux (viper_State *L, int strict) {
+static int iter_aux (venom_State *L, int strict) {
   size_t len;
-  const char *s = viperL_checklstring(L, 1, &len);
-  viper_Unsigned n = (viper_Unsigned)viper_tointeger(L, 2);
+  const char *s = venomL_checklstring(L, 1, &len);
+  venom_Unsigned n = (venom_Unsigned)venom_tointeger(L, 2);
   if (n < len) {
     while (iscont(s + n)) n++;  /* skip continuation bytes */
   }
@@ -234,29 +234,29 @@ static int iter_aux (viper_State *L, int strict) {
     utfint code;
     const char *next = utf8_decode(s + n, &code, strict);
     if (next == NULL)
-      return viperL_error(L, "invalid UTF-8 code");
-    viper_pushinteger(L, n + 1);
-    viper_pushinteger(L, code);
+      return venomL_error(L, "invalid UTF-8 code");
+    venom_pushinteger(L, n + 1);
+    venom_pushinteger(L, code);
     return 2;
   }
 }
 
 
-static int iter_auxstrict (viper_State *L) {
+static int iter_auxstrict (venom_State *L) {
   return iter_aux(L, 1);
 }
 
-static int iter_auxlax (viper_State *L) {
+static int iter_auxlax (venom_State *L) {
   return iter_aux(L, 0);
 }
 
 
-static int iter_codes (viper_State *L) {
-  int lax = viper_toboolean(L, 2);
-  viperL_checkstring(L, 1);
-  viper_pushcfunction(L, lax ? iter_auxlax : iter_auxstrict);
-  viper_pushvalue(L, 1);
-  viper_pushinteger(L, 0);
+static int iter_codes (venom_State *L) {
+  int lax = venom_toboolean(L, 2);
+  venomL_checkstring(L, 1);
+  venom_pushcfunction(L, lax ? iter_auxlax : iter_auxstrict);
+  venom_pushvalue(L, 1);
+  venom_pushinteger(L, 0);
   return 3;
 }
 
@@ -265,7 +265,7 @@ static int iter_codes (viper_State *L) {
 #define UTF8PATT	"[\0-\x7F\xC2-\xFD][\x80-\xBF]*"
 
 
-static const viperL_Reg funcs[] = {
+static const venomL_Reg funcs[] = {
   {"offset", byteoffset},
   {"codepoint", codepoint},
   {"char", utfchar},
@@ -277,9 +277,9 @@ static const viperL_Reg funcs[] = {
 };
 
 
-VIPERMOD_API int viperopen_utf8 (viper_State *L) {
-  viperL_newlib(L, funcs);
-  viper_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
-  viper_setfield(L, -2, "charpattern");
+VENOMMOD_API int venomopen_utf8 (venom_State *L) {
+  venomL_newlib(L, funcs);
+  venom_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
+  venom_setfield(L, -2, "charpattern");
   return 1;
 }

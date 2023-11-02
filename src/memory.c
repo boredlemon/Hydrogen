@@ -1,18 +1,18 @@
 /*
 ** $Id: memory.c $
 ** Interface to Memory Manager
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define memory_c
-#define VIPER_CORE
+#define VENOM_CORE
 
 #include "prefix.h"
 
 
 #include <stddef.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "debug.h"
 #include "do.h"
@@ -76,7 +76,7 @@ static void *firsttry (global_State *g, void *block, size_t os, size_t ns) {
 #define MINSIZEARRAY	4
 
 
-void *viperM_growaux_ (viper_State *L, void *block, int nelems, int *psize,
+void *venomM_growaux_ (venom_State *L, void *block, int nelems, int *psize,
                      int size_elems, int limit, const char *what) {
   void *newblock;
   int size = *psize;
@@ -84,7 +84,7 @@ void *viperM_growaux_ (viper_State *L, void *block, int nelems, int *psize,
     return block;  /* nothing to be done */
   if (size >= limit / 2) {  /* cannot double it? */
     if (l_unlikely(size >= limit))  /* cannot grow even a little? */
-      viperG_runerror(L, "too many %s (limit is %d)", what, limit);
+      venomG_runerror(L, "too many %s (limit is %d)", what, limit);
     size = limit;  /* still have at least one free place */
   }
   else {
@@ -92,9 +92,9 @@ void *viperM_growaux_ (viper_State *L, void *block, int nelems, int *psize,
     if (size < MINSIZEARRAY)
       size = MINSIZEARRAY;  /* minimum size */
   }
-  viper_assert(nelems + 1 <= size && size <= limit);
+  venom_assert(nelems + 1 <= size && size <= limit);
   /* 'limit' ensures that multiplication will not overflow */
-  newblock = viperM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
+  newblock = venomM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
                                          cast_sizet(size) * size_elems);
   *psize = size;  /* update only when everything else is OK */
   return newblock;
@@ -107,13 +107,13 @@ void *viperM_growaux_ (viper_State *L, void *block, int nelems, int *psize,
 ** to its number of elements, the only option is to raise an
 ** error.
 */
-void *viperM_shrinkvector_ (viper_State *L, void *block, int *size,
+void *venomM_shrinkvector_ (venom_State *L, void *block, int *size,
                           int final_n, int size_elem) {
   void *newblock;
   size_t oldsize = cast_sizet((*size) * size_elem);
   size_t newsize = cast_sizet(final_n * size_elem);
-  viper_assert(newsize <= oldsize);
-  newblock = viperM_saferealloc_(L, block, oldsize, newsize);
+  venom_assert(newsize <= oldsize);
+  newblock = venomM_saferealloc_(L, block, oldsize, newsize);
   *size = final_n;
   return newblock;
 }
@@ -121,17 +121,17 @@ void *viperM_shrinkvector_ (viper_State *L, void *block, int *size,
 /* }================================================================== */
 
 
-l_noret viperM_toobig (viper_State *L) {
-  viperG_runerror(L, "memory allocation error: block too big");
+l_noret venomM_toobig (venom_State *L) {
+  venomG_runerror(L, "memory allocation error: block too big");
 }
 
 
 /*
 ** Free memory
 */
-void viperM_free_ (viper_State *L, void *block, size_t osize) {
+void venomM_free_ (venom_State *L, void *block, size_t osize) {
   global_State *g = G(L);
-  viper_assert((osize == 0) == (block == NULL));
+  venom_assert((osize == 0) == (block == NULL));
   (*g->frealloc)(g->ud, block, osize, 0);
   g->GCdebt -= osize;
 }
@@ -145,11 +145,11 @@ void viperM_free_ (viper_State *L, void *block, size_t osize) {
 ** when 'gcstopem' is true, because then the interpreter is in the
 ** middle of a collection step.
 */
-static void *tryagain (viper_State *L, void *block,
+static void *tryagain (venom_State *L, void *block,
                        size_t osize, size_t nsize) {
   global_State *g = G(L);
   if (completestate(g) && !g->gcstopem) {
-    viperC_fulgarbageCollection(L, 1);  /* try to free some memory... */
+    venomC_fulgarbageCollection(L, 1);  /* try to free some memory... */
     return (*g->frealloc)(g->ud, block, osize, nsize);  /* try again */
   }
   else return NULL;  /* cannot free any memory without a full state */
@@ -159,32 +159,32 @@ static void *tryagain (viper_State *L, void *block,
 /*
 ** Generic allocation routine.
 */
-void *viperM_realloc_ (viper_State *L, void *block, size_t osize, size_t nsize) {
+void *venomM_realloc_ (venom_State *L, void *block, size_t osize, size_t nsize) {
   void *newblock;
   global_State *g = G(L);
-  viper_assert((osize == 0) == (block == NULL));
+  venom_assert((osize == 0) == (block == NULL));
   newblock = firsttry(g, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0)) {
     newblock = tryagain(L, block, osize, nsize);
     if (newblock == NULL)  /* still no memory? */
       return NULL;  /* do not update 'GCdebt' */
   }
-  viper_assert((nsize == 0) == (newblock == NULL));
+  venom_assert((nsize == 0) == (newblock == NULL));
   g->GCdebt = (g->GCdebt + nsize) - osize;
   return newblock;
 }
 
 
-void *viperM_saferealloc_ (viper_State *L, void *block, size_t osize,
+void *venomM_saferealloc_ (venom_State *L, void *block, size_t osize,
                                                     size_t nsize) {
-  void *newblock = viperM_realloc_(L, block, osize, nsize);
+  void *newblock = venomM_realloc_(L, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0))  /* allocation failed? */
-    viperM_error(L);
+    venomM_error(L);
   return newblock;
 }
 
 
-void *viperM_malloc_ (viper_State *L, size_t size, int tag) {
+void *venomM_malloc_ (venom_State *L, size_t size, int tag) {
   if (size == 0)
     return NULL;  /* that's all */
   else {
@@ -193,7 +193,7 @@ void *viperM_malloc_ (viper_State *L, size_t size, int tag) {
     if (l_unlikely(newblock == NULL)) {
       newblock = tryagain(L, NULL, tag, size);
       if (newblock == NULL)
-        viperM_error(L);
+        venomM_error(L);
     }
     g->GCdebt += size;
     return newblock;

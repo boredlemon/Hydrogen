@@ -1,7 +1,7 @@
 /*
 ** $Id: parser.h $
-** Viper Parser
-** See Copyright Notice in viper.h
+** Venom Parser
+** See Copyright Notice in venom.h
 */
 
 #ifndef parser_h
@@ -68,8 +68,8 @@ typedef enum {
 typedef struct expdesc {
   expkind k;
   union {
-    viper_Integer ival;    /* for VKINT */
-    viper_Number nval;  /* for VKFLT */
+    venom_Integer ival;    /* for VKINT */
+    venom_Number nval;  /* for VKFLT */
     TString *strval;  /* for VKSTR */
     int info;  /* for generic use */
     struct {  /* for indexed variables */
@@ -163,8 +163,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-VIPERI_FUNC int viperY_nvarstack (FuncState *fs);
-VIPERI_FUNC LClosure *viperY_parser (viper_State *L, ZIO *z, Mbuffer *buff,
+VENOMI_FUNC int venomY_nvarstack (FuncState *fs);
+VENOMI_FUNC LClosure *venomY_parser (venom_State *L, ZIO *z, Mbuffer *buff,
                                  Dyndata *dyd, const char *name, int firstchar);
 
 

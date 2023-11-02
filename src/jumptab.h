@@ -1,7 +1,7 @@
 /*
 ** $Id: jumptab.h $
-** Jump Table for the Viper interpreter
-** See Copyright Notice in viper.h
+** Jump Table for the Venom interpreter
+** See Copyright Notice in venom.h
 */
 
 

@@ -1,7 +1,7 @@
 /*
 ** $Id: debug.h $
 ** Auxiliary functions from Debug Interface module
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #ifndef debug_h
@@ -14,7 +14,7 @@
 #define pcRel(pc, p)	(cast_int((pc) - (p)->code) - 1)
 
 
-/* Active Viper function (given call info) */
+/* Active Venom function (given call info) */
 #define ci_func(ci)		(clLvalue(s2v((ci)->func)))
 
 
@@ -36,28 +36,28 @@
 #endif
 
 
-VIPERI_FUNC int viperG_getfuncline (const Proto *f, int pc);
-VIPERI_FUNC const char *viperG_findlocal (viper_State *L, CallInfo *ci, int n,
+VENOMI_FUNC int venomG_getfuncline (const Proto *f, int pc);
+VENOMI_FUNC const char *venomG_findlocal (venom_State *L, CallInfo *ci, int n,
                                                     StkId *pos);
-VIPERI_FUNC l_noret viperG_typeerror (viper_State *L, const TValue *o,
+VENOMI_FUNC l_noret venomG_typeerror (venom_State *L, const TValue *o,
                                                 const char *opname);
-VIPERI_FUNC l_noret viperG_callerror (viper_State *L, const TValue *o);
-VIPERI_FUNC l_noret viperG_forerror (viper_State *L, const TValue *o,
+VENOMI_FUNC l_noret venomG_callerror (venom_State *L, const TValue *o);
+VENOMI_FUNC l_noret venomG_forerror (venom_State *L, const TValue *o,
                                                const char *what);
-VIPERI_FUNC l_noret viperG_concaterror (viper_State *L, const TValue *p1,
+VENOMI_FUNC l_noret venomG_concaterror (venom_State *L, const TValue *p1,
                                                   const TValue *p2);
-VIPERI_FUNC l_noret viperG_opinterror (viper_State *L, const TValue *p1,
+VENOMI_FUNC l_noret venomG_opinterror (venom_State *L, const TValue *p1,
                                                  const TValue *p2,
                                                  const char *msg);
-VIPERI_FUNC l_noret viperG_tointerror (viper_State *L, const TValue *p1,
+VENOMI_FUNC l_noret venomG_tointerror (venom_State *L, const TValue *p1,
                                                  const TValue *p2);
-VIPERI_FUNC l_noret viperG_ordererror (viper_State *L, const TValue *p1,
+VENOMI_FUNC l_noret venomG_ordererror (venom_State *L, const TValue *p1,
                                                  const TValue *p2);
-VIPERI_FUNC l_noret viperG_runerror (viper_State *L, const char *fmt, ...);
-VIPERI_FUNC const char *viperG_addinfo (viper_State *L, const char *msg,
+VENOMI_FUNC l_noret venomG_runerror (venom_State *L, const char *fmt, ...);
+VENOMI_FUNC const char *venomG_addinfo (venom_State *L, const char *msg,
                                                   TString *src, int line);
-VIPERI_FUNC l_noret viperG_errormsg (viper_State *L);
-VIPERI_FUNC int viperG_traceexec (viper_State *L, const Instruction *pc);
+VENOMI_FUNC l_noret venomG_errormsg (venom_State *L);
+VENOMI_FUNC int venomG_traceexec (venom_State *L, const Instruction *pc);
 
 
 #endif

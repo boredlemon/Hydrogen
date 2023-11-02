@@ -1,11 +1,11 @@
 /*
 ** $Id: mathlib.c $
 ** Standard mathematical library
-** See Copyright Notice in viper.h
+** See Copyright Notice in venom.h
 */
 
 #define mathlib_c
-#define VIPER_LIB
+#define VENOM_LIB
 
 #include "prefix.h"
 
@@ -16,164 +16,164 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "viper.h"
+#include "venom.h"
 
 #include "auxlib.h"
-#include "viperlib.h"
+#include "venomlib.h"
 
 
 #undef PI
 #define PI	(l_mathop(3.141592653589793238462643383279502884))
 
 
-static int math_abs (viper_State *L) {
-  if (viper_isinteger(L, 1)) {
-    viper_Integer n = viper_tointeger(L, 1);
-    if (n < 0) n = (viper_Integer)(0u - (viper_Unsigned)n);
-    viper_pushinteger(L, n);
+static int math_abs (venom_State *L) {
+  if (venom_isinteger(L, 1)) {
+    venom_Integer n = venom_tointeger(L, 1);
+    if (n < 0) n = (venom_Integer)(0u - (venom_Unsigned)n);
+    venom_pushinteger(L, n);
   }
   else
-    viper_pushnumber(L, l_mathop(fabs)(viperL_checknumber(L, 1)));
+    venom_pushnumber(L, l_mathop(fabs)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sin (viper_State *L) {
-  viper_pushnumber(L, l_mathop(sin)(viperL_checknumber(L, 1)));
+static int math_sin (venom_State *L) {
+  venom_pushnumber(L, l_mathop(sin)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_cos (viper_State *L) {
-  viper_pushnumber(L, l_mathop(cos)(viperL_checknumber(L, 1)));
+static int math_cos (venom_State *L) {
+  venom_pushnumber(L, l_mathop(cos)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tan (viper_State *L) {
-  viper_pushnumber(L, l_mathop(tan)(viperL_checknumber(L, 1)));
+static int math_tan (venom_State *L) {
+  venom_pushnumber(L, l_mathop(tan)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_asin (viper_State *L) {
-  viper_pushnumber(L, l_mathop(asin)(viperL_checknumber(L, 1)));
+static int math_asin (venom_State *L) {
+  venom_pushnumber(L, l_mathop(asin)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_acos (viper_State *L) {
-  viper_pushnumber(L, l_mathop(acos)(viperL_checknumber(L, 1)));
+static int math_acos (venom_State *L) {
+  venom_pushnumber(L, l_mathop(acos)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_atan (viper_State *L) {
-  viper_Number y = viperL_checknumber(L, 1);
-  viper_Number x = viperL_optnumber(L, 2, 1);
-  viper_pushnumber(L, l_mathop(atan2)(y, x));
+static int math_atan (venom_State *L) {
+  venom_Number y = venomL_checknumber(L, 1);
+  venom_Number x = venomL_optnumber(L, 2, 1);
+  venom_pushnumber(L, l_mathop(atan2)(y, x));
   return 1;
 }
 
 
-static int math_toint (viper_State *L) {
+static int math_toint (venom_State *L) {
   int valid;
-  viper_Integer n = viper_tointegerx(L, 1, &valid);
+  venom_Integer n = venom_tointegerx(L, 1, &valid);
   if (l_likely(valid))
-    viper_pushinteger(L, n);
+    venom_pushinteger(L, n);
   else {
-    viperL_checkany(L, 1);
-    viperL_pushfail(L);  /* value is not convertible to integer */
+    venomL_checkany(L, 1);
+    venomL_pushfail(L);  /* value is not convertible to integer */
   }
   return 1;
 }
 
 
-static void pushnumint (viper_State *L, viper_Number d) {
-  viper_Integer n;
-  if (viper_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
-    viper_pushinteger(L, n);  /* result is integer */
+static void pushnumint (venom_State *L, venom_Number d) {
+  venom_Integer n;
+  if (venom_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
+    venom_pushinteger(L, n);  /* result is integer */
   else
-    viper_pushnumber(L, d);  /* result is float */
+    venom_pushnumber(L, d);  /* result is float */
 }
 
 
-static int math_floor (viper_State *L) {
-  if (viper_isinteger(L, 1))
-    viper_settop(L, 1);  /* integer is its own floor */
+static int math_floor (venom_State *L) {
+  if (venom_isinteger(L, 1))
+    venom_settop(L, 1);  /* integer is its own floor */
   else {
-    viper_Number d = l_mathop(floor)(viperL_checknumber(L, 1));
+    venom_Number d = l_mathop(floor)(venomL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_ceil (viper_State *L) {
-  if (viper_isinteger(L, 1))
-    viper_settop(L, 1);  /* integer is its own ceil */
+static int math_ceil (venom_State *L) {
+  if (venom_isinteger(L, 1))
+    venom_settop(L, 1);  /* integer is its own ceil */
   else {
-    viper_Number d = l_mathop(ceil)(viperL_checknumber(L, 1));
+    venom_Number d = l_mathop(ceil)(venomL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_fmod (viper_State *L) {
-  if (viper_isinteger(L, 1) && viper_isinteger(L, 2)) {
-    viper_Integer d = viper_tointeger(L, 2);
-    if ((viper_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
-      viperL_argcheck(L, d != 0, 2, "zero");
-      viper_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
+static int math_fmod (venom_State *L) {
+  if (venom_isinteger(L, 1) && venom_isinteger(L, 2)) {
+    venom_Integer d = venom_tointeger(L, 2);
+    if ((venom_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
+      venomL_argcheck(L, d != 0, 2, "zero");
+      venom_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
     }
     else
-      viper_pushinteger(L, viper_tointeger(L, 1) % d);
+      venom_pushinteger(L, venom_tointeger(L, 1) % d);
   }
   else
-    viper_pushnumber(L, l_mathop(fmod)(viperL_checknumber(L, 1),
-                                     viperL_checknumber(L, 2)));
+    venom_pushnumber(L, l_mathop(fmod)(venomL_checknumber(L, 1),
+                                     venomL_checknumber(L, 2)));
   return 1;
 }
 
 
 /*
 ** next function does not use 'modf', avoiding problems with 'double*'
-** (which is not compatible with 'float*') when viper_Number is not
+** (which is not compatible with 'float*') when venom_Number is not
 ** 'double'.
 */
-static int math_modf (viper_State *L) {
-  if (viper_isinteger(L ,1)) {
-    viper_settop(L, 1);  /* number is its own integer part */
-    viper_pushnumber(L, 0);  /* no fractional part */
+static int math_modf (venom_State *L) {
+  if (venom_isinteger(L ,1)) {
+    venom_settop(L, 1);  /* number is its own integer part */
+    venom_pushnumber(L, 0);  /* no fractional part */
   }
   else {
-    viper_Number n = viperL_checknumber(L, 1);
+    venom_Number n = venomL_checknumber(L, 1);
     /* integer part (rounds toward zero) */
-    viper_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
+    venom_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
     pushnumint(L, ip);
     /* fractional part (test needed for inf/-inf) */
-    viper_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
+    venom_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
   }
   return 2;
 }
 
 
-static int math_sqrt (viper_State *L) {
-  viper_pushnumber(L, l_mathop(sqrt)(viperL_checknumber(L, 1)));
+static int math_sqrt (venom_State *L) {
+  venom_pushnumber(L, l_mathop(sqrt)(venomL_checknumber(L, 1)));
   return 1;
 }
 
 
-static int math_ult (viper_State *L) {
-  viper_Integer a = viperL_checkinteger(L, 1);
-  viper_Integer b = viperL_checkinteger(L, 2);
-  viper_pushboolean(L, (viper_Unsigned)a < (viper_Unsigned)b);
+static int math_ult (venom_State *L) {
+  venom_Integer a = venomL_checkinteger(L, 1);
+  venom_Integer b = venomL_checkinteger(L, 2);
+  venom_pushboolean(L, (venom_Unsigned)a < (venom_Unsigned)b);
   return 1;
 }
 
-static int math_log (viper_State *L) {
-  viper_Number x = viperL_checknumber(L, 1);
-  viper_Number res;
-  if (viper_isnoneornil(L, 2))
+static int math_log (venom_State *L) {
+  venom_Number x = venomL_checknumber(L, 1);
+  venom_Number res;
+  if (venom_isnoneornil(L, 2))
     res = l_mathop(log)(x);
   else {
-    viper_Number base = viperL_checknumber(L, 2);
-#if !defined(VIPER_USE_C89)
+    venom_Number base = venomL_checknumber(L, 2);
+#if !defined(VENOM_USE_C89)
     if (base == l_mathop(2.0))
       res = l_mathop(log2)(x);
     else
@@ -183,60 +183,60 @@ static int math_log (viper_State *L) {
     else
       res = l_mathop(log)(x)/l_mathop(log)(base);
   }
-  viper_pushnumber(L, res);
+  venom_pushnumber(L, res);
   return 1;
 }
 
-static int math_exp (viper_State *L) {
-  viper_pushnumber(L, l_mathop(exp)(viperL_checknumber(L, 1)));
+static int math_exp (venom_State *L) {
+  venom_pushnumber(L, l_mathop(exp)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_deg (viper_State *L) {
-  viper_pushnumber(L, viperL_checknumber(L, 1) * (l_mathop(180.0) / PI));
+static int math_deg (venom_State *L) {
+  venom_pushnumber(L, venomL_checknumber(L, 1) * (l_mathop(180.0) / PI));
   return 1;
 }
 
-static int math_rad (viper_State *L) {
-  viper_pushnumber(L, viperL_checknumber(L, 1) * (PI / l_mathop(180.0)));
+static int math_rad (venom_State *L) {
+  venom_pushnumber(L, venomL_checknumber(L, 1) * (PI / l_mathop(180.0)));
   return 1;
 }
 
 
-static int math_min (viper_State *L) {
-  int n = viper_gettop(L);  /* number of arguments */
+static int math_min (venom_State *L) {
+  int n = venom_gettop(L);  /* number of arguments */
   int imin = 1;  /* index of current minimum value */
   int i;
-  viperL_argcheck(L, n >= 1, 1, "value expected");
+  venomL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (viper_compare(L, i, imin, VIPER_OPLT))
+    if (venom_compare(L, i, imin, VENOM_OPLT))
       imin = i;
   }
-  viper_pushvalue(L, imin);
+  venom_pushvalue(L, imin);
   return 1;
 }
 
 
-static int math_max (viper_State *L) {
-  int n = viper_gettop(L);  /* number of arguments */
+static int math_max (venom_State *L) {
+  int n = venom_gettop(L);  /* number of arguments */
   int imax = 1;  /* index of current maximum value */
   int i;
-  viperL_argcheck(L, n >= 1, 1, "value expected");
+  venomL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (viper_compare(L, imax, i, VIPER_OPLT))
+    if (venom_compare(L, imax, i, VENOM_OPLT))
       imax = i;
   }
-  viper_pushvalue(L, imax);
+  venom_pushvalue(L, imax);
   return 1;
 }
 
 
-static int math_type (viper_State *L) {
-  if (viper_type(L, 1) == VIPER_TNUMBER)
-    viper_pushstring(L, (viper_isinteger(L, 1)) ? "integer" : "float");
+static int math_type (venom_State *L) {
+  if (venom_type(L, 1) == VENOM_TNUMBER)
+    venom_pushstring(L, (venom_isinteger(L, 1)) ? "integer" : "float");
   else {
-    viperL_checkany(L, 1);
-    viperL_pushfail(L);
+    venomL_checkany(L, 1);
+    venomL_pushfail(L);
   }
   return 1;
 }
@@ -260,10 +260,10 @@ static int math_type (viper_State *L) {
 
 
 /*
-** VIPER_RAND32 forces the use of 32-bit integers in the implementation
+** VENOM_RAND32 forces the use of 32-bit integers in the implementation
 ** of the PRN generator (mainly for testing).
 */
-#if !defined(VIPER_RAND32) && !defined(Rand64)
+#if !defined(VENOM_RAND32) && !defined(Rand64)
 
 /* try to find an integer type with at least 64 bits */
 
@@ -272,15 +272,15 @@ static int math_type (viper_State *L) {
 /* 'long' has at least 64 bits */
 #define Rand64		unsigned long
 
-#elif !defined(VIPER_USE_C89) && defined(LLONG_MAX)
+#elif !defined(VENOM_USE_C89) && defined(LLONG_MAX)
 
 /* there is a 'long long' type (which must have at least 64 bits) */
 #define Rand64		unsigned long long
 
-#elif (VIPER_MAXUNSIGNED >> 31 >> 31) >= 3
+#elif (VENOM_MAXUNSIGNED >> 31 >> 31) >= 3
 
-/* 'viper_Integer' has at least 64 bits */
-#define Rand64		viper_Unsigned
+/* 'venom_Integer' has at least 64 bits */
+#define Rand64		venom_Unsigned
 
 #endif
 
@@ -334,21 +334,21 @@ static Rand64 nextrand (Rand64 *state) {
 /* to scale to [0, 1), multiply by scaleFIG = 2^(-FIGS) */
 #define scaleFIG	(l_mathop(0.5) / ((Rand64)1 << (FIGS - 1)))
 
-static viper_Number I2d (Rand64 x) {
-  return (viper_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
+static venom_Number I2d (Rand64 x) {
+  return (venom_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
 }
 
-/* convert a 'Rand64' to a 'viper_Unsigned' */
-#define I2UInt(x)	((viper_Unsigned)trim64(x))
+/* convert a 'Rand64' to a 'venom_Unsigned' */
+#define I2UInt(x)	((venom_Unsigned)trim64(x))
 
-/* convert a 'viper_Unsigned' to a 'Rand64' */
+/* convert a 'venom_Unsigned' to a 'Rand64' */
 #define Int2I(x)	((Rand64)(x))
 
 
 #else	/* no 'Rand64'   }{ */
 
 /* get an integer with at least 32 bits */
-#if VIPERI_IS32INT
+#if VENOMI_IS32INT
 typedef unsigned int lu_int32;
 #else
 typedef unsigned long lu_int32;
@@ -388,7 +388,7 @@ static Rand64 packI (lu_int32 h, lu_int32 l) {
 
 /* return i << n */
 static Rand64 Ishl (Rand64 i, int n) {
-  viper_assert(n > 0 && n < 32);
+  venom_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)), i.l << n);
 }
 
@@ -418,21 +418,21 @@ static Rand64 times9 (Rand64 i) {
 
 /* return 'i' rotated left 'n' bits */
 static Rand64 rotl (Rand64 i, int n) {
-  viper_assert(n > 0 && n < 32);
+  venom_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)),
                (trim32(i.h) >> (32 - n)) | (i.l << n));
 }
 
 /* for offsets larger than 32, rotate right by 64 - offset */
 static Rand64 rotl1 (Rand64 i, int n) {
-  viper_assert(n > 32 && n < 64);
+  venom_assert(n > 32 && n < 64);
   n = 64 - n;
   return packI((trim32(i.h) >> n) | (i.l << (32 - n)),
                (i.h << (32 - n)) | (trim32(i.l) >> n));
 }
 
 /*
-** implementation of 'xoshiro256**' alViperrithm on 'Rand64' values
+** implementation of 'xoshiro256**' alVenomrithm on 'Rand64' values
 */
 static Rand64 nextrand (Rand64 *state) {
   Rand64 res = times9(rotl(times5(state[1]), 7));
@@ -464,8 +464,8 @@ static Rand64 nextrand (Rand64 *state) {
 ** get up to 32 bits from higher half, shifting right to
 ** throw out the extra bits.
 */
-static viper_Number I2d (Rand64 x) {
-  viper_Number h = (viper_Number)(trim32(x.h) >> (32 - FIGS));
+static venom_Number I2d (Rand64 x) {
+  venom_Number h = (venom_Number)(trim32(x.h) >> (32 - FIGS));
   return h * scaleFIG;
 }
 
@@ -484,27 +484,27 @@ static viper_Number I2d (Rand64 x) {
 #define shiftLOW	(64 - FIGS)
 
 /*
-** higher 32 bits Viper after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
+** higher 32 bits Venom after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
 */
-#define shiftHI		((viper_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
+#define shiftHI		((venom_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
 
 
-static viper_Number I2d (Rand64 x) {
-  viper_Number h = (viper_Number)trim32(x.h) * shiftHI;
-  viper_Number l = (viper_Number)(trim32(x.l) >> shiftLOW);
+static venom_Number I2d (Rand64 x) {
+  venom_Number h = (venom_Number)trim32(x.h) * shiftHI;
+  venom_Number l = (venom_Number)(trim32(x.l) >> shiftLOW);
   return (h + l) * scaleFIG;
 }
 
 #endif
 
 
-/* convert a 'Rand64' to a 'viper_Unsigned' */
-static viper_Unsigned I2UInt (Rand64 x) {
-  return ((viper_Unsigned)trim32(x.h) << 31 << 1) | (viper_Unsigned)trim32(x.l);
+/* convert a 'Rand64' to a 'venom_Unsigned' */
+static venom_Unsigned I2UInt (Rand64 x) {
+  return ((venom_Unsigned)trim32(x.h) << 31 << 1) | (venom_Unsigned)trim32(x.l);
 }
 
-/* convert a 'viper_Unsigned' to a 'Rand64' */
-static Rand64 Int2I (viper_Unsigned n) {
+/* convert a 'venom_Unsigned' to a 'Rand64' */
+static Rand64 Int2I (venom_Unsigned n) {
   return packI((lu_int32)(n >> 31 >> 1), (lu_int32)n);
 }
 
@@ -529,22 +529,22 @@ typedef struct {
 ** is inside [0, n], we are done. Otherwise, we try with another 'ran',
 ** until we have a result inside the interval.
 */
-static viper_Unsigned project (viper_Unsigned ran, viper_Unsigned n,
+static venom_Unsigned project (venom_Unsigned ran, venom_Unsigned n,
                              RanState *state) {
   if ((n & (n + 1)) == 0)  /* is 'n + 1' a power of 2? */
     return ran & n;  /* no bias */
   else {
-    viper_Unsigned lim = n;
+    venom_Unsigned lim = n;
     /* compute the smallest (2^b - 1) not smaller than 'n' */
     lim |= (lim >> 1);
     lim |= (lim >> 2);
     lim |= (lim >> 4);
     lim |= (lim >> 8);
     lim |= (lim >> 16);
-#if (VIPER_MAXUNSIGNED >> 31) >= 3
+#if (VENOM_MAXUNSIGNED >> 31) >= 3
     lim |= (lim >> 32);  /* integer type has more than 32 bits */
 #endif
-    viper_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
+    venom_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
       && lim >= n  /* not smaller than 'n', */
       && (lim >> 1) < n);  /* and it is the smallest one */
     while ((ran &= lim) > n)  /* project 'ran' into [0..lim] */
@@ -554,43 +554,43 @@ static viper_Unsigned project (viper_Unsigned ran, viper_Unsigned n,
 }
 
 
-static int math_random (viper_State *L) {
-  viper_Integer low, up;
-  viper_Unsigned p;
-  RanState *state = (RanState *)viper_touserdata(L, viper_upvalueindex(1));
+static int math_random (venom_State *L) {
+  venom_Integer low, up;
+  venom_Unsigned p;
+  RanState *state = (RanState *)venom_touserdata(L, venom_upvalueindex(1));
   Rand64 rv = nextrand(state->s);  /* next pseudo-random value */
-  switch (viper_gettop(L)) {  /* check number of arguments */
+  switch (venom_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
-      viper_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
+      venom_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
       return 1;
     }
     case 1: {  /* only upper limit */
       low = 1;
-      up = viperL_checkinteger(L, 1);
+      up = venomL_checkinteger(L, 1);
       if (up == 0) {  /* single 0 as argument? */
-        viper_pushinteger(L, I2UInt(rv));  /* full random integer */
+        venom_pushinteger(L, I2UInt(rv));  /* full random integer */
         return 1;
       }
       break;
     }
     case 2: {  /* lower and upper limits */
-      low = viperL_checkinteger(L, 1);
-      up = viperL_checkinteger(L, 2);
+      low = venomL_checkinteger(L, 1);
+      up = venomL_checkinteger(L, 2);
       break;
     }
-    default: return viperL_error(L, "wrong number of arguments");
+    default: return venomL_error(L, "wrong number of arguments");
   }
   /* random integer in the interval [low, up] */
-  viperL_argcheck(L, low <= up, 1, "interval is empty");
+  venomL_argcheck(L, low <= up, 1, "interval is empty");
   /* project random integer into the interval [0, up - low] */
-  p = project(I2UInt(rv), (viper_Unsigned)up - (viper_Unsigned)low, state);
-  viper_pushinteger(L, p + (viper_Unsigned)low);
+  p = project(I2UInt(rv), (venom_Unsigned)up - (venom_Unsigned)low, state);
+  venom_pushinteger(L, p + (venom_Unsigned)low);
   return 1;
 }
 
 
-static void setseed (viper_State *L, Rand64 *state,
-                     viper_Unsigned n1, viper_Unsigned n2) {
+static void setseed (venom_State *L, Rand64 *state,
+                     venom_Unsigned n1, venom_Unsigned n2) {
   int i;
   state[0] = Int2I(n1);
   state[1] = Int2I(0xff);  /* avoid a zero state */
@@ -598,8 +598,8 @@ static void setseed (viper_State *L, Rand64 *state,
   state[3] = Int2I(0);
   for (i = 0; i < 16; i++)
     nextrand(state);  /* discard initial values to "spread" seed */
-  viper_pushinteger(L, n1);
-  viper_pushinteger(L, n2);
+  venom_pushinteger(L, n1);
+  venom_pushinteger(L, n2);
 }
 
 
@@ -608,28 +608,28 @@ static void setseed (viper_State *L, Rand64 *state,
 ** and the address of 'L' (in case the machine does address space layout
 ** randomization).
 */
-static void randseed (viper_State *L, RanState *state) {
-  viper_Unsigned seed1 = (viper_Unsigned)time(NULL);
-  viper_Unsigned seed2 = (viper_Unsigned)(size_t)L;
+static void randseed (venom_State *L, RanState *state) {
+  venom_Unsigned seed1 = (venom_Unsigned)time(NULL);
+  venom_Unsigned seed2 = (venom_Unsigned)(size_t)L;
   setseed(L, state->s, seed1, seed2);
 }
 
 
-static int math_randomseed (viper_State *L) {
-  RanState *state = (RanState *)viper_touserdata(L, viper_upvalueindex(1));
-  if (viper_isnone(L, 1)) {
+static int math_randomseed (venom_State *L) {
+  RanState *state = (RanState *)venom_touserdata(L, venom_upvalueindex(1));
+  if (venom_isnone(L, 1)) {
     randseed(L, state);
   }
   else {
-    viper_Integer n1 = viperL_checkinteger(L, 1);
-    viper_Integer n2 = viperL_optinteger(L, 2, 0);
+    venom_Integer n1 = venomL_checkinteger(L, 1);
+    venom_Integer n2 = venomL_optinteger(L, 2, 0);
     setseed(L, state->s, n1, n2);
   }
   return 2;  /* return seeds */
 }
 
 
-static const viperL_Reg randfuncs[] = {
+static const venomL_Reg randfuncs[] = {
   {"random", math_random},
   {"randomseed", math_randomseed},
   {NULL, NULL}
@@ -639,11 +639,11 @@ static const viperL_Reg randfuncs[] = {
 /*
 ** Register the random functions and initialize their state.
 */
-static void setrandfunc (viper_State *L) {
-  RanState *state = (RanState *)viper_newuserdatauv(L, sizeof(RanState), 0);
+static void setrandfunc (venom_State *L) {
+  RanState *state = (RanState *)venom_newuserdatauv(L, sizeof(RanState), 0);
   randseed(L, state);  /* initialize with a "random" seed */
-  viper_pop(L, 2);  /* remove pushed seeds */
-  viperL_setfuncs(L, randfuncs, 1);
+  venom_pop(L, 2);  /* remove pushed seeds */
+  venomL_setfuncs(L, randfuncs, 1);
 }
 
 /* }================================================================== */
@@ -654,46 +654,46 @@ static void setrandfunc (viper_State *L) {
 ** Deprecated functions (for compatibility only)
 ** ===================================================================
 */
-#if defined(VIPER_COMPAT_MATHLIB)
+#if defined(VENOM_COMPAT_MATHLIB)
 
-static int math_cosh (viper_State *L) {
-  viper_pushnumber(L, l_mathop(cosh)(viperL_checknumber(L, 1)));
+static int math_cosh (venom_State *L) {
+  venom_pushnumber(L, l_mathop(cosh)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sinh (viper_State *L) {
-  viper_pushnumber(L, l_mathop(sinh)(viperL_checknumber(L, 1)));
+static int math_sinh (venom_State *L) {
+  venom_pushnumber(L, l_mathop(sinh)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tanh (viper_State *L) {
-  viper_pushnumber(L, l_mathop(tanh)(viperL_checknumber(L, 1)));
+static int math_tanh (venom_State *L) {
+  venom_pushnumber(L, l_mathop(tanh)(venomL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_pow (viper_State *L) {
-  viper_Number x = viperL_checknumber(L, 1);
-  viper_Number y = viperL_checknumber(L, 2);
-  viper_pushnumber(L, l_mathop(pow)(x, y));
+static int math_pow (venom_State *L) {
+  venom_Number x = venomL_checknumber(L, 1);
+  venom_Number y = venomL_checknumber(L, 2);
+  venom_pushnumber(L, l_mathop(pow)(x, y));
   return 1;
 }
 
-static int math_frexp (viper_State *L) {
+static int math_frexp (venom_State *L) {
   int e;
-  viper_pushnumber(L, l_mathop(frexp)(viperL_checknumber(L, 1), &e));
-  viper_pushinteger(L, e);
+  venom_pushnumber(L, l_mathop(frexp)(venomL_checknumber(L, 1), &e));
+  venom_pushinteger(L, e);
   return 2;
 }
 
-static int math_ldexp (viper_State *L) {
-  viper_Number x = viperL_checknumber(L, 1);
-  int ep = (int)viperL_checkinteger(L, 2);
-  viper_pushnumber(L, l_mathop(ldexp)(x, ep));
+static int math_ldexp (venom_State *L) {
+  venom_Number x = venomL_checknumber(L, 1);
+  int ep = (int)venomL_checkinteger(L, 2);
+  venom_pushnumber(L, l_mathop(ldexp)(x, ep));
   return 1;
 }
 
-static int math_log10 (viper_State *L) {
-  viper_pushnumber(L, l_mathop(log10)(viperL_checknumber(L, 1)));
+static int math_log10 (venom_State *L) {
+  venom_pushnumber(L, l_mathop(log10)(venomL_checknumber(L, 1)));
   return 1;
 }
 
@@ -702,7 +702,7 @@ static int math_log10 (viper_State *L) {
 
 
 
-static const viperL_Reg mathlib[] = {
+static const venomL_Reg mathlib[] = {
   {"abs",   math_abs},
   {"acos",  math_acos},
   {"asin",  math_asin},
@@ -724,7 +724,7 @@ static const viperL_Reg mathlib[] = {
   {"sqrt",  math_sqrt},
   {"tan",   math_tan},
   {"type", math_type},
-#if defined(VIPER_COMPAT_MATHLIB)
+#if defined(VENOM_COMPAT_MATHLIB)
   {"atan2", math_atan},
   {"cosh",   math_cosh},
   {"sinh",   math_sinh},
@@ -748,16 +748,16 @@ static const viperL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-VIPERMOD_API int viperopen_math (viper_State *L) {
-  viperL_newlib(L, mathlib);
-  viper_pushnumber(L, PI);
-  viper_setfield(L, -2, "pi");
-  viper_pushnumber(L, (viper_Number)HUGE_VAL);
-  viper_setfield(L, -2, "huge");
-  viper_pushinteger(L, VIPER_MAXINTEGER);
-  viper_setfield(L, -2, "maxinteger");
-  viper_pushinteger(L, VIPER_MININTEGER);
-  viper_setfield(L, -2, "mininteger");
+VENOMMOD_API int venomopen_math (venom_State *L) {
+  venomL_newlib(L, mathlib);
+  venom_pushnumber(L, PI);
+  venom_setfield(L, -2, "pi");
+  venom_pushnumber(L, (venom_Number)HUGE_VAL);
+  venom_setfield(L, -2, "huge");
+  venom_pushinteger(L, VENOM_MAXINTEGER);
+  venom_setfield(L, -2, "maxinteger");
+  venom_pushinteger(L, VENOM_MININTEGER);
+  venom_setfield(L, -2, "mininteger");
   setrandfunc(L);
   return 1;
 }
