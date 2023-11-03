@@ -1,11 +1,11 @@
 /*
-** $Id: venomc.c $
-** Venom compiler (saves bytecodes to files; also lists bytecodes)
-** See Copyright Notice in venom.h
+** $Id: nebulac.c $
+** Nebula compiler (saves bytecodes to files; also lists bytecodes)
+** See Copyright Notice in nebula.h
 */
 
-#define venomc_c
-#define VENOM_CORE
+#define nebulac_c
+#define NEBULA_CORE
 
 #include "prefix.h"
 
@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "venom.h"
+#include "nebula.h"
 #include "auxlib.h"
 
 #include "debug.h"
@@ -26,9 +26,9 @@
 #include "undump.h"
 
 static void PrintFunction(const Proto* f, int full);
-#define venomU_print	PrintFunction
+#define nebulaU_print	PrintFunction
 
-#define PROGNAME	"venomc"		/* default program name */
+#define PROGNAME	"nebulac"		/* default program name */
 #define OUTPUT		PROGNAME ".out"	/* default output file */
 
 static int listing=0;			/* list bytecodes? */
@@ -86,7 +86,7 @@ static void usage(const char* message)
   "  -v       show version information\n"
   "  --       stop handling options\n"
   "  -        stop handling options and process stdin\n"
-  "The Venom is coming for you... it bytes\n"
+  "The Nebula is coming for you... it bytes\n"
   ,progname,Output);
  exit(EXIT_FAILURE);
 }
@@ -135,7 +135,7 @@ static int doargs(int argc, char* argv[])
  }
  if (version)
  {
-  printf("%s\n",VENOM_COPYRIGHT);
+  printf("%s\n",NEBULA_COPYRIGHT);
   if (version==argc-1) exit(EXIT_SUCCESS);
  }
  return i;
@@ -143,7 +143,7 @@ static int doargs(int argc, char* argv[])
 
 #define FUNCTION "(function()end)();"
 
-static const char* reader(venom_State* L, void* ud, size_t* size)
+static const char* reader(nebula_State* L, void* ud, size_t* size)
 {
  UNUSED(L);
  if ((*(int*)ud)--)
@@ -160,7 +160,7 @@ static const char* reader(venom_State* L, void* ud, size_t* size)
 
 #define toproto(L,i) getproto(s2v(L->top+(i)))
 
-static const Proto* combine(venom_State* L, int n)
+static const Proto* combine(nebula_State* L, int n)
 {
  if (n==1)
   return toproto(L,-1);
@@ -168,47 +168,47 @@ static const Proto* combine(venom_State* L, int n)
  {
   Proto* f;
   int i=n;
-  if (venom_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=VENOM_OK) fatal(venom_tostring(L,-1));
+  if (nebula_load(L,reader,&i,"=(" PROGNAME ")",NULL)!=NEBULA_OK) fatal(nebula_tostring(L,-1));
   f=toproto(L,-1);
   for (i=0; i<n; i++)
   {
    f->p[i]=toproto(L,i-n-1);
    if (f->p[i]->sizeupvalues>0) f->p[i]->upvalues[0].instack=0;
   }
-  venomM_freearray(L,f->lineinfo,f->sizelineinfo);
+  nebulaM_freearray(L,f->lineinfo,f->sizelineinfo);
   f->sizelineinfo=0;
   return f;
  }
 }
 
-static int writer(venom_State* L, const void* p, size_t size, void* u)
+static int writer(nebula_State* L, const void* p, size_t size, void* u)
 {
  UNUSED(L);
  return (fwrite(p,size,1,(FILE*)u)!=1) && (size!=0);
 }
 
-static int pmain(venom_State* L)
+static int pmain(nebula_State* L)
 {
- int argc=(int)venom_tointeger(L,1);
- char** argv=(char**)venom_touserdata(L,2);
+ int argc=(int)nebula_tointeger(L,1);
+ char** argv=(char**)nebula_touserdata(L,2);
  const Proto* f;
  int i;
  tmname=G(L)->tmname;
- if (!venom_checkstack(L,argc)) fatal("too many input files");
+ if (!nebula_checkstack(L,argc)) fatal("too many input files");
  for (i=0; i<argc; i++)
  {
   const char* filename=IS("-") ? NULL : argv[i];
-  if (venomL_loadfile(L,filename)!=VENOM_OK) fatal(venom_tostring(L,-1));
+  if (nebulaL_loadfile(L,filename)!=NEBULA_OK) fatal(nebula_tostring(L,-1));
  }
  f=combine(L,argc);
- if (listing) venomU_print(f,listing>1);
+ if (listing) nebulaU_print(f,listing>1);
  if (dumping)
  {
   FILE* D= (output==NULL) ? stdout : fopen(output,"wb");
   if (D==NULL) cannot("open");
-  venom_lock(L);
-  venomU_dump(L,f,writer,D,stripping);
-  venom_unlock(L);
+  nebula_lock(L);
+  nebulaU_dump(L,f,writer,D,stripping);
+  nebula_unlock(L);
   if (ferror(D)) cannot("write");
   if (fclose(D)) cannot("close");
  }
@@ -217,17 +217,17 @@ static int pmain(venom_State* L)
 
 int main(int argc, char* argv[])
 {
- venom_State* L;
+ nebula_State* L;
  int i=doargs(argc,argv);
  argc-=i; argv+=i;
  if (argc<=0) usage("no input files given");
- L=venomL_newstate();
+ L=nebulaL_newstate();
  if (L==NULL) fatal("cannot create state: not enough memory");
- venom_pushcfunction(L,&pmain);
- venom_pushinteger(L,argc);
- venom_pushlightuserdata(L,argv);
- if (venom_pcall(L,2,0,0)!=VENOM_OK) fatal(venom_tostring(L,-1));
- venom_close(L);
+ nebula_pushcfunction(L,&pmain);
+ nebula_pushinteger(L,argc);
+ nebula_pushlightuserdata(L,argv);
+ if (nebula_pcall(L,2,0,0)!=NEBULA_OK) fatal(nebula_tostring(L,-1));
+ nebula_close(L);
  return EXIT_SUCCESS;
 }
 
@@ -289,21 +289,21 @@ static void PrintType(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case VENOM_VNIL:
+  case NEBULA_VNIL:
 	printf("N");
 	break;
-  case VENOM_VFALSE:
-  case VENOM_VTRUE:
+  case NEBULA_VFALSE:
+  case NEBULA_VTRUE:
 	printf("B");
 	break;
-  case VENOM_VNUMFLT:
+  case NEBULA_VNUMFLT:
 	printf("F");
 	break;
-  case VENOM_VNUMINT:
+  case NEBULA_VNUMINT:
 	printf("I");
 	break;
-  case VENOM_VSHRSTR:
-  case VENOM_VLNGSTR:
+  case NEBULA_VSHRSTR:
+  case NEBULA_VLNGSTR:
 	printf("S");
 	break;
   default:				/* cannot happen */
@@ -318,28 +318,28 @@ static void PrintConstant(const Proto* f, int i)
  const TValue* o=&f->k[i];
  switch (ttypetag(o))
  {
-  case VENOM_VNIL:
+  case NEBULA_VNIL:
 	printf("nil");
 	break;
-  case VENOM_VFALSE:
+  case NEBULA_VFALSE:
 	printf("false");
 	break;
-  case VENOM_VTRUE:
+  case NEBULA_VTRUE:
 	printf("true");
 	break;
-  case VENOM_VNUMFLT:
+  case NEBULA_VNUMFLT:
 	{
 	char buff[100];
-	sprintf(buff,VENOM_NUMBER_FMT,fltvalue(o));
+	sprintf(buff,NEBULA_NUMBER_FMT,fltvalue(o));
 	printf("%s",buff);
 	if (buff[strspn(buff,"-0123456789")]=='\0') printf(".0");
 	break;
 	}
-  case VENOM_VNUMINT:
-	printf(VENOM_INTEGER_FMT,ivalue(o));
+  case NEBULA_VNUMINT:
+	printf(NEBULA_INTEGER_FMT,ivalue(o));
 	break;
-  case VENOM_VSHRSTR:
-  case VENOM_VLNGSTR:
+  case NEBULA_VSHRSTR:
+  case NEBULA_VLNGSTR:
 	PrintString(tsvalue(o));
 	break;
   default:				/* cannot happen */
@@ -370,7 +370,7 @@ static void PrintCode(const Proto* f)
   int sc=GETARG_sC(i);
   int sbx=GETARG_sBx(i);
   int isk=GETARG_k(i);
-  int line=venomG_getfuncline(f,pc);
+  int line=nebulaG_getfuncline(f,pc);
   printf("\t%d\t",pc+1);
   if (line>0) printf("[%d]\t",line); else printf("[-]\t");
   printf("%-9s\t",opnames[o]);
@@ -692,7 +692,7 @@ static void PrintHeader(const Proto* f)
  const char* s=f->source ? getstr(f->source) : "=?";
  if (*s=='@' || *s=='=')
   s++;
- else if (*s==VENOM_SIGNATURE[0])
+ else if (*s==NEBULA_SIGNATURE[0])
   s="(bstring)";
  else
   s="(string)";

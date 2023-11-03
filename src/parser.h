@@ -1,7 +1,7 @@
 /*
 ** $Id: parser.h $
-** Venom Parser
-** See Copyright Notice in venom.h
+** Nebula Parser
+** See Copyright Notice in nebula.h
 */
 
 #ifndef parser_h
@@ -68,8 +68,8 @@ typedef enum {
 typedef struct expdesc {
   expkind k;
   union {
-    venom_Integer ival;    /* for VKINT */
-    venom_Number nval;  /* for VKFLT */
+    nebula_Integer ival;    /* for VKINT */
+    nebula_Number nval;  /* for VKFLT */
     TString *strval;  /* for VKSTR */
     int info;  /* for generic use */
     struct {  /* for indexed variables */
@@ -163,8 +163,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-VENOMI_FUNC int venomY_nvarstack (FuncState *fs);
-VENOMI_FUNC LClosure *venomY_parser (venom_State *L, ZIO *z, Mbuffer *buff,
+NEBULAI_FUNC int nebulaY_nvarstack (FuncState *fs);
+NEBULAI_FUNC LClosure *nebulaY_parser (nebula_State *L, ZIO *z, Mbuffer *buff,
                                  Dyndata *dyd, const char *name, int firstchar);
 
 

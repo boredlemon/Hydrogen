@@ -1,7 +1,7 @@
 /*
 ** $Id: limits.h $
 ** Limits, basic types, and some other 'installation-dependent' definitions
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #ifndef limits_h
@@ -12,18 +12,18 @@
 #include <stddef.h>
 
 
-#include "venom.h"
+#include "nebula.h"
 
 
 /*
 ** 'lu_mem' and 'l_mem' are unsigned/signed integers big enough to count
-** the total memory used by Venom (in bytes). Usually, 'size_t' and
+** the total memory used by Nebula (in bytes). Usually, 'size_t' and
 ** 'ptrdiff_t' should work, but we use 'long' for 16-bit machines.
 */
-#if defined(VENOMI_MEM)		/* { external definitions? */
-typedef VENOMI_UMEM lu_mem;
-typedef VENOMI_MEM l_mem;
-#elif VENOMI_IS32INT	/* }{ */
+#if defined(NEBULAI_MEM)		/* { external definitions? */
+typedef NEBULAI_UMEM lu_mem;
+typedef NEBULAI_MEM l_mem;
+#elif NEBULAI_IS32INT	/* }{ */
 typedef size_t lu_mem;
 typedef ptrdiff_t l_mem;
 #else  /* 16-bit ints */	/* }{ */
@@ -40,9 +40,9 @@ typedef signed char ls_byte;
 /* maximum value for size_t */
 #define MAX_SIZET	((size_t)(~(size_t)0))
 
-/* maximum size visible for Venom (must be representable in a venom_Integer) */
-#define MAX_SIZE	(sizeof(size_t) < sizeof(venom_Integer) ? MAX_SIZET \
-                          : (size_t)(VENOM_MAXINTEGER))
+/* maximum size visible for Nebula (must be representable in a nebula_Integer) */
+#define MAX_SIZE	(sizeof(size_t) < sizeof(nebula_Integer) ? MAX_SIZET \
+                          : (size_t)(NEBULA_MAXINTEGER))
 
 
 #define MAX_LUMEM	((lu_mem)(~(lu_mem)0))
@@ -79,38 +79,38 @@ typedef signed char ls_byte;
 
 
 
-/* types of 'usual argument conversions' for venom_Number and venom_Integer */
-typedef VENOMI_UACNUMBER l_uacNumber;
-typedef VENOMI_UACINT l_uacInt;
+/* types of 'usual argument conversions' for nebula_Number and nebula_Integer */
+typedef NEBULAI_UACNUMBER l_uacNumber;
+typedef NEBULAI_UACINT l_uacInt;
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if defined VENOMI_ASSERT
+#if defined NEBULAI_ASSERT
 #undef NDEBUG
 #include <assert.h>
-#define venom_assert(c)           assert(c)
+#define nebula_assert(c)           assert(c)
 #endif
 
-#if defined(venom_assert)
-#define check_exp(c,e)		(venom_assert(c), (e))
+#if defined(nebula_assert)
+#define check_exp(c,e)		(nebula_assert(c), (e))
 /* to avoid problems with conditions too long */
-#define venom_longassert(c)	((c) ? (void)0 : venom_assert(0))
+#define nebula_longassert(c)	((c) ? (void)0 : nebula_assert(0))
 #else
-#define venom_assert(c)		((void)0)
+#define nebula_assert(c)		((void)0)
 #define check_exp(c,e)		(e)
-#define venom_longassert(c)	((void)0)
+#define nebula_longassert(c)	((void)0)
 #endif
 
 /*
 ** assertion for checking API calls
 */
-#if !defined(venomi_apicheck)
-#define venomi_apicheck(l,e)	((void)l, venom_assert(e))
+#if !defined(nebulai_apicheck)
+#define nebulai_apicheck(l,e)	((void)l, nebula_assert(e))
 #endif
 
-#define api_check(l,e,msg)	venomi_apicheck(l,(e) && msg)
+#define api_check(l,e,msg)	nebulai_apicheck(l,(e) && msg)
 
 
 /* macro to avoid warnings about unused variables */
@@ -124,7 +124,7 @@ typedef VENOMI_UACINT l_uacInt;
 
 #define cast_void(i)	cast(void, (i))
 #define cast_voidp(i)	cast(void *, (i))
-#define cast_num(i)	cast(venom_Number, (i))
+#define cast_num(i)	cast(nebula_Number, (i))
 #define cast_int(i)	cast(int, (i))
 #define cast_uint(i)	cast(unsigned int, (i))
 #define cast_byte(i)	cast(lu_byte, (i))
@@ -134,18 +134,18 @@ typedef VENOMI_UACINT l_uacInt;
 #define cast_sizet(i)	cast(size_t, (i))
 
 
-/* cast a signed venom_Integer to venom_Unsigned */
+/* cast a signed nebula_Integer to nebula_Unsigned */
 #if !defined(l_castS2U)
-#define l_castS2U(i)	((venom_Unsigned)(i))
+#define l_castS2U(i)	((nebula_Unsigned)(i))
 #endif
 
 /*
-** cast a venom_Unsigned to a signed venom_Integer; this cast is
+** cast a nebula_Unsigned to a signed nebula_Integer; this cast is
 ** not strict ISO C, but two-complement architectures should
 ** work fine.
 */
 #if !defined(l_castU2S)
-#define l_castU2S(i)	((venom_Integer)(i))
+#define l_castU2S(i)	((nebula_Integer)(i))
 #endif
 
 
@@ -168,7 +168,7 @@ typedef VENOMI_UACINT l_uacInt;
 /*
 ** Inline functions
 */
-#if !defined(VENOM_USE_C89)
+#if !defined(NEBULA_USE_C89)
 #define l_inline	inline
 #elif defined(__GNUC__)
 #define l_inline	__inline__
@@ -183,7 +183,7 @@ typedef VENOMI_UACINT l_uacInt;
 ** type for virtual-machine instructions;
 ** must be an unsigned with (at least) 4 bytes (see details in opcodes.h)
 */
-#if VENOMI_IS32INT
+#if NEBULAI_IS32INT
 typedef unsigned int l_uint32;
 #else
 typedef unsigned long l_uint32;
@@ -199,14 +199,14 @@ typedef l_uint32 Instruction;
 ** metamethods, as these strings must be internalized;
 ** #("function") = 8, #("__newindex") = 10.)
 */
-#if !defined(VENOMI_MAXSHORTLEN)
-#define VENOMI_MAXSHORTLEN	40
+#if !defined(NEBULAI_MAXSHORTLEN)
+#define NEBULAI_MAXSHORTLEN	40
 #endif
 
 
 /*
 ** Initial size for the string table (must be power of 2).
-** The Venom core alone registers ~50 strings (reserved words +
+** The Nebula core alone registers ~50 strings (reserved words +
 ** metaevent keys + a few others). Libraries would typically add
 ** a few dozens more.
 */
@@ -227,8 +227,8 @@ typedef l_uint32 Instruction;
 
 
 /* minimum size for string buffer */
-#if !defined(VENOM_MINBUFFER)
-#define VENOM_MINBUFFER	32
+#if !defined(NEBULA_MINBUFFER)
+#define NEBULA_MINBUFFER	32
 #endif
 
 
@@ -238,26 +238,26 @@ typedef l_uint32 Instruction;
 ** fit in a 16-bit unsigned integer. It must also be compatible with
 ** the size of the C stack.)
 */
-#if !defined(VENOMI_MAXCCALLS)
-#define VENOMI_MAXCCALLS		200
+#if !defined(NEBULAI_MAXCCALLS)
+#define NEBULAI_MAXCCALLS		200
 #endif
 
 
 /*
-** macros that are executed whenever program enters the Venom core
-** ('venom_lock') and leaves the core ('venom_unlock')
+** macros that are executed whenever program enters the Nebula core
+** ('nebula_lock') and leaves the core ('nebula_unlock')
 */
-#if !defined(venom_lock)
-#define venom_lock(L)	((void) 0)
-#define venom_unlock(L)	((void) 0)
+#if !defined(nebula_lock)
+#define nebula_lock(L)	((void) 0)
+#define nebula_unlock(L)	((void) 0)
 #endif
 
 /*
-** macro executed during Venom functions at points where the
+** macro executed during Nebula functions at points where the
 ** function can yield.
 */
-#if !defined(venomi_threadyield)
-#define venomi_threadyield(L)	{venom_unlock(L); venom_lock(L);}
+#if !defined(nebulai_threadyield)
+#define nebulai_threadyield(L)	{nebula_unlock(L); nebula_lock(L);}
 #endif
 
 
@@ -265,44 +265,44 @@ typedef l_uint32 Instruction;
 ** these macros allow user-specific actions when a thread is
 ** created/deleted/resumed/yielded.
 */
-#if !defined(venomi_userstateopen)
-#define venomi_userstateopen(L)		((void)L)
+#if !defined(nebulai_userstateopen)
+#define nebulai_userstateopen(L)		((void)L)
 #endif
 
-#if !defined(venomi_userstateclose)
-#define venomi_userstateclose(L)		((void)L)
+#if !defined(nebulai_userstateclose)
+#define nebulai_userstateclose(L)		((void)L)
 #endif
 
-#if !defined(venomi_userstatethread)
-#define venomi_userstatethread(L,L1)	((void)L)
+#if !defined(nebulai_userstatethread)
+#define nebulai_userstatethread(L,L1)	((void)L)
 #endif
 
-#if !defined(venomi_userstatefree)
-#define venomi_userstatefree(L,L1)	((void)L)
+#if !defined(nebulai_userstatefree)
+#define nebulai_userstatefree(L,L1)	((void)L)
 #endif
 
-#if !defined(venomi_userstateresume)
-#define venomi_userstateresume(L,n)	((void)L)
+#if !defined(nebulai_userstateresume)
+#define nebulai_userstateresume(L,n)	((void)L)
 #endif
 
-#if !defined(venomi_userstateyield)
-#define venomi_userstateyield(L,n)	((void)L)
+#if !defined(nebulai_userstateyield)
+#define nebulai_userstateyield(L,n)	((void)L)
 #endif
 
 
 
 /*
-** The venomi_num* macros define the primitive operations over numbers.
+** The nebulai_num* macros define the primitive operations over numbers.
 */
 
 /* floor division (defined as 'floor(a/b)') */
-#if !defined(venomi_numidiv)
-#define venomi_numidiv(L,a,b)     ((void)L, l_floor(venomi_numdiv(L,a,b)))
+#if !defined(nebulai_numidiv)
+#define nebulai_numidiv(L,a,b)     ((void)L, l_floor(nebulai_numdiv(L,a,b)))
 #endif
 
 /* float division */
-#if !defined(venomi_numdiv)
-#define venomi_numdiv(L,a,b)      ((a)/(b))
+#if !defined(nebulai_numdiv)
+#define nebulai_numdiv(L,a,b)      ((a)/(b))
 #endif
 
 /*
@@ -316,30 +316,30 @@ typedef l_uint32 Instruction;
 ** 'b' with different signs, or 'm' and 'b' with different signs
 ** (as the result 'm' of 'fmod' has the same sign of 'a').
 */
-#if !defined(venomi_nummod)
-#define venomi_nummod(L,a,b,m)  \
+#if !defined(nebulai_nummod)
+#define nebulai_nummod(L,a,b,m)  \
   { (void)L; (m) = l_mathop(fmod)(a,b); \
     if (((m) > 0) ? (b) < 0 : ((m) < 0 && (b) > 0)) (m) += (b); }
 #endif
 
 /* exponentiation */
-#if !defined(venomi_numpow)
-#define venomi_numpow(L,a,b)  \
+#if !defined(nebulai_numpow)
+#define nebulai_numpow(L,a,b)  \
   ((void)L, (b == 2) ? (a)*(a) : l_mathop(pow)(a,b))
 #endif
 
 /* the others are quite standard operations */
-#if !defined(venomi_numadd)
-#define venomi_numadd(L,a,b)      ((a)+(b))
-#define venomi_numsub(L,a,b)      ((a)-(b))
-#define venomi_nummul(L,a,b)      ((a)*(b))
-#define venomi_numunm(L,a)        (-(a))
-#define venomi_numeq(a,b)         ((a)==(b))
-#define venomi_numlt(a,b)         ((a)<(b))
-#define venomi_numle(a,b)         ((a)<=(b))
-#define venomi_numgt(a,b)         ((a)>(b))
-#define venomi_numge(a,b)         ((a)>=(b))
-#define venomi_numisnan(a)        (!venomi_numeq((a), (a)))
+#if !defined(nebulai_numadd)
+#define nebulai_numadd(L,a,b)      ((a)+(b))
+#define nebulai_numsub(L,a,b)      ((a)-(b))
+#define nebulai_nummul(L,a,b)      ((a)*(b))
+#define nebulai_numunm(L,a)        (-(a))
+#define nebulai_numeq(a,b)         ((a)==(b))
+#define nebulai_numlt(a,b)         ((a)<(b))
+#define nebulai_numle(a,b)         ((a)<=(b))
+#define nebulai_numgt(a,b)         ((a)>(b))
+#define nebulai_numge(a,b)         ((a)>=(b))
+#define nebulai_numisnan(a)        (!nebulai_numeq((a), (a)))
 #endif
 
 
@@ -354,14 +354,14 @@ typedef l_uint32 Instruction;
 #else
 /* realloc stack keeping its size */
 #define condmovestack(L,pre,pos)  \
-  { int sz_ = stacksize(L); pre; venomD_reallocstack((L), sz_, 0); pos; }
+  { int sz_ = stacksize(L); pre; nebulaD_reallocstack((L), sz_, 0); pos; }
 #endif
 
 #if !defined(HARDMEMTESTS)
 #define condchangemem(L,pre,pos)	((void)0)
 #else
 #define condchangemem(L,pre,pos)  \
-	{ if (gcrunning(G(L))) { pre; venomC_fulgarbageCollection(L, 0); pos; } }
+	{ if (gcrunning(G(L))) { pre; nebulaC_fulgarbageCollection(L, 0); pos; } }
 #endif
 
 #endif

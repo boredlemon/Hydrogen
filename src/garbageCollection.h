@@ -1,7 +1,7 @@
 /*
 ** $Id: garbageCollection.h $
 ** Garbage Collector
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #ifndef garbageCollection_h
@@ -99,7 +99,7 @@
 #define nw2black(x)  \
 	check_exp(!iswhite(x), l_setbit((x)->marked, BLACKBIT))
 
-#define venomC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
+#define nebulaC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
 
 
 /* object age in generational mode */
@@ -122,11 +122,11 @@
 
 
 /* Default Values for GC parameters */
-#define VENOMI_GENMAJORMUL         100
-#define VENOMI_GENMINORMUL         20
+#define NEBULAI_GENMAJORMUL         100
+#define NEBULAI_GENMINORMUL         20
 
 /* wait memory to double before starting new cycle */
-#define VENOMI_GCPAUSE    200
+#define NEBULAI_GCPAUSE    200
 
 /*
 ** some gc parameters are stored divided by 4 to allow a maximum value
@@ -135,15 +135,15 @@
 #define getgcparam(p)	((p) * 4)
 #define setgcparam(p,v)	((p) = (v) / 4)
 
-#define VENOMI_GCMUL      100
+#define NEBULAI_GCMUL      100
 
 /* how much to allocate before next GC step (log2) */
-#define VENOMI_GCSTEPSIZE 13      /* 8 KB */
+#define NEBULAI_GCSTEPSIZE 13      /* 8 KB */
 
 
 /*
 ** Check whether the declared GC mode is generational. While in
-** generational mode, the collector can Venom temporarily to incremental
+** generational mode, the collector can Nebula temporarily to incremental
 ** mode to improve performance. This is signaled by 'g->lastatomic != 0'.
 */
 #define isdecGCmodegen(g)	(g->gckind == KGC_GEN || g->lastatomic != 0)
@@ -154,7 +154,7 @@
 */
 #define GCSTPUSR	1  /* bit true when GC stopped by user */
 #define GCSTPGC		2  /* bit true when GC stopped by itself */
-#define GCSTPCLS	4  /* bit true when closing Venom state */
+#define GCSTPCLS	4  /* bit true when closing Nebula state */
 #define gcrunning(g)	((g)->gcstp == 0)
 
 
@@ -164,36 +164,36 @@
 ** 'condchangemem' is used only for heavy tests (forcing a full
 ** GC cycle on every opportunity)
 */
-#define venomC_condGC(L,pre,pos) \
-	{ if (G(L)->GCdebt > 0) { pre; venomC_step(L); pos;}; \
+#define nebulaC_condGC(L,pre,pos) \
+	{ if (G(L)->GCdebt > 0) { pre; nebulaC_step(L); pos;}; \
 	  condchangemem(L,pre,pos); }
 
 /* more often than not, 'pre'/'pos' are empty */
-#define venomC_checkGC(L)		venomC_condGC(L,(void)0,(void)0)
+#define nebulaC_checkGC(L)		nebulaC_condGC(L,(void)0,(void)0)
 
 
-#define venomC_barrier(L,p,v) (  \
+#define nebulaC_barrier(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
-	venomC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
+	nebulaC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
 
-#define venomC_barrierback(L,p,v) (  \
+#define nebulaC_barrierback(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
-	venomC_barrierback_(L,p) : cast_void(0))
+	nebulaC_barrierback_(L,p) : cast_void(0))
 
-#define venomC_objbarrier(L,p,o) (  \
+#define nebulaC_objbarrier(L,p,o) (  \
 	(isblack(p) && iswhite(o)) ? \
-	venomC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
+	nebulaC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
 
-VENOMI_FUNC void venomC_fix (venom_State *L, GCObject *o);
-VENOMI_FUNC void venomC_freealobjects (venom_State *L);
-VENOMI_FUNC void venomC_step (venom_State *L);
-VENOMI_FUNC void venomC_runtistate (venom_State *L, int statesmask);
-VENOMI_FUNC void venomC_fulgarbageCollection (venom_State *L, int isemergency);
-VENOMI_FUNC GCObject *venomC_newobj (venom_State *L, int tt, size_t sz);
-VENOMI_FUNC void venomC_barrier_ (venom_State *L, GCObject *o, GCObject *v);
-VENOMI_FUNC void venomC_barrierback_ (venom_State *L, GCObject *o);
-VENOMI_FUNC void venomC_checkfinalizer (venom_State *L, GCObject *o, Table *mt);
-VENOMI_FUNC void venomC_changemode (venom_State *L, int newmode);
+NEBULAI_FUNC void nebulaC_fix (nebula_State *L, GCObject *o);
+NEBULAI_FUNC void nebulaC_freealobjects (nebula_State *L);
+NEBULAI_FUNC void nebulaC_step (nebula_State *L);
+NEBULAI_FUNC void nebulaC_runtistate (nebula_State *L, int statesmask);
+NEBULAI_FUNC void nebulaC_fulgarbageCollection (nebula_State *L, int isemergency);
+NEBULAI_FUNC GCObject *nebulaC_newobj (nebula_State *L, int tt, size_t sz);
+NEBULAI_FUNC void nebulaC_barrier_ (nebula_State *L, GCObject *o, GCObject *v);
+NEBULAI_FUNC void nebulaC_barrierback_ (nebula_State *L, GCObject *o);
+NEBULAI_FUNC void nebulaC_checkfinalizer (nebula_State *L, GCObject *o, Table *mt);
+NEBULAI_FUNC void nebulaC_changemode (nebula_State *L, int newmode);
 
 
 #endif

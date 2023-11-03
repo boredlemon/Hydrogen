@@ -1,7 +1,7 @@
 /*
 ** $Id: lexer.h $
 ** Lexical Analyzer
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #ifndef lexer_h
@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(VENOM_ENV)
-#define VENOM_ENV		"_ENV"
+#if !defined(NEBULA_ENV)
+#define NEBULA_ENV		"_ENV"
 #endif
 
 
@@ -47,8 +47,8 @@ enum RESERVED {
 
 
 typedef union {
-  venom_Number r;
-  venom_Integer i;
+  nebula_Number r;
+  nebula_Integer i;
   TString *ts;
 } SemInfo;  /* semantics information */
 
@@ -68,7 +68,7 @@ typedef struct LexState {
   Token t;  /* current token */
   Token lookahead;  /* look ahead token */
   struct FuncState *fs;  /* current function (parser) */
-  struct venom_State *L;
+  struct nebula_State *L;
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-VENOMI_FUNC void venomX_init (venom_State *L);
-VENOMI_FUNC void venomX_setinput (venom_State *L, LexState *ls, ZIO *z,
+NEBULAI_FUNC void nebulaX_init (nebula_State *L);
+NEBULAI_FUNC void nebulaX_setinput (nebula_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-VENOMI_FUNC TString *venomX_newstring (LexState *ls, const char *str, size_t l);
-VENOMI_FUNC void venomX_next (LexState *ls);
-VENOMI_FUNC int venomX_lookahead (LexState *ls);
-VENOMI_FUNC l_noret venomX_syntaxerror (LexState *ls, const char *s);
-VENOMI_FUNC const char *venomX_token2str (LexState *ls, int token);
+NEBULAI_FUNC TString *nebulaX_newstring (LexState *ls, const char *str, size_t l);
+NEBULAI_FUNC void nebulaX_next (LexState *ls);
+NEBULAI_FUNC int nebulaX_lookahead (LexState *ls);
+NEBULAI_FUNC l_noret nebulaX_syntaxerror (LexState *ls, const char *s);
+NEBULAI_FUNC const char *nebulaX_token2str (LexState *ls, int token);
 
 
 #endif

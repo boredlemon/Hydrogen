@@ -1,13 +1,13 @@
 /*
 ** $Id: state.h $
 ** Global State
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #ifndef state_h
 #define state_h
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "object.h"
 #include "tagMethods.h"
@@ -15,7 +15,7 @@
 
 
 /*
-** Some notes about garbage-collected objects: All objects in Venom must
+** Some notes about garbage-collected objects: All objects in Nebula must
 ** be kept somehow accessible until being freed, so all objects always
 ** belong to one (and only one) of these lists, using field 'next' of
 ** the 'CommonHeader' for the link:
@@ -28,7 +28,7 @@
 **
 ** For the generational collector, some of these lists have marks for
 ** generations. Each mark points to the first element in the list for
-** that particular generation; that generation Venomes until the next mark.
+** that particular generation; that generation Nebulaes until the next mark.
 **
 ** 'allgarbageCollection' -> 'survival': new objects;
 ** 'survival' -> 'old': objects that survived one collection;
@@ -41,7 +41,7 @@
 ** 'finobjrold' -> NULL: really old       """".
 **
 ** All lists can contain elements older than their main ages, due
-** to 'venomC_checkfinalizer' and 'udata2finalize', which move
+** to 'nebulaC_checkfinalizer' and 'udata2finalize', which move
 ** objects between the normal lists and the "marked for finalization"
 ** lists. Moreover, barriers can age young objects in young lists as
 ** OLD0, which then become OLD1. However, a list never contains
@@ -68,7 +68,7 @@
 ** 'gray': regular gray objects, still waiting to be visited.
 ** 'grayagain': objects that must be revisited at the atomic phase.
 **   That includes
-**   - black objects Venomt in a write barrier;
+**   - black objects Nebulat in a write barrier;
 **   - all kinds of weak tables during propagation phase;
 **   - all threads.
 ** 'weak': tables with weak values to be cleared;
@@ -114,11 +114,11 @@
 
 
 
-struct venom_longjmp;  /* defined in do.c */
+struct nebula_longjmp;  /* defined in do.c */
 
 
 /*
-** Atomic type (relative to signals) to better ensure that 'venom_sethook'
+** Atomic type (relative to signals) to better ensure that 'nebula_sethook'
 ** is thread safe
 */
 #if !defined(l_signalT)
@@ -137,7 +137,7 @@ struct venom_longjmp;  /* defined in do.c */
 #define EXTRA_STACK   5
 
 
-#define BASIC_STACK_SIZE        (2*VENOM_MINSTACK)
+#define BASIC_STACK_SIZE        (2*NEBULA_MINSTACK)
 
 #define stacksize(th)	cast_int((th)->stack_last - (th)->stack)
 
@@ -157,7 +157,7 @@ typedef struct stringtable {
 /*
 ** Information about a call.
 ** About union 'u':
-** - field 'l' is used only for Venom functions;
+** - field 'l' is used only for Nebula functions;
 ** - field 'c' is used only for C functions.
 ** About union 'u2':
 ** - field 'funcidx' is used only by C functions while doing a
@@ -174,15 +174,15 @@ typedef struct CallInfo {
   StkId	top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
-    struct {  /* only for Venom functions */
+    struct {  /* only for Nebula functions */
       const Instruction *savedpc;
       volatile l_signalT trap;
       int nextraargs;  /* # of extra arguments in vararg functions */
     } l;
     struct {  /* only for C functions */
-      venom_KFunction k;  /* continuation in case of yields */
+      nebula_KFunction k;  /* continuation in case of yields */
       ptrdiff_t old_errfunc;
-      venom_KContext ctx;  /* context info. in case of yields */
+      nebula_KContext ctx;  /* context info. in case of yields */
     } c;
   } u;
   union {
@@ -204,7 +204,7 @@ typedef struct CallInfo {
 */
 #define CIST_OAH	(1<<0)	/* original value of 'allowhook' */
 #define CIST_C		(1<<1)	/* call is running a C function */
-#define CIST_FRESH	(1<<2)	/* call is on a fresh "venomV_execute" frame */
+#define CIST_FRESH	(1<<2)	/* call is on a fresh "nebulaV_execute" frame */
 #define CIST_HOOKED	(1<<3)	/* call is running a debug hook */
 #define CIST_YPCALL	(1<<4)	/* doing a yieldable protected call */
 #define CIST_TAIL	(1<<5)	/* call was tail called */
@@ -214,7 +214,7 @@ typedef struct CallInfo {
 #define CIST_CLSRET	(1<<9)  /* function is closing tbc variables */
 /* Bits 10-12 are used for CIST_RECST (see below) */
 #define CIST_RECST	10
-#if defined(VENOM_COMPAT_LT_LE)
+#if defined(NEBULA_COMPAT_LT_LE)
 #define CIST_LEQ	(1<<13)  /* using __lt for __le */
 #endif
 
@@ -222,7 +222,7 @@ typedef struct CallInfo {
 /*
 ** Field CIST_RECST stores the "recover status", used to keep the error
 ** status while closing to-be-closed variables in coroutines, so that
-** Venom can correctly resume after an yield from a __close method called
+** Nebula can correctly resume after an yield from a __close method called
 ** because of an error.  (Three bits are enough for error status.)
 */
 #define getcistrecst(ci)     (((ci)->callstatus >> CIST_RECST) & 7)
@@ -232,11 +232,11 @@ typedef struct CallInfo {
                                                   | ((st) << CIST_RECST)))
 
 
-/* active function is a Venom function */
-#define isVenom(ci)	(!((ci)->callstatus & CIST_C))
+/* active function is a Nebula function */
+#define isNebula(ci)	(!((ci)->callstatus & CIST_C))
 
-/* call is running Venom code (not a hook) */
-#define isVenomcode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
+/* call is running Nebula code (not a hook) */
+#define isNebulacode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
 
 /* assume that CIST_OAH has offset 0 and that 'v' is strictly 0/1 */
 #define setoah(st,v)	((st) = ((st) & ~CIST_OAH) | (v))
@@ -247,7 +247,7 @@ typedef struct CallInfo {
 ** 'global state', shared by all threads of this state
 */
 typedef struct global_State {
-  venom_Alloc frealloc;  /* function to reallocate memory */
+  nebula_Alloc frealloc;  /* function to reallocate memory */
   void *ud;         /* auxiliary data to 'frealloc' */
   l_mem totalbytes;  /* number of bytes currently allocated - GCdebt */
   l_mem GCdebt;  /* bytes allocated not yet compensated by the collector */
@@ -286,14 +286,14 @@ typedef struct global_State {
   GCObject *finobjsur;  /* list of survival objects with finalizers */
   GCObject *finobjold1;  /* list of old1 objects with finalizers */
   GCObject *finobjrold;  /* list of really old objects with finalizers */
-  struct venom_State *twups;  /* list of threads with open upvalues */
-  venom_CFunction panic;  /* to be called in unprotected errors */
-  struct venom_State *mainthread;
+  struct nebula_State *twups;  /* list of threads with open upvalues */
+  nebula_CFunction panic;  /* to be called in unprotected errors */
+  struct nebula_State *mainthread;
   TString *memerrmsg;  /* message for memory-allocation errors */
   TString *tmname[TM_N];  /* array with tag-method names */
-  struct Table *mt[VENOM_NUMTAGS];  /* metatables for basic types */
+  struct Table *mt[NEBULA_NUMTAGS];  /* metatables for basic types */
   TString *strcache[STRCACHE_N][STRCACHE_M];  /* cache for strings in API */
-  venom_WarnFunction warnf;  /* warning function */
+  nebula_WarnFunction warnf;  /* warning function */
   void *ud_warn;         /* auxiliary data to 'warnf' */
 } global_State;
 
@@ -301,7 +301,7 @@ typedef struct global_State {
 /*
 ** 'per thread' state
 */
-struct venom_State {
+struct nebula_State {
   CommonHeader;
   lu_byte status;
   lu_byte allowhook;
@@ -314,10 +314,10 @@ struct venom_State {
   UpVal *openupval;  /* list of open upvalues in this stack */
   StkId tbclist;  /* list of to-be-closed variables */
   GCObject *gclist;
-  struct venom_State *twups;  /* list of threads with open upvalues */
-  struct venom_longjmp *errorJmp;  /* current error recover point */
-  CallInfo base_ci;  /* CallInfo for first level (C calling Venom) */
-  volatile venom_Hook hook;
+  struct nebula_State *twups;  /* list of threads with open upvalues */
+  struct nebula_longjmp *errorJmp;  /* current error recover point */
+  CallInfo base_ci;  /* CallInfo for first level (C calling Nebula) */
+  volatile nebula_Hook hook;
   ptrdiff_t errfunc;  /* current error handling function (stack index) */
   l_uint32 nCcalls;  /* number of nested (non-yieldable | C)  calls */
   int oldpc;  /* last pc traced */
@@ -352,7 +352,7 @@ union GCUnion {
   union Closure cl;
   struct Table h;
   struct Proto p;
-  struct venom_State th;  /* thread */
+  struct nebula_State th;  /* thread */
   struct UpVal upv;
 };
 
@@ -366,38 +366,38 @@ union GCUnion {
 
 /* macros to convert a GCObject into a specific value */
 #define gco2ts(o)  \
-	check_exp(novariant((o)->tt) == VENOM_TSTRING, &((cast_u(o))->ts))
-#define gco2u(o)  check_exp((o)->tt == VENOM_VUSERDATA, &((cast_u(o))->u))
-#define gco2lcl(o)  check_exp((o)->tt == VENOM_VLCL, &((cast_u(o))->cl.l))
-#define gco2ccl(o)  check_exp((o)->tt == VENOM_VCCL, &((cast_u(o))->cl.c))
+	check_exp(novariant((o)->tt) == NEBULA_TSTRING, &((cast_u(o))->ts))
+#define gco2u(o)  check_exp((o)->tt == NEBULA_VUSERDATA, &((cast_u(o))->u))
+#define gco2lcl(o)  check_exp((o)->tt == NEBULA_VLCL, &((cast_u(o))->cl.l))
+#define gco2ccl(o)  check_exp((o)->tt == NEBULA_VCCL, &((cast_u(o))->cl.c))
 #define gco2cl(o)  \
-	check_exp(novariant((o)->tt) == VENOM_TFUNCTION, &((cast_u(o))->cl))
-#define gco2t(o)  check_exp((o)->tt == VENOM_VTABLE, &((cast_u(o))->h))
-#define gco2p(o)  check_exp((o)->tt == VENOM_VPROTO, &((cast_u(o))->p))
-#define gco2th(o)  check_exp((o)->tt == VENOM_VTHREAD, &((cast_u(o))->th))
-#define gco2upv(o)	check_exp((o)->tt == VENOM_VUPVAL, &((cast_u(o))->upv))
+	check_exp(novariant((o)->tt) == NEBULA_TFUNCTION, &((cast_u(o))->cl))
+#define gco2t(o)  check_exp((o)->tt == NEBULA_VTABLE, &((cast_u(o))->h))
+#define gco2p(o)  check_exp((o)->tt == NEBULA_VPROTO, &((cast_u(o))->p))
+#define gco2th(o)  check_exp((o)->tt == NEBULA_VTHREAD, &((cast_u(o))->th))
+#define gco2upv(o)	check_exp((o)->tt == NEBULA_VUPVAL, &((cast_u(o))->upv))
 
 
 /*
-** macro to convert a Venom object into a GCObject
-** (The access to 'tt' tries to ensure that 'v' is actually a Venom object.)
+** macro to convert a Nebula object into a GCObject
+** (The access to 'tt' tries to ensure that 'v' is actually a Nebula object.)
 */
-#define obj2gco(v)	check_exp((v)->tt >= VENOM_TSTRING, &(cast_u(v)->gc))
+#define obj2gco(v)	check_exp((v)->tt >= NEBULA_TSTRING, &(cast_u(v)->gc))
 
 
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	cast(lu_mem, (g)->totalbytes + (g)->GCdebt)
 
-VENOMI_FUNC void venomE_setdebt (global_State *g, l_mem debt);
-VENOMI_FUNC void venomE_freethread (venom_State *L, venom_State *L1);
-VENOMI_FUNC CallInfo *venomE_extendCI (venom_State *L);
-VENOMI_FUNC void venomE_freeCI (venom_State *L);
-VENOMI_FUNC void venomE_shrinkCI (venom_State *L);
-VENOMI_FUNC void venomE_checkcstack (venom_State *L);
-VENOMI_FUNC void venomE_incCstack (venom_State *L);
-VENOMI_FUNC void venomE_warning (venom_State *L, const char *msg, int tocont);
-VENOMI_FUNC void venomE_warnerror (venom_State *L, const char *where);
-VENOMI_FUNC int venomE_resetthread (venom_State *L, int status);
+NEBULAI_FUNC void nebulaE_setdebt (global_State *g, l_mem debt);
+NEBULAI_FUNC void nebulaE_freethread (nebula_State *L, nebula_State *L1);
+NEBULAI_FUNC CallInfo *nebulaE_extendCI (nebula_State *L);
+NEBULAI_FUNC void nebulaE_freeCI (nebula_State *L);
+NEBULAI_FUNC void nebulaE_shrinkCI (nebula_State *L);
+NEBULAI_FUNC void nebulaE_checkcstack (nebula_State *L);
+NEBULAI_FUNC void nebulaE_incCstack (nebula_State *L);
+NEBULAI_FUNC void nebulaE_warning (nebula_State *L, const char *msg, int tocont);
+NEBULAI_FUNC void nebulaE_warnerror (nebula_State *L, const char *where);
+NEBULAI_FUNC int nebulaE_resetthread (nebula_State *L, int status);
 
 
 #endif

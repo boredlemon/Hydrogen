@@ -1,35 +1,35 @@
 /*
 ** $Id: ctype.h $
-** 'ctype' functions for Venom
-** See Copyright Notice in venom.h
+** 'ctype' functions for Nebula
+** See Copyright Notice in nebula.h
 */
 
 #ifndef ctype_h
 #define ctype_h
 
-#include "venom.h"
+#include "nebula.h"
 
 
 /*
 ** WARNING: the functions defined here do not necessarily correspond
 ** to the similar functions in the standard C ctype.h. They are
-** optimized for the specific needs of Venom.
+** optimized for the specific needs of Nebula.
 */
 
-#if !defined(VENOM_USE_CTYPE)
+#if !defined(NEBULA_USE_CTYPE)
 
 #if 'A' == 65 && '0' == 48
 /* ASCII case: can use its own tables; faster and fixed */
-#define VENOM_USE_CTYPE	0
+#define NEBULA_USE_CTYPE	0
 #else
 /* must use standard C ctype */
-#define VENOM_USE_CTYPE	1
+#define NEBULA_USE_CTYPE	1
 #endif
 
 #endif
 
 
-#if !VENOM_USE_CTYPE	/* { */
+#if !NEBULA_USE_CTYPE	/* { */
 
 #include <limits.h>
 
@@ -49,10 +49,10 @@
 /*
 ** add 1 to char to allow index -1 (EOZ)
 */
-#define testprop(c,p)	(venomi_ctype_[(c)+1] & (p))
+#define testprop(c,p)	(nebulai_ctype_[(c)+1] & (p))
 
 /*
-** 'lalpha' (Venom alphabetic) and 'lalnum' (Venom alphanumeric) both include '_'
+** 'lalpha' (Nebula alphabetic) and 'lalnum' (Nebula alphanumeric) both include '_'
 */
 #define lislalpha(c)	testprop(c, MASK(ALPHABIT))
 #define lislalnum(c)	testprop(c, (MASK(ALPHABIT) | MASK(DIGITBIT)))
@@ -64,7 +64,7 @@
 
 /*
 ** In ASCII, this 'ltolower' is correct for alphabetic characters and
-** for '.'. That is enough for Venom needs. ('check_exp' ensures that
+** for '.'. That is enough for Nebula needs. ('check_exp' ensures that
 ** the character either is an upper-case letter or is unchanged by
 ** the transformation, which holds for lower-case letters and '.'.)
 */
@@ -74,7 +74,7 @@
 
 
 /* one entry for each character and for -1 (EOZ) */
-VENOMI_DDEC(const lu_byte venomi_ctype_[UCHAR_MAX + 2];)
+NEBULAI_DDEC(const lu_byte nebulai_ctype_[UCHAR_MAX + 2];)
 
 
 #else			/* }{ */

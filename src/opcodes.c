@@ -1,11 +1,11 @@
 /*
 ** $Id: opcodes.c $
-** Opcodes for Venom virtual machine
-** See Copyright Notice in venom.h
+** Opcodes for Nebula virtual machine
+** See Copyright Notice in nebula.h
 */
 
 #define opcodes_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-VENOMI_DDEF const lu_byte venomP_opmodes[NUM_OPCODES] = {
+NEBULAI_DDEF const lu_byte nebulaP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

@@ -1,9 +1,9 @@
-.\" $Id: venom.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
-.TH VENOM 1 "$Date: 2020/05/21 19:31:21 $"
+.\" $Id: nebula.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
+.TH NEBULA 1 "$Date: 2020/05/21 19:31:21 $"
 .SH NAME
-venom \- Venom interpreter
+nebula \- Nebula interpreter
 .SH SYNOPSIS
-.B venom
+.B nebula
 [
 .I options
 ]
@@ -14,20 +14,20 @@ venom \- Venom interpreter
 ]
 ]
 .SH DESCRIPTION
-.B venom
-is the standalone Venom interpreter.
-It loads and executes Venom programs,
+.B nebula
+is the standalone Nebula interpreter.
+It loads and executes Nebula programs,
 either in textual source form or
 in precompiled binary form.
 (Precompiled binaries are output by
-.BR venomc ,
-the Venom compiler.)
-.B venom
+.BR nebulac ,
+the Nebula compiler.)
+.B nebula
 can be used as a batch interpreter and also interactively.
 .LP
 After handling the
 .IR options ,
-the Venom program in file
+the Nebula program in file
 .I script
 is loaded and executed.
 The
@@ -38,43 +38,43 @@ as strings in a global table named
 .B arg
 and also as arguments to its main function.
 When called without arguments,
-.B venom
+.B nebula
 behaves as
-.B "venom \-v \-i"
+.B "nebula \-v \-i"
 if the standard input is a terminal,
 and as
-.B "venom \-"
+.B "nebula \-"
 otherwise.
 .LP
 In interactive mode,
-.B venom
+.B nebula
 prompts the user,
 reads lines from the standard input,
 and executes them as they are read.
 If the line contains an expression,
-then the line is evavenomted and the result is printed.
+then the line is evanebulated and the result is printed.
 If a line does not contain a complete statement,
 then a secondary prompt is displayed and
 lines are read until a complete statement is formed or
 a syntax error is found.
 .LP
 Before handling command line options and scripts,
-.B venom
+.B nebula
 checks the contents of the environment variables
-.B VENOM_INIT_5_4
+.B NEBULA_INIT_5_4
 and
-.BR VENOM_INIT ,
+.BR NEBULA_INIT ,
 in that order.
 If the contents are of the form
 .RI '@ filename ',
 then
 .I filename
 is executed.
-Otherwise, the contents are assumed to be a Venom statement and is executed.
+Otherwise, the contents are assumed to be a Nebula statement and is executed.
 When
-.B VENOM_INIT_5_4
+.B NEBULA_INIT_5_4
 is defined,
-.B VENOM_INIT
+.B NEBULA_INIT
 is ignored.
 .SH OPTIONS
 .TP
@@ -108,28 +108,28 @@ stop handling options.
 stop handling options and execute the standard input as a file.
 .SH ENVIRONMENT VARIABLES
 The following environment variables affect the execution of
-.BR venom .
+.BR nebula .
 When defined,
 the version-specific variants take priority
 and the version-neutral variants are ignored.
 .TP
-.B VENOM_INIT, VENOM_INIT_5_4
+.B NEBULA_INIT, NEBULA_INIT_5_4
 Code to be executed before command line options and scripts.
 .TP
-.B VENOM_PATH, VENOM_PATH_5_4
+.B NEBULA_PATH, NEBULA_PATH_5_4
 Initial value of package.cpath,
-the path used by require to search for Venom loaders.
+the path used by require to search for Nebula loaders.
 .TP
-.B VENOM_CPATH, VENOM_CPATH_5_4
+.B NEBULA_CPATH, NEBULA_CPATH_5_4
 Initial value of package.cpath,
 the path used by require to search for C loaders.
 .SH EXIT STATUS
 If a script calls os.exit,
 then
-.B venom
+.B nebula
 exits with the given exit status.
 Otherwise,
-.B venom
+.B nebula
 exits
 with EXIT_SUCCESS (0 on POSIX systems) if there were no errors
 and
@@ -138,9 +138,9 @@ Errors raised in interactive mode do not cause exits.
 .SH DIAGNOSTICS
 Error messages should be self explanatory.
 .SH "SEE ALSO"
-.BR venomc (1)
+.BR nebulac (1)
 .br
-The documentation at venom.org,
+The documentation at nebula.org,
 especially section 7 of the reference manual.
 .SH AUTHORS
 R. Ierusalimschy,

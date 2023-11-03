@@ -1,18 +1,18 @@
 /*
 ** $Id: memory.c $
 ** Interface to Memory Manager
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #define memory_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
 
 #include <stddef.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "debug.h"
 #include "do.h"
@@ -76,7 +76,7 @@ static void *firsttry (global_State *g, void *block, size_t os, size_t ns) {
 #define MINSIZEARRAY	4
 
 
-void *venomM_growaux_ (venom_State *L, void *block, int nelems, int *psize,
+void *nebulaM_growaux_ (nebula_State *L, void *block, int nelems, int *psize,
                      int size_elems, int limit, const char *what) {
   void *newblock;
   int size = *psize;
@@ -84,7 +84,7 @@ void *venomM_growaux_ (venom_State *L, void *block, int nelems, int *psize,
     return block;  /* nothing to be done */
   if (size >= limit / 2) {  /* cannot double it? */
     if (l_unlikely(size >= limit))  /* cannot grow even a little? */
-      venomG_runerror(L, "too many %s (limit is %d)", what, limit);
+      nebulaG_runerror(L, "too many %s (limit is %d)", what, limit);
     size = limit;  /* still have at least one free place */
   }
   else {
@@ -92,9 +92,9 @@ void *venomM_growaux_ (venom_State *L, void *block, int nelems, int *psize,
     if (size < MINSIZEARRAY)
       size = MINSIZEARRAY;  /* minimum size */
   }
-  venom_assert(nelems + 1 <= size && size <= limit);
+  nebula_assert(nelems + 1 <= size && size <= limit);
   /* 'limit' ensures that multiplication will not overflow */
-  newblock = venomM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
+  newblock = nebulaM_saferealloc_(L, block, cast_sizet(*psize) * size_elems,
                                          cast_sizet(size) * size_elems);
   *psize = size;  /* update only when everything else is OK */
   return newblock;
@@ -107,13 +107,13 @@ void *venomM_growaux_ (venom_State *L, void *block, int nelems, int *psize,
 ** to its number of elements, the only option is to raise an
 ** error.
 */
-void *venomM_shrinkvector_ (venom_State *L, void *block, int *size,
+void *nebulaM_shrinkvector_ (nebula_State *L, void *block, int *size,
                           int final_n, int size_elem) {
   void *newblock;
   size_t oldsize = cast_sizet((*size) * size_elem);
   size_t newsize = cast_sizet(final_n * size_elem);
-  venom_assert(newsize <= oldsize);
-  newblock = venomM_saferealloc_(L, block, oldsize, newsize);
+  nebula_assert(newsize <= oldsize);
+  newblock = nebulaM_saferealloc_(L, block, oldsize, newsize);
   *size = final_n;
   return newblock;
 }
@@ -121,17 +121,17 @@ void *venomM_shrinkvector_ (venom_State *L, void *block, int *size,
 /* }================================================================== */
 
 
-l_noret venomM_toobig (venom_State *L) {
-  venomG_runerror(L, "memory allocation error: block too big");
+l_noret nebulaM_toobig (nebula_State *L) {
+  nebulaG_runerror(L, "memory allocation error: block too big");
 }
 
 
 /*
 ** Free memory
 */
-void venomM_free_ (venom_State *L, void *block, size_t osize) {
+void nebulaM_free_ (nebula_State *L, void *block, size_t osize) {
   global_State *g = G(L);
-  venom_assert((osize == 0) == (block == NULL));
+  nebula_assert((osize == 0) == (block == NULL));
   (*g->frealloc)(g->ud, block, osize, 0);
   g->GCdebt -= osize;
 }
@@ -145,11 +145,11 @@ void venomM_free_ (venom_State *L, void *block, size_t osize) {
 ** when 'gcstopem' is true, because then the interpreter is in the
 ** middle of a collection step.
 */
-static void *tryagain (venom_State *L, void *block,
+static void *tryagain (nebula_State *L, void *block,
                        size_t osize, size_t nsize) {
   global_State *g = G(L);
   if (completestate(g) && !g->gcstopem) {
-    venomC_fulgarbageCollection(L, 1);  /* try to free some memory... */
+    nebulaC_fulgarbageCollection(L, 1);  /* try to free some memory... */
     return (*g->frealloc)(g->ud, block, osize, nsize);  /* try again */
   }
   else return NULL;  /* cannot free any memory without a full state */
@@ -159,32 +159,32 @@ static void *tryagain (venom_State *L, void *block,
 /*
 ** Generic allocation routine.
 */
-void *venomM_realloc_ (venom_State *L, void *block, size_t osize, size_t nsize) {
+void *nebulaM_realloc_ (nebula_State *L, void *block, size_t osize, size_t nsize) {
   void *newblock;
   global_State *g = G(L);
-  venom_assert((osize == 0) == (block == NULL));
+  nebula_assert((osize == 0) == (block == NULL));
   newblock = firsttry(g, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0)) {
     newblock = tryagain(L, block, osize, nsize);
     if (newblock == NULL)  /* still no memory? */
       return NULL;  /* do not update 'GCdebt' */
   }
-  venom_assert((nsize == 0) == (newblock == NULL));
+  nebula_assert((nsize == 0) == (newblock == NULL));
   g->GCdebt = (g->GCdebt + nsize) - osize;
   return newblock;
 }
 
 
-void *venomM_saferealloc_ (venom_State *L, void *block, size_t osize,
+void *nebulaM_saferealloc_ (nebula_State *L, void *block, size_t osize,
                                                     size_t nsize) {
-  void *newblock = venomM_realloc_(L, block, osize, nsize);
+  void *newblock = nebulaM_realloc_(L, block, osize, nsize);
   if (l_unlikely(newblock == NULL && nsize > 0))  /* allocation failed? */
-    venomM_error(L);
+    nebulaM_error(L);
   return newblock;
 }
 
 
-void *venomM_malloc_ (venom_State *L, size_t size, int tag) {
+void *nebulaM_malloc_ (nebula_State *L, size_t size, int tag) {
   if (size == 0)
     return NULL;  /* that's all */
   else {
@@ -193,7 +193,7 @@ void *venomM_malloc_ (venom_State *L, size_t size, int tag) {
     if (l_unlikely(newblock == NULL)) {
       newblock = tryagain(L, NULL, tag, size);
       if (newblock == NULL)
-        venomM_error(L);
+        nebulaM_error(L);
     }
     g->GCdebt += size;
     return newblock;

@@ -1,0 +1,7 @@
+Make a pkg manager for Nebula called stardust
+
+_____
+INFO
+
+File extension - .nb or .nbl 
+Command - nebula / nebulac

@@ -6,7 +6,7 @@ find . -type f -name "*-e*" -exec rm {} \;
 
 cd examples/bot
 ---------------------------------------------
-venom pkg manager
+nebula pkg manager
 tpm
 
 if its not working on mac you do
@@ -18,7 +18,7 @@ Change file extensions
 for file in *.acn; do mv "$file" "${file%.ven}.ven"; done
 
 for the whole project
-find . -type f -name "*.acn" -exec bash -c 'mv "$0" "${0%.acn}.ven"' {} \;
+find . -type f -name "*.ven" -exec bash -c 'mv "$0" "${0%.ven}.nb"' {} \;
 _________
 change a keyword
 sed -i -e 's/.torn/.torn/g' Makefile.pre.in
@@ -29,9 +29,9 @@ sed -i '' 's/lit/tpm/g' Makefile
 
 
 change it for the whole project
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/venom/venom/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/VENOM/VENOM/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Venom/Venom/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/nebula/nebula/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/NEBULA/NEBULA/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Nebula/Nebula/g' {} +
 ___________________
 project map
 

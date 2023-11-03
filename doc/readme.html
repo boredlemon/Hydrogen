@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Venom 5.4 readme</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="css/venom.css">
+<TITLE>Nebula 5.4 readme</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="css/nebula.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 <STYLE TYPE="text/css">
 blockquote, .display {
@@ -29,8 +29,8 @@ tt, kbd, code {
 <BODY>
 
 <H1>
-<A HREF="http://www.venom.org/"><IMG SRC="img/venomscript.png" ALT="Venom"></A>
-Welcome to Venom 5.4
+<A HREF="http://www.nebula.org/"><IMG SRC="img/nebulascript.png" ALT="Nebula"></A>
+Welcome to Nebula 5.4
 </H1>
 
 <DIV CLASS="menubar">
@@ -45,49 +45,49 @@ Welcome to Venom 5.4
 <A HREF="contents.html">reference manual</A>
 </DIV>
 
-<H2><A NAME="about">About Venom</A></H2>
+<H2><A NAME="about">About Nebula</A></H2>
 <P>
-Venom is a powerful, efficient, lightweight, embeddable scripting language
+Nebula is a powerful, efficient, lightweight, embeddable scripting language
 developed by a
-<A HREF="http://www.venom.org/authors.html">team</A>
+<A HREF="http://www.nebula.org/authors.html">team</A>
 at
 <A HREF="http://www.puc-rio.br/">PUC-Rio</A>,
 the Pontifical Catholic University of Rio de Janeiro in Brazil.
-Venom is
+Nebula is
 <A HREF="#license">free software</A>
 used in
-<A HREF="http://www.venom.org/uses.html">many products and projects</A>
+<A HREF="http://www.nebula.org/uses.html">many products and projects</A>
 around the world.
 
 <P>
-Venom's
-<A HREF="http://www.venom.org/">official web site</A>
+Nebula's
+<A HREF="http://www.nebula.org/">official web site</A>
 provides complete information
-about Venom,
+about Nebula,
 including
 an
-<A HREF="http://www.venom.org/about.html">executive summary</A>
+<A HREF="http://www.nebula.org/about.html">executive summary</A>
 and
 updated
-<A HREF="http://www.venom.org/docs.html">documentation</A>,
+<A HREF="http://www.nebula.org/docs.html">documentation</A>,
 especially the
-<A HREF="http://www.venom.org/manual/5.4/">reference manual</A>,
+<A HREF="http://www.nebula.org/manual/5.4/">reference manual</A>,
 which may differ slightly from the
 <A HREF="contents.html">local copy</A>
 distributed in this package.
 
-<H2><A NAME="install">Installing Venom</A></H2>
+<H2><A NAME="install">Installing Nebula</A></H2>
 <P>
-Venom is distributed in
-<A HREF="http://www.venom.org/ftp/">source</A>
+Nebula is distributed in
+<A HREF="http://www.nebula.org/ftp/">source</A>
 form.
 You need to build it before using it.
-Building Venom should be straightforward
+Building Nebula should be straightforward
 because
-Venom is implemented in pure ANSI C and compiles unmodified in all known
+Nebula is implemented in pure ANSI C and compiles unmodified in all known
 platforms that have an ANSI C compiler.
-Venom also compiles unmodified as C++.
-The instructions given below for building Venom are for Unix-like platforms,
+Nebula also compiles unmodified as C++.
+The instructions given below for building Nebula are for Unix-like platforms,
 such as Linux and Mac OS X.
 See also
 <A HREF="#other">instructions for other systems</A>
@@ -95,14 +95,14 @@ and
 <A HREF="#customization">customization options</A>.
 
 <P>
-If you don't have the time or the inclination to compile Venom yourself,
+If you don't have the time or the inclination to compile Nebula yourself,
 get a binary from
-<A HREF="http://venom-users.org/wiki/VenomBinaries">VenomBinaries</A>.
+<A HREF="http://nebula-users.org/wiki/NebulaBinaries">NebulaBinaries</A>.
 Try also
-<A HREF="http://venomdist.org/">VenomDist</A>,
-a multi-platform distribution of Venom that includes batteries.
+<A HREF="http://nebuladist.org/">NebulaDist</A>,
+a multi-platform distribution of Nebula that includes batteries.
 
-<H3>Building Venom</H3>
+<H3>Building Nebula</H3>
 <P>
 In most common Unix-like platforms, simply do "<KBD>make</KBD>".
 Here are the details.
@@ -110,11 +110,11 @@ Here are the details.
 <OL>
 <LI>
 Open a terminal window and move to
-the top-level directory, which is named <TT>venom-5.4.4</TT>.
+the top-level directory, which is named <TT>nebula-5.4.4</TT>.
 The <TT>Makefile</TT> there controls both the build process and the installation process.
 <P>
 <LI>
-  Do "<KBD>make</KBD>". The <TT>Makefile</TT> will guess your platform and build Venom for it.
+  Do "<KBD>make</KBD>". The <TT>Makefile</TT> will guess your platform and build Nebula for it.
 <P>
 <LI>
   If the guess failed, do "<KBD>make help</KBD>" and see if your platform is listed.
@@ -133,41 +133,41 @@ The <TT>Makefile</TT> there controls both the build process and the installation
 <LI>
 The compilation takes only a few moments
 and produces three files in the <TT>src</TT> directory:
-venom (the interpreter),
-venomc (the compiler),
-and libvenom.a (the library).
+nebula (the interpreter),
+nebulac (the compiler),
+and libnebula.a (the library).
 <P>
 <LI>
-  To check that Venom has been built correctly, do "<KBD>make test</KBD>"
-  after building Venom. This will run the interpreter and print its version.
+  To check that Nebula has been built correctly, do "<KBD>make test</KBD>"
+  after building Nebula. This will run the interpreter and print its version.
 </OL>
 <P>
-If you're running Linux, try "<KBD>make linux-readline</KBD>" to build the interactive Venom interpreter with handy line-editing and history capabilities.
+If you're running Linux, try "<KBD>make linux-readline</KBD>" to build the interactive Nebula interpreter with handy line-editing and history capabilities.
 If you get compilation errors,
 make sure you have installed the <TT>readline</TT> development package
 (which is probably named <TT>libreadline-dev</TT> or <TT>readline-devel</TT>).
 If you get link errors after that,
 then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
 
-<H3>Installing Venom</H3>
+<H3>Installing Nebula</H3>
 <P>
-  Once you have built Venom, you may want to install it in an official
+  Once you have built Nebula, you may want to install it in an official
   place in your system. In this case, do "<KBD>make install</KBD>". The official
   place and the way to install files are defined in the <TT>Makefile</TT>. You'll
   probably need the right permissions to install files, and so may need to do "<KBD>sudo make install</KBD>".
 
 <P>
-  To build and install Venom in one step, do "<KBD>make all install</KBD>",
+  To build and install Nebula in one step, do "<KBD>make all install</KBD>",
   or "<KBD>make xxx install</KBD>",
   where xxx is your platform name.
 
 <P>
-  To install Venom locally after building it, do "<KBD>make local</KBD>".
+  To install Nebula locally after building it, do "<KBD>make local</KBD>".
   This will create a directory <TT>install</TT> with subdirectories
   <TT>bin</TT>, <TT>include</TT>, <TT>lib</TT>, <TT>man</TT>, <TT>share</TT>,
-  and install Venom as listed below.
+  and install Nebula as listed below.
 
-  To install Venom locally, but in some other directory, do
+  To install Nebula locally, but in some other directory, do
   "<KBD>make install INSTALL_TOP=xxx</KBD>", where xxx is your chosen directory.
   The installation starts in the <TT>src</TT> and <TT>doc</TT> directories,
   so take care if <TT>INSTALL_TOP</TT> is not an absolute path.
@@ -176,35 +176,35 @@ then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
 <DT>
     bin:
 <DD>
-    venom venomc
+    nebula nebulac
 <DT>
     include:
 <DD>
-    venom.h venomconf.h venomlib.h auxlib.h venom.hpp
+    nebula.h nebulaconf.h nebulalib.h auxlib.h nebula.hpp
 <DT>
     lib:
 <DD>
-    libvenom.a
+    libnebula.a
 <DT>
     man/man1:
 <DD>
-    venom.1 venomc.1
+    nebula.1 nebulac.1
 </DL>
 
 <P>
   These are the only directories you need for development.
-  If you only want to run Venom programs,
+  If you only want to run Nebula programs,
   you only need the files in <TT>bin</TT> and <TT>man</TT>.
   The files in <TT>include</TT> and <TT>lib</TT> are needed for
-  embedding Venom in C or C++ programs.
+  embedding Nebula in C or C++ programs.
 
 <H3><A NAME="customization">Customization</A></H3>
 <P>
   Three kinds of things can be customized by editing a file:
 <UL>
-    <LI> Where and how to install Venom &mvenom; edit <TT>Makefile</TT>.
-    <LI> How to build Venom &mvenom; edit <TT>src/Makefile</TT>.
-    <LI> Venom features &mvenom; edit <TT>src/venomconf.h</TT>.
+    <LI> Where and how to install Nebula &mnebula; edit <TT>Makefile</TT>.
+    <LI> How to build Nebula &mnebula; edit <TT>src/Makefile</TT>.
+    <LI> Nebula features &mnebula; edit <TT>src/nebulaconf.h</TT>.
 </UL>
 
 <P>
@@ -214,16 +214,16 @@ then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
   record the changes you've made.
 
 <P>
-  On the other hand, if you need to customize some Venom features, you'll need
-  to edit <TT>src/venomconf.h</TT> before building and installing Venom.
+  On the other hand, if you need to customize some Nebula features, you'll need
+  to edit <TT>src/nebulaconf.h</TT> before building and installing Nebula.
   The edited file will be the one installed, and
-  it will be used by any Venom clients that you build, to ensure consistency.
-  Further customization is available to experts by editing the Venom sources.
+  it will be used by any Nebula clients that you build, to ensure consistency.
+  Further customization is available to experts by editing the Nebula sources.
 
-<H3><A NAME="other">Building Venom on other systems</A></H3>
+<H3><A NAME="other">Building Nebula on other systems</A></H3>
 <P>
   If you're not using the usual Unix tools, then the instructions for
-  building Venom depend on the compiler you use. You'll need to create
+  building Nebula depend on the compiler you use. You'll need to create
   projects (or whatever your compiler uses) for building the library,
   the interpreter, and the compiler, as follows:
 
@@ -236,32 +236,32 @@ auxlib.c baselib.c corolib.c dblib.c iolib.c mathlib.c loadlib.c oslib.c strlib.
 <DT>
 interpreter:
 <DD>
-  library, venom.c
+  library, nebula.c
 <DT>
 compiler:
 <DD>
-  library, venomc.c
+  library, nebulac.c
 </DL>
 
 <P>
-  To use Venom as a library in your own programs, you'll need to know how to
+  To use Nebula as a library in your own programs, you'll need to know how to
   create and use libraries with your compiler. Moreover, to dynamically load
-  C libraries for Venom, you'll need to know how to create dynamic libraries
-  and you'll need to make sure that the Venom API functions are accessible to
-  those dynamic libraries &mvenom; but <EM>don't</EM> link the Venom library
-  into each dynamic library. For Unix, we recommend that the Venom library
+  C libraries for Nebula, you'll need to know how to create dynamic libraries
+  and you'll need to make sure that the Nebula API functions are accessible to
+  those dynamic libraries &mnebula; but <EM>don't</EM> link the Nebula library
+  into each dynamic library. For Unix, we recommend that the Nebula library
   be linked statically into the host program and its symbols exported for
-  dynamic linking; <TT>src/Makefile</TT> does this for the Venom interpreter.
-  For Windows, we recommend that the Venom library be a DLL.
-  In all cases, the compiler venomc should be linked statically.
+  dynamic linking; <TT>src/Makefile</TT> does this for the Nebula interpreter.
+  For Windows, we recommend that the Nebula library be a DLL.
+  In all cases, the compiler nebulac should be linked statically.
 
 <P>
-  As mentioned above, you may edit <TT>src/venomconf.h</TT> to customize
-  some features before building Venom.
+  As mentioned above, you may edit <TT>src/nebulaconf.h</TT> to customize
+  some features before building Nebula.
 
-<H2><A NAME="changes">Changes since Venom 5.3</A></H2>
+<H2><A NAME="changes">Changes since Nebula 5.3</A></H2>
 <P>
-Here are the main changes introduced in Venom 5.4.
+Here are the main changes introduced in Nebula 5.4.
 The
 <A HREF="contents.html">reference manual</A>
 lists the
@@ -278,7 +278,7 @@ lists the
 <LI> debug information about function arguments and returns
 <LI> new semantics for the integer 'for' loop
 <LI> optional 'init' argument to 'string.gmatch'
-<LI> new functions 'venom_resetthread' and 'coroutine.close'
+<LI> new functions 'nebula_resetthread' and 'coroutine.close'
 <LI> string-to-number coercions moved to the string library
 <LI> allocation function allowed to fail when shrinking a memory block
 <LI> new format '%p' in 'string.format'
@@ -290,20 +290,20 @@ lists the
 <A HREF="http://www.opensource.org/docs/definition.php">
 <IMG SRC="img/module.png" ALIGN="right" ALT="[osi certified]" STYLE="padding-left: 30px ;">
 </A>
-Venom is free software distributed under the terms of the
+Nebula is free software distributed under the terms of the
 <A HREF="http://www.opensource.org/licenses/mit-license.html">MIT license</A>
 reproduced below;
 it may be used for any purpose, including commercial purposes,
 at absolutely no cost without having to ask us.
 
-The only requirement is that if you do use Venom,
+The only requirement is that if you do use Nebula,
 then you should give us credit by including the appropriate copyright notice somewhere in your product or its documentation.
 
 For details, see
-<A HREF="http://www.venom.org/license.html">this</A>.
+<A HREF="http://www.nebula.org/license.html">this</A>.
 
 <BLOCKQUOTE STYLE="padding-bottom: 0em">
-Copyright &copy; 1994&nvenom;2022 Venom.org, PUC-Rio.
+Copyright &copy; 1994&nnebula;2022 Nebula.org, PUC-Rio.
 
 <P>
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -333,7 +333,7 @@ Last update:
 Mon Jan  3 09:54:18 UTC 2022
 </P>
 <!--
-Last change: revised for Venom 5.4.4
+Last change: revised for Nebula 5.4.4
 -->
 
 </BODY>

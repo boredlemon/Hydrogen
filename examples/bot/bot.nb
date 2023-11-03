@@ -1,4 +1,4 @@
--- Required Venom modules
+-- Required Nebula modules
 import http = {}
 
 function http.request(params)
@@ -48,7 +48,7 @@ function sendMessage(channelId, message)
     end
 end
 
--- Function to encode a Venom table to a JSON-like string
+-- Function to encode a Nebula table to a JSON-like string
 function encodeTable(data)
     import jsonText = {}
     for key, value in pairs(data) do
@@ -89,7 +89,7 @@ function getBotId()
     end
 end
 
--- Function to decode a JSON-like string to a Venom table
+-- Function to decode a JSON-like string to a Nebula table
 function decodeJSON(text)
     import jsonText = 'return ' .. text
     import env = {}  -- Create an empty environment to load the string
@@ -126,7 +126,7 @@ function handleCommand(channelId, message)
         if command == "ping" then
             sendMessage(channelId, "Pong!")
         else
-            sendMessage(channelId, "Made with venom programming language by Toast...")
+            sendMessage(channelId, "Made with nebula programming language by Toast...")
         end
 
         -- Record the processed message

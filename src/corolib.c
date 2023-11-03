@@ -1,26 +1,26 @@
 /*
 ** $Id: corolib.c $
 ** Coroutine Library
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #define corolib_c
-#define VENOM_LIB
+#define NEBULA_LIB
 
 #include "prefix.h"
 
 
 #include <stdlib.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "auxlib.h"
-#include "venomlib.h"
+#include "nebulalib.h"
 
 
-static venom_State *getco (venom_State *L) {
-  venom_State *co = venom_tothread(L, 1);
-  venomL_argexpected(L, co, 1, "thread");
+static nebula_State *getco (nebula_State *L) {
+  nebula_State *co = nebula_tothread(L, 1);
+  nebulaL_argexpected(L, co, 1, "thread");
   return co;
 }
 
@@ -29,88 +29,88 @@ static venom_State *getco (venom_State *L) {
 ** Resumes a coroutine. Returns the number of results for non-error
 ** cases or -1 for errors.
 */
-static int auxresume (venom_State *L, venom_State *co, int narg) {
+static int auxresume (nebula_State *L, nebula_State *co, int narg) {
   int status, nres;
-  if (l_unlikely(!venom_checkstack(co, narg))) {
-    venom_pushliteral(L, "too many arguments to resume");
+  if (l_unlikely(!nebula_checkstack(co, narg))) {
+    nebula_pushliteral(L, "too many arguments to resume");
     return -1;  /* error flag */
   }
-  venom_xmove(L, co, narg);
-  status = venom_resume(co, L, narg, &nres);
-  if (l_likely(status == VENOM_OK || status == VENOM_YIELD)) {
-    if (l_unlikely(!venom_checkstack(L, nres + 1))) {
-      venom_pop(co, nres);  /* remove results anyway */
-      venom_pushliteral(L, "too many results to resume");
+  nebula_xmove(L, co, narg);
+  status = nebula_resume(co, L, narg, &nres);
+  if (l_likely(status == NEBULA_OK || status == NEBULA_YIELD)) {
+    if (l_unlikely(!nebula_checkstack(L, nres + 1))) {
+      nebula_pop(co, nres);  /* remove results anyway */
+      nebula_pushliteral(L, "too many results to resume");
       return -1;  /* error flag */
     }
-    venom_xmove(co, L, nres);  /* move yielded values */
+    nebula_xmove(co, L, nres);  /* move yielded values */
     return nres;
   }
   else {
-    venom_xmove(co, L, 1);  /* move error message */
+    nebula_xmove(co, L, 1);  /* move error message */
     return -1;  /* error flag */
   }
 }
 
 
-static int venomB_coresume (venom_State *L) {
-  venom_State *co = getco(L);
+static int nebulaB_coresume (nebula_State *L) {
+  nebula_State *co = getco(L);
   int r;
-  r = auxresume(L, co, venom_gettop(L) - 1);
+  r = auxresume(L, co, nebula_gettop(L) - 1);
   if (l_unlikely(r < 0)) {
-    venom_pushboolean(L, 0);
-    venom_insert(L, -2);
+    nebula_pushboolean(L, 0);
+    nebula_insert(L, -2);
     return 2;  /* return false + error message */
   }
   else {
-    venom_pushboolean(L, 1);
-    venom_insert(L, -(r + 1));
+    nebula_pushboolean(L, 1);
+    nebula_insert(L, -(r + 1));
     return r + 1;  /* return true + 'resume' returns */
   }
 }
 
 
-static int venomB_auxwrap (venom_State *L) {
-  venom_State *co = venom_tothread(L, venom_upvalueindex(1));
-  int r = auxresume(L, co, venom_gettop(L));
+static int nebulaB_auxwrap (nebula_State *L) {
+  nebula_State *co = nebula_tothread(L, nebula_upvalueindex(1));
+  int r = auxresume(L, co, nebula_gettop(L));
   if (l_unlikely(r < 0)) {  /* error? */
-    int stat = venom_status(co);
-    if (stat != VENOM_OK && stat != VENOM_YIELD) {  /* error in the coroutine? */
-      stat = venom_resetthread(co);  /* close its tbc variables */
-      venom_assert(stat != VENOM_OK);
-      venom_xmove(co, L, 1);  /* move error message to the caller */
+    int stat = nebula_status(co);
+    if (stat != NEBULA_OK && stat != NEBULA_YIELD) {  /* error in the coroutine? */
+      stat = nebula_resetthread(co);  /* close its tbc variables */
+      nebula_assert(stat != NEBULA_OK);
+      nebula_xmove(co, L, 1);  /* move error message to the caller */
     }
-    if (stat != VENOM_ERRMEM &&  /* not a memory error and ... */
-        venom_type(L, -1) == VENOM_TSTRING) {  /* ... error object is a string? */
-      venomL_where(L, 1);  /* add extra info, if available */
-      venom_insert(L, -2);
-      venom_concat(L, 2);
+    if (stat != NEBULA_ERRMEM &&  /* not a memory error and ... */
+        nebula_type(L, -1) == NEBULA_TSTRING) {  /* ... error object is a string? */
+      nebulaL_where(L, 1);  /* add extra info, if available */
+      nebula_insert(L, -2);
+      nebula_concat(L, 2);
     }
-    return venom_error(L);  /* propagate error */
+    return nebula_error(L);  /* propagate error */
   }
   return r;
 }
 
 
-static int venomB_cocreate (venom_State *L) {
-  venom_State *NL;
-  venomL_checktype(L, 1, VENOM_TFUNCTION);
-  NL = venom_newthread(L);
-  venom_pushvalue(L, 1);  /* move function to top */
-  venom_xmove(L, NL, 1);  /* move function from L to NL */
+static int nebulaB_cocreate (nebula_State *L) {
+  nebula_State *NL;
+  nebulaL_checktype(L, 1, NEBULA_TFUNCTION);
+  NL = nebula_newthread(L);
+  nebula_pushvalue(L, 1);  /* move function to top */
+  nebula_xmove(L, NL, 1);  /* move function from L to NL */
   return 1;
 }
 
 
-static int venomB_cowrap (venom_State *L) {
-  venomB_cocreate(L);
-  venom_pushcclosure(L, venomB_auxwrap, 1);
+static int nebulaB_cowrap (nebula_State *L) {
+  nebulaB_cocreate(L);
+  nebula_pushcclosure(L, nebulaB_auxwrap, 1);
   return 1;
 }
 
 
-static int venomB_yield (venom_State *L) {
-  return venom_yield(L, venom_gettop(L));
+static int nebulaB_yield (nebula_State *L) {
+  return nebula_yield(L, nebula_gettop(L));
 }
 
 
@@ -124,17 +124,17 @@ static const char *const statname[] =
   {"running", "dead", "suspended", "normal"};
 
 
-static int auxstatus (venom_State *L, venom_State *co) {
+static int auxstatus (nebula_State *L, nebula_State *co) {
   if (L == co) return COS_RUN;
   else {
-    switch (venom_status(co)) {
-      case VENOM_YIELD:
+    switch (nebula_status(co)) {
+      case NEBULA_YIELD:
         return COS_YIELD;
-      case VENOM_OK: {
-        venom_Debug ar;
-        if (venom_getstack(co, 0, &ar))  /* does it have frames? */
+      case NEBULA_OK: {
+        nebula_Debug ar;
+        if (nebula_getstack(co, 0, &ar))  /* does it have frames? */
           return COS_NORM;  /* it is running */
-        else if (venom_gettop(co) == 0)
+        else if (nebula_gettop(co) == 0)
             return COS_DEAD;
         else
           return COS_YIELD;  /* initial state */
@@ -146,65 +146,65 @@ static int auxstatus (venom_State *L, venom_State *co) {
 }
 
 
-static int venomB_costatus (venom_State *L) {
-  venom_State *co = getco(L);
-  venom_pushstring(L, statname[auxstatus(L, co)]);
+static int nebulaB_costatus (nebula_State *L) {
+  nebula_State *co = getco(L);
+  nebula_pushstring(L, statname[auxstatus(L, co)]);
   return 1;
 }
 
 
-static int venomB_yieldable (venom_State *L) {
-  venom_State *co = venom_isnone(L, 1) ? L : getco(L);
-  venom_pushboolean(L, venom_isyieldable(co));
+static int nebulaB_yieldable (nebula_State *L) {
+  nebula_State *co = nebula_isnone(L, 1) ? L : getco(L);
+  nebula_pushboolean(L, nebula_isyieldable(co));
   return 1;
 }
 
 
-static int venomB_corunning (venom_State *L) {
-  int ismain = venom_pushthread(L);
-  venom_pushboolean(L, ismain);
+static int nebulaB_corunning (nebula_State *L) {
+  int ismain = nebula_pushthread(L);
+  nebula_pushboolean(L, ismain);
   return 2;
 }
 
 
-static int venomB_close (venom_State *L) {
-  venom_State *co = getco(L);
+static int nebulaB_close (nebula_State *L) {
+  nebula_State *co = getco(L);
   int status = auxstatus(L, co);
   switch (status) {
     case COS_DEAD: case COS_YIELD: {
-      status = venom_resetthread(co);
-      if (status == VENOM_OK) {
-        venom_pushboolean(L, 1);
+      status = nebula_resetthread(co);
+      if (status == NEBULA_OK) {
+        nebula_pushboolean(L, 1);
         return 1;
       }
       else {
-        venom_pushboolean(L, 0);
-        venom_xmove(co, L, 1);  /* move error message */
+        nebula_pushboolean(L, 0);
+        nebula_xmove(co, L, 1);  /* move error message */
         return 2;
       }
     }
     default:  /* normal or running coroutine */
-      return venomL_error(L, "cannot close a %s coroutine", statname[status]);
+      return nebulaL_error(L, "cannot close a %s coroutine", statname[status]);
   }
 }
 
 
-static const venomL_Reg co_funcs[] = {
-  {"create", venomB_cocreate},
-  {"resume", venomB_coresume},
-  {"running", venomB_corunning},
-  {"status", venomB_costatus},
-  {"wrap", venomB_cowrap},
-  {"yield", venomB_yield},
-  {"isyieldable", venomB_yieldable},
-  {"close", venomB_close},
+static const nebulaL_Reg co_funcs[] = {
+  {"create", nebulaB_cocreate},
+  {"resume", nebulaB_coresume},
+  {"running", nebulaB_corunning},
+  {"status", nebulaB_costatus},
+  {"wrap", nebulaB_cowrap},
+  {"yield", nebulaB_yield},
+  {"isyieldable", nebulaB_yieldable},
+  {"close", nebulaB_close},
   {NULL, NULL}
 };
 
 
 
-VENOMMOD_API int venomopen_coroutine (venom_State *L) {
-  venomL_newlib(L, co_funcs);
+NEBULAMOD_API int nebulaopen_coroutine (nebula_State *L) {
+  nebulaL_newlib(L, co_funcs);
   return 1;
 }
 

@@ -1,7 +1,7 @@
 /*
 ** $Id: string.h $
-** String table (keep all strings handled by Venom)
-** See Copyright Notice in venom.h
+** String table (keep all strings handled by Nebula)
+** See Copyright Notice in nebula.h
 */
 
 #ifndef string_h
@@ -25,33 +25,33 @@
 */
 #define sizestring(l)  (offsetof(TString, contents) + ((l) + 1) * sizeof(char))
 
-#define venomS_newliteral(L, s)	(venomS_newlstr(L, "" s, \
+#define nebulaS_newliteral(L, s)	(nebulaS_newlstr(L, "" s, \
                                  (sizeof(s)/sizeof(char))-1))
 
 
 /*
 ** test whether a string is a reserved word
 */
-#define isreserved(s)	((s)->tt == VENOM_VSHRSTR && (s)->extra > 0)
+#define isreserved(s)	((s)->tt == NEBULA_VSHRSTR && (s)->extra > 0)
 
 
 /*
 ** equality for short strings, which are always internalized
 */
-#define eqshrstr(a,b)	check_exp((a)->tt == VENOM_VSHRSTR, (a) == (b))
+#define eqshrstr(a,b)	check_exp((a)->tt == NEBULA_VSHRSTR, (a) == (b))
 
 
-VENOMI_FUNC unsigned int venomS_hash (const char *str, size_t l, unsigned int seed);
-VENOMI_FUNC unsigned int venomS_hashlongstr (TString *ts);
-VENOMI_FUNC int venomS_eqlngstr (TString *a, TString *b);
-VENOMI_FUNC void venomS_resize (venom_State *L, int newsize);
-VENOMI_FUNC void venomS_clearcache (global_State *g);
-VENOMI_FUNC void venomS_init (venom_State *L);
-VENOMI_FUNC void venomS_remove (venom_State *L, TString *ts);
-VENOMI_FUNC Udata *venomS_newudata (venom_State *L, size_t s, int nuvalue);
-VENOMI_FUNC TString *venomS_newlstr (venom_State *L, const char *str, size_t l);
-VENOMI_FUNC TString *venomS_new (venom_State *L, const char *str);
-VENOMI_FUNC TString *venomS_createlngstrobj (venom_State *L, size_t l);
+NEBULAI_FUNC unsigned int nebulaS_hash (const char *str, size_t l, unsigned int seed);
+NEBULAI_FUNC unsigned int nebulaS_hashlongstr (TString *ts);
+NEBULAI_FUNC int nebulaS_eqlngstr (TString *a, TString *b);
+NEBULAI_FUNC void nebulaS_resize (nebula_State *L, int newsize);
+NEBULAI_FUNC void nebulaS_clearcache (global_State *g);
+NEBULAI_FUNC void nebulaS_init (nebula_State *L);
+NEBULAI_FUNC void nebulaS_remove (nebula_State *L, TString *ts);
+NEBULAI_FUNC Udata *nebulaS_newudata (nebula_State *L, size_t s, int nuvalue);
+NEBULAI_FUNC TString *nebulaS_newlstr (nebula_State *L, const char *str, size_t l);
+NEBULAI_FUNC TString *nebulaS_new (nebula_State *L, const char *str);
+NEBULAI_FUNC TString *nebulaS_createlngstrobj (nebula_State *L, size_t l);
 
 
 #endif

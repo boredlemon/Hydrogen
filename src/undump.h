@@ -1,7 +1,7 @@
 /*
 ** $Id: undump.h $
-** load precompiled Venom chunks
-** See Copyright Notice in venom.h
+** load precompiled Nebula chunks
+** See Copyright Notice in nebula.h
 */
 
 #ifndef undump_h
@@ -13,24 +13,24 @@
 
 
 /* data to catch conversion errors */
-#define VENOMC_DATA	"\x19\x93\r\n\x1a\n"
+#define NEBULAC_DATA	"\x19\x93\r\n\x1a\n"
 
-#define VENOMC_INT	0x5678
-#define VENOMC_NUM	cast_num(370.5)
+#define NEBULAC_INT	0x5678
+#define NEBULAC_NUM	cast_num(370.5)
 
 /*
 ** Encode major-minor version in one byte, one nibble for each
 */
 #define MYINT(s)	(s[0]-'0')  /* assume one-digit numerals */
-#define VENOMC_VERSION	(MYINT(VENOM_VERSION_MAJOR)*16+MYINT(VENOM_VERSION_MINOR))
+#define NEBULAC_VERSION	(MYINT(NEBULA_VERSION_MAJOR)*16+MYINT(NEBULA_VERSION_MINOR))
 
-#define VENOMC_FORMAT	0	/* this is the official format */
+#define NEBULAC_FORMAT	0	/* this is the official format */
 
 /* load one chunk; from undump.c */
-VENOMI_FUNC LClosure* venomU_undump (venom_State* L, ZIO* Z, const char* name);
+NEBULAI_FUNC LClosure* nebulaU_undump (nebula_State* L, ZIO* Z, const char* name);
 
 /* dump one chunk; from dump.c */
-VENOMI_FUNC int venomU_dump (venom_State* L, const Proto* f, venom_Writer w,
+NEBULAI_FUNC int nebulaU_dump (nebula_State* L, const Proto* f, nebula_Writer w,
                          void* data, int strip);
 
 #endif

@@ -1,11 +1,11 @@
 /*
 ** $Id: dblib.c $
-** Interface from Venom to its debug API
-** See Copyright Notice in venom.h
+** Interface from Nebula to its debug API
+** See Copyright Notice in nebula.h
 */
 
 #define dblib_c
-#define VENOM_LIB
+#define NEBULA_LIB
 
 #include "prefix.h"
 
@@ -14,10 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "auxlib.h"
-#include "venomlib.h"
+#include "nebulalib.h"
 
 /*
 ** The hook table at registry[HOOKKEY] maps threads to their current
@@ -31,55 +31,55 @@ static const char *const HOOKKEY = "_HOOKKEY";
 ** guarantees about its stack space; any push in L1 must be
 ** checked.
 */
-static void checkstack (venom_State *L, venom_State *L1, int n) {
-  if (l_unlikely(L != L1 && !venom_checkstack(L1, n)))
-    venomL_error(L, "stack overflow");
+static void checkstack (nebula_State *L, nebula_State *L1, int n) {
+  if (l_unlikely(L != L1 && !nebula_checkstack(L1, n)))
+    nebulaL_error(L, "stack overflow");
 }
 
 
-static int db_getregistry (venom_State *L) {
-  venom_pushvalue(L, VENOM_REGISTRYINDEX);
+static int db_getregistry (nebula_State *L) {
+  nebula_pushvalue(L, NEBULA_REGISTRYINDEX);
   return 1;
 }
 
 
-static int db_getmetatable (venom_State *L) {
-  venomL_checkany(L, 1);
-  if (!venom_getmetatable(L, 1)) {
-    venom_pushnil(L);  /* no metatable */
+static int db_getmetatable (nebula_State *L) {
+  nebulaL_checkany(L, 1);
+  if (!nebula_getmetatable(L, 1)) {
+    nebula_pushnil(L);  /* no metatable */
   }
   return 1;
 }
 
 
-static int db_setmetatable (venom_State *L) {
-  int t = venom_type(L, 2);
-  venomL_argexpected(L, t == VENOM_TNIL || t == VENOM_TTABLE, 2, "nil or table");
-  venom_settop(L, 2);
-  venom_setmetatable(L, 1);
+static int db_setmetatable (nebula_State *L) {
+  int t = nebula_type(L, 2);
+  nebulaL_argexpected(L, t == NEBULA_TNIL || t == NEBULA_TTABLE, 2, "nil or table");
+  nebula_settop(L, 2);
+  nebula_setmetatable(L, 1);
   return 1;  /* return 1st argument */
 }
 
 
-static int db_getuservalue (venom_State *L) {
-  int n = (int)venomL_optinteger(L, 2, 1);
-  if (venom_type(L, 1) != VENOM_TUSERDATA)
-    venomL_pushfail(L);
-  else if (venom_getiuservalue(L, 1, n) != VENOM_TNONE) {
-    venom_pushboolean(L, 1);
+static int db_getuservalue (nebula_State *L) {
+  int n = (int)nebulaL_optinteger(L, 2, 1);
+  if (nebula_type(L, 1) != NEBULA_TUSERDATA)
+    nebulaL_pushfail(L);
+  else if (nebula_getiuservalue(L, 1, n) != NEBULA_TNONE) {
+    nebula_pushboolean(L, 1);
     return 2;
   }
   return 1;
 }
 
 
-static int db_setuservalue (venom_State *L) {
-  int n = (int)venomL_optinteger(L, 3, 1);
-  venomL_checktype(L, 1, VENOM_TUSERDATA);
-  venomL_checkany(L, 2);
-  venom_settop(L, 2);
-  if (!venom_setiuservalue(L, 1, n))
-    venomL_pushfail(L);
+static int db_setuservalue (nebula_State *L) {
+  int n = (int)nebulaL_optinteger(L, 3, 1);
+  nebulaL_checktype(L, 1, NEBULA_TUSERDATA);
+  nebulaL_checkany(L, 2);
+  nebula_settop(L, 2);
+  if (!nebula_setiuservalue(L, 1, n))
+    nebulaL_pushfail(L);
   return 1;
 }
 
@@ -90,10 +90,10 @@ static int db_setuservalue (venom_State *L) {
 ** 1 if this argument is present (so that functions can skip it to
 ** access their other arguments)
 */
-static venom_State *getthread (venom_State *L, int *arg) {
-  if (venom_isthread(L, 1)) {
+static nebula_State *getthread (nebula_State *L, int *arg) {
+  if (nebula_isthread(L, 1)) {
     *arg = 1;
-    return venom_tothread(L, 1);
+    return nebula_tothread(L, 1);
   }
   else {
     *arg = 0;
@@ -103,72 +103,72 @@ static venom_State *getthread (venom_State *L, int *arg) {
 
 
 /*
-** Variations of 'venom_settable', used by 'db_getinfo' to put results
-** from 'venom_getinfo' into result table. Key is always a string;
+** Variations of 'nebula_settable', used by 'db_getinfo' to put results
+** from 'nebula_getinfo' into result table. Key is always a string;
 ** value can be a string, an int, or a boolean.
 */
-static void settabss (venom_State *L, const char *k, const char *v) {
-  venom_pushstring(L, v);
-  venom_setfield(L, -2, k);
+static void settabss (nebula_State *L, const char *k, const char *v) {
+  nebula_pushstring(L, v);
+  nebula_setfield(L, -2, k);
 }
 
-static void settabsi (venom_State *L, const char *k, int v) {
-  venom_pushinteger(L, v);
-  venom_setfield(L, -2, k);
+static void settabsi (nebula_State *L, const char *k, int v) {
+  nebula_pushinteger(L, v);
+  nebula_setfield(L, -2, k);
 }
 
-static void settabsb (venom_State *L, const char *k, int v) {
-  venom_pushboolean(L, v);
-  venom_setfield(L, -2, k);
+static void settabsb (nebula_State *L, const char *k, int v) {
+  nebula_pushboolean(L, v);
+  nebula_setfield(L, -2, k);
 }
 
 
 /*
-** In function 'db_getinfo', the call to 'venom_getinfo' may push
+** In function 'db_getinfo', the call to 'nebula_getinfo' may push
 ** results on the stack; later it creates the result table to put
 ** these objects. Function 'treatstackoption' puts the result from
-** 'venom_getinfo' on top of the result table so that it can call
-** 'venom_setfield'.
+** 'nebula_getinfo' on top of the result table so that it can call
+** 'nebula_setfield'.
 */
-static void treatstackoption (venom_State *L, venom_State *L1, const char *fname) {
+static void treatstackoption (nebula_State *L, nebula_State *L1, const char *fname) {
   if (L == L1)
-    venom_rotate(L, -2, 1);  /* exchange object and table */
+    nebula_rotate(L, -2, 1);  /* exchange object and table */
   else
-    venom_xmove(L1, L, 1);  /* move object to the "main" stack */
-  venom_setfield(L, -2, fname);  /* put object into table */
+    nebula_xmove(L1, L, 1);  /* move object to the "main" stack */
+  nebula_setfield(L, -2, fname);  /* put object into table */
 }
 
 
 /*
-** Calls 'venom_getinfo' and collects all results in a new table.
+** Calls 'nebula_getinfo' and collects all results in a new table.
 ** L1 needs stack space for an optional input (function) plus
 ** two optional outputs (function and line table) from function
-** 'venom_getinfo'.
+** 'nebula_getinfo'.
 */
-static int db_getinfo (venom_State *L) {
-  venom_Debug ar;
+static int db_getinfo (nebula_State *L) {
+  nebula_Debug ar;
   int arg;
-  venom_State *L1 = getthread(L, &arg);
-  const char *options = venomL_optstring(L, arg+2, "flnSrtu");
+  nebula_State *L1 = getthread(L, &arg);
+  const char *options = nebulaL_optstring(L, arg+2, "flnSrtu");
   checkstack(L, L1, 3);
-  venomL_argcheck(L, options[0] != '>', arg + 2, "invalid option '>'");
-  if (venom_isfunction(L, arg + 1)) {  /* info about a function? */
-    options = venom_pushfstring(L, ">%s", options);  /* add '>' to 'options' */
-    venom_pushvalue(L, arg + 1);  /* move function to 'L1' stack */
-    venom_xmove(L, L1, 1);
+  nebulaL_argcheck(L, options[0] != '>', arg + 2, "invalid option '>'");
+  if (nebula_isfunction(L, arg + 1)) {  /* info about a function? */
+    options = nebula_pushfstring(L, ">%s", options);  /* add '>' to 'options' */
+    nebula_pushvalue(L, arg + 1);  /* move function to 'L1' stack */
+    nebula_xmove(L, L1, 1);
   }
   else {  /* stack level */
-    if (!venom_getstack(L1, (int)venomL_checkinteger(L, arg + 1), &ar)) {
-      venomL_pushfail(L);  /* level out of range */
+    if (!nebula_getstack(L1, (int)nebulaL_checkinteger(L, arg + 1), &ar)) {
+      nebulaL_pushfail(L);  /* level out of range */
       return 1;
     }
   }
-  if (!venom_getinfo(L1, options, &ar))
-    return venomL_argerror(L, arg+2, "invalid option");
-  venom_newtable(L);  /* table to collect results */
+  if (!nebula_getinfo(L1, options, &ar))
+    return nebulaL_argerror(L, arg+2, "invalid option");
+  nebula_newtable(L);  /* table to collect results */
   if (strchr(options, 'S')) {
-    venom_pushlstring(L, ar.source, ar.srclen);
-    venom_setfield(L, -2, "source");
+    nebula_pushlstring(L, ar.source, ar.srclen);
+    nebula_setfield(L, -2, "source");
     settabss(L, "short_src", ar.short_src);
     settabsi(L, "linedefined", ar.linedefined);
     settabsi(L, "lastlinedefined", ar.lastlinedefined);
@@ -199,54 +199,54 @@ static int db_getinfo (venom_State *L) {
 }
 
 
-static int db_getlocal (venom_State *L) {
+static int db_getlocal (nebula_State *L) {
   int arg;
-  venom_State *L1 = getthread(L, &arg);
-  int nvar = (int)venomL_checkinteger(L, arg + 2);  /* local-variable index */
-  if (venom_isfunction(L, arg + 1)) {  /* function argument? */
-    venom_pushvalue(L, arg + 1);  /* push function */
-    venom_pushstring(L, venom_getlocal(L, NULL, nvar));  /* push local name */
+  nebula_State *L1 = getthread(L, &arg);
+  int nvar = (int)nebulaL_checkinteger(L, arg + 2);  /* local-variable index */
+  if (nebula_isfunction(L, arg + 1)) {  /* function argument? */
+    nebula_pushvalue(L, arg + 1);  /* push function */
+    nebula_pushstring(L, nebula_getlocal(L, NULL, nvar));  /* push local name */
     return 1;  /* return only name (there is no value) */
   }
   else {  /* stack-level argument */
-    venom_Debug ar;
+    nebula_Debug ar;
     const char *name;
-    int level = (int)venomL_checkinteger(L, arg + 1);
-    if (l_unlikely(!venom_getstack(L1, level, &ar)))  /* out of range? */
-      return venomL_argerror(L, arg+1, "level out of range");
+    int level = (int)nebulaL_checkinteger(L, arg + 1);
+    if (l_unlikely(!nebula_getstack(L1, level, &ar)))  /* out of range? */
+      return nebulaL_argerror(L, arg+1, "level out of range");
     checkstack(L, L1, 1);
-    name = venom_getlocal(L1, &ar, nvar);
+    name = nebula_getlocal(L1, &ar, nvar);
     if (name) {
-      venom_xmove(L1, L, 1);  /* move local value */
-      venom_pushstring(L, name);  /* push name */
-      venom_rotate(L, -2, 1);  /* re-order */
+      nebula_xmove(L1, L, 1);  /* move local value */
+      nebula_pushstring(L, name);  /* push name */
+      nebula_rotate(L, -2, 1);  /* re-order */
       return 2;
     }
     else {
-      venomL_pushfail(L);  /* no name (nor value) */
+      nebulaL_pushfail(L);  /* no name (nor value) */
       return 1;
     }
   }
 }
 
 
-static int db_setlocal (venom_State *L) {
+static int db_setlocal (nebula_State *L) {
   int arg;
   const char *name;
-  venom_State *L1 = getthread(L, &arg);
-  venom_Debug ar;
-  int level = (int)venomL_checkinteger(L, arg + 1);
-  int nvar = (int)venomL_checkinteger(L, arg + 2);
-  if (l_unlikely(!venom_getstack(L1, level, &ar)))  /* out of range? */
-    return venomL_argerror(L, arg+1, "level out of range");
-  venomL_checkany(L, arg+3);
-  venom_settop(L, arg+3);
+  nebula_State *L1 = getthread(L, &arg);
+  nebula_Debug ar;
+  int level = (int)nebulaL_checkinteger(L, arg + 1);
+  int nvar = (int)nebulaL_checkinteger(L, arg + 2);
+  if (l_unlikely(!nebula_getstack(L1, level, &ar)))  /* out of range? */
+    return nebulaL_argerror(L, arg+1, "level out of range");
+  nebulaL_checkany(L, arg+3);
+  nebula_settop(L, arg+3);
   checkstack(L, L1, 1);
-  venom_xmove(L, L1, 1);
-  name = venom_setlocal(L1, &ar, nvar);
+  nebula_xmove(L, L1, 1);
+  name = nebula_setlocal(L1, &ar, nvar);
   if (name == NULL)
-    venom_pop(L1, 1);  /* pop value (if not popped by 'venom_setlocal') */
-  venom_pushstring(L, name);
+    nebula_pop(L1, 1);  /* pop value (if not popped by 'nebula_setlocal') */
+  nebula_pushstring(L, name);
   return 1;
 }
 
@@ -254,25 +254,25 @@ static int db_setlocal (venom_State *L) {
 /*
 ** get (if 'get' is true) or set an upvalue from a closure
 */
-static int auxupvalue (venom_State *L, int get) {
+static int auxupvalue (nebula_State *L, int get) {
   const char *name;
-  int n = (int)venomL_checkinteger(L, 2);  /* upvalue index */
-  venomL_checktype(L, 1, VENOM_TFUNCTION);  /* closure */
-  name = get ? venom_getupvalue(L, 1, n) : venom_setupvalue(L, 1, n);
+  int n = (int)nebulaL_checkinteger(L, 2);  /* upvalue index */
+  nebulaL_checktype(L, 1, NEBULA_TFUNCTION);  /* closure */
+  name = get ? nebula_getupvalue(L, 1, n) : nebula_setupvalue(L, 1, n);
   if (name == NULL) return 0;
-  venom_pushstring(L, name);
-  venom_insert(L, -(get+1));  /* no-op if get is false */
+  nebula_pushstring(L, name);
+  nebula_insert(L, -(get+1));  /* no-op if get is false */
   return get + 1;
 }
 
 
-static int db_getupvalue (venom_State *L) {
+static int db_getupvalue (nebula_State *L) {
   return auxupvalue(L, 1);
 }
 
 
-static int db_setupvalue (venom_State *L) {
-  venomL_checkany(L, 3);
+static int db_setupvalue (nebula_State *L) {
+  nebulaL_checkany(L, 3);
   return auxupvalue(L, 0);
 }
 
@@ -281,36 +281,36 @@ static int db_setupvalue (venom_State *L) {
 ** Check whether a given upvalue from a given closure exists and
 ** returns its index
 */
-static void *checkupval (venom_State *L, int argf, int argnup, int *pnup) {
+static void *checkupval (nebula_State *L, int argf, int argnup, int *pnup) {
   void *id;
-  int nup = (int)venomL_checkinteger(L, argnup);  /* upvalue index */
-  venomL_checktype(L, argf, VENOM_TFUNCTION);  /* closure */
-  id = venom_upvalueid(L, argf, nup);
+  int nup = (int)nebulaL_checkinteger(L, argnup);  /* upvalue index */
+  nebulaL_checktype(L, argf, NEBULA_TFUNCTION);  /* closure */
+  id = nebula_upvalueid(L, argf, nup);
   if (pnup) {
-    venomL_argcheck(L, id != NULL, argnup, "invalid upvalue index");
+    nebulaL_argcheck(L, id != NULL, argnup, "invalid upvalue index");
     *pnup = nup;
   }
   return id;
 }
 
 
-static int db_upvalueid (venom_State *L) {
+static int db_upvalueid (nebula_State *L) {
   void *id = checkupval(L, 1, 2, NULL);
   if (id != NULL)
-    venom_pushlightuserdata(L, id);
+    nebula_pushlightuserdata(L, id);
   else
-    venomL_pushfail(L);
+    nebulaL_pushfail(L);
   return 1;
 }
 
 
-static int db_upvaluejoin (venom_State *L) {
+static int db_upvaluejoin (nebula_State *L) {
   int n1, n2;
   checkupval(L, 1, 2, &n1);
   checkupval(L, 3, 4, &n2);
-  venomL_argcheck(L, !venom_iscfunction(L, 1), 1, "Venom function expected");
-  venomL_argcheck(L, !venom_iscfunction(L, 3), 3, "Venom function expected");
-  venom_upvaluejoin(L, 1, n1, 3, n2);
+  nebulaL_argcheck(L, !nebula_iscfunction(L, 1), 1, "Nebula function expected");
+  nebulaL_argcheck(L, !nebula_iscfunction(L, 3), 3, "Nebula function expected");
+  nebula_upvaluejoin(L, 1, n1, 3, n2);
   return 0;
 }
 
@@ -319,18 +319,18 @@ static int db_upvaluejoin (venom_State *L) {
 ** Call hook function registered at hook table for the current
 ** thread (if there is one)
 */
-static void hookf (venom_State *L, venom_Debug *ar) {
+static void hookf (nebula_State *L, nebula_Debug *ar) {
   static const char *const hooknames[] =
     {"call", "return", "line", "count", "tail call"};
-  venom_getfield(L, VENOM_REGISTRYINDEX, HOOKKEY);
-  venom_pushthread(L);
-  if (venom_rawget(L, -2) == VENOM_TFUNCTION) {  /* is there a hook function? */
-    venom_pushstring(L, hooknames[(int)ar->event]);  /* push event name */
+  nebula_getfield(L, NEBULA_REGISTRYINDEX, HOOKKEY);
+  nebula_pushthread(L);
+  if (nebula_rawget(L, -2) == NEBULA_TFUNCTION) {  /* is there a hook function? */
+    nebula_pushstring(L, hooknames[(int)ar->event]);  /* push event name */
     if (ar->currentline >= 0)
-      venom_pushinteger(L, ar->currentline);  /* push current line */
-    else venom_pushnil(L);
-    venom_assert(venom_getinfo(L, "lS", ar));
-    venom_call(L, 2, 0);  /* call hook function */
+      nebula_pushinteger(L, ar->currentline);  /* push current line */
+    else nebula_pushnil(L);
+    nebula_assert(nebula_getinfo(L, "lS", ar));
+    nebula_call(L, 2, 0);  /* call hook function */
   }
 }
 
@@ -340,10 +340,10 @@ static void hookf (venom_State *L, venom_Debug *ar) {
 */
 static int makemask (const char *smask, int count) {
   int mask = 0;
-  if (strchr(smask, 'c')) mask |= VENOM_MASKCALL;
-  if (strchr(smask, 'r')) mask |= VENOM_MASKRET;
-  if (strchr(smask, 'l')) mask |= VENOM_MASKLINE;
-  if (count > 0) mask |= VENOM_MASKCOUNT;
+  if (strchr(smask, 'c')) mask |= NEBULA_MASKCALL;
+  if (strchr(smask, 'r')) mask |= NEBULA_MASKRET;
+  if (strchr(smask, 'l')) mask |= NEBULA_MASKLINE;
+  if (count > 0) mask |= NEBULA_MASKCOUNT;
   return mask;
 }
 
@@ -353,107 +353,107 @@ static int makemask (const char *smask, int count) {
 */
 static char *unmakemask (int mask, char *smask) {
   int i = 0;
-  if (mask & VENOM_MASKCALL) smask[i++] = 'c';
-  if (mask & VENOM_MASKRET) smask[i++] = 'r';
-  if (mask & VENOM_MASKLINE) smask[i++] = 'l';
+  if (mask & NEBULA_MASKCALL) smask[i++] = 'c';
+  if (mask & NEBULA_MASKRET) smask[i++] = 'r';
+  if (mask & NEBULA_MASKLINE) smask[i++] = 'l';
   smask[i] = '\0';
   return smask;
 }
 
 
-static int db_sethook (venom_State *L) {
+static int db_sethook (nebula_State *L) {
   int arg, mask, count;
-  venom_Hook func;
-  venom_State *L1 = getthread(L, &arg);
-  if (venom_isnoneornil(L, arg+1)) {  /* no hook? */
-    venom_settop(L, arg+1);
+  nebula_Hook func;
+  nebula_State *L1 = getthread(L, &arg);
+  if (nebula_isnoneornil(L, arg+1)) {  /* no hook? */
+    nebula_settop(L, arg+1);
     func = NULL; mask = 0; count = 0;  /* turn off hooks */
   }
   else {
-    const char *smask = venomL_checkstring(L, arg+2);
-    venomL_checktype(L, arg+1, VENOM_TFUNCTION);
-    count = (int)venomL_optinteger(L, arg + 3, 0);
+    const char *smask = nebulaL_checkstring(L, arg+2);
+    nebulaL_checktype(L, arg+1, NEBULA_TFUNCTION);
+    count = (int)nebulaL_optinteger(L, arg + 3, 0);
     func = hookf; mask = makemask(smask, count);
   }
-  if (!venomL_getsubtable(L, VENOM_REGISTRYINDEX, HOOKKEY)) {
+  if (!nebulaL_getsubtable(L, NEBULA_REGISTRYINDEX, HOOKKEY)) {
     /* table just created; initialize it */
-    venom_pushliteral(L, "k");
-    venom_setfield(L, -2, "__mode");  /** hooktable.__mode = "k" */
-    venom_pushvalue(L, -1);
-    venom_setmetatable(L, -2);  /* metatable(hooktable) = hooktable */
+    nebula_pushliteral(L, "k");
+    nebula_setfield(L, -2, "__mode");  /** hooktable.__mode = "k" */
+    nebula_pushvalue(L, -1);
+    nebula_setmetatable(L, -2);  /* metatable(hooktable) = hooktable */
   }
   checkstack(L, L1, 1);
-  venom_pushthread(L1); venom_xmove(L1, L, 1);  /* key (thread) */
-  venom_pushvalue(L, arg + 1);  /* value (hook function) */
-  venom_rawset(L, -3);  /* hooktable[L1] = new Venom hook */
-  venom_sethook(L1, func, mask, count);
+  nebula_pushthread(L1); nebula_xmove(L1, L, 1);  /* key (thread) */
+  nebula_pushvalue(L, arg + 1);  /* value (hook function) */
+  nebula_rawset(L, -3);  /* hooktable[L1] = new Nebula hook */
+  nebula_sethook(L1, func, mask, count);
   return 0;
 }
 
 
-static int db_gethook (venom_State *L) {
+static int db_gethook (nebula_State *L) {
   int arg;
-  venom_State *L1 = getthread(L, &arg);
+  nebula_State *L1 = getthread(L, &arg);
   char buff[5];
-  int mask = venom_gethookmask(L1);
-  venom_Hook hook = venom_gethook(L1);
+  int mask = nebula_gethookmask(L1);
+  nebula_Hook hook = nebula_gethook(L1);
   if (hook == NULL) {  /* no hook? */
-    venomL_pushfail(L);
+    nebulaL_pushfail(L);
     return 1;
   }
   else if (hook != hookf)  /* external hook? */
-    venom_pushliteral(L, "external hook");
+    nebula_pushliteral(L, "external hook");
   else {  /* hook table must exist */
-    venom_getfield(L, VENOM_REGISTRYINDEX, HOOKKEY);
+    nebula_getfield(L, NEBULA_REGISTRYINDEX, HOOKKEY);
     checkstack(L, L1, 1);
-    venom_pushthread(L1); venom_xmove(L1, L, 1);
-    venom_rawget(L, -2);   /* 1st result = hooktable[L1] */
-    venom_remove(L, -2);  /* remove hook table */
+    nebula_pushthread(L1); nebula_xmove(L1, L, 1);
+    nebula_rawget(L, -2);   /* 1st result = hooktable[L1] */
+    nebula_remove(L, -2);  /* remove hook table */
   }
-  venom_pushstring(L, unmakemask(mask, buff));  /* 2nd result = mask */
-  venom_pushinteger(L, venom_gethookcount(L1));  /* 3rd result = count */
+  nebula_pushstring(L, unmakemask(mask, buff));  /* 2nd result = mask */
+  nebula_pushinteger(L, nebula_gethookcount(L1));  /* 3rd result = count */
   return 3;
 }
 
 
-static int db_debug (venom_State *L) {
+static int db_debug (nebula_State *L) {
   for (;;) {
     char buffer[250];
-    venom_writestringerror("%s", "venom_debug> ");
+    nebula_writestringerror("%s", "nebula_debug> ");
     if (fgets(buffer, sizeof(buffer), stdin) == NULL ||
         strcmp(buffer, "cont\n") == 0)
       return 0;
-    if (venomL_loadbuffer(L, buffer, strlen(buffer), "=(debug command)") ||
-        venom_pcall(L, 0, 0, 0))
-      venom_writestringerror("%s\n", venomL_tolstring(L, -1, NULL));
-    venom_settop(L, 0);  /* remove eventual returns */
+    if (nebulaL_loadbuffer(L, buffer, strlen(buffer), "=(debug command)") ||
+        nebula_pcall(L, 0, 0, 0))
+      nebula_writestringerror("%s\n", nebulaL_tolstring(L, -1, NULL));
+    nebula_settop(L, 0);  /* remove eventual returns */
   }
 }
 
 
-static int db_traceback (venom_State *L) {
+static int db_traceback (nebula_State *L) {
   int arg;
-  venom_State *L1 = getthread(L, &arg);
-  const char *msg = venom_tostring(L, arg + 1);
-  if (msg == NULL && !venom_isnoneornil(L, arg + 1))  /* non-string 'msg'? */
-    venom_pushvalue(L, arg + 1);  /* return it untouched */
+  nebula_State *L1 = getthread(L, &arg);
+  const char *msg = nebula_tostring(L, arg + 1);
+  if (msg == NULL && !nebula_isnoneornil(L, arg + 1))  /* non-string 'msg'? */
+    nebula_pushvalue(L, arg + 1);  /* return it untouched */
   else {
-    int level = (int)venomL_optinteger(L, arg + 2, (L == L1) ? 1 : 0);
-    venomL_traceback(L, L1, msg, level);
+    int level = (int)nebulaL_optinteger(L, arg + 2, (L == L1) ? 1 : 0);
+    nebulaL_traceback(L, L1, msg, level);
   }
   return 1;
 }
 
 
-static int db_setcstacklimit (venom_State *L) {
-  int limit = (int)venomL_checkinteger(L, 1);
-  int res = venom_setcstacklimit(L, limit);
-  venom_pushinteger(L, res);
+static int db_setcstacklimit (nebula_State *L) {
+  int limit = (int)nebulaL_checkinteger(L, 1);
+  int res = nebula_setcstacklimit(L, limit);
+  nebula_pushinteger(L, res);
   return 1;
 }
 
 
-static const venomL_Reg dblib[] = {
+static const nebulaL_Reg dblib[] = {
   {"debug", db_debug},
   {"getuservalue", db_getuservalue},
   {"gethook", db_gethook},
@@ -475,7 +475,7 @@ static const venomL_Reg dblib[] = {
 };
 
 
-VENOMMOD_API int venomopen_debug (venom_State *L) {
-  venomL_newlib(L, dblib);
+NEBULAMOD_API int nebulaopen_debug (nebula_State *L) {
+  nebulaL_newlib(L, dblib);
   return 1;
 }

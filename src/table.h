@@ -1,7 +1,7 @@
 /*
 ** $Id: table.h $
-** Venom tables (hash)
-** See Copyright Notice in venom.h
+** Nebula tables (hash)
+** See Copyright Notice in nebula.h
 */
 
 #ifndef table_h
@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-VENOMI_FUNC const TValue *venomH_getint (Table *t, venom_Integer key);
-VENOMI_FUNC void venomH_setint (venom_State *L, Table *t, venom_Integer key,
+NEBULAI_FUNC const TValue *nebulaH_getint (Table *t, nebula_Integer key);
+NEBULAI_FUNC void nebulaH_setint (nebula_State *L, Table *t, nebula_Integer key,
                                                     TValue *value);
-VENOMI_FUNC const TValue *venomH_getshortstr (Table *t, TString *key);
-VENOMI_FUNC const TValue *venomH_getstr (Table *t, TString *key);
-VENOMI_FUNC const TValue *venomH_get (Table *t, const TValue *key);
-VENOMI_FUNC void venomH_newkey (venom_State *L, Table *t, const TValue *key,
+NEBULAI_FUNC const TValue *nebulaH_getshortstr (Table *t, TString *key);
+NEBULAI_FUNC const TValue *nebulaH_getstr (Table *t, TString *key);
+NEBULAI_FUNC const TValue *nebulaH_get (Table *t, const TValue *key);
+NEBULAI_FUNC void nebulaH_newkey (nebula_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-VENOMI_FUNC void venomH_set (venom_State *L, Table *t, const TValue *key,
+NEBULAI_FUNC void nebulaH_set (nebula_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-VENOMI_FUNC void venomH_finishset (venom_State *L, Table *t, const TValue *key,
+NEBULAI_FUNC void nebulaH_finishset (nebula_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-VENOMI_FUNC Table *venomH_new (venom_State *L);
-VENOMI_FUNC void venomH_resize (venom_State *L, Table *t, unsigned int nasize,
+NEBULAI_FUNC Table *nebulaH_new (nebula_State *L);
+NEBULAI_FUNC void nebulaH_resize (nebula_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-VENOMI_FUNC void venomH_resizearray (venom_State *L, Table *t, unsigned int nasize);
-VENOMI_FUNC void venomH_free (venom_State *L, Table *t);
-VENOMI_FUNC int venomH_next (venom_State *L, Table *t, StkId key);
-VENOMI_FUNC venom_Unsigned venomH_getn (Table *t);
-VENOMI_FUNC unsigned int venomH_realasize (const Table *t);
+NEBULAI_FUNC void nebulaH_resizearray (nebula_State *L, Table *t, unsigned int nasize);
+NEBULAI_FUNC void nebulaH_free (nebula_State *L, Table *t);
+NEBULAI_FUNC int nebulaH_next (nebula_State *L, Table *t, StkId key);
+NEBULAI_FUNC nebula_Unsigned nebulaH_getn (Table *t);
+NEBULAI_FUNC unsigned int nebulaH_realasize (const Table *t);
 
 
-#if defined(VENOM_DEBUG)
-VENOMI_FUNC Node *venomH_mainposition (const Table *t, const TValue *key);
-VENOMI_FUNC int venomH_isdummy (const Table *t);
+#if defined(NEBULA_DEBUG)
+NEBULAI_FUNC Node *nebulaH_mainposition (const Table *t, const TValue *key);
+NEBULAI_FUNC int nebulaH_isdummy (const Table *t);
 #endif
 
 

@@ -1,18 +1,18 @@
 /*
 ** $Id: string.c $
-** String table (keeps all strings handled by Venom)
-** See Copyright Notice in venom.h
+** String table (keeps all strings handled by Nebula)
+** See Copyright Notice in nebula.h
 */
 
 #define string_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
 
 #include <string.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "debug.h"
 #include "do.h"
@@ -25,22 +25,22 @@
 /*
 ** Maximum size for string table.
 */
-#define MAXSTRTB	cast_int(venomM_limitN(MAX_INT, TString*))
+#define MAXSTRTB	cast_int(nebulaM_limitN(MAX_INT, TString*))
 
 
 /*
 ** equality for long strings
 */
-int venomS_eqlngstr (TString *a, TString *b) {
+int nebulaS_eqlngstr (TString *a, TString *b) {
   size_t len = a->u.lnglen;
-  venom_assert(a->tt == VENOM_VLNGSTR && b->tt == VENOM_VLNGSTR);
+  nebula_assert(a->tt == NEBULA_VLNGSTR && b->tt == NEBULA_VLNGSTR);
   return (a == b) ||  /* same instance or... */
     ((len == b->u.lnglen) &&  /* equal length and ... */
      (memcmp(getstr(a), getstr(b), len) == 0));  /* equal contents */
 }
 
 
-unsigned int venomS_hash (const char *str, size_t l, unsigned int seed) {
+unsigned int nebulaS_hash (const char *str, size_t l, unsigned int seed) {
   unsigned int h = seed ^ cast_uint(l);
   for (; l > 0; l--)
     h ^= ((h<<5) + (h>>2) + cast_byte(str[l - 1]));
@@ -48,11 +48,11 @@ unsigned int venomS_hash (const char *str, size_t l, unsigned int seed) {
 }
 
 
-unsigned int venomS_hashlongstr (TString *ts) {
-  venom_assert(ts->tt == VENOM_VLNGSTR);
+unsigned int nebulaS_hashlongstr (TString *ts) {
+  nebula_assert(ts->tt == NEBULA_VLNGSTR);
   if (ts->extra == 0) {  /* no hash? */
     size_t len = ts->u.lnglen;
-    ts->hash = venomS_hash(getstr(ts), len, ts->hash);
+    ts->hash = nebulaS_hash(getstr(ts), len, ts->hash);
     ts->extra = 1;  /* now it has its hash */
   }
   return ts->hash;
@@ -82,13 +82,13 @@ static void tablerehash (TString **vect, int osize, int nsize) {
 ** (This can degrade performance, but any non-zero size should work
 ** correctly.)
 */
-void venomS_resize (venom_State *L, int nsize) {
+void nebulaS_resize (nebula_State *L, int nsize) {
   stringtable *tb = &G(L)->strt;
   int osize = tb->size;
   TString **newvect;
   if (nsize < osize)  /* shrinking table? */
     tablerehash(tb->hash, osize, nsize);  /* depopulate shrinking part */
-  newvect = venomM_reallocvector(L, tb->hash, osize, nsize, TString*);
+  newvect = nebulaM_reallocvector(L, tb->hash, osize, nsize, TString*);
   if (l_unlikely(newvect == NULL)) {  /* reallocation failed? */
     if (nsize < osize)  /* was it shrinking table? */
       tablerehash(tb->hash, nsize, osize);  /* restore to original size */
@@ -107,7 +107,7 @@ void venomS_resize (venom_State *L, int nsize) {
 ** Clear API string cache. (Entries cannot be empty, so fill them with
 ** a non-collectable string.)
 */
-void venomS_clearcache (global_State *g) {
+void nebulaS_clearcache (global_State *g) {
   int i, j;
   for (i = 0; i < STRCACHE_N; i++)
     for (j = 0; j < STRCACHE_M; j++) {
@@ -120,16 +120,16 @@ void venomS_clearcache (global_State *g) {
 /*
 ** Initialize the string table and the string cache
 */
-void venomS_init (venom_State *L) {
+void nebulaS_init (nebula_State *L) {
   global_State *g = G(L);
   int i, j;
   stringtable *tb = &G(L)->strt;
-  tb->hash = venomM_newvector(L, MINSTRTABSIZE, TString*);
+  tb->hash = nebulaM_newvector(L, MINSTRTABSIZE, TString*);
   tablerehash(tb->hash, 0, MINSTRTABSIZE);  /* clear array */
   tb->size = MINSTRTABSIZE;
   /* pre-create memory-error message */
-  g->memerrmsg = venomS_newliteral(L, MEMERRMSG);
-  venomC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
+  g->memerrmsg = nebulaS_newliteral(L, MEMERRMSG);
+  nebulaC_fix(L, obj2gco(g->memerrmsg));  /* it should never be collected */
   for (i = 0; i < STRCACHE_N; i++)  /* fill cache with valid strings */
     for (j = 0; j < STRCACHE_M; j++)
       g->strcache[i][j] = g->memerrmsg;
@@ -140,12 +140,12 @@ void venomS_init (venom_State *L) {
 /*
 ** creates a new string object
 */
-static TString *createstrobj (venom_State *L, size_t l, int tag, unsigned int h) {
+static TString *createstrobj (nebula_State *L, size_t l, int tag, unsigned int h) {
   TString *ts;
   GCObject *o;
   size_t totalsize;  /* total size of TString object */
   totalsize = sizestring(l);
-  o = venomC_newobj(L, tag, totalsize);
+  o = nebulaC_newobj(L, tag, totalsize);
   ts = gco2ts(o);
   ts->hash = h;
   ts->extra = 0;
@@ -154,14 +154,14 @@ static TString *createstrobj (venom_State *L, size_t l, int tag, unsigned int h)
 }
 
 
-TString *venomS_createlngstrobj (venom_State *L, size_t l) {
-  TString *ts = createstrobj(L, l, VENOM_VLNGSTR, G(L)->seed);
+TString *nebulaS_createlngstrobj (nebula_State *L, size_t l) {
+  TString *ts = createstrobj(L, l, NEBULA_VLNGSTR, G(L)->seed);
   ts->u.lnglen = l;
   return ts;
 }
 
 
-void venomS_remove (venom_State *L, TString *ts) {
+void nebulaS_remove (nebula_State *L, TString *ts) {
   stringtable *tb = &G(L)->strt;
   TString **p = &tb->hash[lmod(ts->hash, tb->size)];
   while (*p != ts)  /* find previous element */
@@ -171,27 +171,27 @@ void venomS_remove (venom_State *L, TString *ts) {
 }
 
 
-static void growstrtab (venom_State *L, stringtable *tb) {
+static void growstrtab (nebula_State *L, stringtable *tb) {
   if (l_unlikely(tb->nuse == MAX_INT)) {  /* too many strings? */
-    venomC_fulgarbageCollection(L, 1);  /* try to free some... */
+    nebulaC_fulgarbageCollection(L, 1);  /* try to free some... */
     if (tb->nuse == MAX_INT)  /* still too many? */
-      venomM_error(L);  /* cannot even create a message... */
+      nebulaM_error(L);  /* cannot even create a message... */
   }
   if (tb->size <= MAXSTRTB / 2)  /* can grow string table? */
-    venomS_resize(L, tb->size * 2);
+    nebulaS_resize(L, tb->size * 2);
 }
 
 
 /*
 ** Checks whether short string exists and reuses it or creates a new one.
 */
-static TString *internshrstr (venom_State *L, const char *str, size_t l) {
+static TString *internshrstr (nebula_State *L, const char *str, size_t l) {
   TString *ts;
   global_State *g = G(L);
   stringtable *tb = &g->strt;
-  unsigned int h = venomS_hash(str, l, g->seed);
+  unsigned int h = nebulaS_hash(str, l, g->seed);
   TString **list = &tb->hash[lmod(h, tb->size)];
-  venom_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
+  nebula_assert(str != NULL);  /* otherwise 'memcmp'/'memcpy' are undefined */
   for (ts = *list; ts != NULL; ts = ts->u.hnext) {
     if (l == ts->shrlen && (memcmp(str, getstr(ts), l * sizeof(char)) == 0)) {
       /* found! */
@@ -205,7 +205,7 @@ static TString *internshrstr (venom_State *L, const char *str, size_t l) {
     growstrtab(L, tb);
     list = &tb->hash[lmod(h, tb->size)];  /* rehash with new size */
   }
-  ts = createstrobj(L, l, VENOM_VSHRSTR, h);
+  ts = createstrobj(L, l, NEBULA_VSHRSTR, h);
   memcpy(getstr(ts), str, l * sizeof(char));
   ts->shrlen = cast_byte(l);
   ts->u.hnext = *list;
@@ -218,14 +218,14 @@ static TString *internshrstr (venom_State *L, const char *str, size_t l) {
 /*
 ** new string (with explicit length)
 */
-TString *venomS_newlstr (venom_State *L, const char *str, size_t l) {
-  if (l <= VENOMI_MAXSHORTLEN)  /* short string? */
+TString *nebulaS_newlstr (nebula_State *L, const char *str, size_t l) {
+  if (l <= NEBULAI_MAXSHORTLEN)  /* short string? */
     return internshrstr(L, str, l);
   else {
     TString *ts;
     if (l_unlikely(l >= (MAX_SIZE - sizeof(TString))/sizeof(char)))
-      venomM_toobig(L);
-    ts = venomS_createlngstrobj(L, l);
+      nebulaM_toobig(L);
+    ts = nebulaS_createlngstrobj(L, l);
     memcpy(getstr(ts), str, l * sizeof(char));
     return ts;
   }
@@ -238,7 +238,7 @@ TString *venomS_newlstr (venom_State *L, const char *str, size_t l) {
 ** only zero-terminated strings, so it is safe to use 'strcmp' to
 ** check hits.
 */
-TString *venomS_new (venom_State *L, const char *str) {
+TString *nebulaS_new (nebula_State *L, const char *str) {
   unsigned int i = point2uint(str) % STRCACHE_N;  /* hash */
   int j;
   TString **p = G(L)->strcache[i];
@@ -250,18 +250,18 @@ TString *venomS_new (venom_State *L, const char *str) {
   for (j = STRCACHE_M - 1; j > 0; j--)
     p[j] = p[j - 1];  /* move out last element */
   /* new element is first in the list */
-  p[0] = venomS_newlstr(L, str, strlen(str));
+  p[0] = nebulaS_newlstr(L, str, strlen(str));
   return p[0];
 }
 
 
-Udata *venomS_newudata (venom_State *L, size_t s, int nuvalue) {
+Udata *nebulaS_newudata (nebula_State *L, size_t s, int nuvalue) {
   Udata *u;
   int i;
   GCObject *o;
   if (l_unlikely(s > MAX_SIZE - udatamemoffset(nuvalue)))
-    venomM_toobig(L);
-  o = venomC_newobj(L, VENOM_VUSERDATA, sizeudata(nuvalue, s));
+    nebulaM_toobig(L);
+  o = nebulaC_newobj(L, NEBULA_VUSERDATA, sizeudata(nuvalue, s));
   u = gco2u(o);
   u->len = s;
   u->nuvalue = nuvalue;

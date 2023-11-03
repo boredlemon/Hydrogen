@@ -7,7 +7,7 @@
 # Ignore executable files
 *.exe
 *.out
-*venom
-*venomc
+*nebula
+*nebulac
 *.a
 *.tmp

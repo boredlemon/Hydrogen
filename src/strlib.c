@@ -1,11 +1,11 @@
 /*
 ** $Id: strlib.c $
 ** Standard library for string operations and pattern-matching
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #define strlib_c
-#define VENOM_LIB
+#define NEBULA_LIB
 
 #include "prefix.h"
 
@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "auxlib.h"
-#include "venomlib.h"
+#include "nebulalib.h"
 
 
 /*
@@ -31,8 +31,8 @@
 ** pattern-matching. This limit is arbitrary, but must fit in
 ** an unsigned char.
 */
-#if !defined(VENOM_MAXCAPTURES)
-#define VENOM_MAXCAPTURES		32
+#if !defined(NEBULA_MAXCAPTURES)
+#define NEBULA_MAXCAPTURES		32
 #endif
 
 
@@ -42,7 +42,7 @@
 
 /*
 ** Some sizes are better limited to fit in 'int', but must also fit in
-** 'size_t'. (We assume that 'venom_Integer' cannot be smaller than 'int'.)
+** 'size_t'. (We assume that 'nebula_Integer' cannot be smaller than 'int'.)
 */
 #define MAX_SIZET	((size_t)(~(size_t)0))
 
@@ -52,10 +52,10 @@
 
 
 
-static int str_len (venom_State *L) {
+static int str_len (nebula_State *L) {
   size_t l;
-  venomL_checklstring(L, 1, &l);
-  venom_pushinteger(L, (venom_Integer)l);
+  nebulaL_checklstring(L, 1, &l);
+  nebula_pushinteger(L, (nebula_Integer)l);
   return 1;
 }
 
@@ -63,17 +63,17 @@ static int str_len (venom_State *L) {
 /*
 ** translate a relative initial string position
 ** (negative means back from end): clip result to [1, inf).
-** The length of any string in Venom must fit in a venom_Integer,
+** The length of any string in Nebula must fit in a nebula_Integer,
 ** so there are no overflows in the casts.
 ** The inverted comparison avoids a possible overflow
 ** computing '-pos'.
 */
-static size_t posrelatI (venom_Integer pos, size_t len) {
+static size_t posrelatI (nebula_Integer pos, size_t len) {
   if (pos > 0)
     return (size_t)pos;
   else if (pos == 0)
     return 1;
-  else if (pos < -(venom_Integer)len)  /* inverted comparison */
+  else if (pos < -(nebula_Integer)len)  /* inverted comparison */
     return 1;  /* clip to 1 */
   else return len + (size_t)pos + 1;
 }
@@ -84,82 +84,82 @@ static size_t posrelatI (venom_Integer pos, size_t len) {
 ** with default value 'def'.
 ** Negative means back from end: clip result to [0, len]
 */
-static size_t getendpos (venom_State *L, int arg, venom_Integer def,
+static size_t getendpos (nebula_State *L, int arg, nebula_Integer def,
                          size_t len) {
-  venom_Integer pos = venomL_optinteger(L, arg, def);
-  if (pos > (venom_Integer)len)
+  nebula_Integer pos = nebulaL_optinteger(L, arg, def);
+  if (pos > (nebula_Integer)len)
     return len;
   else if (pos >= 0)
     return (size_t)pos;
-  else if (pos < -(venom_Integer)len)
+  else if (pos < -(nebula_Integer)len)
     return 0;
   else return len + (size_t)pos + 1;
 }
 
 
-static int str_sub (venom_State *L) {
+static int str_sub (nebula_State *L) {
   size_t l;
-  const char *s = venomL_checklstring(L, 1, &l);
-  size_t start = posrelatI(venomL_checkinteger(L, 2), l);
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  size_t start = posrelatI(nebulaL_checkinteger(L, 2), l);
   size_t end = getendpos(L, 3, -1, l);
   if (start <= end)
-    venom_pushlstring(L, s + start - 1, (end - start) + 1);
-  else venom_pushliteral(L, "");
+    nebula_pushlstring(L, s + start - 1, (end - start) + 1);
+  else nebula_pushliteral(L, "");
   return 1;
 }
 
 
-static int str_reverse (venom_State *L) {
+static int str_reverse (nebula_State *L) {
   size_t l, i;
-  venomL_Buffer b;
-  const char *s = venomL_checklstring(L, 1, &l);
-  char *p = venomL_buffinitsize(L, &b, l);
+  nebulaL_Buffer b;
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  char *p = nebulaL_buffinitsize(L, &b, l);
   for (i = 0; i < l; i++)
     p[i] = s[l - i - 1];
-  venomL_pushresultsize(&b, l);
+  nebulaL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_lower (venom_State *L) {
+static int str_lower (nebula_State *L) {
   size_t l;
   size_t i;
-  venomL_Buffer b;
-  const char *s = venomL_checklstring(L, 1, &l);
-  char *p = venomL_buffinitsize(L, &b, l);
+  nebulaL_Buffer b;
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  char *p = nebulaL_buffinitsize(L, &b, l);
   for (i=0; i<l; i++)
     p[i] = tolower(uchar(s[i]));
-  venomL_pushresultsize(&b, l);
+  nebulaL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_upper (venom_State *L) {
+static int str_upper (nebula_State *L) {
   size_t l;
   size_t i;
-  venomL_Buffer b;
-  const char *s = venomL_checklstring(L, 1, &l);
-  char *p = venomL_buffinitsize(L, &b, l);
+  nebulaL_Buffer b;
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  char *p = nebulaL_buffinitsize(L, &b, l);
   for (i=0; i<l; i++)
     p[i] = toupper(uchar(s[i]));
-  venomL_pushresultsize(&b, l);
+  nebulaL_pushresultsize(&b, l);
   return 1;
 }
 
 
-static int str_rep (venom_State *L) {
+static int str_rep (nebula_State *L) {
   size_t l, lsep;
-  const char *s = venomL_checklstring(L, 1, &l);
-  venom_Integer n = venomL_checkinteger(L, 2);
-  const char *sep = venomL_optlstring(L, 3, "", &lsep);
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  nebula_Integer n = nebulaL_checkinteger(L, 2);
+  const char *sep = nebulaL_optlstring(L, 3, "", &lsep);
   if (n <= 0)
-    venom_pushliteral(L, "");
+    nebula_pushliteral(L, "");
   else if (l_unlikely(l + lsep < l || l + lsep > MAXSIZE / n))
-    return venomL_error(L, "resulting string too large");
+    return nebulaL_error(L, "resulting string too large");
   else {
     size_t totallen = (size_t)n * l + (size_t)(n - 1) * lsep;
-    venomL_Buffer b;
-    char *p = venomL_buffinitsize(L, &b, totallen);
+    nebulaL_Buffer b;
+    char *p = nebulaL_buffinitsize(L, &b, totallen);
     while (n-- > 1) {  /* first n-1 copies (followed by separator) */
       memcpy(p, s, l * sizeof(char)); p += l;
       if (lsep > 0) {  /* empty 'memcpy' is not that cheap */
@@ -168,77 +168,77 @@ static int str_rep (venom_State *L) {
       }
     }
     memcpy(p, s, l * sizeof(char));  /* last copy (not followed by separator) */
-    venomL_pushresultsize(&b, totallen);
+    nebulaL_pushresultsize(&b, totallen);
   }
   return 1;
 }
 
 
-static int str_byte (venom_State *L) {
+static int str_byte (nebula_State *L) {
   size_t l;
-  const char *s = venomL_checklstring(L, 1, &l);
-  venom_Integer pi = venomL_optinteger(L, 2, 1);
+  const char *s = nebulaL_checklstring(L, 1, &l);
+  nebula_Integer pi = nebulaL_optinteger(L, 2, 1);
   size_t posi = posrelatI(pi, l);
   size_t pose = getendpos(L, 3, pi, l);
   int n, i;
   if (posi > pose) return 0;  /* empty interval; return no values */
   if (l_unlikely(pose - posi >= (size_t)INT_MAX))  /* arithmetic overflow? */
-    return venomL_error(L, "string slice too long");
+    return nebulaL_error(L, "string slice too long");
   n = (int)(pose -  posi) + 1;
-  venomL_checkstack(L, n, "string slice too long");
+  nebulaL_checkstack(L, n, "string slice too long");
   for (i=0; i<n; i++)
-    venom_pushinteger(L, uchar(s[posi+i-1]));
+    nebula_pushinteger(L, uchar(s[posi+i-1]));
   return n;
 }
 
 
-static int str_char (venom_State *L) {
-  int n = venom_gettop(L);  /* number of arguments */
+static int str_char (nebula_State *L) {
+  int n = nebula_gettop(L);  /* number of arguments */
   int i;
-  venomL_Buffer b;
-  char *p = venomL_buffinitsize(L, &b, n);
+  nebulaL_Buffer b;
+  char *p = nebulaL_buffinitsize(L, &b, n);
   for (i=1; i<=n; i++) {
-    venom_Unsigned c = (venom_Unsigned)venomL_checkinteger(L, i);
-    venomL_argcheck(L, c <= (venom_Unsigned)UCHAR_MAX, i, "value out of range");
+    nebula_Unsigned c = (nebula_Unsigned)nebulaL_checkinteger(L, i);
+    nebulaL_argcheck(L, c <= (nebula_Unsigned)UCHAR_MAX, i, "value out of range");
     p[i - 1] = uchar(c);
   }
-  venomL_pushresultsize(&b, n);
+  nebulaL_pushresultsize(&b, n);
   return 1;
 }
 
 
 /*
 ** Buffer to store the result of 'string.dump'. It must be initialized
-** after the call to 'venom_dump', to ensure that the function is on the
-** top of the stack when 'venom_dump' is called. ('venomL_buffinit' might
+** after the call to 'nebula_dump', to ensure that the function is on the
+** top of the stack when 'nebula_dump' is called. ('nebulaL_buffinit' might
 ** push stuff.)
 */
 struct str_Writer {
   int init;  /* true iff buffer has been initialized */
-  venomL_Buffer B;
+  nebulaL_Buffer B;
 };
 
 
-static int writer (venom_State *L, const void *b, size_t size, void *ud) {
+static int writer (nebula_State *L, const void *b, size_t size, void *ud) {
   struct str_Writer *state = (struct str_Writer *)ud;
   if (!state->init) {
     state->init = 1;
-    venomL_buffinit(L, &state->B);
+    nebulaL_buffinit(L, &state->B);
   }
-  venomL_addlstring(&state->B, (const char *)b, size);
+  nebulaL_addlstring(&state->B, (const char *)b, size);
   return 0;
 }
 
 
-static int str_dump (venom_State *L) {
+static int str_dump (nebula_State *L) {
   struct str_Writer state;
-  int strip = venom_toboolean(L, 2);
-  venomL_checktype(L, 1, VENOM_TFUNCTION);
-  venom_settop(L, 1);  /* ensure function is on the top of the stack */
+  int strip = nebula_toboolean(L, 2);
+  nebulaL_checktype(L, 1, NEBULA_TFUNCTION);
+  nebula_settop(L, 1);  /* ensure function is on the top of the stack */
   state.init = 0;
-  if (l_unlikely(venom_dump(L, writer, &state, strip) != 0))
-    return venomL_error(L, "unable to dump given function");
-  venomL_pushresult(&state.B);
+  if (l_unlikely(nebula_dump(L, writer, &state, strip) != 0))
+    return nebulaL_error(L, "unable to dump given function");
+  nebulaL_pushresult(&state.B);
   return 1;
 }
 
@@ -250,84 +250,84 @@ static int str_dump (venom_State *L) {
 ** =======================================================
 */
 
-#if defined(VENOM_NOCVTS2N)	/* { */
+#if defined(NEBULA_NOCVTS2N)	/* { */
 
 /* no coercion from strings to numbers */
 
-static const venomL_Reg stringmetamethods[] = {
+static const nebulaL_Reg stringmetamethods[] = {
   {"__index", NULL},  /* placeholder */
   {NULL, NULL}
 };
 
 #else		/* }{ */
 
-static int tonum (venom_State *L, int arg) {
-  if (venom_type(L, arg) == VENOM_TNUMBER) {  /* already a number? */
-    venom_pushvalue(L, arg);
+static int tonum (nebula_State *L, int arg) {
+  if (nebula_type(L, arg) == NEBULA_TNUMBER) {  /* already a number? */
+    nebula_pushvalue(L, arg);
     return 1;
   }
   else {  /* check whether it is a numerical string */
     size_t len;
-    const char *s = venom_tolstring(L, arg, &len);
-    return (s != NULL && venom_stringtonumber(L, s) == len + 1);
+    const char *s = nebula_tolstring(L, arg, &len);
+    return (s != NULL && nebula_stringtonumber(L, s) == len + 1);
   }
 }
 
 
-static void trymt (venom_State *L, const char *mtname) {
-  venom_settop(L, 2);  /* back to the original arguments */
-  if (l_unlikely(venom_type(L, 2) == VENOM_TSTRING ||
-                 !venomL_getmetafield(L, 2, mtname)))
-    venomL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
-                  venomL_typename(L, -2), venomL_typename(L, -1));
-  venom_insert(L, -3);  /* put metamethod before arguments */
-  venom_call(L, 2, 1);  /* call metamethod */
+static void trymt (nebula_State *L, const char *mtname) {
+  nebula_settop(L, 2);  /* back to the original arguments */
+  if (l_unlikely(nebula_type(L, 2) == NEBULA_TSTRING ||
+                 !nebulaL_getmetafield(L, 2, mtname)))
+    nebulaL_error(L, "attempt to %s a '%s' with a '%s'", mtname + 2,
+                  nebulaL_typename(L, -2), nebulaL_typename(L, -1));
+  nebula_insert(L, -3);  /* put metamethod before arguments */
+  nebula_call(L, 2, 1);  /* call metamethod */
 }
 
 
-static int arith (venom_State *L, int op, const char *mtname) {
+static int arith (nebula_State *L, int op, const char *mtname) {
   if (tonum(L, 1) && tonum(L, 2))
-    venom_arith(L, op);  /* result will be on the top */
+    nebula_arith(L, op);  /* result will be on the top */
   else
     trymt(L, mtname);
   return 1;
 }
 
 
-static int arith_add (venom_State *L) {
-  return arith(L, VENOM_OPADD, "__add");
+static int arith_add (nebula_State *L) {
+  return arith(L, NEBULA_OPADD, "__add");
 }
 
-static int arith_sub (venom_State *L) {
-  return arith(L, VENOM_OPSUB, "__sub");
+static int arith_sub (nebula_State *L) {
+  return arith(L, NEBULA_OPSUB, "__sub");
 }
 
-static int arith_mul (venom_State *L) {
-  return arith(L, VENOM_OPMUL, "__mul");
+static int arith_mul (nebula_State *L) {
+  return arith(L, NEBULA_OPMUL, "__mul");
 }
 
-static int arith_mod (venom_State *L) {
-  return arith(L, VENOM_OPMOD, "__mod");
+static int arith_mod (nebula_State *L) {
+  return arith(L, NEBULA_OPMOD, "__mod");
 }
 
-static int arith_pow (venom_State *L) {
-  return arith(L, VENOM_OPPOW, "__pow");
+static int arith_pow (nebula_State *L) {
+  return arith(L, NEBULA_OPPOW, "__pow");
 }
 
-static int arith_div (venom_State *L) {
-  return arith(L, VENOM_OPDIV, "__div");
+static int arith_div (nebula_State *L) {
+  return arith(L, NEBULA_OPDIV, "__div");
 }
 
-static int arith_idiv (venom_State *L) {
-  return arith(L, VENOM_OPIDIV, "__idiv");
+static int arith_idiv (nebula_State *L) {
+  return arith(L, NEBULA_OPIDIV, "__idiv");
 }
 
-static int arith_unm (venom_State *L) {
-  return arith(L, VENOM_OPUNM, "__unm");
+static int arith_unm (nebula_State *L) {
+  return arith(L, NEBULA_OPUNM, "__unm");
 }
 
 
-static const venomL_Reg stringmetamethods[] = {
+static const nebulaL_Reg stringmetamethods[] = {
   {"__add", arith_add},
   {"__sub", arith_sub},
   {"__mul", arith_mul},
@@ -359,13 +359,13 @@ typedef struct MatchState {
   const char *src_init;  /* init of source string */
   const char *src_end;  /* end ('\0') of source string */
   const char *p_end;  /* end ('\0') of pattern */
-  venom_State *L;
+  nebula_State *L;
   int matchdepth;  /* control for recursive depth (to avoid C stack overflow) */
   unsigned char level;  /* total number of captures (finished or unfinished) */
   struct {
     const char *init;
     ptrdiff_t len;
-  } capture[VENOM_MAXCAPTURES];
+  } capture[NEBULA_MAXCAPTURES];
 } MatchState;
 
 
@@ -387,7 +387,7 @@ static int check_capture (MatchState *ms, int l) {
   l -= '1';
   if (l_unlikely(l < 0 || l >= ms->level ||
                  ms->capture[l].len == CAP_UNFINISHED))
-    return venomL_error(ms->L, "invalid capture index %%%d", l + 1);
+    return nebulaL_error(ms->L, "invalid capture index %%%d", l + 1);
   return l;
 }
 
@@ -396,7 +396,7 @@ static int capture_to_close (MatchState *ms) {
   int level = ms->level;
   for (level--; level>=0; level--)
     if (ms->capture[level].len == CAP_UNFINISHED) return level;
-  return venomL_error(ms->L, "invalid pattern capture");
+  return nebulaL_error(ms->L, "invalid pattern capture");
 }
 
 
@@ -404,14 +404,14 @@ static const char *classend (MatchState *ms, const char *p) {
   switch (*p++) {
     case L_ESC: {
       if (l_unlikely(p == ms->p_end))
-        venomL_error(ms->L, "malformed pattern (ends with '%%')");
+        nebulaL_error(ms->L, "malformed pattern (ends with '%%')");
       return p+1;
     }
     case '[': {
       if (*p == '^') p++;
       do {  /* look for a ']' */
         if (l_unlikely(p == ms->p_end))
-          venomL_error(ms->L, "malformed pattern (missing ']')");
+          nebulaL_error(ms->L, "malformed pattern (missing ']')");
         if (*(p++) == L_ESC && p < ms->p_end)
           p++;  /* skip escapes (e.g. '%]') */
       } while (*p != ']');
@@ -486,7 +486,7 @@ static int singlematch (MatchState *ms, const char *s, const char *p,
 static const char *matchbalance (MatchState *ms, const char *s,
                                    const char *p) {
   if (l_unlikely(p >= ms->p_end - 1))
-    venomL_error(ms->L, "malformed pattern (missing arguments to '%%b')");
+    nebulaL_error(ms->L, "malformed pattern (missing arguments to '%%b')");
   if (*s != *p) return NULL;
   else {
     int b = *p;
@@ -535,7 +535,7 @@ static const char *start_capture (MatchState *ms, const char *s,
                                     const char *p, int what) {
   const char *res;
   int level = ms->level;
-  if (level >= VENOM_MAXCAPTURES) venomL_error(ms->L, "too many captures");
+  if (level >= NEBULA_MAXCAPTURES) nebulaL_error(ms->L, "too many captures");
   ms->capture[level].init = s;
   ms->capture[level].len = what;
   ms->level = level+1;
@@ -569,7 +569,7 @@ static const char *match_capture (MatchState *ms, const char *s, int l) {
 
 static const char *match (MatchState *ms, const char *s, const char *p) {
   if (l_unlikely(ms->matchdepth-- == 0))
-    venomL_error(ms->L, "pattern too complex");
+    nebulaL_error(ms->L, "pattern too complex");
   init: /* using goto's to optimize tail recursion */
   if (p != ms->p_end) {  /* end of pattern? */
     switch (*p) {
@@ -586,7 +586,7 @@ static const char *match (MatchState *ms, const char *s, const char *p) {
       }
       case '$': {
         if ((p + 1) != ms->p_end)  /* is the '$' the last char in pattern? */
-          goto dflt;  /* no; Venom to default */
+          goto dflt;  /* no; Nebula to default */
         s = (s == ms->src_end) ? s : NULL;  /* check end of string */
         break;
       }
@@ -603,7 +603,7 @@ static const char *match (MatchState *ms, const char *s, const char *p) {
             const char *ep; char previous;
             p += 2;
             if (l_unlikely(*p != '['))
-              venomL_error(ms->L, "missing '[' after '%%f' in pattern");
+              nebulaL_error(ms->L, "missing '[' after '%%f' in pattern");
             ep = classend(ms, p);  /* points to what is next */
             previous = (s == ms->src_init) ? '\0' : *(s - 1);
             if (!matchbracketclass(uchar(previous), p, ep - 1) &&
@@ -703,7 +703,7 @@ static size_t get_onecapture (MatchState *ms, int i, const char *s,
                               const char *e, const char **cap) {
   if (i >= ms->level) {
     if (l_unlikely(i != 0))
-      venomL_error(ms->L, "invalid capture index %%%d", i + 1);
+      nebulaL_error(ms->L, "invalid capture index %%%d", i + 1);
     *cap = s;
     return e - s;
   }
@@ -711,9 +711,9 @@ static size_t get_onecapture (MatchState *ms, int i, const char *s,
     ptrdiff_t capl = ms->capture[i].len;
     *cap = ms->capture[i].init;
     if (l_unlikely(capl == CAP_UNFINISHED))
-      venomL_error(ms->L, "unfinished capture");
+      nebulaL_error(ms->L, "unfinished capture");
     else if (capl == CAP_POSITION)
-      venom_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
+      nebula_pushinteger(ms->L, (ms->capture[i].init - ms->src_init) + 1);
     return capl;
   }
 }
@@ -727,7 +727,7 @@ static void push_onecapture (MatchState *ms, int i, const char *s,
   const char *cap;
   ptrdiff_t l = get_onecapture(ms, i, s, e, &cap);
   if (l != CAP_POSITION)
-    venom_pushlstring(ms->L, cap, l);
+    nebula_pushlstring(ms->L, cap, l);
   /* else position was already pushed */
 }
 
@@ -735,7 +735,7 @@ static void push_onecapture (MatchState *ms, int i, const char *s,
 static int push_captures (MatchState *ms, const char *s, const char *e) {
   int i;
   int nlevels = (ms->level == 0 && s) ? 1 : ms->level;
-  venomL_checkstack(ms->L, nlevels, "too many captures");
+  nebulaL_checkstack(ms->L, nlevels, "too many captures");
   for (i = 0; i < nlevels; i++)
     push_onecapture(ms, i, s, e);
   return nlevels;  /* number of strings pushed */
@@ -754,7 +754,7 @@ static int nospecials (const char *p, size_t l) {
 }
 
 
-static void prepstate (MatchState *ms, venom_State *L,
+static void prepstate (MatchState *ms, nebula_State *L,
                        const char *s, size_t ls, const char *p, size_t lp) {
   ms->L = L;
   ms->matchdepth = MAXCCALLS;
@@ -766,26 +766,26 @@ static void prepstate (MatchState *ms, venom_State *L,
 
 static void reprepstate (MatchState *ms) {
   ms->level = 0;
-  venom_assert(ms->matchdepth == MAXCCALLS);
+  nebula_assert(ms->matchdepth == MAXCCALLS);
 }
 
 
-static int str_find_aux (venom_State *L, int find) {
+static int str_find_aux (nebula_State *L, int find) {
   size_t ls, lp;
-  const char *s = venomL_checklstring(L, 1, &ls);
-  const char *p = venomL_checklstring(L, 2, &lp);
-  size_t init = posrelatI(venomL_optinteger(L, 3, 1), ls) - 1;
+  const char *s = nebulaL_checklstring(L, 1, &ls);
+  const char *p = nebulaL_checklstring(L, 2, &lp);
+  size_t init = posrelatI(nebulaL_optinteger(L, 3, 1), ls) - 1;
   if (init > ls) {  /* start after string's end? */
-    venomL_pushfail(L);  /* cannot find anything */
+    nebulaL_pushfail(L);  /* cannot find anything */
     return 1;
   }
   /* explicit request or no special characters? */
-  if (find && (venom_toboolean(L, 4) || nospecials(p, lp))) {
+  if (find && (nebula_toboolean(L, 4) || nospecials(p, lp))) {
     /* do a plain search */
     const char *s2 = lmemfind(s + init, ls - init, p, lp);
     if (s2) {
-      venom_pushinteger(L, (s2 - s) + 1);
-      venom_pushinteger(L, (s2 - s) + lp);
+      nebula_pushinteger(L, (s2 - s) + 1);
+      nebula_pushinteger(L, (s2 - s) + lp);
       return 2;
     }
   }
@@ -802,8 +802,8 @@ static int str_find_aux (venom_State *L, int find) {
       reprepstate(&ms);
       if ((res=match(&ms, s1, p)) != NULL) {
         if (find) {
-          venom_pushinteger(L, (s1 - s) + 1);  /* start */
-          venom_pushinteger(L, res - s);   /* end */
+          nebula_pushinteger(L, (s1 - s) + 1);  /* start */
+          nebula_pushinteger(L, res - s);   /* end */
           return push_captures(&ms, NULL, 0) + 2;
         }
         else
@@ -811,17 +811,17 @@ static int str_find_aux (venom_State *L, int find) {
       }
     } while (s1++ < ms.src_end && !anchor);
   }
-  venomL_pushfail(L);  /* not found */
+  nebulaL_pushfail(L);  /* not found */
   return 1;
 }
 
 
-static int str_find (venom_State *L) {
+static int str_find (nebula_State *L) {
   return str_find_aux(L, 1);
 }
 
 
-static int str_match (venom_State *L) {
+static int str_match (nebula_State *L) {
   return str_find_aux(L, 0);
 }
 
@@ -835,8 +835,8 @@ typedef struct GMatchState {
 } GMatchState;
 
 
-static int gmatch_aux (venom_State *L) {
-  GMatchState *gm = (GMatchState *)venom_touserdata(L, venom_upvalueindex(3));
+static int gmatch_aux (nebula_State *L) {
+  GMatchState *gm = (GMatchState *)nebula_touserdata(L, nebula_upvalueindex(3));
   const char *src;
   gm->ms.L = L;
   for (src = gm->src; src <= gm->ms.src_end; src++) {
@@ -851,50 +851,50 @@ static int gmatch_aux (venom_State *L) {
 }
 
 
-static int gmatch (venom_State *L) {
+static int gmatch (nebula_State *L) {
   size_t ls, lp;
-  const char *s = venomL_checklstring(L, 1, &ls);
-  const char *p = venomL_checklstring(L, 2, &lp);
-  size_t init = posrelatI(venomL_optinteger(L, 3, 1), ls) - 1;
+  const char *s = nebulaL_checklstring(L, 1, &ls);
+  const char *p = nebulaL_checklstring(L, 2, &lp);
+  size_t init = posrelatI(nebulaL_optinteger(L, 3, 1), ls) - 1;
   GMatchState *gm;
-  venom_settop(L, 2);  /* keep strings on closure to avoid being collected */
-  gm = (GMatchState *)venom_newuserdatauv(L, sizeof(GMatchState), 0);
+  nebula_settop(L, 2);  /* keep strings on closure to avoid being collected */
+  gm = (GMatchState *)nebula_newuserdatauv(L, sizeof(GMatchState), 0);
   if (init > ls)  /* start after string's end? */
     init = ls + 1;  /* avoid overflows in 's + init' */
   prepstate(&gm->ms, L, s, ls, p, lp);
   gm->src = s + init; gm->p = p; gm->lastmatch = NULL;
-  venom_pushcclosure(L, gmatch_aux, 3);
+  nebula_pushcclosure(L, gmatch_aux, 3);
   return 1;
 }
 
 
-static void add_s (MatchState *ms, venomL_Buffer *b, const char *s,
+static void add_s (MatchState *ms, nebulaL_Buffer *b, const char *s,
                                                    const char *e) {
   size_t l;
-  venom_State *L = ms->L;
-  const char *news = venom_tolstring(L, 3, &l);
+  nebula_State *L = ms->L;
+  const char *news = nebula_tolstring(L, 3, &l);
   const char *p;
   while ((p = (char *)memchr(news, L_ESC, l)) != NULL) {
-    venomL_addlstring(b, news, p - news);
+    nebulaL_addlstring(b, news, p - news);
     p++;  /* skip ESC */
     if (*p == L_ESC)  /* '%%' */
-      venomL_addchar(b, *p);
+      nebulaL_addchar(b, *p);
     else if (*p == '0')  /* '%0' */
-        venomL_addlstring(b, s, e - s);
+        nebulaL_addlstring(b, s, e - s);
     else if (isdigit(uchar(*p))) {  /* '%n' */
       const char *cap;
       ptrdiff_t resl = get_onecapture(ms, *p - '1', s, e, &cap);
       if (resl == CAP_POSITION)
-        venomL_addvalue(b);  /* add position to accumulated result */
+        nebulaL_addvalue(b);  /* add position to accumulated result */
       else
-        venomL_addlstring(b, cap, resl);
+        nebulaL_addlstring(b, cap, resl);
     }
     else
-      venomL_error(L, "invalid use of '%c' in replacement string", L_ESC);
+      nebulaL_error(L, "invalid use of '%c' in replacement string", L_ESC);
     l -= p + 1 - news;
     news = p + 1;
   }
-  venomL_addlstring(b, news, l);
+  nebulaL_addlstring(b, news, l);
 }
 
 
@@ -903,58 +903,58 @@ static void add_s (MatchState *ms, venomL_Buffer *b, const char *s,
 ** Return true if the original string was changed. (Function calls and
 ** table indexing resulting in nil or false do not change the subject.)
 */
-static int add_value (MatchState *ms, venomL_Buffer *b, const char *s,
+static int add_value (MatchState *ms, nebulaL_Buffer *b, const char *s,
                                       const char *e, int tr) {
-  venom_State *L = ms->L;
+  nebula_State *L = ms->L;
   switch (tr) {
-    case VENOM_TFUNCTION: {  /* call the function */
+    case NEBULA_TFUNCTION: {  /* call the function */
       int n;
-      venom_pushvalue(L, 3);  /* push the function */
+      nebula_pushvalue(L, 3);  /* push the function */
       n = push_captures(ms, s, e);  /* all captures as arguments */
-      venom_call(L, n, 1);  /* call it */
+      nebula_call(L, n, 1);  /* call it */
       break;
     }
-    case VENOM_TTABLE: {  /* index the table */
+    case NEBULA_TTABLE: {  /* index the table */
       push_onecapture(ms, 0, s, e);  /* first capture is the index */
-      venom_gettable(L, 3);
+      nebula_gettable(L, 3);
       break;
     }
-    default: {  /* VENOM_TNUMBER or VENOM_TSTRING */
+    default: {  /* NEBULA_TNUMBER or NEBULA_TSTRING */
       add_s(ms, b, s, e);  /* add value to the buffer */
       return 1;  /* something changed */
     }
   }
-  if (!venom_toboolean(L, -1)) {  /* nil or false? */
-    venom_pop(L, 1);  /* remove value */
-    venomL_addlstring(b, s, e - s);  /* keep original text */
+  if (!nebula_toboolean(L, -1)) {  /* nil or false? */
+    nebula_pop(L, 1);  /* remove value */
+    nebulaL_addlstring(b, s, e - s);  /* keep original text */
     return 0;  /* no changes */
   }
-  else if (l_unlikely(!venom_isstring(L, -1)))
-    return venomL_error(L, "invalid replacement value (a %s)",
-                         venomL_typename(L, -1));
+  else if (l_unlikely(!nebula_isstring(L, -1)))
+    return nebulaL_error(L, "invalid replacement value (a %s)",
+                         nebulaL_typename(L, -1));
   else {
-    venomL_addvalue(b);  /* add result to accumulator */
+    nebulaL_addvalue(b);  /* add result to accumulator */
     return 1;  /* something changed */
   }
 }
 
 
-static int str_gsub (venom_State *L) {
+static int str_gsub (nebula_State *L) {
   size_t srcl, lp;
-  const char *src = venomL_checklstring(L, 1, &srcl);  /* subject */
-  const char *p = venomL_checklstring(L, 2, &lp);  /* pattern */
+  const char *src = nebulaL_checklstring(L, 1, &srcl);  /* subject */
+  const char *p = nebulaL_checklstring(L, 2, &lp);  /* pattern */
   const char *lastmatch = NULL;  /* end of last match */
-  int tr = venom_type(L, 3);  /* replacement type */
-  venom_Integer max_s = venomL_optinteger(L, 4, srcl + 1);  /* max replacements */
+  int tr = nebula_type(L, 3);  /* replacement type */
+  nebula_Integer max_s = nebulaL_optinteger(L, 4, srcl + 1);  /* max replacements */
   int anchor = (*p == '^');
-  venom_Integer n = 0;  /* replacement count */
+  nebula_Integer n = 0;  /* replacement count */
   int changed = 0;  /* change flag */
   MatchState ms;
-  venomL_Buffer b;
-  venomL_argexpected(L, tr == VENOM_TNUMBER || tr == VENOM_TSTRING ||
-                   tr == VENOM_TFUNCTION || tr == VENOM_TTABLE, 3,
+  nebulaL_Buffer b;
+  nebulaL_argexpected(L, tr == NEBULA_TNUMBER || tr == NEBULA_TSTRING ||
+                   tr == NEBULA_TFUNCTION || tr == NEBULA_TTABLE, 3,
                       "string/function/table");
-  venomL_buffinit(L, &b);
+  nebulaL_buffinit(L, &b);
   if (anchor) {
     p++; lp--;  /* skip anchor character */
   }
@@ -968,17 +968,17 @@ static int str_gsub (venom_State *L) {
       src = lastmatch = e;
     }
     else if (src < ms.src_end)  /* otherwise, skip one character */
-      venomL_addchar(&b, *src++);
+      nebulaL_addchar(&b, *src++);
     else break;  /* end of subject */
     if (anchor) break;
   }
   if (!changed)  /* no changes? */
-    venom_pushvalue(L, 1);  /* return original string */
+    nebula_pushvalue(L, 1);  /* return original string */
   else {  /* something changed */
-    venomL_addlstring(&b, src, ms.src_end-src);
-    venomL_pushresult(&b);  /* create and return new string */
+    nebulaL_addlstring(&b, src, ms.src_end-src);
+    nebulaL_pushresult(&b);  /* create and return new string */
   }
-  venom_pushinteger(L, n);  /* number of substitutions */
+  nebula_pushinteger(L, n);  /* number of substitutions */
   return 2;
 }
 
@@ -992,17 +992,17 @@ static int str_gsub (venom_State *L) {
 ** =======================================================
 */
 
-#if !defined(venom_number2strx)	/* { */
+#if !defined(nebula_number2strx)	/* { */
 
 /*
 ** Hexadecimal floating-point formatter
 */
 
-#define SIZELENMOD	(sizeof(VENOM_NUMBER_FRMLEN)/sizeof(char))
+#define SIZELENMOD	(sizeof(NEBULA_NUMBER_FRMLEN)/sizeof(char))
 
 
 /*
-** Number of bits that Venomes into the first digit. It can be any value
+** Number of bits that Nebulaes into the first digit. It can be any value
 ** between 1 and 4; the following definition tries to align the number
 ** to nibble boundaries by making what is left after that first digit a
 ** multiple of 4.
@@ -1013,25 +1013,25 @@ static int str_gsub (venom_State *L) {
 /*
 ** Add integer part of 'x' to buffer and return new 'x'
 */
-static venom_Number adddigit (char *buff, int n, venom_Number x) {
-  venom_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
+static nebula_Number adddigit (char *buff, int n, nebula_Number x) {
+  nebula_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
   int d = (int)dd;
   buff[n] = (d < 10 ? d + '0' : d - 10 + 'a');  /* add to buffer */
   return x - dd;  /* return what is left */
 }
 
 
-static int num2straux (char *buff, int sz, venom_Number x) {
+static int num2straux (char *buff, int sz, nebula_Number x) {
   /* if 'inf' or 'NaN', format it like '%g' */
-  if (x != x || x == (venom_Number)HUGE_VAL || x == -(venom_Number)HUGE_VAL)
-    return l_sprintf(buff, sz, VENOM_NUMBER_FMT, (VENOMI_UACNUMBER)x);
+  if (x != x || x == (nebula_Number)HUGE_VAL || x == -(nebula_Number)HUGE_VAL)
+    return l_sprintf(buff, sz, NEBULA_NUMBER_FMT, (NEBULAI_UACNUMBER)x);
   else if (x == 0) {  /* can be -0... */
     /* create "0" or "-0" followed by exponent */
-    return l_sprintf(buff, sz, VENOM_NUMBER_FMT "x0p+0", (VENOMI_UACNUMBER)x);
+    return l_sprintf(buff, sz, NEBULA_NUMBER_FMT "x0p+0", (NEBULAI_UACNUMBER)x);
   }
   else {
     int e;
-    venom_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
+    nebula_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
     int n = 0;  /* character count */
     if (m < 0) {  /* is number negative? */
       buff[n++] = '-';  /* add sign */
@@ -1039,22 +1039,22 @@ static int num2straux (char *buff, int sz, venom_Number x) {
     }
     buff[n++] = '0'; buff[n++] = 'x';  /* add "0x" */
     m = adddigit(buff, n++, m * (1 << L_NBFD));  /* add first digit */
-    e -= L_NBFD;  /* this digit Venomes before the radix point */
+    e -= L_NBFD;  /* this digit Nebulaes before the radix point */
     if (m > 0) {  /* more digits? */
-      buff[n++] = venom_getlocaledecpoint();  /* add radix point */
+      buff[n++] = nebula_getlocaledecpoint();  /* add radix point */
       do {  /* add as many digits as needed */
         m = adddigit(buff, n++, m * 16);
       } while (m > 0);
     }
     n += l_sprintf(buff + n, sz - n, "p%+d", e);  /* add exponent */
-    venom_assert(n < sz);
+    nebula_assert(n < sz);
     return n;
   }
 }
 
 
-static int venom_number2strx (venom_State *L, char *buff, int sz,
-                            const char *fmt, venom_Number x) {
+static int nebula_number2strx (nebula_State *L, char *buff, int sz,
+                            const char *fmt, nebula_Number x) {
   int n = num2straux(buff, sz, x);
   if (fmt[SIZELENMOD] == 'A') {
     int i;
@@ -1062,7 +1062,7 @@ static int venom_number2strx (venom_State *L, char *buff, int sz,
       buff[i] = toupper(uchar(buff[i]));
   }
   else if (l_unlikely(fmt[SIZELENMOD] != 'a'))
-    return venomL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
+    return nebulaL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
   return n;
 }
 
@@ -1119,12 +1119,12 @@ static int venom_number2strx (venom_State *L, char *buff, int sz,
 #define MAX_FORMAT	32
 
 
-static void addquoted (venomL_Buffer *b, const char *s, size_t len) {
-  venomL_addchar(b, '"');
+static void addquoted (nebulaL_Buffer *b, const char *s, size_t len) {
+  nebulaL_addchar(b, '"');
   while (len--) {
     if (*s == '"' || *s == '\\' || *s == '\n') {
-      venomL_addchar(b, '\\');
-      venomL_addchar(b, *s);
+      nebulaL_addchar(b, '\\');
+      nebulaL_addchar(b, *s);
     }
     else if (iscntrl(uchar(*s))) {
       char buff[10];
@@ -1132,36 +1132,36 @@ static void addquoted (venomL_Buffer *b, const char *s, size_t len) {
         l_sprintf(buff, sizeof(buff), "\\%d", (int)uchar(*s));
       else
         l_sprintf(buff, sizeof(buff), "\\%03d", (int)uchar(*s));
-      venomL_addstring(b, buff);
+      nebulaL_addstring(b, buff);
     }
     else
-      venomL_addchar(b, *s);
+      nebulaL_addchar(b, *s);
     s++;
   }
-  venomL_addchar(b, '"');
+  nebulaL_addchar(b, '"');
 }
 
 
 /*
 ** Serialize a floating-point number in such a way that it can be
-** scanned back by Venom. Use hexadecimal format for "common" numbers
+** scanned back by Nebula. Use hexadecimal format for "common" numbers
 ** (to preserve precision); inf, -inf, and NaN are handled separately.
 ** (NaN cannot be expressed as a numeral, so we write '(0/0)' for it.)
 */
-static int quotefloat (venom_State *L, char *buff, venom_Number n) {
+static int quotefloat (nebula_State *L, char *buff, nebula_Number n) {
   const char *s;  /* for the fixed representations */
-  if (n == (venom_Number)HUGE_VAL)  /* inf? */
+  if (n == (nebula_Number)HUGE_VAL)  /* inf? */
     s = "1e9999";
-  else if (n == -(venom_Number)HUGE_VAL)  /* -inf? */
+  else if (n == -(nebula_Number)HUGE_VAL)  /* -inf? */
     s = "-1e9999";
   else if (n != n)  /* NaN? */
     s = "(0/0)";
   else {  /* format number as hexadecimal */
-    int  nb = venom_number2strx(L, buff, MAX_ITEM,
-                                 "%" VENOM_NUMBER_FRMLEN "a", n);
+    int  nb = nebula_number2strx(L, buff, MAX_ITEM,
+                                 "%" NEBULA_NUMBER_FRMLEN "a", n);
     /* ensures that 'buff' string uses a dot as the radix character */
     if (memchr(buff, '.', nb) == NULL) {  /* no dot? */
-      char point = venom_getlocaledecpoint();  /* try locale point */
+      char point = nebula_getlocaledecpoint();  /* try locale point */
       char *ppoint = (char *)memchr(buff, point, nb);
       if (ppoint) *ppoint = '.';  /* change it to a dot */
     }
@@ -1172,36 +1172,36 @@ static int quotefloat (venom_State *L, char *buff, venom_Number n) {
 }
 
 
-static void addliteral (venom_State *L, venomL_Buffer *b, int arg) {
-  switch (venom_type(L, arg)) {
-    case VENOM_TSTRING: {
+static void addliteral (nebula_State *L, nebulaL_Buffer *b, int arg) {
+  switch (nebula_type(L, arg)) {
+    case NEBULA_TSTRING: {
       size_t len;
-      const char *s = venom_tolstring(L, arg, &len);
+      const char *s = nebula_tolstring(L, arg, &len);
       addquoted(b, s, len);
       break;
     }
-    case VENOM_TNUMBER: {
-      char *buff = venomL_prepbuffsize(b, MAX_ITEM);
+    case NEBULA_TNUMBER: {
+      char *buff = nebulaL_prepbuffsize(b, MAX_ITEM);
       int nb;
-      if (!venom_isinteger(L, arg))  /* float? */
-        nb = quotefloat(L, buff, venom_tonumber(L, arg));
+      if (!nebula_isinteger(L, arg))  /* float? */
+        nb = quotefloat(L, buff, nebula_tonumber(L, arg));
       else {  /* integers */
-        venom_Integer n = venom_tointeger(L, arg);
-        const char *format = (n == VENOM_MININTEGER)  /* corner case? */
-                           ? "0x%" VENOM_INTEGER_FRMLEN "x"  /* use hex */
-                           : VENOM_INTEGER_FMT;  /* else use default format */
-        nb = l_sprintf(buff, MAX_ITEM, format, (VENOMI_UACINT)n);
+        nebula_Integer n = nebula_tointeger(L, arg);
+        const char *format = (n == NEBULA_MININTEGER)  /* corner case? */
+                           ? "0x%" NEBULA_INTEGER_FRMLEN "x"  /* use hex */
+                           : NEBULA_INTEGER_FMT;  /* else use default format */
+        nb = l_sprintf(buff, MAX_ITEM, format, (NEBULAI_UACINT)n);
       }
-      venomL_addsize(b, nb);
+      nebulaL_addsize(b, nb);
       break;
     }
-    case VENOM_TNIL: case VENOM_TBOOLEAN: {
-      venomL_tolstring(L, arg, NULL);
-      venomL_addvalue(b);
+    case NEBULA_TNIL: case NEBULA_TBOOLEAN: {
+      nebulaL_tolstring(L, arg, NULL);
+      nebulaL_addvalue(b);
       break;
     }
     default: {
-      venomL_argerror(L, arg, "value has no literal form");
+      nebulaL_argerror(L, arg, "value has no literal form");
     }
   }
 }
@@ -1222,7 +1222,7 @@ static const char *get2digits (const char *s) {
 ** be a valid conversion specifier. 'flags' are the accepted flags;
 ** 'precision' signals whether to accept a precision.
 */
-static void checkformat (venom_State *L, const char *form, const char *flags,
+static void checkformat (nebula_State *L, const char *form, const char *flags,
                                        int precision) {
   const char *spec = form + 1;  /* skip '%' */
   spec += strspn(spec, flags);  /* skip flags */
@@ -1233,8 +1233,8 @@ static void checkformat (venom_State *L, const char *form, const char *flags,
       spec = get2digits(spec);  /* skip precision */
     }
   }
-  if (!isalpha(uchar(*spec)))  /* did not Venom to the end? */
-    venomL_error(L, "invalid conversion specification: '%s'", form);
+  if (!isalpha(uchar(*spec)))  /* did not Nebula to the end? */
+    nebulaL_error(L, "invalid conversion specification: '%s'", form);
 }
 
 
@@ -1242,14 +1242,14 @@ static void checkformat (venom_State *L, const char *form, const char *flags,
 ** Get a conversion specification and copy it to 'form'.
 ** Return the address of its last character.
 */
-static const char *getformat (venom_State *L, const char *strfrmt,
+static const char *getformat (nebula_State *L, const char *strfrmt,
                                             char *form) {
   /* spans flags, width, and precision ('0' is included as a flag) */
   size_t len = strspn(strfrmt, L_FMTFLAGSF "123456789.");
   len++;  /* adds following character (should be the specifier) */
   /* still needs space for '%', '\0', plus a length modifier */
   if (len >= MAX_FORMAT - 10)
-    venomL_error(L, "invalid format (too long)");
+    nebulaL_error(L, "invalid format (too long)");
   *(form++) = '%';
   memcpy(form, strfrmt, len * sizeof(char));
   *(form + len) = '\0';
@@ -1270,32 +1270,32 @@ static void addlenmod (char *form, const char *lenmod) {
 }
 
 
-static int str_format (venom_State *L) {
-  int top = venom_gettop(L);
+static int str_format (nebula_State *L) {
+  int top = nebula_gettop(L);
   int arg = 1;
   size_t sfl;
-  const char *strfrmt = venomL_checklstring(L, arg, &sfl);
+  const char *strfrmt = nebulaL_checklstring(L, arg, &sfl);
   const char *strfrmt_end = strfrmt+sfl;
   const char *flags;
-  venomL_Buffer b;
-  venomL_buffinit(L, &b);
+  nebulaL_Buffer b;
+  nebulaL_buffinit(L, &b);
   while (strfrmt < strfrmt_end) {
     if (*strfrmt != L_ESC)
-      venomL_addchar(&b, *strfrmt++);
+      nebulaL_addchar(&b, *strfrmt++);
     else if (*++strfrmt == L_ESC)
-      venomL_addchar(&b, *strfrmt++);  /* %% */
+      nebulaL_addchar(&b, *strfrmt++);  /* %% */
     else { /* format item */
       char form[MAX_FORMAT];  /* to store the format ('%...') */
       int maxitem = MAX_ITEM;  /* maximum length for the result */
-      char *buff = venomL_prepbuffsize(&b, maxitem);  /* to put result */
+      char *buff = nebulaL_prepbuffsize(&b, maxitem);  /* to put result */
       int nb = 0;  /* number of bytes in result */
       if (++arg > top)
-        return venomL_argerror(L, arg, "no value");
+        return nebulaL_argerror(L, arg, "no value");
       strfrmt = getformat(L, strfrmt, form);
       switch (*strfrmt++) {
         case 'c': {
           checkformat(L, form, L_FMTFLAGSC, 0);
-          nb = l_sprintf(buff, maxitem, form, (int)venomL_checkinteger(L, arg));
+          nb = l_sprintf(buff, maxitem, form, (int)nebulaL_checkinteger(L, arg));
           break;
         }
         case 'd': case 'i':
@@ -1307,31 +1307,31 @@ static int str_format (venom_State *L) {
         case 'o': case 'x': case 'X':
           flags = L_FMTFLAGSX;
          intcase: {
-          venom_Integer n = venomL_checkinteger(L, arg);
+          nebula_Integer n = nebulaL_checkinteger(L, arg);
           checkformat(L, form, flags, 1);
-          addlenmod(form, VENOM_INTEGER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (VENOMI_UACINT)n);
+          addlenmod(form, NEBULA_INTEGER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (NEBULAI_UACINT)n);
           break;
         }
         case 'a': case 'A':
           checkformat(L, form, L_FMTFLAGSF, 1);
-          addlenmod(form, VENOM_NUMBER_FRMLEN);
-          nb = venom_number2strx(L, buff, maxitem, form,
-                                  venomL_checknumber(L, arg));
+          addlenmod(form, NEBULA_NUMBER_FRMLEN);
+          nb = nebula_number2strx(L, buff, maxitem, form,
+                                  nebulaL_checknumber(L, arg));
           break;
         case 'f':
           maxitem = MAX_ITEMF;  /* extra space for '%f' */
-          buff = venomL_prepbuffsize(&b, maxitem);
+          buff = nebulaL_prepbuffsize(&b, maxitem);
           /* FALLTHROUGH */
         case 'e': case 'E': case 'g': case 'G': {
-          venom_Number n = venomL_checknumber(L, arg);
+          nebula_Number n = nebulaL_checknumber(L, arg);
           checkformat(L, form, L_FMTFLAGSF, 1);
-          addlenmod(form, VENOM_NUMBER_FRMLEN);
-          nb = l_sprintf(buff, maxitem, form, (VENOMI_UACNUMBER)n);
+          addlenmod(form, NEBULA_NUMBER_FRMLEN);
+          nb = l_sprintf(buff, maxitem, form, (NEBULAI_UACNUMBER)n);
           break;
         }
         case 'p': {
-          const void *p = venom_topointer(L, arg);
+          const void *p = nebula_topointer(L, arg);
           checkformat(L, form, L_FMTFLAGSC, 0);
           if (p == NULL) {  /* avoid calling 'printf' with argument NULL */
             p = "(null)";  /* result */
@@ -1342,38 +1342,38 @@ static int str_format (venom_State *L) {
         }
         case 'q': {
           if (form[2] != '\0')  /* modifiers? */
-            return venomL_error(L, "specifier '%%q' cannot have modifiers");
+            return nebulaL_error(L, "specifier '%%q' cannot have modifiers");
           addliteral(L, &b, arg);
           break;
         }
         case 's': {
           size_t l;
-          const char *s = venomL_tolstring(L, arg, &l);
+          const char *s = nebulaL_tolstring(L, arg, &l);
           if (form[2] == '\0')  /* no modifiers? */
-            venomL_addvalue(&b);  /* keep entire string */
+            nebulaL_addvalue(&b);  /* keep entire string */
           else {
-            venomL_argcheck(L, l == strlen(s), arg, "string contains zeros");
+            nebulaL_argcheck(L, l == strlen(s), arg, "string contains zeros");
             checkformat(L, form, L_FMTFLAGSC, 1);
             if (strchr(form, '.') == NULL && l >= 100) {
               /* no precision and string is too long to be formatted */
-              venomL_addvalue(&b);  /* keep entire string */
+              nebulaL_addvalue(&b);  /* keep entire string */
             }
             else {  /* format the string into 'buff' */
               nb = l_sprintf(buff, maxitem, form, s);
-              venom_pop(L, 1);  /* remove result from 'venomL_tolstring' */
+              nebula_pop(L, 1);  /* remove result from 'nebulaL_tolstring' */
             }
           }
           break;
         }
         default: {  /* also treat cases 'pnLlh' */
-          return venomL_error(L, "invalid conversion '%s' to 'format'", form);
+          return nebulaL_error(L, "invalid conversion '%s' to 'format'", form);
         }
       }
-      venom_assert(nb < maxitem);
-      venomL_addsize(&b, nb);
+      nebula_assert(nb < maxitem);
+      nebulaL_addsize(&b, nb);
     }
   }
-  venomL_pushresult(&b);
+  nebulaL_pushresult(&b);
   return 1;
 }
 
@@ -1388,8 +1388,8 @@ static int str_format (venom_State *L) {
 
 
 /* value used for padding */
-#if !defined(VENOML_PACKPADBYTE)
-#define VENOML_PACKPADBYTE		0x00
+#if !defined(NEBULAL_PACKPADBYTE)
+#define NEBULAL_PACKPADBYTE		0x00
 #endif
 
 /* maximum size for the binary representation of an integer */
@@ -1401,8 +1401,8 @@ static int str_format (venom_State *L) {
 /* mask for one character (NB 1's) */
 #define MC	((1 << NB) - 1)
 
-/* size of a venom_Integer */
-#define SZINT	((int)sizeof(venom_Integer))
+/* size of a nebula_Integer */
+#define SZINT	((int)sizeof(nebula_Integer))
 
 
 /* dummy union to get native endianness */
@@ -1416,7 +1416,7 @@ static const union {
 ** information to pack/unpack stuff
 */
 typedef struct Header {
-  venom_State *L;
+  nebula_State *L;
   int islittle;
   int maxalign;
 } Header;
@@ -1429,7 +1429,7 @@ typedef enum KOption {
   Kint,		/* signed integers */
   Kuint,	/* unsigned integers */
   Kfloat,	/* single-precision floating-point numbers */
-  Knumber,	/* Venom "native" floating-point numbers */
+  Knumber,	/* Nebula "native" floating-point numbers */
   Kdouble,	/* double-precision floating-point numbers */
   Kchar,	/* fixed-length strings */
   Kstring,	/* strings with prefixed length */
@@ -1466,7 +1466,7 @@ static int getnum (const char **fmt, int df) {
 static int getnumlimit (Header *h, const char **fmt, int df) {
   int sz = getnum(fmt, df);
   if (l_unlikely(sz > MAXINTSIZE || sz <= 0))
-    return venomL_error(h->L, "integral size (%d) out of limits [1,%d]",
+    return nebulaL_error(h->L, "integral size (%d) out of limits [1,%d]",
                             sz, MAXINTSIZE);
   return sz;
 }
@@ -1475,7 +1475,7 @@ static int getnumlimit (Header *h, const char **fmt, int df) {
 /*
 ** Initialize Header
 */
-static void initheader (venom_State *L, Header *h) {
+static void initheader (nebula_State *L, Header *h) {
   h->L = L;
   h->islittle = nativeendian.little;
   h->maxalign = 1;
@@ -1487,7 +1487,7 @@ static void initheader (venom_State *L, Header *h) {
 */
 static KOption getoption (Header *h, const char **fmt, int *size) {
   /* dummy structure to get native alignment requirements */
-  struct cD { char c; union { VENOMI_MAXALIGN; } u; };
+  struct cD { char c; union { NEBULAI_MAXALIGN; } u; };
   int opt = *((*fmt)++);
   *size = 0;  /* default */
   switch (opt) {
@@ -1497,11 +1497,11 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
     case 'H': *size = sizeof(short); return Kuint;
     case 'l': *size = sizeof(long); return Kint;
     case 'L': *size = sizeof(long); return Kuint;
-    case 'j': *size = sizeof(venom_Integer); return Kint;
-    case 'J': *size = sizeof(venom_Integer); return Kuint;
+    case 'j': *size = sizeof(nebula_Integer); return Kint;
+    case 'J': *size = sizeof(nebula_Integer); return Kuint;
     case 'T': *size = sizeof(size_t); return Kuint;
     case 'f': *size = sizeof(float); return Kfloat;
-    case 'n': *size = sizeof(venom_Number); return Knumber;
+    case 'n': *size = sizeof(nebula_Number); return Knumber;
     case 'd': *size = sizeof(double); return Kdouble;
     case 'i': *size = getnumlimit(h, fmt, sizeof(int)); return Kint;
     case 'I': *size = getnumlimit(h, fmt, sizeof(int)); return Kuint;
@@ -1509,7 +1509,7 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
     case 'c':
       *size = getnum(fmt, -1);
       if (l_unlikely(*size == -1))
-        venomL_error(h->L, "missing size for format option 'c'");
+        nebulaL_error(h->L, "missing size for format option 'c'");
       return Kchar;
     case 'z': return Kzstr;
     case 'x': *size = 1; return Kpadding;
@@ -1523,7 +1523,7 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
       h->maxalign = getnumlimit(h, fmt, maxalign);
       break;
     }
-    default: venomL_error(h->L, "invalid format option '%c'", opt);
+    default: nebulaL_error(h->L, "invalid format option '%c'", opt);
   }
   return Knop;
 }
@@ -1544,7 +1544,7 @@ static KOption getdetails (Header *h, size_t totalsize,
   int align = *psize;  /* usually, alignment follows size */
   if (opt == Kpaddalign) {  /* 'X' gets alignment from following option */
     if (**fmt == '\0' || getoption(h, fmt, &align) == Kchar || align == 0)
-      venomL_argerror(h->L, 1, "invalid next option for option 'X'");
+      nebulaL_argerror(h->L, 1, "invalid next option for option 'X'");
   }
   if (align <= 1 || opt == Kchar)  /* need no alignment? */
     *ntoalign = 0;
@@ -1552,7 +1552,7 @@ static KOption getdetails (Header *h, size_t totalsize,
     if (align > h->maxalign)  /* enforce maximum alignment */
       align = h->maxalign;
     if (l_unlikely((align & (align - 1)) != 0))  /* not a power of 2? */
-      venomL_argerror(h->L, 1, "format asks for alignment not power of 2");
+      nebulaL_argerror(h->L, 1, "format asks for alignment not power of 2");
     *ntoalign = (align - (int)(totalsize & (align - 1))) & (align - 1);
   }
   return opt;
@@ -1562,12 +1562,12 @@ static KOption getdetails (Header *h, size_t totalsize,
 /*
 ** Pack integer 'n' with 'size' bytes and 'islittle' endianness.
 ** The final 'if' handles the case when 'size' is larger than
-** the size of a Venom integer, correcting the extra sign-extension
+** the size of a Nebula integer, correcting the extra sign-extension
 ** bytes if necessary (by default they would be zeros).
 */
-static void packint (venomL_Buffer *b, venom_Unsigned n,
+static void packint (nebulaL_Buffer *b, nebula_Unsigned n,
                      int islittle, int size, int neg) {
-  char *buff = venomL_prepbuffsize(b, size);
+  char *buff = nebulaL_prepbuffsize(b, size);
   int i;
   buff[islittle ? 0 : size - 1] = (char)(n & MC);  /* first byte */
   for (i = 1; i < size; i++) {
@@ -1578,7 +1578,7 @@ static void packint (venomL_Buffer *b, venom_Unsigned n,
     for (i = SZINT; i < size; i++)  /* correct extra bytes */
       buff[islittle ? i : size - 1 - i] = (char)MC;
   }
-  venomL_addsize(b, size);  /* add result to buffer */
+  nebulaL_addsize(b, size);  /* add result to buffer */
 }
 
 
@@ -1598,219 +1598,219 @@ static void copywithendian (char *dest, const char *src,
 }
 
 
-static int str_pack (venom_State *L) {
-  venomL_Buffer b;
+static int str_pack (nebula_State *L) {
+  nebulaL_Buffer b;
   Header h;
-  const char *fmt = venomL_checkstring(L, 1);  /* format string */
+  const char *fmt = nebulaL_checkstring(L, 1);  /* format string */
   int arg = 1;  /* current argument to pack */
   size_t totalsize = 0;  /* accumulate total size of result */
   initheader(L, &h);
-  venom_pushnil(L);  /* mark to separate arguments from string buffer */
-  venomL_buffinit(L, &b);
+  nebula_pushnil(L);  /* mark to separate arguments from string buffer */
+  nebulaL_buffinit(L, &b);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, totalsize, &fmt, &size, &ntoalign);
     totalsize += ntoalign + size;
     while (ntoalign-- > 0)
-     venomL_addchar(&b, VENOML_PACKPADBYTE);  /* fill alignment */
+     nebulaL_addchar(&b, NEBULAL_PACKPADBYTE);  /* fill alignment */
     arg++;
     switch (opt) {
       case Kint: {  /* signed integers */
-        venom_Integer n = venomL_checkinteger(L, arg);
+        nebula_Integer n = nebulaL_checkinteger(L, arg);
         if (size < SZINT) {  /* need overflow check? */
-          venom_Integer lim = (venom_Integer)1 << ((size * NB) - 1);
-          venomL_argcheck(L, -lim <= n && n < lim, arg, "integer overflow");
+          nebula_Integer lim = (nebula_Integer)1 << ((size * NB) - 1);
+          nebulaL_argcheck(L, -lim <= n && n < lim, arg, "integer overflow");
         }
-        packint(&b, (venom_Unsigned)n, h.islittle, size, (n < 0));
+        packint(&b, (nebula_Unsigned)n, h.islittle, size, (n < 0));
         break;
       }
       case Kuint: {  /* unsigned integers */
-        venom_Integer n = venomL_checkinteger(L, arg);
+        nebula_Integer n = nebulaL_checkinteger(L, arg);
         if (size < SZINT)  /* need overflow check? */
-          venomL_argcheck(L, (venom_Unsigned)n < ((venom_Unsigned)1 << (size * NB)),
+          nebulaL_argcheck(L, (nebula_Unsigned)n < ((nebula_Unsigned)1 << (size * NB)),
                            arg, "unsigned overflow");
-        packint(&b, (venom_Unsigned)n, h.islittle, size, 0);
+        packint(&b, (nebula_Unsigned)n, h.islittle, size, 0);
         break;
       }
       case Kfloat: {  /* C float */
-        float f = (float)venomL_checknumber(L, arg);  /* get argument */
-        char *buff = venomL_prepbuffsize(&b, sizeof(f));
+        float f = (float)nebulaL_checknumber(L, arg);  /* get argument */
+        char *buff = nebulaL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        venomL_addsize(&b, size);
+        nebulaL_addsize(&b, size);
         break;
       }
-      case Knumber: {  /* Venom float */
-        venom_Number f = venomL_checknumber(L, arg);  /* get argument */
-        char *buff = venomL_prepbuffsize(&b, sizeof(f));
+      case Knumber: {  /* Nebula float */
+        nebula_Number f = nebulaL_checknumber(L, arg);  /* get argument */
+        char *buff = nebulaL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        venomL_addsize(&b, size);
+        nebulaL_addsize(&b, size);
         break;
       }
       case Kdouble: {  /* C double */
-        double f = (double)venomL_checknumber(L, arg);  /* get argument */
-        char *buff = venomL_prepbuffsize(&b, sizeof(f));
+        double f = (double)nebulaL_checknumber(L, arg);  /* get argument */
+        char *buff = nebulaL_prepbuffsize(&b, sizeof(f));
         /* move 'f' to final result, correcting endianness if needed */
         copywithendian(buff, (char *)&f, sizeof(f), h.islittle);
-        venomL_addsize(&b, size);
+        nebulaL_addsize(&b, size);
         break;
       }
       case Kchar: {  /* fixed-size string */
         size_t len;
-        const char *s = venomL_checklstring(L, arg, &len);
-        venomL_argcheck(L, len <= (size_t)size, arg,
+        const char *s = nebulaL_checklstring(L, arg, &len);
+        nebulaL_argcheck(L, len <= (size_t)size, arg,
                          "string longer than given size");
-        venomL_addlstring(&b, s, len);  /* add string */
+        nebulaL_addlstring(&b, s, len);  /* add string */
         while (len++ < (size_t)size)  /* pad extra space */
-          venomL_addchar(&b, VENOML_PACKPADBYTE);
+          nebulaL_addchar(&b, NEBULAL_PACKPADBYTE);
         break;
       }
       case Kstring: {  /* strings with length count */
         size_t len;
-        const char *s = venomL_checklstring(L, arg, &len);
-        venomL_argcheck(L, size >= (int)sizeof(size_t) ||
+        const char *s = nebulaL_checklstring(L, arg, &len);
+        nebulaL_argcheck(L, size >= (int)sizeof(size_t) ||
                          len < ((size_t)1 << (size * NB)),
                          arg, "string length does not fit in given size");
-        packint(&b, (venom_Unsigned)len, h.islittle, size, 0);  /* pack length */
-        venomL_addlstring(&b, s, len);
+        packint(&b, (nebula_Unsigned)len, h.islittle, size, 0);  /* pack length */
+        nebulaL_addlstring(&b, s, len);
         totalsize += len;
         break;
       }
       case Kzstr: {  /* zero-terminated string */
         size_t len;
-        const char *s = venomL_checklstring(L, arg, &len);
-        venomL_argcheck(L, strlen(s) == len, arg, "string contains zeros");
-        venomL_addlstring(&b, s, len);
-        venomL_addchar(&b, '\0');  /* add zero at the end */
+        const char *s = nebulaL_checklstring(L, arg, &len);
+        nebulaL_argcheck(L, strlen(s) == len, arg, "string contains zeros");
+        nebulaL_addlstring(&b, s, len);
+        nebulaL_addchar(&b, '\0');  /* add zero at the end */
         totalsize += len + 1;
         break;
       }
-      case Kpadding: venomL_addchar(&b, VENOML_PACKPADBYTE);  /* FALLTHROUGH */
+      case Kpadding: nebulaL_addchar(&b, NEBULAL_PACKPADBYTE);  /* FALLTHROUGH */
       case Kpaddalign: case Knop:
         arg--;  /* undo increment */
         break;
     }
   }
-  venomL_pushresult(&b);
+  nebulaL_pushresult(&b);
   return 1;
 }
 
 
-static int str_packsize (venom_State *L) {
+static int str_packsize (nebula_State *L) {
   Header h;
-  const char *fmt = venomL_checkstring(L, 1);  /* format string */
+  const char *fmt = nebulaL_checkstring(L, 1);  /* format string */
   size_t totalsize = 0;  /* accumulate total size of result */
   initheader(L, &h);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, totalsize, &fmt, &size, &ntoalign);
-    venomL_argcheck(L, opt != Kstring && opt != Kzstr, 1,
+    nebulaL_argcheck(L, opt != Kstring && opt != Kzstr, 1,
                      "variable-length format");
     size += ntoalign;  /* total space used by option */
-    venomL_argcheck(L, totalsize <= MAXSIZE - size, 1,
+    nebulaL_argcheck(L, totalsize <= MAXSIZE - size, 1,
                      "format result too large");
     totalsize += size;
   }
-  venom_pushinteger(L, (venom_Integer)totalsize);
+  nebula_pushinteger(L, (nebula_Integer)totalsize);
   return 1;
 }
 
 
 /*
 ** Unpack an integer with 'size' bytes and 'islittle' endianness.
-** If size is smaller than the size of a Venom integer and integer
+** If size is smaller than the size of a Nebula integer and integer
 ** is signed, must do sign extension (propagating the sign to the
-** higher bits); if size is larger than the size of a Venom integer,
+** higher bits); if size is larger than the size of a Nebula integer,
 ** it must check the unread bytes to see whether they do not cause an
 ** overflow.
 */
-static venom_Integer unpackint (venom_State *L, const char *str,
+static nebula_Integer unpackint (nebula_State *L, const char *str,
                               int islittle, int size, int issigned) {
-  venom_Unsigned res = 0;
+  nebula_Unsigned res = 0;
   int i;
   int limit = (size  <= SZINT) ? size : SZINT;
   for (i = limit - 1; i >= 0; i--) {
     res <<= NB;
-    res |= (venom_Unsigned)(unsigned char)str[islittle ? i : size - 1 - i];
+    res |= (nebula_Unsigned)(unsigned char)str[islittle ? i : size - 1 - i];
   }
-  if (size < SZINT) {  /* real size smaller than venom_Integer? */
+  if (size < SZINT) {  /* real size smaller than nebula_Integer? */
     if (issigned) {  /* needs sign extension? */
-      venom_Unsigned mask = (venom_Unsigned)1 << (size*NB - 1);
+      nebula_Unsigned mask = (nebula_Unsigned)1 << (size*NB - 1);
       res = ((res ^ mask) - mask);  /* do sign extension */
     }
   }
   else if (size > SZINT) {  /* must check unread bytes */
-    int mask = (!issigned || (venom_Integer)res >= 0) ? 0 : MC;
+    int mask = (!issigned || (nebula_Integer)res >= 0) ? 0 : MC;
     for (i = limit; i < size; i++) {
       if (l_unlikely((unsigned char)str[islittle ? i : size - 1 - i] != mask))
-        venomL_error(L, "%d-byte integer does not fit into Venom Integer", size);
+        nebulaL_error(L, "%d-byte integer does not fit into Nebula Integer", size);
     }
   }
-  return (venom_Integer)res;
+  return (nebula_Integer)res;
 }
 
 
-static int str_unpack (venom_State *L) {
+static int str_unpack (nebula_State *L) {
   Header h;
-  const char *fmt = venomL_checkstring(L, 1);
+  const char *fmt = nebulaL_checkstring(L, 1);
   size_t ld;
-  const char *data = venomL_checklstring(L, 2, &ld);
-  size_t pos = posrelatI(venomL_optinteger(L, 3, 1), ld) - 1;
+  const char *data = nebulaL_checklstring(L, 2, &ld);
+  size_t pos = posrelatI(nebulaL_optinteger(L, 3, 1), ld) - 1;
   int n = 0;  /* number of results */
-  venomL_argcheck(L, pos <= ld, 3, "initial position out of string");
+  nebulaL_argcheck(L, pos <= ld, 3, "initial position out of string");
   initheader(L, &h);
   while (*fmt != '\0') {
     int size, ntoalign;
     KOption opt = getdetails(&h, pos, &fmt, &size, &ntoalign);
-    venomL_argcheck(L, (size_t)ntoalign + size <= ld - pos, 2,
+    nebulaL_argcheck(L, (size_t)ntoalign + size <= ld - pos, 2,
                     "data string too short");
     pos += ntoalign;  /* skip alignment */
     /* stack space for item + next position */
-    venomL_checkstack(L, 2, "too many results");
+    nebulaL_checkstack(L, 2, "too many results");
     n++;
     switch (opt) {
       case Kint:
       case Kuint: {
-        venom_Integer res = unpackint(L, data + pos, h.islittle, size,
+        nebula_Integer res = unpackint(L, data + pos, h.islittle, size,
                                        (opt == Kint));
-        venom_pushinteger(L, res);
+        nebula_pushinteger(L, res);
         break;
       }
       case Kfloat: {
         float f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        venom_pushnumber(L, (venom_Number)f);
+        nebula_pushnumber(L, (nebula_Number)f);
         break;
       }
       case Knumber: {
-        venom_Number f;
+        nebula_Number f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        venom_pushnumber(L, f);
+        nebula_pushnumber(L, f);
         break;
       }
       case Kdouble: {
         double f;
         copywithendian((char *)&f, data + pos, sizeof(f), h.islittle);
-        venom_pushnumber(L, (venom_Number)f);
+        nebula_pushnumber(L, (nebula_Number)f);
         break;
       }
       case Kchar: {
-        venom_pushlstring(L, data + pos, size);
+        nebula_pushlstring(L, data + pos, size);
         break;
       }
       case Kstring: {
         size_t len = (size_t)unpackint(L, data + pos, h.islittle, size, 0);
-        venomL_argcheck(L, len <= ld - pos - size, 2, "data string too short");
-        venom_pushlstring(L, data + pos + size, len);
+        nebulaL_argcheck(L, len <= ld - pos - size, 2, "data string too short");
+        nebula_pushlstring(L, data + pos + size, len);
         pos += len;  /* skip string */
         break;
       }
       case Kzstr: {
         size_t len = strlen(data + pos);
-        venomL_argcheck(L, pos + len < ld, 2,
+        nebulaL_argcheck(L, pos + len < ld, 2,
                          "unfinished string for format 'z'");
-        venom_pushlstring(L, data + pos, len);
+        nebula_pushlstring(L, data + pos, len);
         pos += len + 1;  /* skip string plus final '\0' */
         break;
       }
@@ -1820,14 +1820,14 @@ static int str_unpack (venom_State *L) {
     }
     pos += size;
   }
-  venom_pushinteger(L, pos + 1);  /* next position */
+  nebula_pushinteger(L, pos + 1);  /* next position */
   return n + 1;
 }
 
 /* }====================================================== */
 
 
-static const venomL_Reg strlib[] = {
+static const nebulaL_Reg strlib[] = {
   {"byte", str_byte},
   {"char", str_char},
   {"dump", str_dump},
@@ -1849,25 +1849,25 @@ static const venomL_Reg strlib[] = {
 };
 
 
-static void createmetatable (venom_State *L) {
+static void createmetatable (nebula_State *L) {
   /* table to be metatable for strings */
-  venomL_newlibtable(L, stringmetamethods);
-  venomL_setfuncs(L, stringmetamethods, 0);
-  venom_pushliteral(L, "");  /* dummy string */
-  venom_pushvalue(L, -2);  /* copy table */
-  venom_setmetatable(L, -2);  /* set table as metatable for strings */
-  venom_pop(L, 1);  /* pop dummy string */
-  venom_pushvalue(L, -2);  /* get string library */
-  venom_setfield(L, -2, "__index");  /* metatable.__index = string */
-  venom_pop(L, 1);  /* pop metatable */
+  nebulaL_newlibtable(L, stringmetamethods);
+  nebulaL_setfuncs(L, stringmetamethods, 0);
+  nebula_pushliteral(L, "");  /* dummy string */
+  nebula_pushvalue(L, -2);  /* copy table */
+  nebula_setmetatable(L, -2);  /* set table as metatable for strings */
+  nebula_pop(L, 1);  /* pop dummy string */
+  nebula_pushvalue(L, -2);  /* get string library */
+  nebula_setfield(L, -2, "__index");  /* metatable.__index = string */
+  nebula_pop(L, 1);  /* pop metatable */
 }
 
 
 /*
 ** Open string library
 */
-VENOMMOD_API int venomopen_string (venom_State *L) {
-  venomL_newlib(L, strlib);
+NEBULAMOD_API int nebulaopen_string (nebula_State *L) {
+  nebulaL_newlib(L, strlib);
   createmetatable(L);
   return 1;
 }

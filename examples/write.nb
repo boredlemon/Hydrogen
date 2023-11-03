@@ -3,7 +3,7 @@ import file = io.open("sample.txt", "w")
 
 if file then
     file:write("This is a sample text file.\n")
-    file:write("Venom is a great programming language.\n")
+    file:write("Nebula is a great programming language.\n")
     file:close()
 else
 print("Error: Unable to open the file for writing.")

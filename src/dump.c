@@ -1,18 +1,18 @@
 /*
 ** $Id: dump.c $
-** save precompiled Venom chunks
-** See Copyright Notice in venom.h
+** save precompiled Nebula chunks
+** See Copyright Notice in nebula.h
 */
 
 #define dump_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
 
 #include <stddef.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "object.h"
 #include "state.h"
@@ -20,8 +20,8 @@
 
 
 typedef struct {
-  venom_State *L;
-  venom_Writer writer;
+  nebula_State *L;
+  nebula_Writer writer;
   void *data;
   int strip;
   int status;
@@ -29,7 +29,7 @@ typedef struct {
 
 
 /*
-** All high-level dumps Venom through dumpVector; you can change it to
+** All high-level dumps Nebula through dumpVector; you can change it to
 ** change the endianness of the result
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
@@ -39,9 +39,9 @@ typedef struct {
 
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    venom_unlock(D->L);
+    nebula_unlock(D->L);
     D->status = (*D->writer)(D->L, b, size, D->data);
-    venom_lock(D->L);
+    nebula_lock(D->L);
   }
 }
 
@@ -75,12 +75,12 @@ static void dumpInt (DumpState *D, int x) {
 }
 
 
-static void dumpNumber (DumpState *D, venom_Number x) {
+static void dumpNumber (DumpState *D, nebula_Number x) {
   dumpVar(D, x);
 }
 
 
-static void dumpInteger (DumpState *D, venom_Integer x) {
+static void dumpInteger (DumpState *D, nebula_Integer x) {
   dumpVar(D, x);
 }
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case VENOM_VNUMFLT:
+      case NEBULA_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case VENOM_VNUMINT:
+      case NEBULA_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case VENOM_VSHRSTR:
-      case VENOM_VLNGSTR:
+      case NEBULA_VSHRSTR:
+      case NEBULA_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        venom_assert(tt == VENOM_VNIL || tt == VENOM_VFALSE || tt == VENOM_VTRUE);
+        nebula_assert(tt == NEBULA_VNIL || tt == NEBULA_VFALSE || tt == NEBULA_VTRUE);
     }
   }
 }
@@ -195,22 +195,22 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, VENOM_SIGNATURE);
-  dumpByte(D, VENOMC_VERSION);
-  dumpByte(D, VENOMC_FORMAT);
-  dumpLiteral(D, VENOMC_DATA);
+  dumpLiteral(D, NEBULA_SIGNATURE);
+  dumpByte(D, NEBULAC_VERSION);
+  dumpByte(D, NEBULAC_FORMAT);
+  dumpLiteral(D, NEBULAC_DATA);
   dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(venom_Integer));
-  dumpByte(D, sizeof(venom_Number));
-  dumpInteger(D, VENOMC_INT);
-  dumpNumber(D, VENOMC_NUM);
+  dumpByte(D, sizeof(nebula_Integer));
+  dumpByte(D, sizeof(nebula_Number));
+  dumpInteger(D, NEBULAC_INT);
+  dumpNumber(D, NEBULAC_NUM);
 }
 
 
 /*
-** dump Venom function as precompiled chunk
+** dump Nebula function as precompiled chunk
 */
-int venomU_dump(venom_State *L, const Proto *f, venom_Writer w, void *data,
+int nebulaU_dump(nebula_State *L, const Proto *f, nebula_Writer w, void *data,
               int strip) {
   DumpState D;
   D.L = L;

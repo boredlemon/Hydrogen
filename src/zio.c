@@ -1,18 +1,18 @@
 /*
 ** $Id: zio.c $
 ** Buffered streams
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #define zio_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
 
 #include <string.h>
 
-#include "venom.h"
+#include "nebula.h"
 
 #include "limits.h"
 #include "memory.h"
@@ -20,13 +20,13 @@
 #include "zio.h"
 
 
-int venomZ_fill (ZIO *z) {
+int nebulaZ_fill (ZIO *z) {
   size_t size;
-  venom_State *L = z->L;
+  nebula_State *L = z->L;
   const char *buff;
-  venom_unlock(L);
+  nebula_unlock(L);
   buff = z->reader(L, z->data, &size);
-  venom_lock(L);
+  nebula_lock(L);
   if (buff == NULL || size == 0)
     return EOZ;
   z->n = size - 1;  /* discount char being returned */
@@ -35,7 +35,7 @@ int venomZ_fill (ZIO *z) {
 }
 
 
-void venomZ_init (venom_State *L, ZIO *z, venom_Reader reader, void *data) {
+void nebulaZ_init (nebula_State *L, ZIO *z, nebula_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;
   z->data = data;
@@ -45,14 +45,14 @@ void venomZ_init (venom_State *L, ZIO *z, venom_Reader reader, void *data) {
 
 
 /* --------------------------------------------------------------- read --- */
-size_t venomZ_read (ZIO *z, void *b, size_t n) {
+size_t nebulaZ_read (ZIO *z, void *b, size_t n) {
   while (n) {
     size_t m;
     if (z->n == 0) {  /* no bytes in buffer? */
-      if (venomZ_fill(z) == EOZ)  /* try to read more */
+      if (nebulaZ_fill(z) == EOZ)  /* try to read more */
         return n;  /* no more input; return number of missing bytes */
       else {
-        z->n++;  /* venomZ_fill consumed first byte; put it back */
+        z->n++;  /* nebulaZ_fill consumed first byte; put it back */
         z->p--;
       }
     }

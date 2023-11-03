@@ -1,4 +1,4 @@
-# Makefile for installing Venom
+# Makefile for installing Nebula
 # See doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -9,17 +9,17 @@ PLAT= guess
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
-# VENOM_ROOT, VENOM_LDIR, and VENOM_CDIR in venomconf.h.
+# NEBULA_ROOT, NEBULA_LDIR, and NEBULA_CDIR in nebulaconf.h.
 INSTALL_TOP= /usr/local
 INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
 INSTALL_MAN= $(INSTALL_TOP)/man/man1
-INSTALL_LMOD= $(INSTALL_TOP)/share/venom/$V
-INSTALL_CMOD= $(INSTALL_TOP)/lib/venom/$V
+INSTALL_LMOD= $(INSTALL_TOP)/share/nebula/$V
+INSTALL_CMOD= $(INSTALL_TOP)/lib/nebula/$V
 
 # How to install. If your install program does not support "-p", then
-# you may have to run ranlib on the installed libvenom.a.
+# you may have to run ranlib on the installed libnebula.a.
 INSTALL= install -p
 INSTALL_EXEC= $(INSTALL) -m 0755
 INSTALL_DATA= $(INSTALL) -m 0644
@@ -39,12 +39,12 @@ RM= rm -f
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
 # What to install.
-TO_BIN= venom venomc
-TO_INC= venom.h venomconf.h venomlib.h auxlib.h venom.hpp
-TO_LIB= libvenom.a
-TO_MAN= venom.1 venomc.1
+TO_BIN= nebula nebulac
+TO_INC= nebula.h nebulaconf.h nebulalib.h auxlib.h nebula.hpp
+TO_LIB= libnebula.a
+TO_MAN= nebula.1 nebulac.1
 
-# Venom version and release.
+# Nebula version and release.
 V= 9.1
 R= $V.9
 

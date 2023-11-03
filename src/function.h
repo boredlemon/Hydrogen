@@ -1,7 +1,7 @@
 /*
 ** $Id: function.h $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in venom.h
+** See Copyright Notice in nebula.h
 */
 
 #ifndef function_h
@@ -23,7 +23,7 @@
 
 
 /*
-** maximum number of upvalues in a closure (both C and Venom). (Value
+** maximum number of upvalues in a closure (both C and Nebula). (Value
 ** must fit in a VM register.)
 */
 #define MAXUPVAL	255
@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-VENOMI_FUNC Proto *venomF_newproto (venom_State *L);
-VENOMI_FUNC CClosure *venomF_newCclosure (venom_State *L, int nupvals);
-VENOMI_FUNC LClosure *venomF_newLclosure (venom_State *L, int nupvals);
-VENOMI_FUNC void venomF_initupvals (venom_State *L, LClosure *cl);
-VENOMI_FUNC UpVal *venomF_findupval (venom_State *L, StkId level);
-VENOMI_FUNC void venomF_newtbvenomval (venom_State *L, StkId level);
-VENOMI_FUNC void venomF_closeupval (venom_State *L, StkId level);
-VENOMI_FUNC void venomF_close (venom_State *L, StkId level, int status, int yy);
-VENOMI_FUNC void venomF_unlinkupval (UpVal *uv);
-VENOMI_FUNC void venomF_freeproto (venom_State *L, Proto *f);
-VENOMI_FUNC const char *venomF_getlocalname (const Proto *func, int local_number,
+NEBULAI_FUNC Proto *nebulaF_newproto (nebula_State *L);
+NEBULAI_FUNC CClosure *nebulaF_newCclosure (nebula_State *L, int nupvals);
+NEBULAI_FUNC LClosure *nebulaF_newLclosure (nebula_State *L, int nupvals);
+NEBULAI_FUNC void nebulaF_initupvals (nebula_State *L, LClosure *cl);
+NEBULAI_FUNC UpVal *nebulaF_findupval (nebula_State *L, StkId level);
+NEBULAI_FUNC void nebulaF_newtbnebulaval (nebula_State *L, StkId level);
+NEBULAI_FUNC void nebulaF_closeupval (nebula_State *L, StkId level);
+NEBULAI_FUNC void nebulaF_close (nebula_State *L, StkId level, int status, int yy);
+NEBULAI_FUNC void nebulaF_unlinkupval (UpVal *uv);
+NEBULAI_FUNC void nebulaF_freeproto (nebula_State *L, Proto *f);
+NEBULAI_FUNC const char *nebulaF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

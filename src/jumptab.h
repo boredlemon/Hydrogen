@@ -1,7 +1,7 @@
 /*
 ** $Id: jumptab.h $
-** Jump Table for the Venom interpreter
-** See Copyright Notice in venom.h
+** Jump Table for the Nebula interpreter
+** See Copyright Notice in nebula.h
 */
 
 

@@ -1,23 +1,23 @@
 /*
 ** $Id: ctype.c $
-** 'ctype' functions for Venom
-** See Copyright Notice in venom.h
+** 'ctype' functions for Nebula
+** See Copyright Notice in nebula.h
 */
 
 #define ctype_c
-#define VENOM_CORE
+#define NEBULA_CORE
 
 #include "prefix.h"
 
 
 #include "ctype.h"
 
-#if !VENOM_USE_CTYPE	/* { */
+#if !NEBULA_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (VENOM_UCID)		/* accept UniCode IDentifiers? */
+#if defined (NEBULA_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-VENOMI_DDEF const lu_byte venomi_ctype_[UCHAR_MAX + 2] = {
+NEBULAI_DDEF const lu_byte nebulai_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,
