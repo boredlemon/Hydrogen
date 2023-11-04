@@ -1,7 +1,7 @@
 # Nebula - The Nebula Programming Language
 This programming language was made by Toast or Dolphin#6086 from Discord!
 
-![Nebula](images/nebula.png)
+![Nebula](images/Nebula.png)
 
 Welcome to Nebula, a powerful and delightful programming language that's here to quench your thirst for code!
 
