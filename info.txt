@@ -18,7 +18,7 @@ Change file extensions
 for file in *.acn; do mv "$file" "${file%.ven}.ven"; done
 
 for the whole project
-find . -type f -name "*.ven" -exec bash -c 'mv "$0" "${0%.ven}.nb"' {} \;
+find . -type f -name "*.nb" -exec bash -c 'mv "$0" "${0%.nb}.hy"' {} \;
 _________
 change a keyword
 sed -i -e 's/.torn/.torn/g' Makefile.pre.in

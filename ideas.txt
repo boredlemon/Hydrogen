@@ -3,5 +3,5 @@ Make a pkg manager for Hydrogen called stardust
 _____
 INFO
 
-File extension - .nb or .nbl 
+File extension - .hy 
 Command - hydrogen / hydrogenc
