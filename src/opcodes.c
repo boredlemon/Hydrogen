@@ -1,11 +1,11 @@
 /*
 ** $Id: opcodes.c $
-** Opcodes for Nebula virtual machine
-** See Copyright Notice in nebula.h
+** Opcodes for Hydrogen virtual machine
+** See Copyright Notice in hydrogen.h
 */
 
 #define opcodes_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -15,7 +15,7 @@
 
 /* ORDER OP */
 
-NEBULAI_DDEF const lu_byte nebulaP_opmodes[NUM_OPCODES] = {
+HYDROGENI_DDEF const lu_byte hydrogenP_opmodes[NUM_OPCODES] = {
 /*       MM OT IT T  A  mode		   opcode  */
   opmode(0, 0, 0, 0, 1, iABC)		/* OP_MOVE */
  ,opmode(0, 0, 0, 0, 1, iAsBx)		/* OP_LOADI */

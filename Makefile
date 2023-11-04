@@ -1,4 +1,4 @@
-# Makefile for installing Nebula
+# Makefile for installing Hydrogen
 # See doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -9,17 +9,17 @@ PLAT= guess
 # Where to install. The installation starts in the src and doc directories,
 # so take care if INSTALL_TOP is not an absolute path. See the local target.
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
-# NEBULA_ROOT, NEBULA_LDIR, and NEBULA_CDIR in nebulaconf.h.
+# HYDROGEN_ROOT, HYDROGEN_LDIR, and HYDROGEN_CDIR in hydrogenconf.h.
 INSTALL_TOP= /usr/local
 INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
 INSTALL_MAN= $(INSTALL_TOP)/man/man1
-INSTALL_LMOD= $(INSTALL_TOP)/share/nebula/$V
-INSTALL_CMOD= $(INSTALL_TOP)/lib/nebula/$V
+INSTALL_LMOD= $(INSTALL_TOP)/share/hydrogen/$V
+INSTALL_CMOD= $(INSTALL_TOP)/lib/hydrogen/$V
 
 # How to install. If your install program does not support "-p", then
-# you may have to run ranlib on the installed libnebula.a.
+# you may have to run ranlib on the installed libhydrogen.a.
 INSTALL= install -p
 INSTALL_EXEC= $(INSTALL) -m 0755
 INSTALL_DATA= $(INSTALL) -m 0644
@@ -39,12 +39,12 @@ RM= rm -f
 PLATS= guess aix bsd c89 freebsd generic linux linux-readline macosx mingw posix solaris
 
 # What to install.
-TO_BIN= nebula nebulac
-TO_INC= nebula.h nebulaconf.h nebulalib.h auxlib.h nebula.hpp
-TO_LIB= libnebula.a
-TO_MAN= nebula.1 nebulac.1
+TO_BIN= hydrogen hydrogenc
+TO_INC= hydrogen.h hydrogenconf.h hydrogenlib.h auxlib.h hydrogen.hpp
+TO_LIB= libhydrogen.a
+TO_MAN= hydrogen.1 hydrogenc.1
 
-# Nebula version and release.
+# Hydrogen version and release.
 V= 9.1
 R= $V.9
 

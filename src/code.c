@@ -1,11 +1,11 @@
 /*
 ** $Id: code.c $
-** Code generator for Nebula
-** See Copyright Notice in nebula.h
+** Code generator for Hydrogen
+** See Copyright Notice in hydrogen.h
 */
 
 #define code_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -15,7 +15,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "code.h"
 #include "debug.h"
@@ -31,7 +31,7 @@
 #include "virtualMachine.h"
 
 
-/* Maximum number of registers in a Nebula function (must fit in 8 bits) */
+/* Maximum number of registers in a Hydrogen function (must fit in 8 bits) */
 #define MAXREGS		255
 
 
@@ -43,9 +43,9 @@ static int codesJ (FuncState *fs, OpCode o, int sj, int k);
 
 
 /* semantic error */
-l_noret nebulaK_semerror (LexState *ls, const char *msg) {
+l_noret hydrogenK_semerror (LexState *ls, const char *msg) {
   ls->t.token = 0;  /* remove "near <token>" from final message */
-  nebulaX_syntaxerror(ls, msg);
+  hydrogenX_syntaxerror(ls, msg);
 }
 
 
@@ -72,7 +72,7 @@ static int tonumeral (const expdesc *e, TValue *v) {
 ** Get the constant value from a constant expression
 */
 static TValue *const2val (FuncState *fs, const expdesc *e) {
-  nebula_assert(e->k == VCONST);
+  hydrogen_assert(e->k == VCONST);
   return &fs->ls->dyd->actvar.arr[e->u.info].k;
 }
 
@@ -81,7 +81,7 @@ static TValue *const2val (FuncState *fs, const expdesc *e) {
 ** If expression is a constant, fills 'v' with its value
 ** and returns 1. Otherwise, returns 0.
 */
-int nebulaK_exp2const (FuncState *fs, const expdesc *e, TValue *v) {
+int hydrogenK_exp2const (FuncState *fs, const expdesc *e, TValue *v) {
   if (hasjumps(e))
     return 0;  /* not a constant */
   switch (e->k) {
@@ -128,7 +128,7 @@ static Instruction *previousinstruction (FuncState *fs) {
 ** range of previous instruction instead of emitting a new one. (For
 ** instance, 'local a; local b' will generate a single opcode.)
 */
-void nebulaK_nil (FuncState *fs, int from, int n) {
+void hydrogenK_nil (FuncState *fs, int from, int n) {
   int l = from + n - 1;  /* last register to set nil */
   Instruction *previous = previousinstruction(fs);
   if (GET_OPCODE(*previous) == OP_LOADNIL) {  /* previous is LOADNIL? */
@@ -141,9 +141,9 @@ void nebulaK_nil (FuncState *fs, int from, int n) {
       SETARG_A(*previous, from);
       SETARG_B(*previous, l - from);
       return;
-    }  /* else Nebula through */
+    }  /* else Hydrogen through */
   }
-  nebulaK_codeABC(fs, OP_LOADNIL, from, n - 1, 0);  /* else no optimization */
+  hydrogenK_codeABC(fs, OP_LOADNIL, from, n - 1, 0);  /* else no optimization */
 }
 
 
@@ -162,15 +162,15 @@ static int getjump (FuncState *fs, int pc) {
 
 /*
 ** Fix jump instruction at position 'pc' to jump to 'dest'.
-** (Jump addresses are relative in Nebula)
+** (Jump addresses are relative in Hydrogen)
 */
 static void fixjump (FuncState *fs, int pc, int dest) {
   Instruction *jmp = &fs->f->code[pc];
   int offset = dest - (pc + 1);
-  nebula_assert(dest != NO_JUMP);
+  hydrogen_assert(dest != NO_JUMP);
   if (!(-OFFSET_sJ <= offset && offset <= MAXARG_sJ - OFFSET_sJ))
-    nebulaX_syntaxerror(fs->ls, "control structure too long");
-  nebula_assert(GET_OPCODE(*jmp) == OP_JMP);
+    hydrogenX_syntaxerror(fs->ls, "control structure too long");
+  hydrogen_assert(GET_OPCODE(*jmp) == OP_JMP);
   SETARG_sJ(*jmp, offset);
 }
 
@@ -178,7 +178,7 @@ static void fixjump (FuncState *fs, int pc, int dest) {
 /*
 ** Concatenate jump-list 'l2' into jump-list 'l1'
 */
-void nebulaK_concat (FuncState *fs, int *l1, int l2) {
+void hydrogenK_concat (FuncState *fs, int *l1, int l2) {
   if (l2 == NO_JUMP) return;  /* nothing to concatenate? */
   else if (*l1 == NO_JUMP)  /* no original list? */
     *l1 = l2;  /* 'l1' points to 'l2' */
@@ -196,7 +196,7 @@ void nebulaK_concat (FuncState *fs, int *l1, int l2) {
 ** Create a jump instruction and return its position, so its destination
 ** can be fixed later (with 'fixjump').
 */
-int nebulaK_jump (FuncState *fs) {
+int hydrogenK_jump (FuncState *fs) {
   return codesJ(fs, OP_JMP, NO_JUMP, 0);
 }
 
@@ -204,14 +204,14 @@ int nebulaK_jump (FuncState *fs) {
 /*
 ** Code a 'return' instruction
 */
-void nebulaK_ret (FuncState *fs, int first, int nret) {
+void hydrogenK_ret (FuncState *fs, int first, int nret) {
   OpCode op;
   switch (nret) {
     case 0: op = OP_RETURN0; break;
     case 1: op = OP_RETURN1; break;
     default: op = OP_RETURN; break;
   }
-  nebulaK_codeABC(fs, op, first, nret + 1, 0);
+  hydrogenK_codeABC(fs, op, first, nret + 1, 0);
 }
 
 
@@ -220,8 +220,8 @@ void nebulaK_ret (FuncState *fs, int first, int nret) {
 ** followed by a jump. Return jump position.
 */
 static int condjump (FuncState *fs, OpCode op, int A, int B, int C, int k) {
-  nebulaK_codeABCk(fs, op, A, B, C, k);
-  return nebulaK_jump(fs);
+  hydrogenK_codeABCk(fs, op, A, B, C, k);
+  return hydrogenK_jump(fs);
 }
 
 
@@ -229,7 +229,7 @@ static int condjump (FuncState *fs, OpCode op, int A, int B, int C, int k) {
 ** returns current 'pc' and marks it as a jump target (to avoid wrong
 ** optimizations with consecutive instructions not in the same basic block).
 */
-int nebulaK_getlabel (FuncState *fs) {
+int hydrogenK_getlabel (FuncState *fs) {
   fs->lasttarget = fs->pc;
   return fs->pc;
 }
@@ -303,15 +303,15 @@ static void patchlistaux (FuncState *fs, int list, int vtarget, int reg,
 ** (The assert means that we cannot fix a jump to a forward address
 ** because we only know addresses once code is generated.)
 */
-void nebulaK_patchlist (FuncState *fs, int list, int target) {
-  nebula_assert(target <= fs->pc);
+void hydrogenK_patchlist (FuncState *fs, int list, int target) {
+  hydrogen_assert(target <= fs->pc);
   patchlistaux(fs, list, target, NO_REG, target);
 }
 
 
-void nebulaK_patchtohere (FuncState *fs, int list) {
-  int hr = nebulaK_getlabel(fs);  /* mark "here" as a jump target */
-  nebulaK_patchlist(fs, list, hr);
+void hydrogenK_patchtohere (FuncState *fs, int list) {
+  int hr = hydrogenK_getlabel(fs);  /* mark "here" as a jump target */
+  hydrogenK_patchlist(fs, list, hr);
 }
 
 
@@ -330,14 +330,14 @@ static void savelineinfo (FuncState *fs, Proto *f, int line) {
   int linedif = line - fs->previousline;
   int pc = fs->pc - 1;  /* last instruction coded */
   if (abs(linedif) >= LIMLINEDIFF || fs->iwthabs++ >= MAXIWTHABS) {
-    nebulaM_growvector(fs->ls->L, f->abslineinfo, fs->nabslineinfo,
+    hydrogenM_growvector(fs->ls->L, f->abslineinfo, fs->nabslineinfo,
                     f->sizeabslineinfo, AbsLineInfo, MAX_INT, "lines");
     f->abslineinfo[fs->nabslineinfo].pc = pc;
     f->abslineinfo[fs->nabslineinfo++].line = line;
     linedif = ABSLINEINFO;  /* signal that there is absolute information */
     fs->iwthabs = 1;  /* restart counter */
   }
-  nebulaM_growvector(fs->ls->L, f->lineinfo, pc, f->sizelineinfo, ls_byte,
+  hydrogenM_growvector(fs->ls->L, f->lineinfo, pc, f->sizelineinfo, ls_byte,
                   MAX_INT, "opcodes");
   f->lineinfo[pc] = linedif;
   fs->previousline = line;  /* last line saved */
@@ -358,7 +358,7 @@ static void removelastlineinfo (FuncState *fs) {
     fs->iwthabs--;  /* undo previous increment */
   }
   else {  /* absolute line information */
-    nebula_assert(f->abslineinfo[fs->nabslineinfo - 1].pc == pc);
+    hydrogen_assert(f->abslineinfo[fs->nabslineinfo - 1].pc == pc);
     fs->nabslineinfo--;  /* remove it */
     fs->iwthabs = MAXIWTHABS + 1;  /* force next line info to be absolute */
   }
@@ -379,10 +379,10 @@ static void removelastinstruction (FuncState *fs) {
 ** Emit instruction 'i', checking for array sizes and saving also its
 ** line information. Return 'i' position.
 */
-int nebulaK_code (FuncState *fs, Instruction i) {
+int hydrogenK_code (FuncState *fs, Instruction i) {
   Proto *f = fs->f;
   /* put new instruction in code array */
-  nebulaM_growvector(fs->ls->L, f->code, fs->pc, f->sizecode, Instruction,
+  hydrogenM_growvector(fs->ls->L, f->code, fs->pc, f->sizecode, Instruction,
                   MAX_INT, "opcodes");
   f->code[fs->pc++] = i;
   savelineinfo(fs, f, fs->ls->lastline);
@@ -394,32 +394,32 @@ int nebulaK_code (FuncState *fs, Instruction i) {
 ** Format and emit an 'iABC' instruction. (Assertions check consistency
 ** of parameters versus opcode.)
 */
-int nebulaK_codeABCk (FuncState *fs, OpCode o, int a, int b, int c, int k) {
-  nebula_assert(getOpMode(o) == iABC);
-  nebula_assert(a <= MAXARG_A && b <= MAXARG_B &&
+int hydrogenK_codeABCk (FuncState *fs, OpCode o, int a, int b, int c, int k) {
+  hydrogen_assert(getOpMode(o) == iABC);
+  hydrogen_assert(a <= MAXARG_A && b <= MAXARG_B &&
              c <= MAXARG_C && (k & ~1) == 0);
-  return nebulaK_code(fs, CREATE_ABCk(o, a, b, c, k));
+  return hydrogenK_code(fs, CREATE_ABCk(o, a, b, c, k));
 }
 
 
 /*
 ** Format and emit an 'iABx' instruction.
 */
-int nebulaK_codeABx (FuncState *fs, OpCode o, int a, unsigned int bc) {
-  nebula_assert(getOpMode(o) == iABx);
-  nebula_assert(a <= MAXARG_A && bc <= MAXARG_Bx);
-  return nebulaK_code(fs, CREATE_ABx(o, a, bc));
+int hydrogenK_codeABx (FuncState *fs, OpCode o, int a, unsigned int bc) {
+  hydrogen_assert(getOpMode(o) == iABx);
+  hydrogen_assert(a <= MAXARG_A && bc <= MAXARG_Bx);
+  return hydrogenK_code(fs, CREATE_ABx(o, a, bc));
 }
 
 
 /*
 ** Format and emit an 'iAsBx' instruction.
 */
-int nebulaK_codeAsBx (FuncState *fs, OpCode o, int a, int bc) {
+int hydrogenK_codeAsBx (FuncState *fs, OpCode o, int a, int bc) {
   unsigned int b = bc + OFFSET_sBx;
-  nebula_assert(getOpMode(o) == iAsBx);
-  nebula_assert(a <= MAXARG_A && b <= MAXARG_Bx);
-  return nebulaK_code(fs, CREATE_ABx(o, a, b));
+  hydrogen_assert(getOpMode(o) == iAsBx);
+  hydrogen_assert(a <= MAXARG_A && b <= MAXARG_Bx);
+  return hydrogenK_code(fs, CREATE_ABx(o, a, b));
 }
 
 
@@ -428,9 +428,9 @@ int nebulaK_codeAsBx (FuncState *fs, OpCode o, int a, int bc) {
 */
 static int codesJ (FuncState *fs, OpCode o, int sj, int k) {
   unsigned int j = sj + OFFSET_sJ;
-  nebula_assert(getOpMode(o) == isJ);
-  nebula_assert(j <= MAXARG_sJ && (k & ~1) == 0);
-  return nebulaK_code(fs, CREATE_sJ(o, j, k));
+  hydrogen_assert(getOpMode(o) == isJ);
+  hydrogen_assert(j <= MAXARG_sJ && (k & ~1) == 0);
+  return hydrogenK_code(fs, CREATE_sJ(o, j, k));
 }
 
 
@@ -438,8 +438,8 @@ static int codesJ (FuncState *fs, OpCode o, int sj, int k) {
 ** Emit an "extra argument" instruction (format 'iAx')
 */
 static int codeextraarg (FuncState *fs, int a) {
-  nebula_assert(a <= MAXARG_Ax);
-  return nebulaK_code(fs, CREATE_Ax(OP_EXTRAARG, a));
+  hydrogen_assert(a <= MAXARG_Ax);
+  return hydrogenK_code(fs, CREATE_Ax(OP_EXTRAARG, a));
 }
 
 
@@ -448,11 +448,11 @@ static int codeextraarg (FuncState *fs, int a) {
 ** (if constant index 'k' fits in 18 bits) or an 'OP_LOADKX'
 ** instruction with "extra argument".
 */
-static int nebulaK_codek (FuncState *fs, int reg, int k) {
+static int hydrogenK_codek (FuncState *fs, int reg, int k) {
   if (k <= MAXARG_Bx)
-    return nebulaK_codeABx(fs, OP_LOADK, reg, k);
+    return hydrogenK_codeABx(fs, OP_LOADK, reg, k);
   else {
-    int p = nebulaK_codeABx(fs, OP_LOADKX, reg, 0);
+    int p = hydrogenK_codeABx(fs, OP_LOADKX, reg, 0);
     codeextraarg(fs, k);
     return p;
   }
@@ -463,11 +463,11 @@ static int nebulaK_codek (FuncState *fs, int reg, int k) {
 ** Check register-stack level, keeping track of its maximum size
 ** in field 'maxstacksize'
 */
-void nebulaK_checkstack (FuncState *fs, int n) {
+void hydrogenK_checkstack (FuncState *fs, int n) {
   int newstack = fs->freereg + n;
   if (newstack > fs->f->maxstacksize) {
     if (newstack >= MAXREGS)
-      nebulaX_syntaxerror(fs->ls,
+      hydrogenX_syntaxerror(fs->ls,
         "function or expression needs too many registers");
     fs->f->maxstacksize = cast_byte(newstack);
   }
@@ -477,8 +477,8 @@ void nebulaK_checkstack (FuncState *fs, int n) {
 /*
 ** Reserve 'n' registers in register stack
 */
-void nebulaK_reserveregs (FuncState *fs, int n) {
-  nebulaK_checkstack(fs, n);
+void hydrogenK_reserveregs (FuncState *fs, int n) {
+  hydrogenK_checkstack(fs, n);
   fs->freereg += n;
 }
 
@@ -489,9 +489,9 @@ void nebulaK_reserveregs (FuncState *fs, int n) {
 )
 */
 static void freereg (FuncState *fs, int reg) {
-  if (reg >= nebulaY_nvarstack(fs)) {
+  if (reg >= hydrogenY_nvarstack(fs)) {
     fs->freereg--;
-    nebula_assert(reg == fs->freereg);
+    hydrogen_assert(reg == fs->freereg);
   }
 }
 
@@ -542,15 +542,15 @@ static void freeexps (FuncState *fs, expdesc *e1, expdesc *e2) {
 */
 static int addk (FuncState *fs, TValue *key, TValue *v) {
   TValue val;
-  nebula_State *L = fs->ls->L;
+  hydrogen_State *L = fs->ls->L;
   Proto *f = fs->f;
-  const TValue *idx = nebulaH_get(fs->ls->h, key);  /* query scanner table */
+  const TValue *idx = hydrogenH_get(fs->ls->h, key);  /* query scanner table */
   int k, oldsize;
   if (ttisinteger(idx)) {  /* is there an index there? */
     k = cast_int(ivalue(idx));
     /* correct value? (warning: must distinguish floats from integers!) */
     if (k < fs->nk && ttypetag(&f->k[k]) == ttypetag(v) &&
-                      nebulaV_rawequalobj(&f->k[k], v))
+                      hydrogenV_rawequalobj(&f->k[k], v))
       return k;  /* reuse index */
   }
   /* constant not found; create a new entry */
@@ -559,12 +559,12 @@ static int addk (FuncState *fs, TValue *key, TValue *v) {
   /* numerical value does not need GC barrier;
      table has no metatable, so it does not need to invalidate cache */
   setivalue(&val, k);
-  nebulaH_finishset(L, fs->ls->h, key, idx, &val);
-  nebulaM_growvector(L, f->k, k, f->sizek, TValue, MAXARG_Ax, "constants");
+  hydrogenH_finishset(L, fs->ls->h, key, idx, &val);
+  hydrogenM_growvector(L, f->k, k, f->sizek, TValue, MAXARG_Ax, "constants");
   while (oldsize < f->sizek) setnilvalue(&f->k[oldsize++]);
   setobj(L, &f->k[k], v);
   fs->nk++;
-  nebulaC_barrier(L, f, v);
+  hydrogenC_barrier(L, f, v);
   return k;
 }
 
@@ -582,7 +582,7 @@ static int stringK (FuncState *fs, TString *s) {
 /*
 ** Add an integer to list of constants and return its index.
 */
-static int nebulaK_intK (FuncState *fs, nebula_Integer n) {
+static int hydrogenK_intK (FuncState *fs, hydrogen_Integer n) {
   TValue o;
   setivalue(&o, n);
   return addk(fs, &o, &o);  /* use integer itself as key */
@@ -599,20 +599,20 @@ static int nebulaK_intK (FuncState *fs, nebula_Integer n) {
 ** still an integer. At worst, this only wastes an entry with
 ** a duplicate.)
 */
-static int nebulaK_numberK (FuncState *fs, nebula_Number r) {
+static int hydrogenK_numberK (FuncState *fs, hydrogen_Number r) {
   TValue o;
-  nebula_Integer ik;
+  hydrogen_Integer ik;
   setfltvalue(&o, r);
-  if (!nebulaV_flttointeger(r, &ik, F2Ieq))  /* not an integral value? */
+  if (!hydrogenV_flttointeger(r, &ik, F2Ieq))  /* not an integral value? */
     return addk(fs, &o, &o);  /* use number itself as key */
   else {  /* must build an alternative key */
     const int nbm = l_floatatt(MANT_DIG);
-    const nebula_Number q = l_mathop(ldexp)(l_mathop(1.0), -nbm + 1);
-    const nebula_Number k = (ik == 0) ? q : r + r*q;  /* new key */
+    const hydrogen_Number q = l_mathop(ldexp)(l_mathop(1.0), -nbm + 1);
+    const hydrogen_Number k = (ik == 0) ? q : r + r*q;  /* new key */
     TValue kv;
     setfltvalue(&kv, k);
     /* result is not an integral value, unless value is too large */
-    nebula_assert(!nebulaV_flttointeger(k, &ik, F2Ieq) ||
+    hydrogen_assert(!hydrogenV_flttointeger(k, &ik, F2Ieq) ||
                 l_mathop(fabs)(r) >= l_mathop(1e6));
     return addk(fs, &kv, &o);
   }
@@ -656,7 +656,7 @@ static int nilK (FuncState *fs) {
 ** (0 <= int2sC(i) && int2sC(i) <= MAXARG_C) but without risk of
 ** overflows in the hidden addition inside 'int2sC'.
 */
-static int fitsC (nebula_Integer i) {
+static int fitsC (hydrogen_Integer i) {
   return (l_castS2U(i) + OFFSET_sC <= cast_uint(MAXARG_C));
 }
 
@@ -664,25 +664,25 @@ static int fitsC (nebula_Integer i) {
 /*
 ** Check whether 'i' can be stored in an 'sBx' operand.
 */
-static int fitsBx (nebula_Integer i) {
+static int fitsBx (hydrogen_Integer i) {
   return (-OFFSET_sBx <= i && i <= MAXARG_Bx - OFFSET_sBx);
 }
 
 
-void nebulaK_int (FuncState *fs, int reg, nebula_Integer i) {
+void hydrogenK_int (FuncState *fs, int reg, hydrogen_Integer i) {
   if (fitsBx(i))
-    nebulaK_codeAsBx(fs, OP_LOADI, reg, cast_int(i));
+    hydrogenK_codeAsBx(fs, OP_LOADI, reg, cast_int(i));
   else
-    nebulaK_codek(fs, reg, nebulaK_intK(fs, i));
+    hydrogenK_codek(fs, reg, hydrogenK_intK(fs, i));
 }
 
 
-static void nebulaK_float (FuncState *fs, int reg, nebula_Number f) {
-  nebula_Integer fi;
-  if (nebulaV_flttointeger(f, &fi, F2Ieq) && fitsBx(fi))
-    nebulaK_codeAsBx(fs, OP_LOADF, reg, cast_int(fi));
+static void hydrogenK_float (FuncState *fs, int reg, hydrogen_Number f) {
+  hydrogen_Integer fi;
+  if (hydrogenV_flttointeger(f, &fi, F2Ieq) && fitsBx(fi))
+    hydrogenK_codeAsBx(fs, OP_LOADF, reg, cast_int(fi));
   else
-    nebulaK_codek(fs, reg, nebulaK_numberK(fs, f));
+    hydrogenK_codek(fs, reg, hydrogenK_numberK(fs, f));
 }
 
 
@@ -691,25 +691,25 @@ static void nebulaK_float (FuncState *fs, int reg, nebula_Number f) {
 */
 static void const2exp (TValue *v, expdesc *e) {
   switch (ttypetag(v)) {
-    case NEBULA_VNUMINT:
+    case HYDROGEN_VNUMINT:
       e->k = VKINT; e->u.ival = ivalue(v);
       break;
-    case NEBULA_VNUMFLT:
+    case HYDROGEN_VNUMFLT:
       e->k = VKFLT; e->u.nval = fltvalue(v);
       break;
-    case NEBULA_VFALSE:
+    case HYDROGEN_VFALSE:
       e->k = VFALSE;
       break;
-    case NEBULA_VTRUE:
+    case HYDROGEN_VTRUE:
       e->k = VTRUE;
       break;
-    case NEBULA_VNIL:
+    case HYDROGEN_VNIL:
       e->k = VNIL;
       break;
-    case NEBULA_VSHRSTR:  case NEBULA_VLNGSTR:
+    case HYDROGEN_VSHRSTR:  case HYDROGEN_VLNGSTR:
       e->k = VKSTR; e->u.strval = tsvalue(v);
       break;
-    default: nebula_assert(0);
+    default: hydrogen_assert(0);
   }
 }
 
@@ -718,15 +718,15 @@ static void const2exp (TValue *v, expdesc *e) {
 ** Fix an expression to return the number of results 'nresults'.
 ** 'e' must be a multi-ret expression (function call or vararg).
 */
-void nebulaK_setreturns (FuncState *fs, expdesc *e, int nresults) {
+void hydrogenK_setreturns (FuncState *fs, expdesc *e, int nresults) {
   Instruction *pc = &getinstruction(fs, e);
   if (e->k == VCALL)  /* expression is an open function call? */
     SETARG_C(*pc, nresults + 1);
   else {
-    nebula_assert(e->k == VVARARG);
+    hydrogen_assert(e->k == VVARARG);
     SETARG_C(*pc, nresults + 1);
     SETARG_A(*pc, fs->freereg);
-    nebulaK_reserveregs(fs, 1);
+    hydrogenK_reserveregs(fs, 1);
   }
 }
 
@@ -735,7 +735,7 @@ void nebulaK_setreturns (FuncState *fs, expdesc *e, int nresults) {
 ** Convert a VKSTR to a VK
 */
 static void str2K (FuncState *fs, expdesc *e) {
-  nebula_assert(e->k == VKSTR);
+  hydrogen_assert(e->k == VKSTR);
   e->u.info = stringK(fs, e->u.strval);
   e->k = VK;
 }
@@ -751,10 +751,10 @@ static void str2K (FuncState *fs, expdesc *e) {
 ** (Calls are created returning one result, so that does not need
 ** to be fixed.)
 */
-void nebulaK_setoneret (FuncState *fs, expdesc *e) {
+void hydrogenK_setoneret (FuncState *fs, expdesc *e) {
   if (e->k == VCALL) {  /* expression is an open function call? */
     /* already returns 1 value */
-    nebula_assert(GETARG_C(getinstruction(fs, e)) == 2);
+    hydrogen_assert(GETARG_C(getinstruction(fs, e)) == 2);
     e->k = VNONRELOC;  /* result has fixed position */
     e->u.info = GETARG_A(getinstruction(fs, e));
   }
@@ -769,7 +769,7 @@ void nebulaK_setoneret (FuncState *fs, expdesc *e) {
 ** Ensure that expression 'e' is not a variable (nor a <const>).
 ** (Expression still may have jump lists.)
 */
-void nebulaK_dischargevars (FuncState *fs, expdesc *e) {
+void hydrogenK_dischargevars (FuncState *fs, expdesc *e) {
   switch (e->k) {
     case VCONST: {
       const2exp(const2val(fs, e), e);
@@ -781,35 +781,35 @@ void nebulaK_dischargevars (FuncState *fs, expdesc *e) {
       break;
     }
     case VUPVAL: {  /* move value to some (pending) register */
-      e->u.info = nebulaK_codeABC(fs, OP_GETUPVAL, 0, e->u.info, 0);
+      e->u.info = hydrogenK_codeABC(fs, OP_GETUPVAL, 0, e->u.info, 0);
       e->k = VRELOC;
       break;
     }
     case VINDEXUP: {
-      e->u.info = nebulaK_codeABC(fs, OP_GETTABUP, 0, e->u.ind.t, e->u.ind.idx);
+      e->u.info = hydrogenK_codeABC(fs, OP_GETTABUP, 0, e->u.ind.t, e->u.ind.idx);
       e->k = VRELOC;
       break;
     }
     case VINDEXI: {
       freereg(fs, e->u.ind.t);
-      e->u.info = nebulaK_codeABC(fs, OP_GETI, 0, e->u.ind.t, e->u.ind.idx);
+      e->u.info = hydrogenK_codeABC(fs, OP_GETI, 0, e->u.ind.t, e->u.ind.idx);
       e->k = VRELOC;
       break;
     }
     case VINDEXSTR: {
       freereg(fs, e->u.ind.t);
-      e->u.info = nebulaK_codeABC(fs, OP_GETFIELD, 0, e->u.ind.t, e->u.ind.idx);
+      e->u.info = hydrogenK_codeABC(fs, OP_GETFIELD, 0, e->u.ind.t, e->u.ind.idx);
       e->k = VRELOC;
       break;
     }
     case VINDEXED: {
       freeregs(fs, e->u.ind.t, e->u.ind.idx);
-      e->u.info = nebulaK_codeABC(fs, OP_GETTABLE, 0, e->u.ind.t, e->u.ind.idx);
+      e->u.info = hydrogenK_codeABC(fs, OP_GETTABLE, 0, e->u.ind.t, e->u.ind.idx);
       e->k = VRELOC;
       break;
     }
     case VVARARG: case VCALL: {
-      nebulaK_setoneret(fs, e);
+      hydrogenK_setoneret(fs, e);
       break;
     }
     default: break;  /* there is one value available (somewhere) */
@@ -823,33 +823,33 @@ void nebulaK_dischargevars (FuncState *fs, expdesc *e) {
 ** (Expression still may have jump lists.)
 */
 static void discharge2reg (FuncState *fs, expdesc *e, int reg) {
-  nebulaK_dischargevars(fs, e);
+  hydrogenK_dischargevars(fs, e);
   switch (e->k) {
     case VNIL: {
-      nebulaK_nil(fs, reg, 1);
+      hydrogenK_nil(fs, reg, 1);
       break;
     }
     case VFALSE: {
-      nebulaK_codeABC(fs, OP_LOADFALSE, reg, 0, 0);
+      hydrogenK_codeABC(fs, OP_LOADFALSE, reg, 0, 0);
       break;
     }
     case VTRUE: {
-      nebulaK_codeABC(fs, OP_LOADTRUE, reg, 0, 0);
+      hydrogenK_codeABC(fs, OP_LOADTRUE, reg, 0, 0);
       break;
     }
     case VKSTR: {
       str2K(fs, e);
     }  /* FALLTHROUGH */
     case VK: {
-      nebulaK_codek(fs, reg, e->u.info);
+      hydrogenK_codek(fs, reg, e->u.info);
       break;
     }
     case VKFLT: {
-      nebulaK_float(fs, reg, e->u.nval);
+      hydrogenK_float(fs, reg, e->u.nval);
       break;
     }
     case VKINT: {
-      nebulaK_int(fs, reg, e->u.ival);
+      hydrogenK_int(fs, reg, e->u.ival);
       break;
     }
     case VRELOC: {
@@ -859,11 +859,11 @@ static void discharge2reg (FuncState *fs, expdesc *e, int reg) {
     }
     case VNONRELOC: {
       if (reg != e->u.info)
-        nebulaK_codeABC(fs, OP_MOVE, reg, e->u.info, 0);
+        hydrogenK_codeABC(fs, OP_MOVE, reg, e->u.info, 0);
       break;
     }
     default: {
-      nebula_assert(e->k == VJMP);
+      hydrogen_assert(e->k == VJMP);
       return;  /* nothing to do... */
     }
   }
@@ -879,15 +879,15 @@ static void discharge2reg (FuncState *fs, expdesc *e, int reg) {
 */
 static void discharge2anyreg (FuncState *fs, expdesc *e) {
   if (e->k != VNONRELOC) {  /* no fixed register yet? */
-    nebulaK_reserveregs(fs, 1);  /* get a register */
+    hydrogenK_reserveregs(fs, 1);  /* get a register */
     discharge2reg(fs, e, fs->freereg-1);  /* put value there */
   }
 }
 
 
 static int code_loadbool (FuncState *fs, int A, OpCode op) {
-  nebulaK_getlabel(fs);  /* those instructions may be jump targets */
-  return nebulaK_codeABC(fs, op, A, 0, 0);
+  hydrogenK_getlabel(fs);  /* those instructions may be jump targets */
+  return hydrogenK_codeABC(fs, op, A, 0, 0);
 }
 
 
@@ -914,19 +914,19 @@ static int need_value (FuncState *fs, int list) {
 static void exp2reg (FuncState *fs, expdesc *e, int reg) {
   discharge2reg(fs, e, reg);
   if (e->k == VJMP)  /* expression itself is a test? */
-    nebulaK_concat(fs, &e->t, e->u.info);  /* put this jump in 't' list */
+    hydrogenK_concat(fs, &e->t, e->u.info);  /* put this jump in 't' list */
   if (hasjumps(e)) {
     int final;  /* position after whole expression */
     int p_f = NO_JUMP;  /* position of an eventual LOAD false */
     int p_t = NO_JUMP;  /* position of an eventual LOAD true */
     if (need_value(fs, e->t) || need_value(fs, e->f)) {
-      int fj = (e->k == VJMP) ? NO_JUMP : nebulaK_jump(fs);
+      int fj = (e->k == VJMP) ? NO_JUMP : hydrogenK_jump(fs);
       p_f = code_loadbool(fs, reg, OP_LFALSESKIP);  /* skip next inst. */
       p_t = code_loadbool(fs, reg, OP_LOADTRUE);
       /* jump around these booleans if 'e' is not a test */
-      nebulaK_patchtohere(fs, fj);
+      hydrogenK_patchtohere(fs, fj);
     }
-    final = nebulaK_getlabel(fs);
+    final = hydrogenK_getlabel(fs);
     patchlistaux(fs, e->f, final, reg, p_f);
     patchlistaux(fs, e->t, final, reg, p_t);
   }
@@ -939,10 +939,10 @@ static void exp2reg (FuncState *fs, expdesc *e, int reg) {
 /*
 ** Ensures final expression result is in next available register.
 */
-void nebulaK_exp2nextreg (FuncState *fs, expdesc *e) {
-  nebulaK_dischargevars(fs, e);
+void hydrogenK_exp2nextreg (FuncState *fs, expdesc *e) {
+  hydrogenK_dischargevars(fs, e);
   freeexp(fs, e);
-  nebulaK_reserveregs(fs, 1);
+  hydrogenK_reserveregs(fs, 1);
   exp2reg(fs, e, fs->freereg - 1);
 }
 
@@ -951,20 +951,20 @@ void nebulaK_exp2nextreg (FuncState *fs, expdesc *e) {
 ** Ensures final expression result is in some (any) register
 ** and return that register.
 */
-int nebulaK_exp2anyreg (FuncState *fs, expdesc *e) {
-  nebulaK_dischargevars(fs, e);
+int hydrogenK_exp2anyreg (FuncState *fs, expdesc *e) {
+  hydrogenK_dischargevars(fs, e);
   if (e->k == VNONRELOC) {  /* expression already has a register? */
     if (!hasjumps(e))  /* no jumps? */
       return e->u.info;  /* result is already in a register */
-    if (e->u.info >= nebulaY_nvarstack(fs)) {  /* reg. is not a local? */
+    if (e->u.info >= hydrogenY_nvarstack(fs)) {  /* reg. is not a local? */
       exp2reg(fs, e, e->u.info);  /* put final result in it */
       return e->u.info;
     }
     /* else expression has jumps and cannot change its register
        to hold the jump values, because it is a local variable.
-       Nebula through to the default case. */
+       Hydrogen through to the default case. */
   }
-  nebulaK_exp2nextreg(fs, e);  /* default: use next available register */
+  hydrogenK_exp2nextreg(fs, e);  /* default: use next available register */
   return e->u.info;
 }
 
@@ -973,9 +973,9 @@ int nebulaK_exp2anyreg (FuncState *fs, expdesc *e) {
 ** Ensures final expression result is either in a register
 ** or in an upvalue.
 */
-void nebulaK_exp2anyregup (FuncState *fs, expdesc *e) {
+void hydrogenK_exp2anyregup (FuncState *fs, expdesc *e) {
   if (e->k != VUPVAL || hasjumps(e))
-    nebulaK_exp2anyreg(fs, e);
+    hydrogenK_exp2anyreg(fs, e);
 }
 
 
@@ -983,11 +983,11 @@ void nebulaK_exp2anyregup (FuncState *fs, expdesc *e) {
 ** Ensures final expression result is either in a register
 ** or it is a constant.
 */
-void nebulaK_exp2val (FuncState *fs, expdesc *e) {
+void hydrogenK_exp2val (FuncState *fs, expdesc *e) {
   if (hasjumps(e))
-    nebulaK_exp2anyreg(fs, e);
+    hydrogenK_exp2anyreg(fs, e);
   else
-    nebulaK_dischargevars(fs, e);
+    hydrogenK_dischargevars(fs, e);
 }
 
 
@@ -995,15 +995,15 @@ void nebulaK_exp2val (FuncState *fs, expdesc *e) {
 ** Try to make 'e' a K expression with an index in the range of R/K
 ** indices. Return true iff succeeded.
 */
-static int nebulaK_exp2K (FuncState *fs, expdesc *e) {
+static int hydrogenK_exp2K (FuncState *fs, expdesc *e) {
   if (!hasjumps(e)) {
     int info;
     switch (e->k) {  /* move constants to 'k' */
       case VTRUE: info = boolT(fs); break;
       case VFALSE: info = boolF(fs); break;
       case VNIL: info = nilK(fs); break;
-      case VKINT: info = nebulaK_intK(fs, e->u.ival); break;
-      case VKFLT: info = nebulaK_numberK(fs, e->u.nval); break;
+      case VKINT: info = hydrogenK_intK(fs, e->u.ival); break;
+      case VKFLT: info = hydrogenK_numberK(fs, e->u.nval); break;
       case VKSTR: info = stringK(fs, e->u.strval); break;
       case VK: info = e->u.info; break;
       default: return 0;  /* not a constant */
@@ -1025,11 +1025,11 @@ static int nebulaK_exp2K (FuncState *fs, expdesc *e) {
 ** in the range of R/K indices).
 ** Returns 1 iff expression is K.
 */
-int nebulaK_exp2RK (FuncState *fs, expdesc *e) {
-  if (nebulaK_exp2K(fs, e))
+int hydrogenK_exp2RK (FuncState *fs, expdesc *e) {
+  if (hydrogenK_exp2K(fs, e))
     return 1;
   else {  /* not a constant in the right range: put it in a register */
-    nebulaK_exp2anyreg(fs, e);
+    hydrogenK_exp2anyreg(fs, e);
     return 0;
   }
 }
@@ -1037,15 +1037,15 @@ int nebulaK_exp2RK (FuncState *fs, expdesc *e) {
 
 static void codeABRK (FuncState *fs, OpCode o, int a, int b,
                       expdesc *ec) {
-  int k = nebulaK_exp2RK(fs, ec);
-  nebulaK_codeABCk(fs, o, a, b, ec->u.info, k);
+  int k = hydrogenK_exp2RK(fs, ec);
+  hydrogenK_codeABCk(fs, o, a, b, ec->u.info, k);
 }
 
 
 /*
 ** Generate code to store result of expression 'ex' into variable 'var'.
 */
-void nebulaK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
+void hydrogenK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
   switch (var->k) {
     case VLOCAL: {
       freeexp(fs, ex);
@@ -1053,8 +1053,8 @@ void nebulaK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
       return;
     }
     case VUPVAL: {
-      int e = nebulaK_exp2anyreg(fs, ex);
-      nebulaK_codeABC(fs, OP_SETUPVAL, e, var->u.info, 0);
+      int e = hydrogenK_exp2anyreg(fs, ex);
+      hydrogenK_codeABC(fs, OP_SETUPVAL, e, var->u.info, 0);
       break;
     }
     case VINDEXUP: {
@@ -1073,7 +1073,7 @@ void nebulaK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
       codeABRK(fs, OP_SETTABLE, var->u.ind.t, var->u.ind.idx, ex);
       break;
     }
-    default: nebula_assert(0);  /* invalid var kind to store */
+    default: hydrogen_assert(0);  /* invalid var kind to store */
   }
   freeexp(fs, ex);
 }
@@ -1082,14 +1082,14 @@ void nebulaK_storevar (FuncState *fs, expdesc *var, expdesc *ex) {
 /*
 ** Emit SELF instruction (convert expression 'e' into 'e:key(e,').
 */
-void nebulaK_self (FuncState *fs, expdesc *e, expdesc *key) {
+void hydrogenK_self (FuncState *fs, expdesc *e, expdesc *key) {
   int ereg;
-  nebulaK_exp2anyreg(fs, e);
+  hydrogenK_exp2anyreg(fs, e);
   ereg = e->u.info;  /* register where 'e' was placed */
   freeexp(fs, e);
   e->u.info = fs->freereg;  /* base register for op_self */
   e->k = VNONRELOC;  /* self expression has a fixed register */
-  nebulaK_reserveregs(fs, 2);  /* function and 'self' produced by op_self */
+  hydrogenK_reserveregs(fs, 2);  /* function and 'self' produced by op_self */
   codeABRK(fs, OP_SELF, e->u.info, ereg, key);
   freeexp(fs, key);
 }
@@ -1100,7 +1100,7 @@ void nebulaK_self (FuncState *fs, expdesc *e, expdesc *key) {
 */
 static void negatecondition (FuncState *fs, expdesc *e) {
   Instruction *pc = getjumpcontrol(fs, e->u.info);
-  nebula_assert(testTMode(GET_OPCODE(*pc)) && GET_OPCODE(*pc) != OP_TESTSET &&
+  hydrogen_assert(testTMode(GET_OPCODE(*pc)) && GET_OPCODE(*pc) != OP_TESTSET &&
                                            GET_OPCODE(*pc) != OP_TEST);
   SETARG_k(*pc, (GETARG_k(*pc) ^ 1));
 }
@@ -1119,7 +1119,7 @@ static int jumponcond (FuncState *fs, expdesc *e, int cond) {
       removelastinstruction(fs);  /* remove previous OP_NOT */
       return condjump(fs, OP_TEST, GETARG_B(ie), 0, 0, !cond);
     }
-    /* else Nebula through */
+    /* else Hydrogen through */
   }
   discharge2anyreg(fs, e);
   freeexp(fs, e);
@@ -1128,11 +1128,11 @@ static int jumponcond (FuncState *fs, expdesc *e, int cond) {
 
 
 /*
-** Emit code to Nebula through if 'e' is true, jump otherwise.
+** Emit code to Hydrogen through if 'e' is true, jump otherwise.
 */
-void nebulaK_Nebulaiftrue (FuncState *fs, expdesc *e) {
+void hydrogenK_Hydrogeniftrue (FuncState *fs, expdesc *e) {
   int pc;  /* pc of new jump */
-  nebulaK_dischargevars(fs, e);
+  hydrogenK_dischargevars(fs, e);
   switch (e->k) {
     case VJMP: {  /* condition? */
       negatecondition(fs, e);  /* jump when it is false */
@@ -1148,18 +1148,18 @@ void nebulaK_Nebulaiftrue (FuncState *fs, expdesc *e) {
       break;
     }
   }
-  nebulaK_concat(fs, &e->f, pc);  /* insert new jump in false list */
-  nebulaK_patchtohere(fs, e->t);  /* true list jumps to here (to Nebula through) */
+  hydrogenK_concat(fs, &e->f, pc);  /* insert new jump in false list */
+  hydrogenK_patchtohere(fs, e->t);  /* true list jumps to here (to Hydrogen through) */
   e->t = NO_JUMP;
 }
 
 
 /*
-** Emit code to Nebula through if 'e' is false, jump otherwise.
+** Emit code to Hydrogen through if 'e' is false, jump otherwise.
 */
-void nebulaK_Nebulaiffalse (FuncState *fs, expdesc *e) {
+void hydrogenK_Hydrogeniffalse (FuncState *fs, expdesc *e) {
   int pc;  /* pc of new jump */
-  nebulaK_dischargevars(fs, e);
+  hydrogenK_dischargevars(fs, e);
   switch (e->k) {
     case VJMP: {
       pc = e->u.info;  /* already jump if true */
@@ -1174,8 +1174,8 @@ void nebulaK_Nebulaiffalse (FuncState *fs, expdesc *e) {
       break;
     }
   }
-  nebulaK_concat(fs, &e->t, pc);  /* insert new jump in 't' list */
-  nebulaK_patchtohere(fs, e->f);  /* false list jumps to here (to Nebula through) */
+  hydrogenK_concat(fs, &e->t, pc);  /* insert new jump in 't' list */
+  hydrogenK_patchtohere(fs, e->f);  /* false list jumps to here (to Hydrogen through) */
   e->f = NO_JUMP;
 }
 
@@ -1201,11 +1201,11 @@ static void codenot (FuncState *fs, expdesc *e) {
     case VNONRELOC: {
       discharge2anyreg(fs, e);
       freeexp(fs, e);
-      e->u.info = nebulaK_codeABC(fs, OP_NOT, 0, e->u.info, 0);
+      e->u.info = hydrogenK_codeABC(fs, OP_NOT, 0, e->u.info, 0);
       e->k = VRELOC;
       break;
     }
-    default: nebula_assert(0);  /* cannot happen */
+    default: hydrogen_assert(0);  /* cannot happen */
   }
   /* interchange true and false lists */
   { int temp = e->f; e->f = e->t; e->t = temp; }
@@ -1225,7 +1225,7 @@ static int isKstr (FuncState *fs, expdesc *e) {
 /*
 ** Check whether expression 'e' is a literal integer.
 */
-int nebulaK_isKint (expdesc *e) {
+int hydrogenK_isKint (expdesc *e) {
   return (e->k == VKINT && !hasjumps(e));
 }
 
@@ -1235,7 +1235,7 @@ int nebulaK_isKint (expdesc *e) {
 ** proper range to fit in register C
 */
 static int isCint (expdesc *e) {
-  return nebulaK_isKint(e) && (l_castS2U(e->u.ival) <= l_castS2U(MAXARG_C));
+  return hydrogenK_isKint(e) && (l_castS2U(e->u.ival) <= l_castS2U(MAXARG_C));
 }
 
 
@@ -1244,7 +1244,7 @@ static int isCint (expdesc *e) {
 ** proper range to fit in register sC
 */
 static int isSCint (expdesc *e) {
-  return nebulaK_isKint(e) && fitsC(e->u.ival);
+  return hydrogenK_isKint(e) && fitsC(e->u.ival);
 }
 
 
@@ -1253,10 +1253,10 @@ static int isSCint (expdesc *e) {
 ** proper range to fit in a register (sB or sC).
 */
 static int isSCnumber (expdesc *e, int *pi, int *isfloat) {
-  nebula_Integer i;
+  hydrogen_Integer i;
   if (e->k == VKINT)
     i = e->u.ival;
-  else if (e->k == VKFLT && nebulaV_flttointeger(e->u.nval, &i, F2Ieq))
+  else if (e->k == VKFLT && hydrogenV_flttointeger(e->u.nval, &i, F2Ieq))
     *isfloat = 1;
   else
     return 0;  /* not a number */
@@ -1275,13 +1275,13 @@ static int isSCnumber (expdesc *e, int *pi, int *isfloat) {
 ** Keys can be literal strings in the constant table or arbitrary
 ** values in registers.
 */
-void nebulaK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
+void hydrogenK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
   if (k->k == VKSTR)
     str2K(fs, k);
-  nebula_assert(!hasjumps(t) &&
+  hydrogen_assert(!hasjumps(t) &&
              (t->k == VLOCAL || t->k == VNONRELOC || t->k == VUPVAL));
   if (t->k == VUPVAL && !isKstr(fs, k))  /* upvalue indexed by non 'Kstr'? */
-    nebulaK_exp2anyreg(fs, t);  /* put it in a register */
+    hydrogenK_exp2anyreg(fs, t);  /* put it in a register */
   if (t->k == VUPVAL) {
     t->u.ind.t = t->u.info;  /* upvalue index */
     t->u.ind.idx = k->u.info;  /* literal string */
@@ -1299,7 +1299,7 @@ void nebulaK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
       t->k = VINDEXI;
     }
     else {
-      t->u.ind.idx = nebulaK_exp2anyreg(fs, k);  /* register */
+      t->u.ind.idx = hydrogenK_exp2anyreg(fs, k);  /* register */
       t->k = VINDEXED;
     }
   }
@@ -1313,13 +1313,13 @@ void nebulaK_indexed (FuncState *fs, expdesc *t, expdesc *k) {
 */
 static int validop (int op, TValue *v1, TValue *v2) {
   switch (op) {
-    case NEBULA_OPBAND: case NEBULA_OPBOR: case NEBULA_OPBXOR:
-    case NEBULA_OPSHL: case NEBULA_OPSHR: case NEBULA_OPBNOT: {  /* conversion errors */
-      nebula_Integer i;
-      return (nebulaV_tointegerns(v1, &i, NEBULA_FLOORN2I) &&
-              nebulaV_tointegerns(v2, &i, NEBULA_FLOORN2I));
+    case HYDROGEN_OPBAND: case HYDROGEN_OPBOR: case HYDROGEN_OPBXOR:
+    case HYDROGEN_OPSHL: case HYDROGEN_OPSHR: case HYDROGEN_OPBNOT: {  /* conversion errors */
+      hydrogen_Integer i;
+      return (hydrogenV_tointegerns(v1, &i, HYDROGEN_FLOORN2I) &&
+              hydrogenV_tointegerns(v2, &i, HYDROGEN_FLOORN2I));
     }
-    case NEBULA_OPDIV: case NEBULA_OPIDIV: case NEBULA_OPMOD:  /* division by 0 */
+    case HYDROGEN_OPDIV: case HYDROGEN_OPIDIV: case HYDROGEN_OPMOD:  /* division by 0 */
       return (nvalue(v2) != 0);
     default: return 1;  /* everything else is valid */
   }
@@ -1335,14 +1335,14 @@ static int constfolding (FuncState *fs, int op, expdesc *e1,
   TValue v1, v2, res;
   if (!tonumeral(e1, &v1) || !tonumeral(e2, &v2) || !validop(op, &v1, &v2))
     return 0;  /* non-numeric operands or not safe to fold */
-  nebulaO_rawarith(fs->ls->L, op, &v1, &v2, &res);  /* does operation */
+  hydrogenO_rawarith(fs->ls->L, op, &v1, &v2, &res);  /* does operation */
   if (ttisinteger(&res)) {
     e1->k = VKINT;
     e1->u.ival = ivalue(&res);
   }
   else {  /* folds neither NaN nor 0.0 (to avoid problems with -0.0) */
-    nebula_Number n = fltvalue(&res);
-    if (nebulai_numisnan(n) || n == 0)
+    hydrogen_Number n = fltvalue(&res);
+    if (hydrogeni_numisnan(n) || n == 0)
       return 0;
     e1->k = VKFLT;
     e1->u.nval = n;
@@ -1357,11 +1357,11 @@ static int constfolding (FuncState *fs, int op, expdesc *e1,
 ** Expression to produce final result will be encoded in 'e'.
 */
 static void codeunexpval (FuncState *fs, OpCode op, expdesc *e, int line) {
-  int r = nebulaK_exp2anyreg(fs, e);  /* opcodes operate only on registers */
+  int r = hydrogenK_exp2anyreg(fs, e);  /* opcodes operate only on registers */
   freeexp(fs, e);
-  e->u.info = nebulaK_codeABC(fs, op, 0, r, 0);  /* generate opcode */
+  e->u.info = hydrogenK_codeABC(fs, op, 0, r, 0);  /* generate opcode */
   e->k = VRELOC;  /* all those operations are relocatable */
-  nebulaK_fixline(fs, line);
+  hydrogenK_fixline(fs, line);
 }
 
 
@@ -1374,14 +1374,14 @@ static void codeunexpval (FuncState *fs, OpCode op, expdesc *e, int line) {
 static void finishbinexpval (FuncState *fs, expdesc *e1, expdesc *e2,
                              OpCode op, int v2, int flip, int line,
                              OpCode mmop, TMS event) {
-  int v1 = nebulaK_exp2anyreg(fs, e1);
-  int pc = nebulaK_codeABCk(fs, op, 0, v1, v2, 0);
+  int v1 = hydrogenK_exp2anyreg(fs, e1);
+  int pc = hydrogenK_codeABCk(fs, op, 0, v1, v2, 0);
   freeexps(fs, e1, e2);
   e1->u.info = pc;
   e1->k = VRELOC;  /* all those operations are relocatable */
-  nebulaK_fixline(fs, line);
-  nebulaK_codeABCk(fs, mmop, v1, v2, event, flip);  /* to call metamethod */
-  nebulaK_fixline(fs, line);
+  hydrogenK_fixline(fs, line);
+  hydrogenK_codeABCk(fs, mmop, v1, v2, event, flip);  /* to call metamethod */
+  hydrogenK_fixline(fs, line);
 }
 
 
@@ -1391,8 +1391,8 @@ static void finishbinexpval (FuncState *fs, expdesc *e1, expdesc *e2,
 */
 static void codebinexpval (FuncState *fs, OpCode op,
                            expdesc *e1, expdesc *e2, int line) {
-  int v2 = nebulaK_exp2anyreg(fs, e2);  /* both operands are in registers */
-  nebula_assert(OP_ADD <= op && op <= OP_SHR);
+  int v2 = hydrogenK_exp2anyreg(fs, e2);  /* both operands are in registers */
+  hydrogen_assert(OP_ADD <= op && op <= OP_SHR);
   finishbinexpval(fs, e1, e2, op, v2, 0, line, OP_MMBIN,
                   cast(TMS, (op - OP_ADD) + TM_ADD));
 }
@@ -1405,7 +1405,7 @@ static void codebini (FuncState *fs, OpCode op,
                        expdesc *e1, expdesc *e2, int flip, int line,
                        TMS event) {
   int v2 = int2sC(cast_int(e2->u.ival));  /* immediate operand */
-  nebula_assert(e2->k == VKINT);
+  hydrogen_assert(e2->k == VKINT);
   finishbinexpval(fs, e1, e2, op, v2, flip, line, OP_MMBINI, event);
 }
 
@@ -1415,10 +1415,10 @@ static void codebini (FuncState *fs, OpCode op,
 */
 static int finishbinexpneg (FuncState *fs, expdesc *e1, expdesc *e2,
                              OpCode op, int line, TMS event) {
-  if (!nebulaK_isKint(e2))
+  if (!hydrogenK_isKint(e2))
     return 0;  /* not an integer constant */
   else {
-    nebula_Integer i2 = e2->u.ival;
+    hydrogen_Integer i2 = e2->u.ival;
     if (!(fitsC(i2) && fitsC(-i2)))
       return 0;  /* not in the proper range */
     else {  /* operating a small integer constant */
@@ -1444,7 +1444,7 @@ static void swapexps (expdesc *e1, expdesc *e2) {
 static void codearith (FuncState *fs, BinOpr opr,
                        expdesc *e1, expdesc *e2, int flip, int line) {
   TMS event = cast(TMS, opr + TM_ADD);
-  if (tonumeral(e2, NULL) && nebulaK_exp2K(fs, e2)) {  /* K operand? */
+  if (tonumeral(e2, NULL) && hydrogenK_exp2K(fs, e2)) {  /* K operand? */
     int v2 = e2->u.info;  /* K index */
     OpCode op = cast(OpCode, opr + OP_ADDK);
     finishbinexpval(fs, e1, e2, op, v2, flip, line, OP_MMBINK, event);
@@ -1486,18 +1486,18 @@ static void codebitwise (FuncState *fs, BinOpr opr,
   int flip = 0;
   int v2;
   OpCode op;
-  if (e1->k == VKINT && nebulaK_exp2RK(fs, e1)) {
+  if (e1->k == VKINT && hydrogenK_exp2RK(fs, e1)) {
     swapexps(e1, e2);  /* 'e2' will be the constant operand */
     flip = 1;
   }
-  else if (!(e2->k == VKINT && nebulaK_exp2RK(fs, e2))) {  /* no constants? */
+  else if (!(e2->k == VKINT && hydrogenK_exp2RK(fs, e2))) {  /* no constants? */
     op = cast(OpCode, opr + OP_ADD);
     codebinexpval(fs, op, e1, e2, line);  /* all-register opcodes */
     return;
   }
   v2 = e2->u.info;  /* index in K array */
   op = cast(OpCode, opr + OP_ADDK);
-  nebula_assert(ttisinteger(&fs->f->k[v2]));
+  hydrogen_assert(ttisinteger(&fs->f->k[v2]));
   finishbinexpval(fs, e1, e2, op, v2, flip, line, OP_MMBINK,
                   cast(TMS, opr + TM_ADD));
 }
@@ -1513,19 +1513,19 @@ static void codeorder (FuncState *fs, OpCode op, expdesc *e1, expdesc *e2) {
   int isfloat = 0;
   if (isSCnumber(e2, &im, &isfloat)) {
     /* use immediate operand */
-    r1 = nebulaK_exp2anyreg(fs, e1);
+    r1 = hydrogenK_exp2anyreg(fs, e1);
     r2 = im;
     op = cast(OpCode, (op - OP_LT) + OP_LTI);
   }
   else if (isSCnumber(e1, &im, &isfloat)) {
     /* transform (A < B) to (B > A) and (A <= B) to (B >= A) */
-    r1 = nebulaK_exp2anyreg(fs, e2);
+    r1 = hydrogenK_exp2anyreg(fs, e2);
     r2 = im;
     op = (op == OP_LT) ? OP_GTI : OP_GEI;
   }
   else {  /* regular case, compare two registers */
-    r1 = nebulaK_exp2anyreg(fs, e1);
-    r2 = nebulaK_exp2anyreg(fs, e2);
+    r1 = hydrogenK_exp2anyreg(fs, e1);
+    r2 = hydrogenK_exp2anyreg(fs, e2);
   }
   freeexps(fs, e1, e2);
   e1->u.info = condjump(fs, op, r1, r2, isfloat, 1);
@@ -1535,7 +1535,7 @@ static void codeorder (FuncState *fs, OpCode op, expdesc *e1, expdesc *e2) {
 
 /*
 ** Emit code for equality comparisons ('==', '~=').
-** 'e1' was already put as RK by 'nebulaK_infix'.
+** 'e1' was already put as RK by 'hydrogenK_infix'.
 */
 static void codeeq (FuncState *fs, BinOpr opr, expdesc *e1, expdesc *e2) {
   int r1, r2;
@@ -1543,21 +1543,21 @@ static void codeeq (FuncState *fs, BinOpr opr, expdesc *e1, expdesc *e2) {
   int isfloat = 0;  /* not needed here, but kept for symmetry */
   OpCode op;
   if (e1->k != VNONRELOC) {
-    nebula_assert(e1->k == VK || e1->k == VKINT || e1->k == VKFLT);
+    hydrogen_assert(e1->k == VK || e1->k == VKINT || e1->k == VKFLT);
     swapexps(e1, e2);
   }
-  r1 = nebulaK_exp2anyreg(fs, e1);  /* 1st expression must be in register */
+  r1 = hydrogenK_exp2anyreg(fs, e1);  /* 1st expression must be in register */
   if (isSCnumber(e2, &im, &isfloat)) {
     op = OP_EQI;
     r2 = im;  /* immediate operand */
   }
-  else if (nebulaK_exp2RK(fs, e2)) {  /* 1st expression is constant? */
+  else if (hydrogenK_exp2RK(fs, e2)) {  /* 1st expression is constant? */
     op = OP_EQK;
     r2 = e2->u.info;  /* constant index */
   }
   else {
     op = OP_EQ;  /* will compare two registers */
-    r2 = nebulaK_exp2anyreg(fs, e2);
+    r2 = hydrogenK_exp2anyreg(fs, e2);
   }
   freeexps(fs, e1, e2);
   e1->u.info = condjump(fs, op, r1, r2, isfloat, (opr == OPR_EQ));
@@ -1568,19 +1568,19 @@ static void codeeq (FuncState *fs, BinOpr opr, expdesc *e1, expdesc *e2) {
 /*
 ** Apply prefix operation 'op' to expression 'e'.
 */
-void nebulaK_prefix (FuncState *fs, UnOpr op, expdesc *e, int line) {
+void hydrogenK_prefix (FuncState *fs, UnOpr op, expdesc *e, int line) {
   static const expdesc ef = {VKINT, {0}, NO_JUMP, NO_JUMP};
-  nebulaK_dischargevars(fs, e);
+  hydrogenK_dischargevars(fs, e);
   switch (op) {
     case OPR_MINUS: case OPR_BNOT:  /* use 'ef' as fake 2nd operand */
-      if (constfolding(fs, op + NEBULA_OPUNM, e, &ef))
+      if (constfolding(fs, op + HYDROGEN_OPUNM, e, &ef))
         break;
       /* else */ /* FALLTHROUGH */
     case OPR_LEN:
       codeunexpval(fs, cast(OpCode, op + OP_UNM), e, line);
       break;
     case OPR_NOT: codenot(fs, e); break;
-    default: nebula_assert(0);
+    default: hydrogen_assert(0);
   }
 }
 
@@ -1589,19 +1589,19 @@ void nebulaK_prefix (FuncState *fs, UnOpr op, expdesc *e, int line) {
 ** Process 1st operand 'v' of binary operation 'op' before reading
 ** 2nd operand.
 */
-void nebulaK_infix (FuncState *fs, BinOpr op, expdesc *v) {
-  nebulaK_dischargevars(fs, v);
+void hydrogenK_infix (FuncState *fs, BinOpr op, expdesc *v) {
+  hydrogenK_dischargevars(fs, v);
   switch (op) {
     case OPR_AND: {
-      nebulaK_Nebulaiftrue(fs, v);  /* Nebula ahead only if 'v' is true */
+      hydrogenK_Hydrogeniftrue(fs, v);  /* Hydrogen ahead only if 'v' is true */
       break;
     }
     case OPR_OR: {
-      nebulaK_Nebulaiffalse(fs, v);  /* Nebula ahead only if 'v' is false */
+      hydrogenK_Hydrogeniffalse(fs, v);  /* Hydrogen ahead only if 'v' is false */
       break;
     }
     case OPR_CONCAT: {
-      nebulaK_exp2nextreg(fs, v);  /* operand must be on the stack */
+      hydrogenK_exp2nextreg(fs, v);  /* operand must be on the stack */
       break;
     }
     case OPR_ADD: case OPR_SUB:
@@ -1610,13 +1610,13 @@ void nebulaK_infix (FuncState *fs, BinOpr op, expdesc *v) {
     case OPR_BAND: case OPR_BOR: case OPR_BXOR:
     case OPR_SHL: case OPR_SHR: {
       if (!tonumeral(v, NULL))
-        nebulaK_exp2anyreg(fs, v);
+        hydrogenK_exp2anyreg(fs, v);
       /* else keep numeral, which may be folded with 2nd operand */
       break;
     }
     case OPR_EQ: case OPR_NE: {
       if (!tonumeral(v, NULL))
-        nebulaK_exp2RK(fs, v);
+        hydrogenK_exp2RK(fs, v);
       /* else keep numeral, which may be an immediate operand */
       break;
     }
@@ -1624,11 +1624,11 @@ void nebulaK_infix (FuncState *fs, BinOpr op, expdesc *v) {
     case OPR_GT: case OPR_GE: {
       int dummy, dummy2;
       if (!isSCnumber(v, &dummy, &dummy2))
-        nebulaK_exp2anyreg(fs, v);
+        hydrogenK_exp2anyreg(fs, v);
       /* else keep numeral, which may be an immediate operand */
       break;
     }
-    default: nebula_assert(0);
+    default: hydrogen_assert(0);
   }
 }
 
@@ -1641,15 +1641,15 @@ static void codeconcat (FuncState *fs, expdesc *e1, expdesc *e2, int line) {
   Instruction *ie2 = previousinstruction(fs);
   if (GET_OPCODE(*ie2) == OP_CONCAT) {  /* is 'e2' a concatenation? */
     int n = GETARG_B(*ie2);  /* # of elements concatenated in 'e2' */
-    nebula_assert(e1->u.info + 1 == GETARG_A(*ie2));
+    hydrogen_assert(e1->u.info + 1 == GETARG_A(*ie2));
     freeexp(fs, e2);
     SETARG_A(*ie2, e1->u.info);  /* correct first element ('e1') */
     SETARG_B(*ie2, n + 1);  /* will concatenate one more element */
   }
   else {  /* 'e2' is not a concatenation */
-    nebulaK_codeABC(fs, OP_CONCAT, e1->u.info, 2, 0);  /* new concat opcode */
+    hydrogenK_codeABC(fs, OP_CONCAT, e1->u.info, 2, 0);  /* new concat opcode */
     freeexp(fs, e2);
-    nebulaK_fixline(fs, line);
+    hydrogenK_fixline(fs, line);
   }
 }
 
@@ -1657,26 +1657,26 @@ static void codeconcat (FuncState *fs, expdesc *e1, expdesc *e2, int line) {
 /*
 ** Finalize code for binary operation, after reading 2nd operand.
 */
-void nebulaK_posfix (FuncState *fs, BinOpr opr,
+void hydrogenK_posfix (FuncState *fs, BinOpr opr,
                   expdesc *e1, expdesc *e2, int line) {
-  nebulaK_dischargevars(fs, e2);
-  if (foldbinop(opr) && constfolding(fs, opr + NEBULA_OPADD, e1, e2))
+  hydrogenK_dischargevars(fs, e2);
+  if (foldbinop(opr) && constfolding(fs, opr + HYDROGEN_OPADD, e1, e2))
     return;  /* done by folding */
   switch (opr) {
     case OPR_AND: {
-      nebula_assert(e1->t == NO_JUMP);  /* list closed by 'nebulaK_infix' */
-      nebulaK_concat(fs, &e2->f, e1->f);
+      hydrogen_assert(e1->t == NO_JUMP);  /* list closed by 'hydrogenK_infix' */
+      hydrogenK_concat(fs, &e2->f, e1->f);
       *e1 = *e2;
       break;
     }
     case OPR_OR: {
-      nebula_assert(e1->f == NO_JUMP);  /* list closed by 'nebulaK_infix' */
-      nebulaK_concat(fs, &e2->t, e1->t);
+      hydrogen_assert(e1->f == NO_JUMP);  /* list closed by 'hydrogenK_infix' */
+      hydrogenK_concat(fs, &e2->t, e1->t);
       *e1 = *e2;
       break;
     }
     case OPR_CONCAT: {  /* e1 .. e2 */
-      nebulaK_exp2nextreg(fs, e2);
+      hydrogenK_exp2nextreg(fs, e2);
       codeconcat(fs, e1, e2, line);
       break;
     }
@@ -1732,7 +1732,7 @@ void nebulaK_posfix (FuncState *fs, BinOpr opr,
       codeorder(fs, op, e1, e2);
       break;
     }
-    default: nebula_assert(0);
+    default: hydrogen_assert(0);
   }
 }
 
@@ -1741,15 +1741,15 @@ void nebulaK_posfix (FuncState *fs, BinOpr opr,
 ** Change line information associated with current position, by removing
 ** previous info and adding it again with new line.
 */
-void nebulaK_fixline (FuncState *fs, int line) {
+void hydrogenK_fixline (FuncState *fs, int line) {
   removelastlineinfo(fs);
   savelineinfo(fs, fs->f, line);
 }
 
 
-void nebulaK_settablesize (FuncState *fs, int pc, int ra, int asize, int hsize) {
+void hydrogenK_settablesize (FuncState *fs, int pc, int ra, int asize, int hsize) {
   Instruction *inst = &fs->f->code[pc];
-  int rb = (hsize != 0) ? nebulaO_ceillog2(hsize) + 1 : 0;  /* hash size */
+  int rb = (hsize != 0) ? hydrogenO_ceillog2(hsize) + 1 : 0;  /* hash size */
   int extra = asize / (MAXARG_C + 1);  /* higher bits of array size */
   int rc = asize % (MAXARG_C + 1);  /* lower bits of array size */
   int k = (extra > 0);  /* true iff needs extra argument */
@@ -1763,18 +1763,18 @@ void nebulaK_settablesize (FuncState *fs, int pc, int ra, int asize, int hsize) 
 ** 'base' is register that keeps table;
 ** 'nelems' is #table plus those to be stored now;
 ** 'tostore' is number of values (in registers 'base + 1',...) to add to
-** table (or NEBULA_MULTRET to add up to stack top).
+** table (or HYDROGEN_MULTRET to add up to stack top).
 */
-void nebulaK_setlist (FuncState *fs, int base, int nelems, int tostore) {
-  nebula_assert(tostore != 0 && tostore <= LFIELDS_PER_FLUSH);
-  if (tostore == NEBULA_MULTRET)
+void hydrogenK_setlist (FuncState *fs, int base, int nelems, int tostore) {
+  hydrogen_assert(tostore != 0 && tostore <= LFIELDS_PER_FLUSH);
+  if (tostore == HYDROGEN_MULTRET)
     tostore = 0;
   if (nelems <= MAXARG_C)
-    nebulaK_codeABC(fs, OP_SETLIST, base, tostore, nelems);
+    hydrogenK_codeABC(fs, OP_SETLIST, base, tostore, nelems);
   else {
     int extra = nelems / (MAXARG_C + 1);
     nelems %= (MAXARG_C + 1);
-    nebulaK_codeABCk(fs, OP_SETLIST, base, tostore, nelems, 1);
+    hydrogenK_codeABCk(fs, OP_SETLIST, base, tostore, nelems, 1);
     codeextraarg(fs, extra);
   }
   fs->freereg = base + 1;  /* free registers with list values */
@@ -1801,12 +1801,12 @@ static int finaltarget (Instruction *code, int i) {
 ** Do a final pass over the code of a function, doing small peephole
 ** optimizations and adjustments.
 */
-void nebulaK_finish (FuncState *fs) {
+void hydrogenK_finish (FuncState *fs) {
   int i;
   Proto *p = fs->f;
   for (i = 0; i < fs->pc; i++) {
     Instruction *pc = &p->code[i];
-    nebula_assert(i == 0 || isOT(*(pc - 1)) == isIT(*pc));
+    hydrogen_assert(i == 0 || isOT(*(pc - 1)) == isIT(*pc));
     switch (GET_OPCODE(*pc)) {
       case OP_RETURN0: case OP_RETURN1: {
         if (!(fs->needclose || p->is_vararg))

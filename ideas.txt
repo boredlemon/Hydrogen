@@ -1,7 +1,7 @@
-Make a pkg manager for Nebula called stardust
+Make a pkg manager for Hydrogen called stardust
 
 _____
 INFO
 
 File extension - .nb or .nbl 
-Command - nebula / nebulac
+Command - hydrogen / hydrogenc

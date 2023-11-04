@@ -1,7 +1,7 @@
 /*
 ** $Id: lexer.h $
 ** Lexical Analyzer
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef lexer_h
@@ -20,8 +20,8 @@
 #define FIRST_RESERVED	(UCHAR_MAX + 1)
 
 
-#if !defined(NEBULA_ENV)
-#define NEBULA_ENV		"_ENV"
+#if !defined(HYDROGEN_ENV)
+#define HYDROGEN_ENV		"_ENV"
 #endif
 
 
@@ -47,8 +47,8 @@ enum RESERVED {
 
 
 typedef union {
-  nebula_Number r;
-  nebula_Integer i;
+  hydrogen_Number r;
+  hydrogen_Integer i;
   TString *ts;
 } SemInfo;  /* semantics information */
 
@@ -68,7 +68,7 @@ typedef struct LexState {
   Token t;  /* current token */
   Token lookahead;  /* look ahead token */
   struct FuncState *fs;  /* current function (parser) */
-  struct nebula_State *L;
+  struct hydrogen_State *L;
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   Table *h;  /* to avoid collection/reuse strings */
@@ -78,14 +78,14 @@ typedef struct LexState {
 } LexState;
 
 
-NEBULAI_FUNC void nebulaX_init (nebula_State *L);
-NEBULAI_FUNC void nebulaX_setinput (nebula_State *L, LexState *ls, ZIO *z,
+HYDROGENI_FUNC void hydrogenX_init (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenX_setinput (hydrogen_State *L, LexState *ls, ZIO *z,
                               TString *source, int firstchar);
-NEBULAI_FUNC TString *nebulaX_newstring (LexState *ls, const char *str, size_t l);
-NEBULAI_FUNC void nebulaX_next (LexState *ls);
-NEBULAI_FUNC int nebulaX_lookahead (LexState *ls);
-NEBULAI_FUNC l_noret nebulaX_syntaxerror (LexState *ls, const char *s);
-NEBULAI_FUNC const char *nebulaX_token2str (LexState *ls, int token);
+HYDROGENI_FUNC TString *hydrogenX_newstring (LexState *ls, const char *str, size_t l);
+HYDROGENI_FUNC void hydrogenX_next (LexState *ls);
+HYDROGENI_FUNC int hydrogenX_lookahead (LexState *ls);
+HYDROGENI_FUNC l_noret hydrogenX_syntaxerror (LexState *ls, const char *s);
+HYDROGENI_FUNC const char *hydrogenX_token2str (LexState *ls, int token);
 
 
 #endif

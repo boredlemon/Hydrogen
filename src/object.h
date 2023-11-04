@@ -1,7 +1,7 @@
 /*
 ** $Id: object.h $
-** Type definitions for Nebula objects
-** See Copyright Notice in nebula.h
+** Type definitions for Hydrogen objects
+** See Copyright Notice in hydrogen.h
 */
 
 
@@ -13,27 +13,27 @@
 
 
 #include "limits.h"
-#include "nebula.h"
+#include "hydrogen.h"
 
 
 /*
 ** Extra types for collectable non-values
 */
-#define NEBULA_TUPVAL	NEBULA_NUMTYPES  /* upvalues */
-#define NEBULA_TPROTO	(NEBULA_NUMTYPES+1)  /* function prototypes */
-#define NEBULA_TDEADKEY	(NEBULA_NUMTYPES+2)  /* removed keys in tables */
+#define HYDROGEN_TUPVAL	HYDROGEN_NUMTYPES  /* upvalues */
+#define HYDROGEN_TPROTO	(HYDROGEN_NUMTYPES+1)  /* function prototypes */
+#define HYDROGEN_TDEADKEY	(HYDROGEN_NUMTYPES+2)  /* removed keys in tables */
 
 
 
 /*
-** number of all possible types (including NEBULA_TNONE but excluding DEADKEY)
+** number of all possible types (including HYDROGEN_TNONE but excluding DEADKEY)
 */
-#define NEBULA_TOTALTYPES		(NEBULA_TPROTO + 2)
+#define HYDROGEN_TOTALTYPES		(HYDROGEN_TPROTO + 2)
 
 
 /*
 ** tags for Tagged Values have the following use of bits:
-** bits 0-3: actual tag (a NEBULA_T* constant)
+** bits 0-3: actual tag (a HYDROGEN_T* constant)
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
@@ -44,19 +44,19 @@
 
 
 /*
-** Union of all Nebula values
+** Union of all Hydrogen values
 */
 typedef union Value {
   struct GCObject *gc;    /* collectable objects */
   void *p;         /* light userdata */
-  nebula_CFunction f; /* light C functions */
-  nebula_Integer i;   /* integer numbers */
-  nebula_Number n;    /* float numbers */
+  hydrogen_CFunction f; /* light C functions */
+  hydrogen_Integer i;   /* integer numbers */
+  hydrogen_Number n;    /* float numbers */
 } Value;
 
 
 /*
-** Tagged Values. This is the basic representation of values in Nebula:
+** Tagged Values. This is the basic representation of values in Hydrogen:
 ** an actual value plus a tag with its type.
 */
 
@@ -102,7 +102,7 @@ typedef struct TValue {
 ** macros using this one to be used where L is not available.
 */
 #define checkliveness(L,obj) \
-	((void)L, nebula_longassert(!iscollectable(obj) || \
+	((void)L, hydrogen_longassert(!iscollectable(obj) || \
 		(righttt(obj) && (L == NULL || !isdead(G(L),gcvalue(obj))))))
 
 
@@ -116,7 +116,7 @@ typedef struct TValue {
 #define setobj(L,obj1,obj2) \
 	{ TValue *io1=(obj1); const TValue *io2=(obj2); \
           io1->value_ = io2->value_; settt_(io1, io2->tt_); \
-	  checkliveness(L,io1); nebula_assert(!isnonstrictnil(io1)); }
+	  checkliveness(L,io1); hydrogen_assert(!isnonstrictnil(io1)); }
 
 /*
 ** Different types of assignments, according to source and destination.
@@ -136,7 +136,7 @@ typedef struct TValue {
 
 
 /*
-** Entries in a Nebula stack. Field 'tbclist' forms a list of all
+** Entries in a Hydrogen stack. Field 'tbclist' forms a list of all
 ** to-be-closed variables active in this stack. Dummy entries are
 ** used when the distance between two tbc variables does not fit
 ** in an unsigned short. They are represented by delta==0, and
@@ -167,27 +167,27 @@ typedef StackValue *StkId;
 */
 
 /* Standard nil */
-#define NEBULA_VNIL	makevariant(NEBULA_TNIL, 0)
+#define HYDROGEN_VNIL	makevariant(HYDROGEN_TNIL, 0)
 
 /* Empty slot (which might be different from a slot containing nil) */
-#define NEBULA_VEMPTY	makevariant(NEBULA_TNIL, 1)
+#define HYDROGEN_VEMPTY	makevariant(HYDROGEN_TNIL, 1)
 
 /* Value returned for a key not found in a table (absent key) */
-#define NEBULA_VABSTKEY	makevariant(NEBULA_TNIL, 2)
+#define HYDROGEN_VABSTKEY	makevariant(HYDROGEN_TNIL, 2)
 
 
 /* macro to test for (any kind of) nil */
-#define ttisnil(v)		checktype((v), NEBULA_TNIL)
+#define ttisnil(v)		checktype((v), HYDROGEN_TNIL)
 
 
 /* macro to test for a standard nil */
-#define ttisstrictnil(o)	checktag((o), NEBULA_VNIL)
+#define ttisstrictnil(o)	checktag((o), HYDROGEN_VNIL)
 
 
-#define setnilvalue(obj) settt_(obj, NEBULA_VNIL)
+#define setnilvalue(obj) settt_(obj, HYDROGEN_VNIL)
 
 
-#define isabstkey(v)		checktag((v), NEBULA_VABSTKEY)
+#define isabstkey(v)		checktag((v), HYDROGEN_VABSTKEY)
 
 
 /*
@@ -205,11 +205,11 @@ typedef StackValue *StkId;
 
 
 /* macro defining a value corresponding to an absent key */
-#define ABSTKEYCONSTANT		{NULL}, NEBULA_VABSTKEY
+#define ABSTKEYCONSTANT		{NULL}, HYDROGEN_VABSTKEY
 
 
 /* mark an entry as empty */
-#define setempty(v)		settt_(v, NEBULA_VEMPTY)
+#define setempty(v)		settt_(v, HYDROGEN_VEMPTY)
 
 
 
@@ -223,19 +223,19 @@ typedef StackValue *StkId;
 */
 
 
-#define NEBULA_VFALSE	makevariant(NEBULA_TBOOLEAN, 0)
-#define NEBULA_VTRUE	makevariant(NEBULA_TBOOLEAN, 1)
+#define HYDROGEN_VFALSE	makevariant(HYDROGEN_TBOOLEAN, 0)
+#define HYDROGEN_VTRUE	makevariant(HYDROGEN_TBOOLEAN, 1)
 
-#define ttisboolean(o)		checktype((o), NEBULA_TBOOLEAN)
-#define ttisfalse(o)		checktag((o), NEBULA_VFALSE)
-#define ttistrue(o)		checktag((o), NEBULA_VTRUE)
+#define ttisboolean(o)		checktype((o), HYDROGEN_TBOOLEAN)
+#define ttisfalse(o)		checktag((o), HYDROGEN_VFALSE)
+#define ttistrue(o)		checktag((o), HYDROGEN_VTRUE)
 
 
 #define l_isfalse(o)	(ttisfalse(o) || ttisnil(o))
 
 
-#define setbfvalue(obj)		settt_(obj, NEBULA_VFALSE)
-#define setbtvalue(obj)		settt_(obj, NEBULA_VTRUE)
+#define setbfvalue(obj)		settt_(obj, HYDROGEN_VFALSE)
+#define setbtvalue(obj)		settt_(obj, HYDROGEN_VTRUE)
 
 /* }================================================================== */
 
@@ -246,15 +246,15 @@ typedef StackValue *StkId;
 ** ===================================================================
 */
 
-#define NEBULA_VTHREAD		makevariant(NEBULA_TTHREAD, 0)
+#define HYDROGEN_VTHREAD		makevariant(HYDROGEN_TTHREAD, 0)
 
-#define ttisthread(o)		checktag((o), ctb(NEBULA_VTHREAD))
+#define ttisthread(o)		checktag((o), ctb(HYDROGEN_VTHREAD))
 
 #define thvalue(o)	check_exp(ttisthread(o), gco2th(val_(o).gc))
 
 #define setthvalue(L,obj,x) \
-  { TValue *io = (obj); nebula_State *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(NEBULA_VTHREAD)); \
+  { TValue *io = (obj); hydrogen_State *x_ = (x); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(HYDROGEN_VTHREAD)); \
     checkliveness(L,io); }
 
 #define setthvalue2s(L,o,t)	setthvalue(L,s2v(o),t)
@@ -307,12 +307,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for numbers */
-#define NEBULA_VNUMINT	makevariant(NEBULA_TNUMBER, 0)  /* integer numbers */
-#define NEBULA_VNUMFLT	makevariant(NEBULA_TNUMBER, 1)  /* float numbers */
+#define HYDROGEN_VNUMINT	makevariant(HYDROGEN_TNUMBER, 0)  /* integer numbers */
+#define HYDROGEN_VNUMFLT	makevariant(HYDROGEN_TNUMBER, 1)  /* float numbers */
 
-#define ttisnumber(o)		checktype((o), NEBULA_TNUMBER)
-#define ttisfloat(o)		checktag((o), NEBULA_VNUMFLT)
-#define ttisinteger(o)		checktag((o), NEBULA_VNUMINT)
+#define ttisnumber(o)		checktype((o), HYDROGEN_TNUMBER)
+#define ttisfloat(o)		checktag((o), HYDROGEN_VNUMFLT)
+#define ttisinteger(o)		checktag((o), HYDROGEN_VNUMINT)
 
 #define nvalue(o)	check_exp(ttisnumber(o), \
 	(ttisinteger(o) ? cast_num(ivalue(o)) : fltvalue(o)))
@@ -323,16 +323,16 @@ typedef struct GCObject {
 #define ivalueraw(v)	((v).i)
 
 #define setfltvalue(obj,x) \
-  { TValue *io=(obj); val_(io).n=(x); settt_(io, NEBULA_VNUMFLT); }
+  { TValue *io=(obj); val_(io).n=(x); settt_(io, HYDROGEN_VNUMFLT); }
 
 #define chgfltvalue(obj,x) \
-  { TValue *io=(obj); nebula_assert(ttisfloat(io)); val_(io).n=(x); }
+  { TValue *io=(obj); hydrogen_assert(ttisfloat(io)); val_(io).n=(x); }
 
 #define setivalue(obj,x) \
-  { TValue *io=(obj); val_(io).i=(x); settt_(io, NEBULA_VNUMINT); }
+  { TValue *io=(obj); val_(io).i=(x); settt_(io, HYDROGEN_VNUMINT); }
 
 #define chgivalue(obj,x) \
-  { TValue *io=(obj); nebula_assert(ttisinteger(io)); val_(io).i=(x); }
+  { TValue *io=(obj); hydrogen_assert(ttisinteger(io)); val_(io).i=(x); }
 
 /* }================================================================== */
 
@@ -344,12 +344,12 @@ typedef struct GCObject {
 */
 
 /* Variant tags for strings */
-#define NEBULA_VSHRSTR	makevariant(NEBULA_TSTRING, 0)  /* short strings */
-#define NEBULA_VLNGSTR	makevariant(NEBULA_TSTRING, 1)  /* long strings */
+#define HYDROGEN_VSHRSTR	makevariant(HYDROGEN_TSTRING, 0)  /* short strings */
+#define HYDROGEN_VLNGSTR	makevariant(HYDROGEN_TSTRING, 1)  /* long strings */
 
-#define ttisstring(o)		checktype((o), NEBULA_TSTRING)
-#define ttisshrstring(o)	checktag((o), ctb(NEBULA_VSHRSTR))
-#define ttislngstring(o)	checktag((o), ctb(NEBULA_VLNGSTR))
+#define ttisstring(o)		checktype((o), HYDROGEN_TSTRING)
+#define ttisshrstring(o)	checktag((o), ctb(HYDROGEN_VSHRSTR))
+#define ttislngstring(o)	checktag((o), ctb(HYDROGEN_VLNGSTR))
 
 #define tsvalueraw(v)	(gco2ts((v).gc))
 
@@ -390,11 +390,11 @@ typedef struct TString {
 #define getstr(ts)  ((ts)->contents)
 
 
-/* get the actual string (array of bytes) from a Nebula value */
+/* get the actual string (array of bytes) from a Hydrogen value */
 #define svalue(o)       getstr(tsvalue(o))
 
 /* get string length from 'TString *s' */
-#define tsslen(s)	((s)->tt == NEBULA_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
+#define tsslen(s)	((s)->tt == HYDROGEN_VSHRSTR ? (s)->shrlen : (s)->u.lnglen)
 
 /* get string length from 'TValue *o' */
 #define vslen(o)	tsslen(tsvalue(o))
@@ -413,12 +413,12 @@ typedef struct TString {
 ** Light userdata should be a variant of userdata, but for compatibility
 ** reasons they are also different types.
 */
-#define NEBULA_VLIGHTUSERDATA	makevariant(NEBULA_TLIGHTUSERDATA, 0)
+#define HYDROGEN_VLIGHTUSERDATA	makevariant(HYDROGEN_TLIGHTUSERDATA, 0)
 
-#define NEBULA_VUSERDATA		makevariant(NEBULA_TUSERDATA, 0)
+#define HYDROGEN_VUSERDATA		makevariant(HYDROGEN_TUSERDATA, 0)
 
-#define ttislightuserdata(o)	checktag((o), NEBULA_VLIGHTUSERDATA)
-#define ttisfulluserdata(o)	checktag((o), ctb(NEBULA_VUSERDATA))
+#define ttislightuserdata(o)	checktag((o), HYDROGEN_VLIGHTUSERDATA)
+#define ttisfulluserdata(o)	checktag((o), ctb(HYDROGEN_VUSERDATA))
 
 #define pvalue(o)	check_exp(ttislightuserdata(o), val_(o).p)
 #define uvalue(o)	check_exp(ttisfulluserdata(o), gco2u(val_(o).gc))
@@ -426,18 +426,18 @@ typedef struct TString {
 #define pvalueraw(v)	((v).p)
 
 #define setpvalue(obj,x) \
-  { TValue *io=(obj); val_(io).p=(x); settt_(io, NEBULA_VLIGHTUSERDATA); }
+  { TValue *io=(obj); val_(io).p=(x); settt_(io, HYDROGEN_VLIGHTUSERDATA); }
 
 #define setuvalue(L,obj,x) \
   { TValue *io = (obj); Udata *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(NEBULA_VUSERDATA)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(HYDROGEN_VUSERDATA)); \
     checkliveness(L,io); }
 
 
 /* Ensures that addresses after this type are always fully aligned. */
 typedef union UValue {
   TValue uv;
-  NEBULAI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
+  HYDROGENI_MAXALIGN;  /* ensures maximum alignment for udata bytes */
 } UValue;
 
 
@@ -469,7 +469,7 @@ typedef struct Udata0 {
   unsigned short nuvalue;  /* number of user values */
   size_t len;  /* number of bytes */
   struct Table *metatable;
-  union {NEBULAI_MAXALIGN;} bindata;
+  union {HYDROGENI_MAXALIGN;} bindata;
 } Udata0;
 
 
@@ -493,7 +493,7 @@ typedef struct Udata0 {
 ** ===================================================================
 */
 
-#define NEBULA_VPROTO	makevariant(NEBULA_TPROTO, 0)
+#define HYDROGEN_VPROTO	makevariant(HYDROGEN_TPROTO, 0)
 
 
 /*
@@ -522,8 +522,8 @@ typedef struct LocVar {
 ** Associates the absolute line source for a given instruction ('pc').
 ** The array 'lineinfo' gives, for each instruction, the difference in
 ** lines from the previous instruction. When that difference does not
-** fit into a byte, Nebula saves the absolute line for that instruction.
-** (Nebula also saves the absolute line periodically, to speed up the
+** fit into a byte, Hydrogen saves the absolute line for that instruction.
+** (Hydrogen also saves the absolute line periodically, to speed up the
 ** computation of a line number: we can use binary search in the
 ** absolute-line array, but we must traverse the 'lineinfo' array
 ** linearly to compute a line.)
@@ -570,18 +570,18 @@ typedef struct Proto {
 ** ===================================================================
 */
 
-#define NEBULA_VUPVAL	makevariant(NEBULA_TUPVAL, 0)
+#define HYDROGEN_VUPVAL	makevariant(HYDROGEN_TUPVAL, 0)
 
 
 /* Variant tags for functions */
-#define NEBULA_VLCL	makevariant(NEBULA_TFUNCTION, 0)  /* Nebula closure */
-#define NEBULA_VLCF	makevariant(NEBULA_TFUNCTION, 1)  /* light C function */
-#define NEBULA_VCCL	makevariant(NEBULA_TFUNCTION, 2)  /* C closure */
+#define HYDROGEN_VLCL	makevariant(HYDROGEN_TFUNCTION, 0)  /* Hydrogen closure */
+#define HYDROGEN_VLCF	makevariant(HYDROGEN_TFUNCTION, 1)  /* light C function */
+#define HYDROGEN_VCCL	makevariant(HYDROGEN_TFUNCTION, 2)  /* C closure */
 
-#define ttisfunction(o)		checktype(o, NEBULA_TFUNCTION)
-#define ttisLclosure(o)		checktag((o), ctb(NEBULA_VLCL))
-#define ttislcf(o)		checktag((o), NEBULA_VLCF)
-#define ttisCclosure(o)		checktag((o), ctb(NEBULA_VCCL))
+#define ttisfunction(o)		checktype(o, HYDROGEN_TFUNCTION)
+#define ttisLclosure(o)		checktag((o), ctb(HYDROGEN_VLCL))
+#define ttislcf(o)		checktag((o), HYDROGEN_VLCF)
+#define ttisCclosure(o)		checktag((o), ctb(HYDROGEN_VCCL))
 #define ttisclosure(o)         (ttisLclosure(o) || ttisCclosure(o))
 
 
@@ -596,22 +596,22 @@ typedef struct Proto {
 
 #define setclLvalue(L,obj,x) \
   { TValue *io = (obj); LClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(NEBULA_VLCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(HYDROGEN_VLCL)); \
     checkliveness(L,io); }
 
 #define setclLvalue2s(L,o,cl)	setclLvalue(L,s2v(o),cl)
 
 #define setfvalue(obj,x) \
-  { TValue *io=(obj); val_(io).f=(x); settt_(io, NEBULA_VLCF); }
+  { TValue *io=(obj); val_(io).f=(x); settt_(io, HYDROGEN_VLCF); }
 
 #define setclCvalue(L,obj,x) \
   { TValue *io = (obj); CClosure *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(NEBULA_VCCL)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(HYDROGEN_VCCL)); \
     checkliveness(L,io); }
 
 
 /*
-** Upvalues for Nebula closures
+** Upvalues for Hydrogen closures
 */
 typedef struct UpVal {
   CommonHeader;
@@ -633,7 +633,7 @@ typedef struct UpVal {
 
 typedef struct CClosure {
   ClosureHeader;
-  nebula_CFunction f;
+  hydrogen_CFunction f;
   TValue upvalue[1];  /* list of upvalues */
 } CClosure;
 
@@ -662,15 +662,15 @@ typedef union Closure {
 ** ===================================================================
 */
 
-#define NEBULA_VTABLE	makevariant(NEBULA_TTABLE, 0)
+#define HYDROGEN_VTABLE	makevariant(HYDROGEN_TTABLE, 0)
 
-#define ttistable(o)		checktag((o), ctb(NEBULA_VTABLE))
+#define ttistable(o)		checktag((o), ctb(HYDROGEN_VTABLE))
 
 #define hvalue(o)	check_exp(ttistable(o), gco2t(val_(o).gc))
 
 #define sethvalue(L,obj,x) \
   { TValue *io = (obj); Table *x_ = (x); \
-    val_(io).gc = obj2gco(x_); settt_(io, ctb(NEBULA_VTABLE)); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(HYDROGEN_VTABLE)); \
     checkliveness(L,io); }
 
 #define sethvalue2s(L,o,h)	sethvalue(L,s2v(o),h)
@@ -740,13 +740,13 @@ typedef struct Table {
 #define keytt(node)		((node)->u.key_tt)
 #define keyval(node)		((node)->u.key_val)
 
-#define keyisnil(node)		(keytt(node) == NEBULA_TNIL)
-#define keyisinteger(node)	(keytt(node) == NEBULA_VNUMINT)
+#define keyisnil(node)		(keytt(node) == HYDROGEN_TNIL)
+#define keyisinteger(node)	(keytt(node) == HYDROGEN_VNUMINT)
 #define keyival(node)		(keyval(node).i)
-#define keyisshrstr(node)	(keytt(node) == ctb(NEBULA_VSHRSTR))
+#define keyisshrstr(node)	(keytt(node) == ctb(HYDROGEN_VSHRSTR))
 #define keystrval(node)		(gco2ts(keyval(node).gc))
 
-#define setnilkey(node)		(keytt(node) = NEBULA_TNIL)
+#define setnilkey(node)		(keytt(node) = HYDROGEN_TNIL)
 
 #define keyiscollectable(n)	(keytt(n) & BIT_ISCOLLECTABLE)
 
@@ -760,8 +760,8 @@ typedef struct Table {
 ** be found when searched in a special way. ('next' needs that to find
 ** keys removed from a table during a traversal.)
 */
-#define setdeadkey(node)	(keytt(node) = NEBULA_TDEADKEY)
-#define keyisdead(node)		(keytt(node) == NEBULA_TDEADKEY)
+#define setdeadkey(node)	(keytt(node) = HYDROGEN_TDEADKEY)
+#define keyisdead(node)		(keytt(node) == HYDROGEN_TDEADKEY)
 
 /* }================================================================== */
 
@@ -778,22 +778,22 @@ typedef struct Table {
 #define sizenode(t)	(twoto((t)->lsizenode))
 
 
-/* size of buffer for 'nebulaO_utf8esc' function */
+/* size of buffer for 'hydrogenO_utf8esc' function */
 #define UTF8BUFFSZ	8
 
-NEBULAI_FUNC int nebulaO_utf8esc (char *buff, unsigned long x);
-NEBULAI_FUNC int nebulaO_ceillog2 (unsigned int x);
-NEBULAI_FUNC int nebulaO_rawarith (nebula_State *L, int op, const TValue *p1,
+HYDROGENI_FUNC int hydrogenO_utf8esc (char *buff, unsigned long x);
+HYDROGENI_FUNC int hydrogenO_ceillog2 (unsigned int x);
+HYDROGENI_FUNC int hydrogenO_rawarith (hydrogen_State *L, int op, const TValue *p1,
                              const TValue *p2, TValue *res);
-NEBULAI_FUNC void nebulaO_arith (nebula_State *L, int op, const TValue *p1,
+HYDROGENI_FUNC void hydrogenO_arith (hydrogen_State *L, int op, const TValue *p1,
                            const TValue *p2, StkId res);
-NEBULAI_FUNC size_t nebulaO_str2num (const char *s, TValue *o);
-NEBULAI_FUNC int nebulaO_hexavalue (int c);
-NEBULAI_FUNC void nebulaO_tostring (nebula_State *L, TValue *obj);
-NEBULAI_FUNC const char *nebulaO_pushvfstring (nebula_State *L, const char *fmt,
+HYDROGENI_FUNC size_t hydrogenO_str2num (const char *s, TValue *o);
+HYDROGENI_FUNC int hydrogenO_hexavalue (int c);
+HYDROGENI_FUNC void hydrogenO_tostring (hydrogen_State *L, TValue *obj);
+HYDROGENI_FUNC const char *hydrogenO_pushvfstring (hydrogen_State *L, const char *fmt,
                                                        va_list argp);
-NEBULAI_FUNC const char *nebulaO_pushfstring (nebula_State *L, const char *fmt, ...);
-NEBULAI_FUNC void nebulaO_chunkid (char *out, const char *source, size_t srclen);
+HYDROGENI_FUNC const char *hydrogenO_pushfstring (hydrogen_State *L, const char *fmt, ...);
+HYDROGENI_FUNC void hydrogenO_chunkid (char *out, const char *source, size_t srclen);
 
 
 #endif

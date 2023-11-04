@@ -1,7 +1,7 @@
 /*
 ** $Id: prefix.h $
-** Definitions for Nebula code that must come before any other header file
-** See Copyright Notice in nebula.h
+** Definitions for Hydrogen code that must come before any other header file
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef prefix_h
@@ -11,7 +11,7 @@
 /*
 ** Allows POSIX/XSI stuff
 */
-#if !defined(NEBULA_USE_C89)	/* { */
+#if !defined(HYDROGEN_USE_C89)	/* { */
 
 #if !defined(_XOPEN_SOURCE)
 #define _XOPEN_SOURCE           600
@@ -22,7 +22,7 @@
 /*
 ** Allows manipulation of large files in gcc and some other compilers
 */
-#if !defined(NEBULA_32BITS) && !defined(_FILE_OFFSET_BITS)
+#if !defined(HYDROGEN_32BITS) && !defined(_FILE_OFFSET_BITS)
 #define _LARGEFILE_SOURCE       1
 #define _FILE_OFFSET_BITS       64
 #endif

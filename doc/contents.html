@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Nebula 5.4 Reference Manual - contents</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="css/nebula.css">
+<TITLE>Hydrogen 5.4 Reference Manual - contents</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="css/hydrogen.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="css/index.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 </HEAD>
@@ -10,15 +10,15 @@
 <BODY>
 
 <H1>
-<A HREF="http://www.nebula.org/"><IMG SRC="img/nebulascript.png" ALT="Nebula"></A>
-Nebula 5.4 Reference Manual
+<A HREF="http://www.hydrogen.org/"><IMG SRC="img/hydrogenscript.png" ALT="Hydrogen"></A>
+Hydrogen 5.4 Reference Manual
 </H1>
 
 <P>
-The reference manual is the official definition of the Nebula language.
+The reference manual is the official definition of the Hydrogen language.
 <BR>
-For a complete introduction to Nebula programming, see the book
-<A HREF="http://www.nebula.org/pil/">Programming in Nebula</A>.
+For a complete introduction to Hydrogen programming, see the book
+<A HREF="http://www.hydrogen.org/pil/">Programming in Hydrogen</A>.
 
 <DIV CLASS="menubar">
 <A HREF="manual.html">start</A>
@@ -27,127 +27,127 @@ For a complete introduction to Nebula programming, see the book
 &middot;
 <A HREF="#index">index</A>
 &middot;
-<A HREF="http://www.nebula.org/manual/">other versions</A>
+<A HREF="http://www.hydrogen.org/manual/">other versions</A>
 </DIV>
 
 <P>
 <SMALL>
-Copyright &copy; 2020&nnebula;2022 Nebula.org, PUC-Rio.
+Copyright &copy; 2020&nhydrogen;2022 Hydrogen.org, PUC-Rio.
 Freely available under the terms of the
-<A HREF="http://www.nebula.org/license.html">Nebula license</A>.
+<A HREF="http://www.hydrogen.org/license.html">Hydrogen license</A>.
 </SMALL>
 
 <H2><A NAME="contents">Contents</A></H2>
 <UL CLASS="contents menubar">
-<LI><A HREF="manual.html">1 &nnebula; Introduction</A>
+<LI><A HREF="manual.html">1 &nhydrogen; Introduction</A>
 <P>
-<LI><A HREF="manual.html#2">2 &nnebula; Basic Concepts</A>
+<LI><A HREF="manual.html#2">2 &nhydrogen; Basic Concepts</A>
 <UL>
-<LI><A HREF="manual.html#2.1">2.1 &nnebula; Values and Types</A>
-<LI><A HREF="manual.html#2.2">2.2 &nnebula; Environments and the Global Environment</A>
-<LI><A HREF="manual.html#2.3">2.3 &nnebula; Error Handling</A>
-<LI><A HREF="manual.html#2.4">2.4 &nnebula; Metatables and Metamethods</A>
-<LI><A HREF="manual.html#2.5">2.5 &nnebula; Garbage Collection</A>
+<LI><A HREF="manual.html#2.1">2.1 &nhydrogen; Values and Types</A>
+<LI><A HREF="manual.html#2.2">2.2 &nhydrogen; Environments and the Global Environment</A>
+<LI><A HREF="manual.html#2.3">2.3 &nhydrogen; Error Handling</A>
+<LI><A HREF="manual.html#2.4">2.4 &nhydrogen; Metatables and Metamethods</A>
+<LI><A HREF="manual.html#2.5">2.5 &nhydrogen; Garbage Collection</A>
 <UL>
-<LI><A HREF="manual.html#2.5.1">2.5.1 &nnebula; Incremental Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.2">2.5.2 &nnebula; Generational Garbage Collection</A>
-<LI><A HREF="manual.html#2.5.3">2.5.3 &nnebula; Garbage-Collection Metamethods</A>
-<LI><A HREF="manual.html#2.5.4">2.5.4 &nnebula; Weak Tables</A>
+<LI><A HREF="manual.html#2.5.1">2.5.1 &nhydrogen; Incremental Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.2">2.5.2 &nhydrogen; Generational Garbage Collection</A>
+<LI><A HREF="manual.html#2.5.3">2.5.3 &nhydrogen; Garbage-Collection Metamethods</A>
+<LI><A HREF="manual.html#2.5.4">2.5.4 &nhydrogen; Weak Tables</A>
 </UL>
-<LI><A HREF="manual.html#2.6">2.6 &nnebula; Coroutines</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#3">3 &nnebula; The Language</A>
-<UL>
-<LI><A HREF="manual.html#3.1">3.1 &nnebula; Lexical Conventions</A>
-<LI><A HREF="manual.html#3.2">3.2 &nnebula; Variables</A>
-<LI><A HREF="manual.html#3.3">3.3 &nnebula; Statements</A>
-<UL>
-<LI><A HREF="manual.html#3.3.1">3.3.1 &nnebula; Blocks</A>
-<LI><A HREF="manual.html#3.3.2">3.3.2 &nnebula; Chunks</A>
-<LI><A HREF="manual.html#3.3.3">3.3.3 &nnebula; Assignment</A>
-<LI><A HREF="manual.html#3.3.4">3.3.4 &nnebula; Control Structures</A>
-<LI><A HREF="manual.html#3.3.5">3.3.5 &nnebula; For Statement</A>
-<LI><A HREF="manual.html#3.3.6">3.3.6 &nnebula; Function Calls as Statements</A>
-<LI><A HREF="manual.html#3.3.7">3.3.7 &nnebula; Local Declarations</A>
-<LI><A HREF="manual.html#3.3.8">3.3.8 &nnebula; To-be-closed Variables</A>
-</UL>
-<LI><A HREF="manual.html#3.4">3.4 &nnebula; Expressions</A>
-<UL>
-<LI><A HREF="manual.html#3.4.1">3.4.1 &nnebula; Arithmetic Operators</A>
-<LI><A HREF="manual.html#3.4.2">3.4.2 &nnebula; Bitwise Operators</A>
-<LI><A HREF="manual.html#3.4.3">3.4.3 &nnebula; Coercions and Conversions</A>
-<LI><A HREF="manual.html#3.4.4">3.4.4 &nnebula; Relational Operators</A>
-<LI><A HREF="manual.html#3.4.5">3.4.5 &nnebula; Logical Operators</A>
-<LI><A HREF="manual.html#3.4.6">3.4.6 &nnebula; Concatenation</A>
-<LI><A HREF="manual.html#3.4.7">3.4.7 &nnebula; The Length Operator</A>
-<LI><A HREF="manual.html#3.4.8">3.4.8 &nnebula; Precedence</A>
-<LI><A HREF="manual.html#3.4.9">3.4.9 &nnebula; Table Constructors</A>
-<LI><A HREF="manual.html#3.4.10">3.4.10 &nnebula; Function Calls</A>
-<LI><A HREF="manual.html#3.4.11">3.4.11 &nnebula; Function Definitions</A>
-</UL>
-<LI><A HREF="manual.html#3.5">3.5 &nnebula; Visibility Rules</A>
+<LI><A HREF="manual.html#2.6">2.6 &nhydrogen; Coroutines</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#4">4 &nnebula; The Application Program Interface</A>
+<LI><A HREF="manual.html#3">3 &nhydrogen; The Language</A>
 <UL>
-<LI><A HREF="manual.html#4.1">4.1 &nnebula; The Stack</A>
+<LI><A HREF="manual.html#3.1">3.1 &nhydrogen; Lexical Conventions</A>
+<LI><A HREF="manual.html#3.2">3.2 &nhydrogen; Variables</A>
+<LI><A HREF="manual.html#3.3">3.3 &nhydrogen; Statements</A>
 <UL>
-<LI><A HREF="manual.html#4.1.1">4.1.1 &nnebula; Stack Size</A>
-<LI><A HREF="manual.html#4.1.2">4.1.2 &nnebula; Valid and Acceptable Indices</A>
-<LI><A HREF="manual.html#4.1.3">4.1.3 &nnebula; Pointers to strings</A>
+<LI><A HREF="manual.html#3.3.1">3.3.1 &nhydrogen; Blocks</A>
+<LI><A HREF="manual.html#3.3.2">3.3.2 &nhydrogen; Chunks</A>
+<LI><A HREF="manual.html#3.3.3">3.3.3 &nhydrogen; Assignment</A>
+<LI><A HREF="manual.html#3.3.4">3.3.4 &nhydrogen; Control Structures</A>
+<LI><A HREF="manual.html#3.3.5">3.3.5 &nhydrogen; For Statement</A>
+<LI><A HREF="manual.html#3.3.6">3.3.6 &nhydrogen; Function Calls as Statements</A>
+<LI><A HREF="manual.html#3.3.7">3.3.7 &nhydrogen; Local Declarations</A>
+<LI><A HREF="manual.html#3.3.8">3.3.8 &nhydrogen; To-be-closed Variables</A>
 </UL>
-<LI><A HREF="manual.html#4.2">4.2 &nnebula; C Closures</A>
-<LI><A HREF="manual.html#4.3">4.3 &nnebula; Registry</A>
-<LI><A HREF="manual.html#4.4">4.4 &nnebula; Error Handling in C</A>
+<LI><A HREF="manual.html#3.4">3.4 &nhydrogen; Expressions</A>
 <UL>
-<LI><A HREF="manual.html#4.4.1">4.4.1 &nnebula; Status Codes</A>
+<LI><A HREF="manual.html#3.4.1">3.4.1 &nhydrogen; Arithmetic Operators</A>
+<LI><A HREF="manual.html#3.4.2">3.4.2 &nhydrogen; Bitwise Operators</A>
+<LI><A HREF="manual.html#3.4.3">3.4.3 &nhydrogen; Coercions and Conversions</A>
+<LI><A HREF="manual.html#3.4.4">3.4.4 &nhydrogen; Relational Operators</A>
+<LI><A HREF="manual.html#3.4.5">3.4.5 &nhydrogen; Logical Operators</A>
+<LI><A HREF="manual.html#3.4.6">3.4.6 &nhydrogen; Concatenation</A>
+<LI><A HREF="manual.html#3.4.7">3.4.7 &nhydrogen; The Length Operator</A>
+<LI><A HREF="manual.html#3.4.8">3.4.8 &nhydrogen; Precedence</A>
+<LI><A HREF="manual.html#3.4.9">3.4.9 &nhydrogen; Table Constructors</A>
+<LI><A HREF="manual.html#3.4.10">3.4.10 &nhydrogen; Function Calls</A>
+<LI><A HREF="manual.html#3.4.11">3.4.11 &nhydrogen; Function Definitions</A>
 </UL>
-<LI><A HREF="manual.html#4.5">4.5 &nnebula; Handling Yields in C</A>
-<LI><A HREF="manual.html#4.6">4.6 &nnebula; Functions and Types</A>
-<LI><A HREF="manual.html#4.7">4.7 &nnebula; The Debug Interface</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#5">5 &nnebula; The Auxiliary Library</A>
-<UL>
-<LI><A HREF="manual.html#5.1">5.1 &nnebula; Functions and Types</A>
-</UL>
-<P>
-<LI><A HREF="manual.html#6">6 &nnebula; The Standard Libraries</A>
-<UL>
-<LI><A HREF="manual.html#6.1">6.1 &nnebula; Basic Functions</A>
-<LI><A HREF="manual.html#6.2">6.2 &nnebula; Coroutine Manipulation</A>
-<LI><A HREF="manual.html#6.3">6.3 &nnebula; Modules</A>
-<LI><A HREF="manual.html#6.4">6.4 &nnebula; String Manipulation</A>
-<UL>
-<LI><A HREF="manual.html#6.4.1">6.4.1 &nnebula; Patterns</A>
-<LI><A HREF="manual.html#6.4.2">6.4.2 &nnebula; Format Strings for Pack and Unpack</A>
-</UL>
-<LI><A HREF="manual.html#6.5">6.5 &nnebula; UTF-8 Support</A>
-<LI><A HREF="manual.html#6.6">6.6 &nnebula; Table Manipulation</A>
-<LI><A HREF="manual.html#6.7">6.7 &nnebula; Mathematical Functions</A>
-<LI><A HREF="manual.html#6.8">6.8 &nnebula; Input and Output Facilities</A>
-<LI><A HREF="manual.html#6.9">6.9 &nnebula; Operating System Facilities</A>
-<LI><A HREF="manual.html#6.10">6.10 &nnebula; The Debug Library</A>
+<LI><A HREF="manual.html#3.5">3.5 &nhydrogen; Visibility Rules</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#7">7 &nnebula; Nebula Standalone</A>
-<P>
-<LI><A HREF="manual.html#8">8 &nnebula; Incompatibilities with the Previous Version</A>
+<LI><A HREF="manual.html#4">4 &nhydrogen; The Application Program Interface</A>
 <UL>
-<LI><A HREF="manual.html#8.1">8.1 &nnebula; Incompatibilities in the Language</A>
-<LI><A HREF="manual.html#8.2">8.2 &nnebula; Incompatibilities in the Libraries</A>
-<LI><A HREF="manual.html#8.3">8.3 &nnebula; Incompatibilities in the API</A>
+<LI><A HREF="manual.html#4.1">4.1 &nhydrogen; The Stack</A>
+<UL>
+<LI><A HREF="manual.html#4.1.1">4.1.1 &nhydrogen; Stack Size</A>
+<LI><A HREF="manual.html#4.1.2">4.1.2 &nhydrogen; Valid and Acceptable Indices</A>
+<LI><A HREF="manual.html#4.1.3">4.1.3 &nhydrogen; Pointers to strings</A>
+</UL>
+<LI><A HREF="manual.html#4.2">4.2 &nhydrogen; C Closures</A>
+<LI><A HREF="manual.html#4.3">4.3 &nhydrogen; Registry</A>
+<LI><A HREF="manual.html#4.4">4.4 &nhydrogen; Error Handling in C</A>
+<UL>
+<LI><A HREF="manual.html#4.4.1">4.4.1 &nhydrogen; Status Codes</A>
+</UL>
+<LI><A HREF="manual.html#4.5">4.5 &nhydrogen; Handling Yields in C</A>
+<LI><A HREF="manual.html#4.6">4.6 &nhydrogen; Functions and Types</A>
+<LI><A HREF="manual.html#4.7">4.7 &nhydrogen; The Debug Interface</A>
 </UL>
 <P>
-<LI><A HREF="manual.html#9">9 &nnebula; The Complete Syntax of Nebula</A>
+<LI><A HREF="manual.html#5">5 &nhydrogen; The Auxiliary Library</A>
+<UL>
+<LI><A HREF="manual.html#5.1">5.1 &nhydrogen; Functions and Types</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#6">6 &nhydrogen; The Standard Libraries</A>
+<UL>
+<LI><A HREF="manual.html#6.1">6.1 &nhydrogen; Basic Functions</A>
+<LI><A HREF="manual.html#6.2">6.2 &nhydrogen; Coroutine Manipulation</A>
+<LI><A HREF="manual.html#6.3">6.3 &nhydrogen; Modules</A>
+<LI><A HREF="manual.html#6.4">6.4 &nhydrogen; String Manipulation</A>
+<UL>
+<LI><A HREF="manual.html#6.4.1">6.4.1 &nhydrogen; Patterns</A>
+<LI><A HREF="manual.html#6.4.2">6.4.2 &nhydrogen; Format Strings for Pack and Unpack</A>
+</UL>
+<LI><A HREF="manual.html#6.5">6.5 &nhydrogen; UTF-8 Support</A>
+<LI><A HREF="manual.html#6.6">6.6 &nhydrogen; Table Manipulation</A>
+<LI><A HREF="manual.html#6.7">6.7 &nhydrogen; Mathematical Functions</A>
+<LI><A HREF="manual.html#6.8">6.8 &nhydrogen; Input and Output Facilities</A>
+<LI><A HREF="manual.html#6.9">6.9 &nhydrogen; Operating System Facilities</A>
+<LI><A HREF="manual.html#6.10">6.10 &nhydrogen; The Debug Library</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#7">7 &nhydrogen; Hydrogen Standalone</A>
+<P>
+<LI><A HREF="manual.html#8">8 &nhydrogen; Incompatibilities with the Previous Version</A>
+<UL>
+<LI><A HREF="manual.html#8.1">8.1 &nhydrogen; Incompatibilities in the Language</A>
+<LI><A HREF="manual.html#8.2">8.2 &nhydrogen; Incompatibilities in the Libraries</A>
+<LI><A HREF="manual.html#8.3">8.3 &nhydrogen; Incompatibilities in the API</A>
+</UL>
+<P>
+<LI><A HREF="manual.html#9">9 &nhydrogen; The Complete Syntax of Hydrogen</A>
 </UL>
 
 <H2><A NAME="index">Index</A></H2>
 <TABLE CLASS="menubar" WIDTH="100%">
 <TR>
 <TD>
-<H3><A NAME="functions">Nebula functions</A></H3>
+<H3><A NAME="functions">Hydrogen functions</A></H3>
 <P>
 <A HREF="manual.html#6.1">basic</A><BR>
 <A HREF="manual.html#pdf-_G">_G</A><BR>
@@ -351,7 +351,7 @@ Freely available under the terms of the
 <A HREF="manual.html#2.4">__mod</A><BR>
 <A HREF="manual.html#2.5.4">__mode</A><BR>
 <A HREF="manual.html#2.4">__mul</A><BR>
-<A HREF="manual.html#nebulaL_newmetatable">__name</A><BR>
+<A HREF="manual.html#hydrogenL_newmetatable">__name</A><BR>
 <A HREF="manual.html#2.4">__newindex</A><BR>
 <A HREF="manual.html#pdf-pairs">__pairs</A><BR>
 <A HREF="manual.html#2.4">__pow</A><BR>
@@ -363,300 +363,300 @@ Freely available under the terms of the
 
 <H3><A NAME="env">environment<BR>variables</A></H3>
 <P>
-<A HREF="manual.html#pdf-NEBULA_CPATH">NEBULA_CPATH</A><BR>
-<A HREF="manual.html#pdf-NEBULA_CPATH_5_4">NEBULA_CPATH_5_4</A><BR>
-<A HREF="manual.html#pdf-NEBULA_INIT">NEBULA_INIT</A><BR>
-<A HREF="manual.html#pdf-NEBULA_INIT_5_4">NEBULA_INIT_5_4</A><BR>
-<A HREF="manual.html#pdf-NEBULA_PATH">NEBULA_PATH</A><BR>
-<A HREF="manual.html#pdf-NEBULA_PATH_5_4">NEBULA_PATH_5_4</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_CPATH">HYDROGEN_CPATH</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_CPATH_5_4">HYDROGEN_CPATH_5_4</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_INIT">HYDROGEN_INIT</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_INIT_5_4">HYDROGEN_INIT_5_4</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_PATH">HYDROGEN_PATH</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_PATH_5_4">HYDROGEN_PATH_5_4</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="api">C API</A></H3>
 <P>
-<A HREF="manual.html#nebula_Alloc">nebula_Alloc</A><BR>
-<A HREF="manual.html#nebula_CFunction">nebula_CFunction</A><BR>
-<A HREF="manual.html#nebula_Debug">nebula_Debug</A><BR>
-<A HREF="manual.html#nebula_Hook">nebula_Hook</A><BR>
-<A HREF="manual.html#nebula_Integer">nebula_Integer</A><BR>
-<A HREF="manual.html#nebula_KContext">nebula_KContext</A><BR>
-<A HREF="manual.html#nebula_KFunction">nebula_KFunction</A><BR>
-<A HREF="manual.html#nebula_Number">nebula_Number</A><BR>
-<A HREF="manual.html#nebula_Reader">nebula_Reader</A><BR>
-<A HREF="manual.html#nebula_State">nebula_State</A><BR>
-<A HREF="manual.html#nebula_Unsigned">nebula_Unsigned</A><BR>
-<A HREF="manual.html#nebula_WarnFunction">nebula_WarnFunction</A><BR>
-<A HREF="manual.html#nebula_Writer">nebula_Writer</A><BR>
+<A HREF="manual.html#hydrogen_Alloc">hydrogen_Alloc</A><BR>
+<A HREF="manual.html#hydrogen_CFunction">hydrogen_CFunction</A><BR>
+<A HREF="manual.html#hydrogen_Debug">hydrogen_Debug</A><BR>
+<A HREF="manual.html#hydrogen_Hook">hydrogen_Hook</A><BR>
+<A HREF="manual.html#hydrogen_Integer">hydrogen_Integer</A><BR>
+<A HREF="manual.html#hydrogen_KContext">hydrogen_KContext</A><BR>
+<A HREF="manual.html#hydrogen_KFunction">hydrogen_KFunction</A><BR>
+<A HREF="manual.html#hydrogen_Number">hydrogen_Number</A><BR>
+<A HREF="manual.html#hydrogen_Reader">hydrogen_Reader</A><BR>
+<A HREF="manual.html#hydrogen_State">hydrogen_State</A><BR>
+<A HREF="manual.html#hydrogen_Unsigned">hydrogen_Unsigned</A><BR>
+<A HREF="manual.html#hydrogen_WarnFunction">hydrogen_WarnFunction</A><BR>
+<A HREF="manual.html#hydrogen_Writer">hydrogen_Writer</A><BR>
 
 <P>
-<A HREF="manual.html#nebula_absindex">nebula_absindex</A><BR>
-<A HREF="manual.html#nebula_arith">nebula_arith</A><BR>
-<A HREF="manual.html#nebula_atpanic">nebula_atpanic</A><BR>
-<A HREF="manual.html#nebula_call">nebula_call</A><BR>
-<A HREF="manual.html#nebula_callk">nebula_callk</A><BR>
-<A HREF="manual.html#nebula_checkstack">nebula_checkstack</A><BR>
-<A HREF="manual.html#nebula_close">nebula_close</A><BR>
-<A HREF="manual.html#nebula_closeslot">nebula_closeslot</A><BR>
-<A HREF="manual.html#nebula_compare">nebula_compare</A><BR>
-<A HREF="manual.html#nebula_concat">nebula_concat</A><BR>
-<A HREF="manual.html#nebula_copy">nebula_copy</A><BR>
-<A HREF="manual.html#nebula_createtable">nebula_createtable</A><BR>
-<A HREF="manual.html#nebula_dump">nebula_dump</A><BR>
-<A HREF="manual.html#nebula_error">nebula_error</A><BR>
-<A HREF="manual.html#nebula_gc">nebula_gc</A><BR>
-<A HREF="manual.html#nebula_getallocf">nebula_getallocf</A><BR>
-<A HREF="manual.html#nebula_getextraspace">nebula_getextraspace</A><BR>
-<A HREF="manual.html#nebula_getfield">nebula_getfield</A><BR>
-<A HREF="manual.html#nebula_getglobal">nebula_getglobal</A><BR>
-<A HREF="manual.html#nebula_gethook">nebula_gethook</A><BR>
-<A HREF="manual.html#nebula_gethookcount">nebula_gethookcount</A><BR>
-<A HREF="manual.html#nebula_gethookmask">nebula_gethookmask</A><BR>
-<A HREF="manual.html#nebula_geti">nebula_geti</A><BR>
-<A HREF="manual.html#nebula_getinfo">nebula_getinfo</A><BR>
-<A HREF="manual.html#nebula_getiuservalue">nebula_getiuservalue</A><BR>
-<A HREF="manual.html#nebula_getlocal">nebula_getlocal</A><BR>
-<A HREF="manual.html#nebula_getmetatable">nebula_getmetatable</A><BR>
-<A HREF="manual.html#nebula_getstack">nebula_getstack</A><BR>
-<A HREF="manual.html#nebula_gettable">nebula_gettable</A><BR>
-<A HREF="manual.html#nebula_gettop">nebula_gettop</A><BR>
-<A HREF="manual.html#nebula_getupvalue">nebula_getupvalue</A><BR>
-<A HREF="manual.html#nebula_insert">nebula_insert</A><BR>
-<A HREF="manual.html#nebula_isboolean">nebula_isboolean</A><BR>
-<A HREF="manual.html#nebula_iscfunction">nebula_iscfunction</A><BR>
-<A HREF="manual.html#nebula_isfunction">nebula_isfunction</A><BR>
-<A HREF="manual.html#nebula_isinteger">nebula_isinteger</A><BR>
-<A HREF="manual.html#nebula_islightuserdata">nebula_islightuserdata</A><BR>
-<A HREF="manual.html#nebula_isnil">nebula_isnil</A><BR>
-<A HREF="manual.html#nebula_isnone">nebula_isnone</A><BR>
-<A HREF="manual.html#nebula_isnoneornil">nebula_isnoneornil</A><BR>
-<A HREF="manual.html#nebula_isnumber">nebula_isnumber</A><BR>
-<A HREF="manual.html#nebula_isstring">nebula_isstring</A><BR>
-<A HREF="manual.html#nebula_istable">nebula_istable</A><BR>
-<A HREF="manual.html#nebula_isthread">nebula_isthread</A><BR>
-<A HREF="manual.html#nebula_isuserdata">nebula_isuserdata</A><BR>
-<A HREF="manual.html#nebula_isyieldable">nebula_isyieldable</A><BR>
-<A HREF="manual.html#nebula_len">nebula_len</A><BR>
-<A HREF="manual.html#nebula_load">nebula_load</A><BR>
-<A HREF="manual.html#nebula_newstate">nebula_newstate</A><BR>
-<A HREF="manual.html#nebula_newtable">nebula_newtable</A><BR>
-<A HREF="manual.html#nebula_newthread">nebula_newthread</A><BR>
-<A HREF="manual.html#nebula_newuserdatauv">nebula_newuserdatauv</A><BR>
-<A HREF="manual.html#nebula_next">nebula_next</A><BR>
-<A HREF="manual.html#nebula_numbertointeger">nebula_numbertointeger</A><BR>
-<A HREF="manual.html#nebula_pcall">nebula_pcall</A><BR>
-<A HREF="manual.html#nebula_pcallk">nebula_pcallk</A><BR>
-<A HREF="manual.html#nebula_pop">nebula_pop</A><BR>
-<A HREF="manual.html#nebula_pushboolean">nebula_pushboolean</A><BR>
-<A HREF="manual.html#nebula_pushcclosure">nebula_pushcclosure</A><BR>
-<A HREF="manual.html#nebula_pushcfunction">nebula_pushcfunction</A><BR>
-<A HREF="manual.html#nebula_pushfstring">nebula_pushfstring</A><BR>
-<A HREF="manual.html#nebula_pushglobatable">nebula_pushglobatable</A><BR>
-<A HREF="manual.html#nebula_pushinteger">nebula_pushinteger</A><BR>
-<A HREF="manual.html#nebula_pushlightuserdata">nebula_pushlightuserdata</A><BR>
-<A HREF="manual.html#nebula_pushliteral">nebula_pushliteral</A><BR>
-<A HREF="manual.html#nebula_pushstring">nebula_pushstring</A><BR>
-<A HREF="manual.html#nebula_pushnil">nebula_pushnil</A><BR>
-<A HREF="manual.html#nebula_pushnumber">nebula_pushnumber</A><BR>
-<A HREF="manual.html#nebula_pushstring">nebula_pushstring</A><BR>
-<A HREF="manual.html#nebula_pushthread">nebula_pushthread</A><BR>
-<A HREF="manual.html#nebula_pushvalue">nebula_pushvalue</A><BR>
-<A HREF="manual.html#nebula_pushvfstring">nebula_pushvfstring</A><BR>
-<A HREF="manual.html#nebula_rawequal">nebula_rawequal</A><BR>
-<A HREF="manual.html#nebula_rawget">nebula_rawget</A><BR>
-<A HREF="manual.html#nebula_rawgeti">nebula_rawgeti</A><BR>
-<A HREF="manual.html#nebula_rawgetp">nebula_rawgetp</A><BR>
-<A HREF="manual.html#nebula_rawlen">nebula_rawlen</A><BR>
-<A HREF="manual.html#nebula_rawset">nebula_rawset</A><BR>
-<A HREF="manual.html#nebula_rawseti">nebula_rawseti</A><BR>
-<A HREF="manual.html#nebula_rawsetp">nebula_rawsetp</A><BR>
-<A HREF="manual.html#nebula_register">nebula_register</A><BR>
-<A HREF="manual.html#nebula_remove">nebula_remove</A><BR>
-<A HREF="manual.html#nebula_replace">nebula_replace</A><BR>
-<A HREF="manual.html#nebula_resetthread">nebula_resetthread</A><BR>
-<A HREF="manual.html#nebula_resume">nebula_resume</A><BR>
-<A HREF="manual.html#nebula_rotate">nebula_rotate</A><BR>
-<A HREF="manual.html#nebula_setallocf">nebula_setallocf</A><BR>
-<A HREF="manual.html#nebula_setfield">nebula_setfield</A><BR>
-<A HREF="manual.html#nebula_setglobal">nebula_setglobal</A><BR>
-<A HREF="manual.html#nebula_sethook">nebula_sethook</A><BR>
-<A HREF="manual.html#nebula_seti">nebula_seti</A><BR>
-<A HREF="manual.html#nebula_setiuservalue">nebula_setiuservalue</A><BR>
-<A HREF="manual.html#nebula_setlocal">nebula_setlocal</A><BR>
-<A HREF="manual.html#nebula_setmetatable">nebula_setmetatable</A><BR>
-<A HREF="manual.html#nebula_settable">nebula_settable</A><BR>
-<A HREF="manual.html#nebula_settop">nebula_settop</A><BR>
-<A HREF="manual.html#nebula_setupvalue">nebula_setupvalue</A><BR>
-<A HREF="manual.html#nebula_setwarnf">nebula_setwarnf</A><BR>
-<A HREF="manual.html#nebula_status">nebula_status</A><BR>
-<A HREF="manual.html#nebula_stringtonumber">nebula_stringtonumber</A><BR>
-<A HREF="manual.html#nebula_toboolean">nebula_toboolean</A><BR>
-<A HREF="manual.html#nebula_tocfunction">nebula_tocfunction</A><BR>
-<A HREF="manual.html#nebula_toclose">nebula_toclose</A><BR>
-<A HREF="manual.html#nebula_tointeger">nebula_tointeger</A><BR>
-<A HREF="manual.html#nebula_tointegerx">nebula_tointegerx</A><BR>
-<A HREF="manual.html#nebula_tostring">nebula_tostring</A><BR>
-<A HREF="manual.html#nebula_tonumber">nebula_tonumber</A><BR>
-<A HREF="manual.html#nebula_tonumberx">nebula_tonumberx</A><BR>
-<A HREF="manual.html#nebula_topointer">nebula_topointer</A><BR>
-<A HREF="manual.html#nebula_tostring">nebula_tostring</A><BR>
-<A HREF="manual.html#nebula_tothread">nebula_tothread</A><BR>
-<A HREF="manual.html#nebula_touserdata">nebula_touserdata</A><BR>
-<A HREF="manual.html#nebula_type">nebula_type</A><BR>
-<A HREF="manual.html#nebula_typename">nebula_typename</A><BR>
-<A HREF="manual.html#nebula_upvalueid">nebula_upvalueid</A><BR>
-<A HREF="manual.html#nebula_upvalueindex">nebula_upvalueindex</A><BR>
-<A HREF="manual.html#nebula_upvaluejoin">nebula_upvaluejoin</A><BR>
-<A HREF="manual.html#nebula_version">nebula_version</A><BR>
-<A HREF="manual.html#nebula_warning">nebula_warning</A><BR>
-<A HREF="manual.html#nebula_xmove">nebula_xmove</A><BR>
-<A HREF="manual.html#nebula_yield">nebula_yield</A><BR>
-<A HREF="manual.html#nebula_yieldk">nebula_yieldk</A><BR>
+<A HREF="manual.html#hydrogen_absindex">hydrogen_absindex</A><BR>
+<A HREF="manual.html#hydrogen_arith">hydrogen_arith</A><BR>
+<A HREF="manual.html#hydrogen_atpanic">hydrogen_atpanic</A><BR>
+<A HREF="manual.html#hydrogen_call">hydrogen_call</A><BR>
+<A HREF="manual.html#hydrogen_callk">hydrogen_callk</A><BR>
+<A HREF="manual.html#hydrogen_checkstack">hydrogen_checkstack</A><BR>
+<A HREF="manual.html#hydrogen_close">hydrogen_close</A><BR>
+<A HREF="manual.html#hydrogen_closeslot">hydrogen_closeslot</A><BR>
+<A HREF="manual.html#hydrogen_compare">hydrogen_compare</A><BR>
+<A HREF="manual.html#hydrogen_concat">hydrogen_concat</A><BR>
+<A HREF="manual.html#hydrogen_copy">hydrogen_copy</A><BR>
+<A HREF="manual.html#hydrogen_createtable">hydrogen_createtable</A><BR>
+<A HREF="manual.html#hydrogen_dump">hydrogen_dump</A><BR>
+<A HREF="manual.html#hydrogen_error">hydrogen_error</A><BR>
+<A HREF="manual.html#hydrogen_gc">hydrogen_gc</A><BR>
+<A HREF="manual.html#hydrogen_getallocf">hydrogen_getallocf</A><BR>
+<A HREF="manual.html#hydrogen_getextraspace">hydrogen_getextraspace</A><BR>
+<A HREF="manual.html#hydrogen_getfield">hydrogen_getfield</A><BR>
+<A HREF="manual.html#hydrogen_getglobal">hydrogen_getglobal</A><BR>
+<A HREF="manual.html#hydrogen_gethook">hydrogen_gethook</A><BR>
+<A HREF="manual.html#hydrogen_gethookcount">hydrogen_gethookcount</A><BR>
+<A HREF="manual.html#hydrogen_gethookmask">hydrogen_gethookmask</A><BR>
+<A HREF="manual.html#hydrogen_geti">hydrogen_geti</A><BR>
+<A HREF="manual.html#hydrogen_getinfo">hydrogen_getinfo</A><BR>
+<A HREF="manual.html#hydrogen_getiuservalue">hydrogen_getiuservalue</A><BR>
+<A HREF="manual.html#hydrogen_getlocal">hydrogen_getlocal</A><BR>
+<A HREF="manual.html#hydrogen_getmetatable">hydrogen_getmetatable</A><BR>
+<A HREF="manual.html#hydrogen_getstack">hydrogen_getstack</A><BR>
+<A HREF="manual.html#hydrogen_gettable">hydrogen_gettable</A><BR>
+<A HREF="manual.html#hydrogen_gettop">hydrogen_gettop</A><BR>
+<A HREF="manual.html#hydrogen_getupvalue">hydrogen_getupvalue</A><BR>
+<A HREF="manual.html#hydrogen_insert">hydrogen_insert</A><BR>
+<A HREF="manual.html#hydrogen_isboolean">hydrogen_isboolean</A><BR>
+<A HREF="manual.html#hydrogen_iscfunction">hydrogen_iscfunction</A><BR>
+<A HREF="manual.html#hydrogen_isfunction">hydrogen_isfunction</A><BR>
+<A HREF="manual.html#hydrogen_isinteger">hydrogen_isinteger</A><BR>
+<A HREF="manual.html#hydrogen_islightuserdata">hydrogen_islightuserdata</A><BR>
+<A HREF="manual.html#hydrogen_isnil">hydrogen_isnil</A><BR>
+<A HREF="manual.html#hydrogen_isnone">hydrogen_isnone</A><BR>
+<A HREF="manual.html#hydrogen_isnoneornil">hydrogen_isnoneornil</A><BR>
+<A HREF="manual.html#hydrogen_isnumber">hydrogen_isnumber</A><BR>
+<A HREF="manual.html#hydrogen_isstring">hydrogen_isstring</A><BR>
+<A HREF="manual.html#hydrogen_istable">hydrogen_istable</A><BR>
+<A HREF="manual.html#hydrogen_isthread">hydrogen_isthread</A><BR>
+<A HREF="manual.html#hydrogen_isuserdata">hydrogen_isuserdata</A><BR>
+<A HREF="manual.html#hydrogen_isyieldable">hydrogen_isyieldable</A><BR>
+<A HREF="manual.html#hydrogen_len">hydrogen_len</A><BR>
+<A HREF="manual.html#hydrogen_load">hydrogen_load</A><BR>
+<A HREF="manual.html#hydrogen_newstate">hydrogen_newstate</A><BR>
+<A HREF="manual.html#hydrogen_newtable">hydrogen_newtable</A><BR>
+<A HREF="manual.html#hydrogen_newthread">hydrogen_newthread</A><BR>
+<A HREF="manual.html#hydrogen_newuserdatauv">hydrogen_newuserdatauv</A><BR>
+<A HREF="manual.html#hydrogen_next">hydrogen_next</A><BR>
+<A HREF="manual.html#hydrogen_numbertointeger">hydrogen_numbertointeger</A><BR>
+<A HREF="manual.html#hydrogen_pcall">hydrogen_pcall</A><BR>
+<A HREF="manual.html#hydrogen_pcallk">hydrogen_pcallk</A><BR>
+<A HREF="manual.html#hydrogen_pop">hydrogen_pop</A><BR>
+<A HREF="manual.html#hydrogen_pushboolean">hydrogen_pushboolean</A><BR>
+<A HREF="manual.html#hydrogen_pushcclosure">hydrogen_pushcclosure</A><BR>
+<A HREF="manual.html#hydrogen_pushcfunction">hydrogen_pushcfunction</A><BR>
+<A HREF="manual.html#hydrogen_pushfstring">hydrogen_pushfstring</A><BR>
+<A HREF="manual.html#hydrogen_pushglobatable">hydrogen_pushglobatable</A><BR>
+<A HREF="manual.html#hydrogen_pushinteger">hydrogen_pushinteger</A><BR>
+<A HREF="manual.html#hydrogen_pushlightuserdata">hydrogen_pushlightuserdata</A><BR>
+<A HREF="manual.html#hydrogen_pushliteral">hydrogen_pushliteral</A><BR>
+<A HREF="manual.html#hydrogen_pushstring">hydrogen_pushstring</A><BR>
+<A HREF="manual.html#hydrogen_pushnil">hydrogen_pushnil</A><BR>
+<A HREF="manual.html#hydrogen_pushnumber">hydrogen_pushnumber</A><BR>
+<A HREF="manual.html#hydrogen_pushstring">hydrogen_pushstring</A><BR>
+<A HREF="manual.html#hydrogen_pushthread">hydrogen_pushthread</A><BR>
+<A HREF="manual.html#hydrogen_pushvalue">hydrogen_pushvalue</A><BR>
+<A HREF="manual.html#hydrogen_pushvfstring">hydrogen_pushvfstring</A><BR>
+<A HREF="manual.html#hydrogen_rawequal">hydrogen_rawequal</A><BR>
+<A HREF="manual.html#hydrogen_rawget">hydrogen_rawget</A><BR>
+<A HREF="manual.html#hydrogen_rawgeti">hydrogen_rawgeti</A><BR>
+<A HREF="manual.html#hydrogen_rawgetp">hydrogen_rawgetp</A><BR>
+<A HREF="manual.html#hydrogen_rawlen">hydrogen_rawlen</A><BR>
+<A HREF="manual.html#hydrogen_rawset">hydrogen_rawset</A><BR>
+<A HREF="manual.html#hydrogen_rawseti">hydrogen_rawseti</A><BR>
+<A HREF="manual.html#hydrogen_rawsetp">hydrogen_rawsetp</A><BR>
+<A HREF="manual.html#hydrogen_register">hydrogen_register</A><BR>
+<A HREF="manual.html#hydrogen_remove">hydrogen_remove</A><BR>
+<A HREF="manual.html#hydrogen_replace">hydrogen_replace</A><BR>
+<A HREF="manual.html#hydrogen_resetthread">hydrogen_resetthread</A><BR>
+<A HREF="manual.html#hydrogen_resume">hydrogen_resume</A><BR>
+<A HREF="manual.html#hydrogen_rotate">hydrogen_rotate</A><BR>
+<A HREF="manual.html#hydrogen_setallocf">hydrogen_setallocf</A><BR>
+<A HREF="manual.html#hydrogen_setfield">hydrogen_setfield</A><BR>
+<A HREF="manual.html#hydrogen_setglobal">hydrogen_setglobal</A><BR>
+<A HREF="manual.html#hydrogen_sethook">hydrogen_sethook</A><BR>
+<A HREF="manual.html#hydrogen_seti">hydrogen_seti</A><BR>
+<A HREF="manual.html#hydrogen_setiuservalue">hydrogen_setiuservalue</A><BR>
+<A HREF="manual.html#hydrogen_setlocal">hydrogen_setlocal</A><BR>
+<A HREF="manual.html#hydrogen_setmetatable">hydrogen_setmetatable</A><BR>
+<A HREF="manual.html#hydrogen_settable">hydrogen_settable</A><BR>
+<A HREF="manual.html#hydrogen_settop">hydrogen_settop</A><BR>
+<A HREF="manual.html#hydrogen_setupvalue">hydrogen_setupvalue</A><BR>
+<A HREF="manual.html#hydrogen_setwarnf">hydrogen_setwarnf</A><BR>
+<A HREF="manual.html#hydrogen_status">hydrogen_status</A><BR>
+<A HREF="manual.html#hydrogen_stringtonumber">hydrogen_stringtonumber</A><BR>
+<A HREF="manual.html#hydrogen_toboolean">hydrogen_toboolean</A><BR>
+<A HREF="manual.html#hydrogen_tocfunction">hydrogen_tocfunction</A><BR>
+<A HREF="manual.html#hydrogen_toclose">hydrogen_toclose</A><BR>
+<A HREF="manual.html#hydrogen_tointeger">hydrogen_tointeger</A><BR>
+<A HREF="manual.html#hydrogen_tointegerx">hydrogen_tointegerx</A><BR>
+<A HREF="manual.html#hydrogen_tostring">hydrogen_tostring</A><BR>
+<A HREF="manual.html#hydrogen_tonumber">hydrogen_tonumber</A><BR>
+<A HREF="manual.html#hydrogen_tonumberx">hydrogen_tonumberx</A><BR>
+<A HREF="manual.html#hydrogen_topointer">hydrogen_topointer</A><BR>
+<A HREF="manual.html#hydrogen_tostring">hydrogen_tostring</A><BR>
+<A HREF="manual.html#hydrogen_tothread">hydrogen_tothread</A><BR>
+<A HREF="manual.html#hydrogen_touserdata">hydrogen_touserdata</A><BR>
+<A HREF="manual.html#hydrogen_type">hydrogen_type</A><BR>
+<A HREF="manual.html#hydrogen_typename">hydrogen_typename</A><BR>
+<A HREF="manual.html#hydrogen_upvalueid">hydrogen_upvalueid</A><BR>
+<A HREF="manual.html#hydrogen_upvalueindex">hydrogen_upvalueindex</A><BR>
+<A HREF="manual.html#hydrogen_upvaluejoin">hydrogen_upvaluejoin</A><BR>
+<A HREF="manual.html#hydrogen_version">hydrogen_version</A><BR>
+<A HREF="manual.html#hydrogen_warning">hydrogen_warning</A><BR>
+<A HREF="manual.html#hydrogen_xmove">hydrogen_xmove</A><BR>
+<A HREF="manual.html#hydrogen_yield">hydrogen_yield</A><BR>
+<A HREF="manual.html#hydrogen_yieldk">hydrogen_yieldk</A><BR>
 
 </TD>
 <TD>
 <H3><A NAME="auxlib">auxiliary library</A></H3>
 <P>
-<A HREF="manual.html#nebulaL_Buffer">nebulaL_Buffer</A><BR>
-<A HREF="manual.html#nebulaL_Reg">nebulaL_Reg</A><BR>
-<A HREF="manual.html#nebulaL_Stream">nebulaL_Stream</A><BR>
+<A HREF="manual.html#hydrogenL_Buffer">hydrogenL_Buffer</A><BR>
+<A HREF="manual.html#hydrogenL_Reg">hydrogenL_Reg</A><BR>
+<A HREF="manual.html#hydrogenL_Stream">hydrogenL_Stream</A><BR>
 
 <P>
-<A HREF="manual.html#nebulaL_addchar">nebulaL_addchar</A><BR>
-<A HREF="manual.html#nebulaL_addgsub">nebulaL_addgsub</A><BR>
-<A HREF="manual.html#nebulaL_addstring">nebulaL_addstring</A><BR>
-<A HREF="manual.html#nebulaL_addsize">nebulaL_addsize</A><BR>
-<A HREF="manual.html#nebulaL_addstring">nebulaL_addstring</A><BR>
-<A HREF="manual.html#nebulaL_addvalue">nebulaL_addvalue</A><BR>
-<A HREF="manual.html#nebulaL_argcheck">nebulaL_argcheck</A><BR>
-<A HREF="manual.html#nebulaL_argerror">nebulaL_argerror</A><BR>
-<A HREF="manual.html#nebulaL_argexpected">nebulaL_argexpected</A><BR>
-<A HREF="manual.html#nebulaL_buffaddr">nebulaL_buffaddr</A><BR>
-<A HREF="manual.html#nebulaL_buffinit">nebulaL_buffinit</A><BR>
-<A HREF="manual.html#nebulaL_buffinitsize">nebulaL_buffinitsize</A><BR>
-<A HREF="manual.html#nebulaL_bufflen">nebulaL_bufflen</A><BR>
-<A HREF="manual.html#nebulaL_buffsub">nebulaL_buffsub</A><BR>
-<A HREF="manual.html#nebulaL_callmeta">nebulaL_callmeta</A><BR>
-<A HREF="manual.html#nebulaL_checkany">nebulaL_checkany</A><BR>
-<A HREF="manual.html#nebulaL_checkinteger">nebulaL_checkinteger</A><BR>
-<A HREF="manual.html#nebulaL_checkstring">nebulaL_checkstring</A><BR>
-<A HREF="manual.html#nebulaL_checknumber">nebulaL_checknumber</A><BR>
-<A HREF="manual.html#nebulaL_checkoption">nebulaL_checkoption</A><BR>
-<A HREF="manual.html#nebulaL_checkstack">nebulaL_checkstack</A><BR>
-<A HREF="manual.html#nebulaL_checkstring">nebulaL_checkstring</A><BR>
-<A HREF="manual.html#nebulaL_checktype">nebulaL_checktype</A><BR>
-<A HREF="manual.html#nebulaL_checkudata">nebulaL_checkudata</A><BR>
-<A HREF="manual.html#nebulaL_checkversion">nebulaL_checkversion</A><BR>
-<A HREF="manual.html#nebulaL_dofile">nebulaL_dofile</A><BR>
-<A HREF="manual.html#nebulaL_dostring">nebulaL_dostring</A><BR>
-<A HREF="manual.html#nebulaL_error">nebulaL_error</A><BR>
-<A HREF="manual.html#nebulaL_execresult">nebulaL_execresult</A><BR>
-<A HREF="manual.html#nebulaL_fileresult">nebulaL_fileresult</A><BR>
-<A HREF="manual.html#nebulaL_getmetafield">nebulaL_getmetafield</A><BR>
-<A HREF="manual.html#nebulaL_getmetatable">nebulaL_getmetatable</A><BR>
-<A HREF="manual.html#nebulaL_getsubtable">nebulaL_getsubtable</A><BR>
-<A HREF="manual.html#nebulaL_gsub">nebulaL_gsub</A><BR>
-<A HREF="manual.html#nebulaL_len">nebulaL_len</A><BR>
-<A HREF="manual.html#nebulaL_loadbuffer">nebulaL_loadbuffer</A><BR>
-<A HREF="manual.html#nebulaL_loadbufferx">nebulaL_loadbufferx</A><BR>
-<A HREF="manual.html#nebulaL_loadfile">nebulaL_loadfile</A><BR>
-<A HREF="manual.html#nebulaL_loadfilex">nebulaL_loadfilex</A><BR>
-<A HREF="manual.html#nebulaL_loadstring">nebulaL_loadstring</A><BR>
-<A HREF="manual.html#nebulaL_newlib">nebulaL_newlib</A><BR>
-<A HREF="manual.html#nebulaL_newlibtable">nebulaL_newlibtable</A><BR>
-<A HREF="manual.html#nebulaL_newmetatable">nebulaL_newmetatable</A><BR>
-<A HREF="manual.html#nebulaL_newstate">nebulaL_newstate</A><BR>
-<A HREF="manual.html#nebulaL_openlibs">nebulaL_openlibs</A><BR>
-<A HREF="manual.html#nebulaL_opt">nebulaL_opt</A><BR>
-<A HREF="manual.html#nebulaL_optinteger">nebulaL_optinteger</A><BR>
-<A HREF="manual.html#nebulaL_optstring">nebulaL_optstring</A><BR>
-<A HREF="manual.html#nebulaL_optnumber">nebulaL_optnumber</A><BR>
-<A HREF="manual.html#nebulaL_optstring">nebulaL_optstring</A><BR>
-<A HREF="manual.html#nebulaL_prepbuffer">nebulaL_prepbuffer</A><BR>
-<A HREF="manual.html#nebulaL_prepbuffsize">nebulaL_prepbuffsize</A><BR>
-<A HREF="manual.html#nebulaL_pushfail">nebulaL_pushfail</A><BR>
-<A HREF="manual.html#nebulaL_pushresult">nebulaL_pushresult</A><BR>
-<A HREF="manual.html#nebulaL_pushresultsize">nebulaL_pushresultsize</A><BR>
-<A HREF="manual.html#nebulaL_ref">nebulaL_ref</A><BR>
-<A HREF="manual.html#nebulaL_requiref">nebulaL_requiref</A><BR>
-<A HREF="manual.html#nebulaL_setfuncs">nebulaL_setfuncs</A><BR>
-<A HREF="manual.html#nebulaL_setmetatable">nebulaL_setmetatable</A><BR>
-<A HREF="manual.html#nebulaL_testudata">nebulaL_testudata</A><BR>
-<A HREF="manual.html#nebulaL_tostring">nebulaL_tostring</A><BR>
-<A HREF="manual.html#nebulaL_traceback">nebulaL_traceback</A><BR>
-<A HREF="manual.html#nebulaL_typeerror">nebulaL_typeerror</A><BR>
-<A HREF="manual.html#nebulaL_typename">nebulaL_typename</A><BR>
-<A HREF="manual.html#nebulaL_unref">nebulaL_unref</A><BR>
-<A HREF="manual.html#nebulaL_where">nebulaL_where</A><BR>
+<A HREF="manual.html#hydrogenL_addchar">hydrogenL_addchar</A><BR>
+<A HREF="manual.html#hydrogenL_addgsub">hydrogenL_addgsub</A><BR>
+<A HREF="manual.html#hydrogenL_addstring">hydrogenL_addstring</A><BR>
+<A HREF="manual.html#hydrogenL_addsize">hydrogenL_addsize</A><BR>
+<A HREF="manual.html#hydrogenL_addstring">hydrogenL_addstring</A><BR>
+<A HREF="manual.html#hydrogenL_addvalue">hydrogenL_addvalue</A><BR>
+<A HREF="manual.html#hydrogenL_argcheck">hydrogenL_argcheck</A><BR>
+<A HREF="manual.html#hydrogenL_argerror">hydrogenL_argerror</A><BR>
+<A HREF="manual.html#hydrogenL_argexpected">hydrogenL_argexpected</A><BR>
+<A HREF="manual.html#hydrogenL_buffaddr">hydrogenL_buffaddr</A><BR>
+<A HREF="manual.html#hydrogenL_buffinit">hydrogenL_buffinit</A><BR>
+<A HREF="manual.html#hydrogenL_buffinitsize">hydrogenL_buffinitsize</A><BR>
+<A HREF="manual.html#hydrogenL_bufflen">hydrogenL_bufflen</A><BR>
+<A HREF="manual.html#hydrogenL_buffsub">hydrogenL_buffsub</A><BR>
+<A HREF="manual.html#hydrogenL_callmeta">hydrogenL_callmeta</A><BR>
+<A HREF="manual.html#hydrogenL_checkany">hydrogenL_checkany</A><BR>
+<A HREF="manual.html#hydrogenL_checkinteger">hydrogenL_checkinteger</A><BR>
+<A HREF="manual.html#hydrogenL_checkstring">hydrogenL_checkstring</A><BR>
+<A HREF="manual.html#hydrogenL_checknumber">hydrogenL_checknumber</A><BR>
+<A HREF="manual.html#hydrogenL_checkoption">hydrogenL_checkoption</A><BR>
+<A HREF="manual.html#hydrogenL_checkstack">hydrogenL_checkstack</A><BR>
+<A HREF="manual.html#hydrogenL_checkstring">hydrogenL_checkstring</A><BR>
+<A HREF="manual.html#hydrogenL_checktype">hydrogenL_checktype</A><BR>
+<A HREF="manual.html#hydrogenL_checkudata">hydrogenL_checkudata</A><BR>
+<A HREF="manual.html#hydrogenL_checkversion">hydrogenL_checkversion</A><BR>
+<A HREF="manual.html#hydrogenL_dofile">hydrogenL_dofile</A><BR>
+<A HREF="manual.html#hydrogenL_dostring">hydrogenL_dostring</A><BR>
+<A HREF="manual.html#hydrogenL_error">hydrogenL_error</A><BR>
+<A HREF="manual.html#hydrogenL_execresult">hydrogenL_execresult</A><BR>
+<A HREF="manual.html#hydrogenL_fileresult">hydrogenL_fileresult</A><BR>
+<A HREF="manual.html#hydrogenL_getmetafield">hydrogenL_getmetafield</A><BR>
+<A HREF="manual.html#hydrogenL_getmetatable">hydrogenL_getmetatable</A><BR>
+<A HREF="manual.html#hydrogenL_getsubtable">hydrogenL_getsubtable</A><BR>
+<A HREF="manual.html#hydrogenL_gsub">hydrogenL_gsub</A><BR>
+<A HREF="manual.html#hydrogenL_len">hydrogenL_len</A><BR>
+<A HREF="manual.html#hydrogenL_loadbuffer">hydrogenL_loadbuffer</A><BR>
+<A HREF="manual.html#hydrogenL_loadbufferx">hydrogenL_loadbufferx</A><BR>
+<A HREF="manual.html#hydrogenL_loadfile">hydrogenL_loadfile</A><BR>
+<A HREF="manual.html#hydrogenL_loadfilex">hydrogenL_loadfilex</A><BR>
+<A HREF="manual.html#hydrogenL_loadstring">hydrogenL_loadstring</A><BR>
+<A HREF="manual.html#hydrogenL_newlib">hydrogenL_newlib</A><BR>
+<A HREF="manual.html#hydrogenL_newlibtable">hydrogenL_newlibtable</A><BR>
+<A HREF="manual.html#hydrogenL_newmetatable">hydrogenL_newmetatable</A><BR>
+<A HREF="manual.html#hydrogenL_newstate">hydrogenL_newstate</A><BR>
+<A HREF="manual.html#hydrogenL_openlibs">hydrogenL_openlibs</A><BR>
+<A HREF="manual.html#hydrogenL_opt">hydrogenL_opt</A><BR>
+<A HREF="manual.html#hydrogenL_optinteger">hydrogenL_optinteger</A><BR>
+<A HREF="manual.html#hydrogenL_optstring">hydrogenL_optstring</A><BR>
+<A HREF="manual.html#hydrogenL_optnumber">hydrogenL_optnumber</A><BR>
+<A HREF="manual.html#hydrogenL_optstring">hydrogenL_optstring</A><BR>
+<A HREF="manual.html#hydrogenL_prepbuffer">hydrogenL_prepbuffer</A><BR>
+<A HREF="manual.html#hydrogenL_prepbuffsize">hydrogenL_prepbuffsize</A><BR>
+<A HREF="manual.html#hydrogenL_pushfail">hydrogenL_pushfail</A><BR>
+<A HREF="manual.html#hydrogenL_pushresult">hydrogenL_pushresult</A><BR>
+<A HREF="manual.html#hydrogenL_pushresultsize">hydrogenL_pushresultsize</A><BR>
+<A HREF="manual.html#hydrogenL_ref">hydrogenL_ref</A><BR>
+<A HREF="manual.html#hydrogenL_requiref">hydrogenL_requiref</A><BR>
+<A HREF="manual.html#hydrogenL_setfuncs">hydrogenL_setfuncs</A><BR>
+<A HREF="manual.html#hydrogenL_setmetatable">hydrogenL_setmetatable</A><BR>
+<A HREF="manual.html#hydrogenL_testudata">hydrogenL_testudata</A><BR>
+<A HREF="manual.html#hydrogenL_tostring">hydrogenL_tostring</A><BR>
+<A HREF="manual.html#hydrogenL_traceback">hydrogenL_traceback</A><BR>
+<A HREF="manual.html#hydrogenL_typeerror">hydrogenL_typeerror</A><BR>
+<A HREF="manual.html#hydrogenL_typename">hydrogenL_typename</A><BR>
+<A HREF="manual.html#hydrogenL_unref">hydrogenL_unref</A><BR>
+<A HREF="manual.html#hydrogenL_where">hydrogenL_where</A><BR>
 
 <H3><A NAME="library">standard library</A></H3>
 <P>
-<A HREF="manual.html#pdf-nebulaopen_base">nebulaopen_base</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_coroutine">nebulaopen_coroutine</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_debug">nebulaopen_debug</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_io">nebulaopen_io</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_math">nebulaopen_math</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_os">nebulaopen_os</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_package">nebulaopen_package</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_string">nebulaopen_string</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_table">nebulaopen_table</A><BR>
-<A HREF="manual.html#pdf-nebulaopen_utf8">nebulaopen_utf8</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_base">hydrogenopen_base</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_coroutine">hydrogenopen_coroutine</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_debug">hydrogenopen_debug</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_io">hydrogenopen_io</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_math">hydrogenopen_math</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_os">hydrogenopen_os</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_package">hydrogenopen_package</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_string">hydrogenopen_string</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_table">hydrogenopen_table</A><BR>
+<A HREF="manual.html#pdf-hydrogenopen_utf8">hydrogenopen_utf8</A><BR>
 
 <H3><A NAME="constants">constants</A></H3>
 <P>
-<A HREF="manual.html#pdf-NEBULA_ERRERR">NEBULA_ERRERR</A><BR>
-<A HREF="manual.html#pdf-NEBULA_ERRFILE">NEBULA_ERRFILE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_ERRMEM">NEBULA_ERRMEM</A><BR>
-<A HREF="manual.html#pdf-NEBULA_ERRRUN">NEBULA_ERRRUN</A><BR>
-<A HREF="manual.html#pdf-NEBULA_ERRSYNTAX">NEBULA_ERRSYNTAX</A><BR>
-<A HREF="manual.html#pdf-NEBULA_HOOKCALL">NEBULA_HOOKCALL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_HOOKCOUNT">NEBULA_HOOKCOUNT</A><BR>
-<A HREF="manual.html#pdf-NEBULA_HOOKLINE">NEBULA_HOOKLINE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_HOOKRET">NEBULA_HOOKRET</A><BR>
-<A HREF="manual.html#pdf-NEBULA_HOOKTAILCALL">NEBULA_HOOKTAILCALL</A><BR>
-<A HREF="manual.html#pdf-NEBULAL_BUFFERSIZE">NEBULAL_BUFFERSIZE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MASKCALL">NEBULA_MASKCALL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MASKCOUNT">NEBULA_MASKCOUNT</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MASKLINE">NEBULA_MASKLINE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MASKRET">NEBULA_MASKRET</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MAXINTEGER">NEBULA_MAXINTEGER</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MININTEGER">NEBULA_MININTEGER</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MINSTACK">NEBULA_MINSTACK</A><BR>
-<A HREF="manual.html#pdf-NEBULA_MULTRET">NEBULA_MULTRET</A><BR>
-<A HREF="manual.html#pdf-NEBULA_NOREF">NEBULA_NOREF</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OK">NEBULA_OK</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPADD">NEBULA_OPADD</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPBAND">NEBULA_OPBAND</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPBNOT">NEBULA_OPBNOT</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPBOR">NEBULA_OPBOR</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPBXOR">NEBULA_OPBXOR</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPDIV">NEBULA_OPDIV</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPEQ">NEBULA_OPEQ</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPIDIV">NEBULA_OPIDIV</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPLE">NEBULA_OPLE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPLT">NEBULA_OPLT</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPMOD">NEBULA_OPMOD</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPMUL">NEBULA_OPMUL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPPOW">NEBULA_OPPOW</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPSHL">NEBULA_OPSHL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPSHR">NEBULA_OPSHR</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPSUB">NEBULA_OPSUB</A><BR>
-<A HREF="manual.html#pdf-NEBULA_OPUNM">NEBULA_OPUNM</A><BR>
-<A HREF="manual.html#pdf-NEBULA_REFNIL">NEBULA_REFNIL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_REGISTRYINDEX">NEBULA_REGISTRYINDEX</A><BR>
-<A HREF="manual.html#pdf-NEBULA_RIDX_GLOBALS">NEBULA_RIDX_GLOBALS</A><BR>
-<A HREF="manual.html#pdf-NEBULA_RIDX_MAINTHREAD">NEBULA_RIDX_MAINTHREAD</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TBOOLEAN">NEBULA_TBOOLEAN</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TFUNCTION">NEBULA_TFUNCTION</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TLIGHTUSERDATA">NEBULA_TLIGHTUSERDATA</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TNIL">NEBULA_TNIL</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TNONE">NEBULA_TNONE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TNUMBER">NEBULA_TNUMBER</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TSTRING">NEBULA_TSTRING</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TTABLE">NEBULA_TTABLE</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TTHREAD">NEBULA_TTHREAD</A><BR>
-<A HREF="manual.html#pdf-NEBULA_TUSERDATA">NEBULA_TUSERDATA</A><BR>
-<A HREF="manual.html#pdf-NEBULA_USE_APICHECK">NEBULA_USE_APICHECK</A><BR>
-<A HREF="manual.html#pdf-NEBULA_YIELD">NEBULA_YIELD</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_ERRERR">HYDROGEN_ERRERR</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_ERRFILE">HYDROGEN_ERRFILE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_ERRMEM">HYDROGEN_ERRMEM</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_ERRRUN">HYDROGEN_ERRRUN</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_ERRSYNTAX">HYDROGEN_ERRSYNTAX</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_HOOKCALL">HYDROGEN_HOOKCALL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_HOOKCOUNT">HYDROGEN_HOOKCOUNT</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_HOOKLINE">HYDROGEN_HOOKLINE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_HOOKRET">HYDROGEN_HOOKRET</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_HOOKTAILCALL">HYDROGEN_HOOKTAILCALL</A><BR>
+<A HREF="manual.html#pdf-HYDROGENL_BUFFERSIZE">HYDROGENL_BUFFERSIZE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MASKCALL">HYDROGEN_MASKCALL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MASKCOUNT">HYDROGEN_MASKCOUNT</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MASKLINE">HYDROGEN_MASKLINE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MASKRET">HYDROGEN_MASKRET</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MAXINTEGER">HYDROGEN_MAXINTEGER</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MININTEGER">HYDROGEN_MININTEGER</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MINSTACK">HYDROGEN_MINSTACK</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_MULTRET">HYDROGEN_MULTRET</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_NOREF">HYDROGEN_NOREF</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OK">HYDROGEN_OK</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPADD">HYDROGEN_OPADD</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPBAND">HYDROGEN_OPBAND</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPBNOT">HYDROGEN_OPBNOT</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPBOR">HYDROGEN_OPBOR</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPBXOR">HYDROGEN_OPBXOR</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPDIV">HYDROGEN_OPDIV</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPEQ">HYDROGEN_OPEQ</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPIDIV">HYDROGEN_OPIDIV</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPLE">HYDROGEN_OPLE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPLT">HYDROGEN_OPLT</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPMOD">HYDROGEN_OPMOD</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPMUL">HYDROGEN_OPMUL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPPOW">HYDROGEN_OPPOW</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPSHL">HYDROGEN_OPSHL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPSHR">HYDROGEN_OPSHR</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPSUB">HYDROGEN_OPSUB</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_OPUNM">HYDROGEN_OPUNM</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_REFNIL">HYDROGEN_REFNIL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_REGISTRYINDEX">HYDROGEN_REGISTRYINDEX</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_RIDX_GLOBALS">HYDROGEN_RIDX_GLOBALS</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_RIDX_MAINTHREAD">HYDROGEN_RIDX_MAINTHREAD</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TBOOLEAN">HYDROGEN_TBOOLEAN</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TFUNCTION">HYDROGEN_TFUNCTION</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TLIGHTUSERDATA">HYDROGEN_TLIGHTUSERDATA</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TNIL">HYDROGEN_TNIL</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TNONE">HYDROGEN_TNONE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TNUMBER">HYDROGEN_TNUMBER</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TSTRING">HYDROGEN_TSTRING</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TTABLE">HYDROGEN_TTABLE</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TTHREAD">HYDROGEN_TTHREAD</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_TUSERDATA">HYDROGEN_TUSERDATA</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_USE_APICHECK">HYDROGEN_USE_APICHECK</A><BR>
+<A HREF="manual.html#pdf-HYDROGEN_YIELD">HYDROGEN_YIELD</A><BR>
 
 </TD>
 </TR>
@@ -667,7 +667,7 @@ Last update:
 Thu Jan 13 11:32:22 UTC 2022
 </P>
 <!--
-Last change: revised for Nebula 5.4.4
+Last change: revised for Hydrogen 5.4.4
 -->
 
 </BODY>

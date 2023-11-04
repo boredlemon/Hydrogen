@@ -1,13 +1,13 @@
 /*
 ** $Id: state.h $
 ** Global State
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef state_h
 #define state_h
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "object.h"
 #include "tagMethods.h"
@@ -15,7 +15,7 @@
 
 
 /*
-** Some notes about garbage-collected objects: All objects in Nebula must
+** Some notes about garbage-collected objects: All objects in Hydrogen must
 ** be kept somehow accessible until being freed, so all objects always
 ** belong to one (and only one) of these lists, using field 'next' of
 ** the 'CommonHeader' for the link:
@@ -28,7 +28,7 @@
 **
 ** For the generational collector, some of these lists have marks for
 ** generations. Each mark points to the first element in the list for
-** that particular generation; that generation Nebulaes until the next mark.
+** that particular generation; that generation Hydrogenes until the next mark.
 **
 ** 'allgarbageCollection' -> 'survival': new objects;
 ** 'survival' -> 'old': objects that survived one collection;
@@ -41,7 +41,7 @@
 ** 'finobjrold' -> NULL: really old       """".
 **
 ** All lists can contain elements older than their main ages, due
-** to 'nebulaC_checkfinalizer' and 'udata2finalize', which move
+** to 'hydrogenC_checkfinalizer' and 'udata2finalize', which move
 ** objects between the normal lists and the "marked for finalization"
 ** lists. Moreover, barriers can age young objects in young lists as
 ** OLD0, which then become OLD1. However, a list never contains
@@ -68,7 +68,7 @@
 ** 'gray': regular gray objects, still waiting to be visited.
 ** 'grayagain': objects that must be revisited at the atomic phase.
 **   That includes
-**   - black objects Nebulat in a write barrier;
+**   - black objects Hydrogent in a write barrier;
 **   - all kinds of weak tables during propagation phase;
 **   - all threads.
 ** 'weak': tables with weak values to be cleared;
@@ -114,11 +114,11 @@
 
 
 
-struct nebula_longjmp;  /* defined in do.c */
+struct hydrogen_longjmp;  /* defined in do.c */
 
 
 /*
-** Atomic type (relative to signals) to better ensure that 'nebula_sethook'
+** Atomic type (relative to signals) to better ensure that 'hydrogen_sethook'
 ** is thread safe
 */
 #if !defined(l_signalT)
@@ -137,7 +137,7 @@ struct nebula_longjmp;  /* defined in do.c */
 #define EXTRA_STACK   5
 
 
-#define BASIC_STACK_SIZE        (2*NEBULA_MINSTACK)
+#define BASIC_STACK_SIZE        (2*HYDROGEN_MINSTACK)
 
 #define stacksize(th)	cast_int((th)->stack_last - (th)->stack)
 
@@ -157,7 +157,7 @@ typedef struct stringtable {
 /*
 ** Information about a call.
 ** About union 'u':
-** - field 'l' is used only for Nebula functions;
+** - field 'l' is used only for Hydrogen functions;
 ** - field 'c' is used only for C functions.
 ** About union 'u2':
 ** - field 'funcidx' is used only by C functions while doing a
@@ -174,15 +174,15 @@ typedef struct CallInfo {
   StkId	top;  /* top for this function */
   struct CallInfo *previous, *next;  /* dynamic call link */
   union {
-    struct {  /* only for Nebula functions */
+    struct {  /* only for Hydrogen functions */
       const Instruction *savedpc;
       volatile l_signalT trap;
       int nextraargs;  /* # of extra arguments in vararg functions */
     } l;
     struct {  /* only for C functions */
-      nebula_KFunction k;  /* continuation in case of yields */
+      hydrogen_KFunction k;  /* continuation in case of yields */
       ptrdiff_t old_errfunc;
-      nebula_KContext ctx;  /* context info. in case of yields */
+      hydrogen_KContext ctx;  /* context info. in case of yields */
     } c;
   } u;
   union {
@@ -204,7 +204,7 @@ typedef struct CallInfo {
 */
 #define CIST_OAH	(1<<0)	/* original value of 'allowhook' */
 #define CIST_C		(1<<1)	/* call is running a C function */
-#define CIST_FRESH	(1<<2)	/* call is on a fresh "nebulaV_execute" frame */
+#define CIST_FRESH	(1<<2)	/* call is on a fresh "hydrogenV_execute" frame */
 #define CIST_HOOKED	(1<<3)	/* call is running a debug hook */
 #define CIST_YPCALL	(1<<4)	/* doing a yieldable protected call */
 #define CIST_TAIL	(1<<5)	/* call was tail called */
@@ -214,7 +214,7 @@ typedef struct CallInfo {
 #define CIST_CLSRET	(1<<9)  /* function is closing tbc variables */
 /* Bits 10-12 are used for CIST_RECST (see below) */
 #define CIST_RECST	10
-#if defined(NEBULA_COMPAT_LT_LE)
+#if defined(HYDROGEN_COMPAT_LT_LE)
 #define CIST_LEQ	(1<<13)  /* using __lt for __le */
 #endif
 
@@ -222,7 +222,7 @@ typedef struct CallInfo {
 /*
 ** Field CIST_RECST stores the "recover status", used to keep the error
 ** status while closing to-be-closed variables in coroutines, so that
-** Nebula can correctly resume after an yield from a __close method called
+** Hydrogen can correctly resume after an yield from a __close method called
 ** because of an error.  (Three bits are enough for error status.)
 */
 #define getcistrecst(ci)     (((ci)->callstatus >> CIST_RECST) & 7)
@@ -232,11 +232,11 @@ typedef struct CallInfo {
                                                   | ((st) << CIST_RECST)))
 
 
-/* active function is a Nebula function */
-#define isNebula(ci)	(!((ci)->callstatus & CIST_C))
+/* active function is a Hydrogen function */
+#define isHydrogen(ci)	(!((ci)->callstatus & CIST_C))
 
-/* call is running Nebula code (not a hook) */
-#define isNebulacode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
+/* call is running Hydrogen code (not a hook) */
+#define isHydrogencode(ci)	(!((ci)->callstatus & (CIST_C | CIST_HOOKED)))
 
 /* assume that CIST_OAH has offset 0 and that 'v' is strictly 0/1 */
 #define setoah(st,v)	((st) = ((st) & ~CIST_OAH) | (v))
@@ -247,7 +247,7 @@ typedef struct CallInfo {
 ** 'global state', shared by all threads of this state
 */
 typedef struct global_State {
-  nebula_Alloc frealloc;  /* function to reallocate memory */
+  hydrogen_Alloc frealloc;  /* function to reallocate memory */
   void *ud;         /* auxiliary data to 'frealloc' */
   l_mem totalbytes;  /* number of bytes currently allocated - GCdebt */
   l_mem GCdebt;  /* bytes allocated not yet compensated by the collector */
@@ -286,14 +286,14 @@ typedef struct global_State {
   GCObject *finobjsur;  /* list of survival objects with finalizers */
   GCObject *finobjold1;  /* list of old1 objects with finalizers */
   GCObject *finobjrold;  /* list of really old objects with finalizers */
-  struct nebula_State *twups;  /* list of threads with open upvalues */
-  nebula_CFunction panic;  /* to be called in unprotected errors */
-  struct nebula_State *mainthread;
+  struct hydrogen_State *twups;  /* list of threads with open upvalues */
+  hydrogen_CFunction panic;  /* to be called in unprotected errors */
+  struct hydrogen_State *mainthread;
   TString *memerrmsg;  /* message for memory-allocation errors */
   TString *tmname[TM_N];  /* array with tag-method names */
-  struct Table *mt[NEBULA_NUMTAGS];  /* metatables for basic types */
+  struct Table *mt[HYDROGEN_NUMTAGS];  /* metatables for basic types */
   TString *strcache[STRCACHE_N][STRCACHE_M];  /* cache for strings in API */
-  nebula_WarnFunction warnf;  /* warning function */
+  hydrogen_WarnFunction warnf;  /* warning function */
   void *ud_warn;         /* auxiliary data to 'warnf' */
 } global_State;
 
@@ -301,7 +301,7 @@ typedef struct global_State {
 /*
 ** 'per thread' state
 */
-struct nebula_State {
+struct hydrogen_State {
   CommonHeader;
   lu_byte status;
   lu_byte allowhook;
@@ -314,10 +314,10 @@ struct nebula_State {
   UpVal *openupval;  /* list of open upvalues in this stack */
   StkId tbclist;  /* list of to-be-closed variables */
   GCObject *gclist;
-  struct nebula_State *twups;  /* list of threads with open upvalues */
-  struct nebula_longjmp *errorJmp;  /* current error recover point */
-  CallInfo base_ci;  /* CallInfo for first level (C calling Nebula) */
-  volatile nebula_Hook hook;
+  struct hydrogen_State *twups;  /* list of threads with open upvalues */
+  struct hydrogen_longjmp *errorJmp;  /* current error recover point */
+  CallInfo base_ci;  /* CallInfo for first level (C calling Hydrogen) */
+  volatile hydrogen_Hook hook;
   ptrdiff_t errfunc;  /* current error handling function (stack index) */
   l_uint32 nCcalls;  /* number of nested (non-yieldable | C)  calls */
   int oldpc;  /* last pc traced */
@@ -352,7 +352,7 @@ union GCUnion {
   union Closure cl;
   struct Table h;
   struct Proto p;
-  struct nebula_State th;  /* thread */
+  struct hydrogen_State th;  /* thread */
   struct UpVal upv;
 };
 
@@ -366,38 +366,38 @@ union GCUnion {
 
 /* macros to convert a GCObject into a specific value */
 #define gco2ts(o)  \
-	check_exp(novariant((o)->tt) == NEBULA_TSTRING, &((cast_u(o))->ts))
-#define gco2u(o)  check_exp((o)->tt == NEBULA_VUSERDATA, &((cast_u(o))->u))
-#define gco2lcl(o)  check_exp((o)->tt == NEBULA_VLCL, &((cast_u(o))->cl.l))
-#define gco2ccl(o)  check_exp((o)->tt == NEBULA_VCCL, &((cast_u(o))->cl.c))
+	check_exp(novariant((o)->tt) == HYDROGEN_TSTRING, &((cast_u(o))->ts))
+#define gco2u(o)  check_exp((o)->tt == HYDROGEN_VUSERDATA, &((cast_u(o))->u))
+#define gco2lcl(o)  check_exp((o)->tt == HYDROGEN_VLCL, &((cast_u(o))->cl.l))
+#define gco2ccl(o)  check_exp((o)->tt == HYDROGEN_VCCL, &((cast_u(o))->cl.c))
 #define gco2cl(o)  \
-	check_exp(novariant((o)->tt) == NEBULA_TFUNCTION, &((cast_u(o))->cl))
-#define gco2t(o)  check_exp((o)->tt == NEBULA_VTABLE, &((cast_u(o))->h))
-#define gco2p(o)  check_exp((o)->tt == NEBULA_VPROTO, &((cast_u(o))->p))
-#define gco2th(o)  check_exp((o)->tt == NEBULA_VTHREAD, &((cast_u(o))->th))
-#define gco2upv(o)	check_exp((o)->tt == NEBULA_VUPVAL, &((cast_u(o))->upv))
+	check_exp(novariant((o)->tt) == HYDROGEN_TFUNCTION, &((cast_u(o))->cl))
+#define gco2t(o)  check_exp((o)->tt == HYDROGEN_VTABLE, &((cast_u(o))->h))
+#define gco2p(o)  check_exp((o)->tt == HYDROGEN_VPROTO, &((cast_u(o))->p))
+#define gco2th(o)  check_exp((o)->tt == HYDROGEN_VTHREAD, &((cast_u(o))->th))
+#define gco2upv(o)	check_exp((o)->tt == HYDROGEN_VUPVAL, &((cast_u(o))->upv))
 
 
 /*
-** macro to convert a Nebula object into a GCObject
-** (The access to 'tt' tries to ensure that 'v' is actually a Nebula object.)
+** macro to convert a Hydrogen object into a GCObject
+** (The access to 'tt' tries to ensure that 'v' is actually a Hydrogen object.)
 */
-#define obj2gco(v)	check_exp((v)->tt >= NEBULA_TSTRING, &(cast_u(v)->gc))
+#define obj2gco(v)	check_exp((v)->tt >= HYDROGEN_TSTRING, &(cast_u(v)->gc))
 
 
 /* actual number of total bytes allocated */
 #define gettotalbytes(g)	cast(lu_mem, (g)->totalbytes + (g)->GCdebt)
 
-NEBULAI_FUNC void nebulaE_setdebt (global_State *g, l_mem debt);
-NEBULAI_FUNC void nebulaE_freethread (nebula_State *L, nebula_State *L1);
-NEBULAI_FUNC CallInfo *nebulaE_extendCI (nebula_State *L);
-NEBULAI_FUNC void nebulaE_freeCI (nebula_State *L);
-NEBULAI_FUNC void nebulaE_shrinkCI (nebula_State *L);
-NEBULAI_FUNC void nebulaE_checkcstack (nebula_State *L);
-NEBULAI_FUNC void nebulaE_incCstack (nebula_State *L);
-NEBULAI_FUNC void nebulaE_warning (nebula_State *L, const char *msg, int tocont);
-NEBULAI_FUNC void nebulaE_warnerror (nebula_State *L, const char *where);
-NEBULAI_FUNC int nebulaE_resetthread (nebula_State *L, int status);
+HYDROGENI_FUNC void hydrogenE_setdebt (global_State *g, l_mem debt);
+HYDROGENI_FUNC void hydrogenE_freethread (hydrogen_State *L, hydrogen_State *L1);
+HYDROGENI_FUNC CallInfo *hydrogenE_extendCI (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenE_freeCI (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenE_shrinkCI (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenE_checkcstack (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenE_incCstack (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenE_warning (hydrogen_State *L, const char *msg, int tocont);
+HYDROGENI_FUNC void hydrogenE_warnerror (hydrogen_State *L, const char *where);
+HYDROGENI_FUNC int hydrogenE_resetthread (hydrogen_State *L, int status);
 
 
 #endif

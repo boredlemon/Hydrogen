@@ -1,7 +1,7 @@
 /*
 ** $Id: jumptab.h $
-** Jump Table for the Nebula interpreter
-** See Copyright Notice in nebula.h
+** Jump Table for the Hydrogen interpreter
+** See Copyright Notice in hydrogen.h
 */
 
 

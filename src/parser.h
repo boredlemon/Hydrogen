@@ -1,7 +1,7 @@
 /*
 ** $Id: parser.h $
-** Nebula Parser
-** See Copyright Notice in nebula.h
+** Hydrogen Parser
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef parser_h
@@ -68,8 +68,8 @@ typedef enum {
 typedef struct expdesc {
   expkind k;
   union {
-    nebula_Integer ival;    /* for VKINT */
-    nebula_Number nval;  /* for VKFLT */
+    hydrogen_Integer ival;    /* for VKINT */
+    hydrogen_Number nval;  /* for VKFLT */
     TString *strval;  /* for VKSTR */
     int info;  /* for generic use */
     struct {  /* for indexed variables */
@@ -163,8 +163,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-NEBULAI_FUNC int nebulaY_nvarstack (FuncState *fs);
-NEBULAI_FUNC LClosure *nebulaY_parser (nebula_State *L, ZIO *z, Mbuffer *buff,
+HYDROGENI_FUNC int hydrogenY_nvarstack (FuncState *fs);
+HYDROGENI_FUNC LClosure *hydrogenY_parser (hydrogen_State *L, ZIO *z, Mbuffer *buff,
                                  Dyndata *dyd, const char *name, int firstchar);
 
 

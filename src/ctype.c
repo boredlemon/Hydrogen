@@ -1,23 +1,23 @@
 /*
 ** $Id: ctype.c $
-** 'ctype' functions for Nebula
-** See Copyright Notice in nebula.h
+** 'ctype' functions for Hydrogen
+** See Copyright Notice in hydrogen.h
 */
 
 #define ctype_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
 
 #include "ctype.h"
 
-#if !NEBULA_USE_CTYPE	/* { */
+#if !HYDROGEN_USE_CTYPE	/* { */
 
 #include <limits.h>
 
 
-#if defined (NEBULA_UCID)		/* accept UniCode IDentifiers? */
+#if defined (HYDROGEN_UCID)		/* accept UniCode IDentifiers? */
 /* consider all non-ascii codepoints to be alphabetic */
 #define NONA		0x01
 #else
@@ -25,7 +25,7 @@
 #endif
 
 
-NEBULAI_DDEF const lu_byte nebulai_ctype_[UCHAR_MAX + 2] = {
+HYDROGENI_DDEF const lu_byte hydrogeni_ctype_[UCHAR_MAX + 2] = {
   0x00,  /* EOZ */
   0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,  0x00,	/* 0. */
   0x00,  0x08,  0x08,  0x08,  0x08,  0x08,  0x00,  0x00,

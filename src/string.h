@@ -1,7 +1,7 @@
 /*
 ** $Id: string.h $
-** String table (keep all strings handled by Nebula)
-** See Copyright Notice in nebula.h
+** String table (keep all strings handled by Hydrogen)
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef string_h
@@ -25,33 +25,33 @@
 */
 #define sizestring(l)  (offsetof(TString, contents) + ((l) + 1) * sizeof(char))
 
-#define nebulaS_newliteral(L, s)	(nebulaS_newlstr(L, "" s, \
+#define hydrogenS_newliteral(L, s)	(hydrogenS_newlstr(L, "" s, \
                                  (sizeof(s)/sizeof(char))-1))
 
 
 /*
 ** test whether a string is a reserved word
 */
-#define isreserved(s)	((s)->tt == NEBULA_VSHRSTR && (s)->extra > 0)
+#define isreserved(s)	((s)->tt == HYDROGEN_VSHRSTR && (s)->extra > 0)
 
 
 /*
 ** equality for short strings, which are always internalized
 */
-#define eqshrstr(a,b)	check_exp((a)->tt == NEBULA_VSHRSTR, (a) == (b))
+#define eqshrstr(a,b)	check_exp((a)->tt == HYDROGEN_VSHRSTR, (a) == (b))
 
 
-NEBULAI_FUNC unsigned int nebulaS_hash (const char *str, size_t l, unsigned int seed);
-NEBULAI_FUNC unsigned int nebulaS_hashlongstr (TString *ts);
-NEBULAI_FUNC int nebulaS_eqlngstr (TString *a, TString *b);
-NEBULAI_FUNC void nebulaS_resize (nebula_State *L, int newsize);
-NEBULAI_FUNC void nebulaS_clearcache (global_State *g);
-NEBULAI_FUNC void nebulaS_init (nebula_State *L);
-NEBULAI_FUNC void nebulaS_remove (nebula_State *L, TString *ts);
-NEBULAI_FUNC Udata *nebulaS_newudata (nebula_State *L, size_t s, int nuvalue);
-NEBULAI_FUNC TString *nebulaS_newlstr (nebula_State *L, const char *str, size_t l);
-NEBULAI_FUNC TString *nebulaS_new (nebula_State *L, const char *str);
-NEBULAI_FUNC TString *nebulaS_createlngstrobj (nebula_State *L, size_t l);
+HYDROGENI_FUNC unsigned int hydrogenS_hash (const char *str, size_t l, unsigned int seed);
+HYDROGENI_FUNC unsigned int hydrogenS_hashlongstr (TString *ts);
+HYDROGENI_FUNC int hydrogenS_eqlngstr (TString *a, TString *b);
+HYDROGENI_FUNC void hydrogenS_resize (hydrogen_State *L, int newsize);
+HYDROGENI_FUNC void hydrogenS_clearcache (global_State *g);
+HYDROGENI_FUNC void hydrogenS_init (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenS_remove (hydrogen_State *L, TString *ts);
+HYDROGENI_FUNC Udata *hydrogenS_newudata (hydrogen_State *L, size_t s, int nuvalue);
+HYDROGENI_FUNC TString *hydrogenS_newlstr (hydrogen_State *L, const char *str, size_t l);
+HYDROGENI_FUNC TString *hydrogenS_new (hydrogen_State *L, const char *str);
+HYDROGENI_FUNC TString *hydrogenS_createlngstrobj (hydrogen_State *L, size_t l);
 
 
 #endif

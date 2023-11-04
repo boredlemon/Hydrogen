@@ -1,11 +1,11 @@
 /*
 ** $Id: undump.c $
-** load precompiled Nebula chunks
-** See Copyright Notice in nebula.h
+** load precompiled Hydrogen chunks
+** See Copyright Notice in hydrogen.h
 */
 
 #define undump_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -13,7 +13,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "debug.h"
 #include "do.h"
@@ -25,32 +25,32 @@
 #include "zio.h"
 
 
-#if !defined(nebulai_verifycode)
-#define nebulai_verifycode(L,f)  /* empty */
+#if !defined(hydrogeni_verifycode)
+#define hydrogeni_verifycode(L,f)  /* empty */
 #endif
 
 
 typedef struct {
-  nebula_State *L;
+  hydrogen_State *L;
   ZIO *Z;
   const char *name;
 } LoadState;
 
 
 static l_noret error (LoadState *S, const char *why) {
-  nebulaO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
-  nebulaD_throw(S->L, NEBULA_ERRSYNTAX);
+  hydrogenO_pushfstring(S->L, "%s: bad binary format (%s)", S->name, why);
+  hydrogenD_throw(S->L, HYDROGEN_ERRSYNTAX);
 }
 
 
 /*
-** All high-level loads Nebula through loadVector; you can change it to
+** All high-level loads Hydrogen through loadVector; you can change it to
 ** adapt to the endianness of the input
 */
 #define loadVector(S,b,n)	loadBlock(S,b,(n)*sizeof((b)[0]))
 
 static void loadBlock (LoadState *S, void *b, size_t size) {
-  if (nebulaZ_read(S->Z, b, size) != 0)
+  if (hydrogenZ_read(S->Z, b, size) != 0)
     error(S, "truncated chunk");
 }
 
@@ -90,15 +90,15 @@ static int loadInt (LoadState *S) {
 }
 
 
-static nebula_Number loadNumber (LoadState *S) {
-  nebula_Number x;
+static hydrogen_Number loadNumber (LoadState *S) {
+  hydrogen_Number x;
   loadVar(S, x);
   return x;
 }
 
 
-static nebula_Integer loadInteger (LoadState *S) {
-  nebula_Integer x;
+static hydrogen_Integer loadInteger (LoadState *S) {
+  hydrogen_Integer x;
   loadVar(S, x);
   return x;
 }
@@ -108,24 +108,24 @@ static nebula_Integer loadInteger (LoadState *S) {
 ** Load a nullable string into prototype 'p'.
 */
 static TString *loadStringN (LoadState *S, Proto *p) {
-  nebula_State *L = S->L;
+  hydrogen_State *L = S->L;
   TString *ts;
   size_t size = loadSize(S);
   if (size == 0)  /* no string? */
     return NULL;
-  else if (--size <= NEBULAI_MAXSHORTLEN) {  /* short string? */
-    char buff[NEBULAI_MAXSHORTLEN];
+  else if (--size <= HYDROGENI_MAXSHORTLEN) {  /* short string? */
+    char buff[HYDROGENI_MAXSHORTLEN];
     loadVector(S, buff, size);  /* load string into buffer */
-    ts = nebulaS_newlstr(L, buff, size);  /* create string */
+    ts = hydrogenS_newlstr(L, buff, size);  /* create string */
   }
   else {  /* long string */
-    ts = nebulaS_createlngstrobj(L, size);  /* create string */
+    ts = hydrogenS_createlngstrobj(L, size);  /* create string */
     setsvalue2s(L, L->top, ts);  /* anchor it ('loadVector' can GC) */
-    nebulaD_inctop(L);
+    hydrogenD_inctop(L);
     loadVector(S, getstr(ts), size);  /* load directly in final place */
     L->top--;  /* pop string */
   }
-  nebulaC_objbarrier(L, p, ts);
+  hydrogenC_objbarrier(L, p, ts);
   return ts;
 }
 
@@ -143,7 +143,7 @@ static TString *loadString (LoadState *S, Proto *p) {
 
 static void loadCode (LoadState *S, Proto *f) {
   int n = loadInt(S);
-  f->code = nebulaM_newvectorchecked(S->L, n, Instruction);
+  f->code = hydrogenM_newvectorchecked(S->L, n, Instruction);
   f->sizecode = n;
   loadVector(S, f->code, n);
 }
@@ -155,7 +155,7 @@ static void loadFunction(LoadState *S, Proto *f, TString *psource);
 static void loadConstants (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->k = nebulaM_newvectorchecked(S->L, n, TValue);
+  f->k = hydrogenM_newvectorchecked(S->L, n, TValue);
   f->sizek = n;
   for (i = 0; i < n; i++)
     setnilvalue(&f->k[i]);
@@ -163,26 +163,26 @@ static void loadConstants (LoadState *S, Proto *f) {
     TValue *o = &f->k[i];
     int t = loadByte(S);
     switch (t) {
-      case NEBULA_VNIL:
+      case HYDROGEN_VNIL:
         setnilvalue(o);
         break;
-      case NEBULA_VFALSE:
+      case HYDROGEN_VFALSE:
         setbfvalue(o);
         break;
-      case NEBULA_VTRUE:
+      case HYDROGEN_VTRUE:
         setbtvalue(o);
         break;
-      case NEBULA_VNUMFLT:
+      case HYDROGEN_VNUMFLT:
         setfltvalue(o, loadNumber(S));
         break;
-      case NEBULA_VNUMINT:
+      case HYDROGEN_VNUMINT:
         setivalue(o, loadInteger(S));
         break;
-      case NEBULA_VSHRSTR:
-      case NEBULA_VLNGSTR:
+      case HYDROGEN_VSHRSTR:
+      case HYDROGEN_VLNGSTR:
         setsvalue2n(S->L, o, loadString(S, f));
         break;
-      default: nebula_assert(0);
+      default: hydrogen_assert(0);
     }
   }
 }
@@ -191,13 +191,13 @@ static void loadConstants (LoadState *S, Proto *f) {
 static void loadProtos (LoadState *S, Proto *f) {
   int i;
   int n = loadInt(S);
-  f->p = nebulaM_newvectorchecked(S->L, n, Proto *);
+  f->p = hydrogenM_newvectorchecked(S->L, n, Proto *);
   f->sizep = n;
   for (i = 0; i < n; i++)
     f->p[i] = NULL;
   for (i = 0; i < n; i++) {
-    f->p[i] = nebulaF_newproto(S->L);
-    nebulaC_objbarrier(S->L, f, f->p[i]);
+    f->p[i] = hydrogenF_newproto(S->L);
+    hydrogenC_objbarrier(S->L, f, f->p[i]);
     loadFunction(S, f->p[i], f->source);
   }
 }
@@ -212,7 +212,7 @@ static void loadProtos (LoadState *S, Proto *f) {
 static void loadUpvalues (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->upvalues = nebulaM_newvectorchecked(S->L, n, Upvaldesc);
+  f->upvalues = hydrogenM_newvectorchecked(S->L, n, Upvaldesc);
   f->sizeupvalues = n;
   for (i = 0; i < n; i++)  /* make array valid for GC */
     f->upvalues[i].name = NULL;
@@ -227,18 +227,18 @@ static void loadUpvalues (LoadState *S, Proto *f) {
 static void loadDebug (LoadState *S, Proto *f) {
   int i, n;
   n = loadInt(S);
-  f->lineinfo = nebulaM_newvectorchecked(S->L, n, ls_byte);
+  f->lineinfo = hydrogenM_newvectorchecked(S->L, n, ls_byte);
   f->sizelineinfo = n;
   loadVector(S, f->lineinfo, n);
   n = loadInt(S);
-  f->abslineinfo = nebulaM_newvectorchecked(S->L, n, AbsLineInfo);
+  f->abslineinfo = hydrogenM_newvectorchecked(S->L, n, AbsLineInfo);
   f->sizeabslineinfo = n;
   for (i = 0; i < n; i++) {
     f->abslineinfo[i].pc = loadInt(S);
     f->abslineinfo[i].line = loadInt(S);
   }
   n = loadInt(S);
-  f->locvars = nebulaM_newvectorchecked(S->L, n, LocVar);
+  f->locvars = hydrogenM_newvectorchecked(S->L, n, LocVar);
   f->sizelocvars = n;
   for (i = 0; i < n; i++)
     f->locvars[i].varname = NULL;
@@ -271,7 +271,7 @@ static void loadFunction (LoadState *S, Proto *f, TString *psource) {
 
 
 static void checkliteral (LoadState *S, const char *s, const char *msg) {
-  char buff[sizeof(NEBULA_SIGNATURE) + sizeof(NEBULAC_DATA)]; /* larger than both */
+  char buff[sizeof(HYDROGEN_SIGNATURE) + sizeof(HYDROGENC_DATA)]; /* larger than both */
   size_t len = strlen(s);
   loadVector(S, buff, len);
   if (memcmp(s, buff, len) != 0)
@@ -281,7 +281,7 @@ static void checkliteral (LoadState *S, const char *s, const char *msg) {
 
 static void fchecksize (LoadState *S, size_t size, const char *tname) {
   if (loadByte(S) != size)
-    error(S, nebulaO_pushfstring(S->L, "%s size mismatch", tname));
+    error(S, hydrogenO_pushfstring(S->L, "%s size mismatch", tname));
 }
 
 
@@ -289,18 +289,18 @@ static void fchecksize (LoadState *S, size_t size, const char *tname) {
 
 static void checkHeader (LoadState *S) {
   /* skip 1st char (already read and checked) */
-  checkliteral(S, &NEBULA_SIGNATURE[1], "not a binary chunk");
-  if (loadByte(S) != NEBULAC_VERSION)
+  checkliteral(S, &HYDROGEN_SIGNATURE[1], "not a binary chunk");
+  if (loadByte(S) != HYDROGENC_VERSION)
     error(S, "version mismatch");
-  if (loadByte(S) != NEBULAC_FORMAT)
+  if (loadByte(S) != HYDROGENC_FORMAT)
     error(S, "format mismatch");
-  checkliteral(S, NEBULAC_DATA, "corrupted chunk");
+  checkliteral(S, HYDROGENC_DATA, "corrupted chunk");
   checksize(S, Instruction);
-  checksize(S, nebula_Integer);
-  checksize(S, nebula_Number);
-  if (loadInteger(S) != NEBULAC_INT)
+  checksize(S, hydrogen_Integer);
+  checksize(S, hydrogen_Number);
+  if (loadInteger(S) != HYDROGENC_INT)
     error(S, "integer format mismatch");
-  if (loadNumber(S) != NEBULAC_NUM)
+  if (loadNumber(S) != HYDROGENC_NUM)
     error(S, "float format mismatch");
 }
 
@@ -308,26 +308,26 @@ static void checkHeader (LoadState *S) {
 /*
 ** Load precompiled chunk.
 */
-LClosure *nebulaU_undump(nebula_State *L, ZIO *Z, const char *name) {
+LClosure *hydrogenU_undump(hydrogen_State *L, ZIO *Z, const char *name) {
   LoadState S;
   LClosure *cl;
   if (*name == '@' || *name == '=')
     S.name = name + 1;
-  else if (*name == NEBULA_SIGNATURE[0])
+  else if (*name == HYDROGEN_SIGNATURE[0])
     S.name = "binary string";
   else
     S.name = name;
   S.L = L;
   S.Z = Z;
   checkHeader(&S);
-  cl = nebulaF_newLclosure(L, loadByte(&S));
+  cl = hydrogenF_newLclosure(L, loadByte(&S));
   setclLvalue2s(L, L->top, cl);
-  nebulaD_inctop(L);
-  cl->p = nebulaF_newproto(L);
-  nebulaC_objbarrier(L, cl, cl->p);
+  hydrogenD_inctop(L);
+  cl->p = hydrogenF_newproto(L);
+  hydrogenC_objbarrier(L, cl, cl->p);
   loadFunction(&S, cl->p, NULL);
-  nebula_assert(cl->nupvalues == cl->p->sizeupvalues);
-  nebulai_verifycode(L, cl->p);
+  hydrogen_assert(cl->nupvalues == cl->p->sizeupvalues);
+  hydrogeni_verifycode(L, cl->p);
   return cl;
 }
 

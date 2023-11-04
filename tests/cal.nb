@@ -1,4 +1,4 @@
--- Nebula Calculator
+-- Hydrogen Calculator
 
 -- Function to add two numbers
 function add(a, b)
@@ -26,7 +26,7 @@ end
 
 -- Main calculator loop
 while true do
-    print("Nebula Calculator")
+    print("Hydrogen Calculator")
     print("Enter an operation (+, -, *, /) or 'quit' to exit:")
     
     import operation = io.read()

@@ -1,11 +1,11 @@
 /*
 ** $Id: tablib.c $
 ** Library for Table Manipulation
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #define tablib_c
-#define NEBULA_LIB
+#define HYDROGEN_LIB
 
 #include "prefix.h"
 
@@ -14,10 +14,10 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "auxlib.h"
-#include "nebulalib.h"
+#include "hydrogenlib.h"
 
 
 /*
@@ -30,12 +30,12 @@
 #define TAB_RW	(TAB_R | TAB_W)		/* read/write */
 
 
-#define aux_getn(L,n,w)	(checktab(L, n, (w) | TAB_L), nebulaL_len(L, n))
+#define aux_getn(L,n,w)	(checktab(L, n, (w) | TAB_L), hydrogenL_len(L, n))
 
 
-static int checkfield (nebula_State *L, const char *key, int n) {
-  nebula_pushstring(L, key);
-  return (nebula_rawget(L, -n) != NEBULA_TNIL);
+static int checkfield (hydrogen_State *L, const char *key, int n) {
+  hydrogen_pushstring(L, key);
+  return (hydrogen_rawget(L, -n) != HYDROGEN_TNIL);
 }
 
 
@@ -43,65 +43,65 @@ static int checkfield (nebula_State *L, const char *key, int n) {
 ** Check that 'arg' either is a table or can behave like one (that is,
 ** has a metatable with the required metamethods)
 */
-static void checktab (nebula_State *L, int arg, int what) {
-  if (nebula_type(L, arg) != NEBULA_TTABLE) {  /* is it not a table? */
+static void checktab (hydrogen_State *L, int arg, int what) {
+  if (hydrogen_type(L, arg) != HYDROGEN_TTABLE) {  /* is it not a table? */
     int n = 1;  /* number of elements to pop */
-    if (nebula_getmetatable(L, arg) &&  /* must have metatable */
+    if (hydrogen_getmetatable(L, arg) &&  /* must have metatable */
         (!(what & TAB_R) || checkfield(L, "__index", ++n)) &&
         (!(what & TAB_W) || checkfield(L, "__newindex", ++n)) &&
         (!(what & TAB_L) || checkfield(L, "__len", ++n))) {
-      nebula_pop(L, n);  /* pop metatable and tested metamethods */
+      hydrogen_pop(L, n);  /* pop metatable and tested metamethods */
     }
     else
-      nebulaL_checktype(L, arg, NEBULA_TTABLE);  /* force an error */
+      hydrogenL_checktype(L, arg, HYDROGEN_TTABLE);  /* force an error */
   }
 }
 
 
-static int tinsert (nebula_State *L) {
-  nebula_Integer pos;  /* where to insert new element */
-  nebula_Integer e = aux_getn(L, 1, TAB_RW);
-  e = nebulaL_intop(+, e, 1);  /* first empty element */
-  switch (nebula_gettop(L)) {
+static int tinsert (hydrogen_State *L) {
+  hydrogen_Integer pos;  /* where to insert new element */
+  hydrogen_Integer e = aux_getn(L, 1, TAB_RW);
+  e = hydrogenL_intop(+, e, 1);  /* first empty element */
+  switch (hydrogen_gettop(L)) {
     case 2: {  /* called with only 2 arguments */
       pos = e;  /* insert new element at the end */
       break;
     }
     case 3: {
-      nebula_Integer i;
-      pos = nebulaL_checkinteger(L, 2);  /* 2nd argument is the position */
+      hydrogen_Integer i;
+      pos = hydrogenL_checkinteger(L, 2);  /* 2nd argument is the position */
       /* check whether 'pos' is in [1, e] */
-      nebulaL_argcheck(L, (nebula_Unsigned)pos - 1u < (nebula_Unsigned)e, 2,
+      hydrogenL_argcheck(L, (hydrogen_Unsigned)pos - 1u < (hydrogen_Unsigned)e, 2,
                        "position out of bounds");
       for (i = e; i > pos; i--) {  /* move up elements */
-        nebula_geti(L, 1, i - 1);
-        nebula_seti(L, 1, i);  /* t[i] = t[i - 1] */
+        hydrogen_geti(L, 1, i - 1);
+        hydrogen_seti(L, 1, i);  /* t[i] = t[i - 1] */
       }
       break;
     }
     default: {
-      return nebulaL_error(L, "wrong number of arguments to 'insert'");
+      return hydrogenL_error(L, "wrong number of arguments to 'insert'");
     }
   }
-  nebula_seti(L, 1, pos);  /* t[pos] = v */
+  hydrogen_seti(L, 1, pos);  /* t[pos] = v */
   return 0;
 }
 
 
-static int tremove (nebula_State *L) {
-  nebula_Integer size = aux_getn(L, 1, TAB_RW);
-  nebula_Integer pos = nebulaL_optinteger(L, 2, size);
+static int tremove (hydrogen_State *L) {
+  hydrogen_Integer size = aux_getn(L, 1, TAB_RW);
+  hydrogen_Integer pos = hydrogenL_optinteger(L, 2, size);
   if (pos != size)  /* validate 'pos' if given */
     /* check whether 'pos' is in [1, size + 1] */
-    nebulaL_argcheck(L, (nebula_Unsigned)pos - 1u <= (nebula_Unsigned)size, 1,
+    hydrogenL_argcheck(L, (hydrogen_Unsigned)pos - 1u <= (hydrogen_Unsigned)size, 1,
                      "position out of bounds");
-  nebula_geti(L, 1, pos);  /* result = t[pos] */
+  hydrogen_geti(L, 1, pos);  /* result = t[pos] */
   for ( ; pos < size; pos++) {
-    nebula_geti(L, 1, pos + 1);
-    nebula_seti(L, 1, pos);  /* t[pos] = t[pos + 1] */
+    hydrogen_geti(L, 1, pos + 1);
+    hydrogen_seti(L, 1, pos);  /* t[pos] = t[pos + 1] */
   }
-  nebula_pushnil(L);
-  nebula_seti(L, 1, pos);  /* remove entry t[pos] */
+  hydrogen_pushnil(L);
+  hydrogen_seti(L, 1, pos);  /* remove entry t[pos] */
   return 1;
 }
 
@@ -112,62 +112,62 @@ static int tremove (nebula_State *L) {
 ** "possible" means destination after original range, or smaller
 ** than origin, or copying to another table.
 */
-static int tmove (nebula_State *L) {
-  nebula_Integer f = nebulaL_checkinteger(L, 2);
-  nebula_Integer e = nebulaL_checkinteger(L, 3);
-  nebula_Integer t = nebulaL_checkinteger(L, 4);
-  int tt = !nebula_isnoneornil(L, 5) ? 5 : 1;  /* destination table */
+static int tmove (hydrogen_State *L) {
+  hydrogen_Integer f = hydrogenL_checkinteger(L, 2);
+  hydrogen_Integer e = hydrogenL_checkinteger(L, 3);
+  hydrogen_Integer t = hydrogenL_checkinteger(L, 4);
+  int tt = !hydrogen_isnoneornil(L, 5) ? 5 : 1;  /* destination table */
   checktab(L, 1, TAB_R);
   checktab(L, tt, TAB_W);
   if (e >= f) {  /* otherwise, nothing to move */
-    nebula_Integer n, i;
-    nebulaL_argcheck(L, f > 0 || e < NEBULA_MAXINTEGER + f, 3,
+    hydrogen_Integer n, i;
+    hydrogenL_argcheck(L, f > 0 || e < HYDROGEN_MAXINTEGER + f, 3,
                   "too many elements to move");
     n = e - f + 1;  /* number of elements to move */
-    nebulaL_argcheck(L, t <= NEBULA_MAXINTEGER - n + 1, 4,
+    hydrogenL_argcheck(L, t <= HYDROGEN_MAXINTEGER - n + 1, 4,
                   "destination wrap around");
-    if (t > e || t <= f || (tt != 1 && !nebula_compare(L, 1, tt, NEBULA_OPEQ))) {
+    if (t > e || t <= f || (tt != 1 && !hydrogen_compare(L, 1, tt, HYDROGEN_OPEQ))) {
       for (i = 0; i < n; i++) {
-        nebula_geti(L, 1, f + i);
-        nebula_seti(L, tt, t + i);
+        hydrogen_geti(L, 1, f + i);
+        hydrogen_seti(L, tt, t + i);
       }
     }
     else {
       for (i = n - 1; i >= 0; i--) {
-        nebula_geti(L, 1, f + i);
-        nebula_seti(L, tt, t + i);
+        hydrogen_geti(L, 1, f + i);
+        hydrogen_seti(L, tt, t + i);
       }
     }
   }
-  nebula_pushvalue(L, tt);  /* return destination table */
+  hydrogen_pushvalue(L, tt);  /* return destination table */
   return 1;
 }
 
 
-static void addfield (nebula_State *L, nebulaL_Buffer *b, nebula_Integer i) {
-  nebula_geti(L, 1, i);
-  if (l_unlikely(!nebula_isstring(L, -1)))
-    nebulaL_error(L, "invalid value (%s) at index %I in table for 'concat'",
-                  nebulaL_typename(L, -1), (NEBULAI_UACINT)i);
-  nebulaL_addvalue(b);
+static void addfield (hydrogen_State *L, hydrogenL_Buffer *b, hydrogen_Integer i) {
+  hydrogen_geti(L, 1, i);
+  if (l_unlikely(!hydrogen_isstring(L, -1)))
+    hydrogenL_error(L, "invalid value (%s) at index %I in table for 'concat'",
+                  hydrogenL_typename(L, -1), (HYDROGENI_UACINT)i);
+  hydrogenL_addvalue(b);
 }
 
 
-static int tconcat (nebula_State *L) {
-  nebulaL_Buffer b;
-  nebula_Integer last = aux_getn(L, 1, TAB_R);
+static int tconcat (hydrogen_State *L) {
+  hydrogenL_Buffer b;
+  hydrogen_Integer last = aux_getn(L, 1, TAB_R);
   size_t lsep;
-  const char *sep = nebulaL_optlstring(L, 2, "", &lsep);
-  nebula_Integer i = nebulaL_optinteger(L, 3, 1);
-  last = nebulaL_optinteger(L, 4, last);
-  nebulaL_buffinit(L, &b);
+  const char *sep = hydrogenL_optlstring(L, 2, "", &lsep);
+  hydrogen_Integer i = hydrogenL_optinteger(L, 3, 1);
+  last = hydrogenL_optinteger(L, 4, last);
+  hydrogenL_buffinit(L, &b);
   for (; i < last; i++) {
     addfield(L, &b, i);
-    nebulaL_addlstring(&b, sep, lsep);
+    hydrogenL_addlstring(&b, sep, lsep);
   }
   if (i == last)  /* add last value (if interval was not empty) */
     addfield(L, &b, i);
-  nebulaL_pushresult(&b);
+  hydrogenL_pushresult(&b);
   return 1;
 }
 
@@ -178,32 +178,32 @@ static int tconcat (nebula_State *L) {
 ** =======================================================
 */
 
-static int tpack (nebula_State *L) {
+static int tpack (hydrogen_State *L) {
   int i;
-  int n = nebula_gettop(L);  /* number of elements to pack */
-  nebula_createtable(L, n, 1);  /* create result table */
-  nebula_insert(L, 1);  /* put it at index 1 */
+  int n = hydrogen_gettop(L);  /* number of elements to pack */
+  hydrogen_createtable(L, n, 1);  /* create result table */
+  hydrogen_insert(L, 1);  /* put it at index 1 */
   for (i = n; i >= 1; i--)  /* assign elements */
-    nebula_seti(L, 1, i);
-  nebula_pushinteger(L, n);
-  nebula_setfield(L, 1, "n");  /* t.n = number of elements */
+    hydrogen_seti(L, 1, i);
+  hydrogen_pushinteger(L, n);
+  hydrogen_setfield(L, 1, "n");  /* t.n = number of elements */
   return 1;  /* return table */
 }
 
 
-static int tunpack (nebula_State *L) {
-  nebula_Unsigned n;
-  nebula_Integer i = nebulaL_optinteger(L, 2, 1);
-  nebula_Integer e = nebulaL_opt(L, nebulaL_checkinteger, 3, nebulaL_len(L, 1));
+static int tunpack (hydrogen_State *L) {
+  hydrogen_Unsigned n;
+  hydrogen_Integer i = hydrogenL_optinteger(L, 2, 1);
+  hydrogen_Integer e = hydrogenL_opt(L, hydrogenL_checkinteger, 3, hydrogenL_len(L, 1));
   if (i > e) return 0;  /* empty range */
-  n = (nebula_Unsigned)e - i;  /* number of elements minus 1 (avoid overflows) */
+  n = (hydrogen_Unsigned)e - i;  /* number of elements minus 1 (avoid overflows) */
   if (l_unlikely(n >= (unsigned int)INT_MAX  ||
-                 !nebula_checkstack(L, (int)(++n))))
-    return nebulaL_error(L, "too many results to unpack");
+                 !hydrogen_checkstack(L, (int)(++n))))
+    return hydrogenL_error(L, "too many results to unpack");
   for (; i < e; i++) {  /* push arg[i..e - 1] (to avoid overflows) */
-    nebula_geti(L, 1, i);
+    hydrogen_geti(L, 1, i);
   }
-  nebula_geti(L, 1, e);  /* push last element */
+  hydrogen_geti(L, 1, e);  /* push last element */
   return (int)n;
 }
 
@@ -214,7 +214,7 @@ static int tunpack (nebula_State *L) {
 /*
 ** {======================================================
 ** Quicksort
-** (based on 'AlNebularithms in MODULA-3', Robert Sedgewick;
+** (based on 'AlHydrogenrithms in MODULA-3', Robert Sedgewick;
 **  Addison-Wesley, 1993.)
 ** =======================================================
 */
@@ -228,7 +228,7 @@ typedef unsigned int IdxT;
 ** Produce a "random" 'unsigned int' to randomize pivot choice. This
 ** macro is used only when 'sort' detects a big imbalance in the result
 ** of a partition. (If you don't want/need this "randomness", ~0 is a
-** Nebulaod choice.)
+** Hydrogenod choice.)
 */
 #if !defined(l_randomizePivot)		/* { */
 
@@ -262,9 +262,9 @@ static unsigned int l_randomizePivot (void) {
 #define RANLIMIT	100u
 
 
-static void set2 (nebula_State *L, IdxT i, IdxT j) {
-  nebula_seti(L, 1, i);
-  nebula_seti(L, 1, j);
+static void set2 (hydrogen_State *L, IdxT i, IdxT j) {
+  hydrogen_seti(L, 1, i);
+  hydrogen_seti(L, 1, j);
 }
 
 
@@ -272,17 +272,17 @@ static void set2 (nebula_State *L, IdxT i, IdxT j) {
 ** Return true iff value at stack index 'a' is less than the value at
 ** index 'b' (according to the order of the sort).
 */
-static int sort_comp (nebula_State *L, int a, int b) {
-  if (nebula_isnil(L, 2))  /* no function? */
-    return nebula_compare(L, a, b, NEBULA_OPLT);  /* a < b */
+static int sort_comp (hydrogen_State *L, int a, int b) {
+  if (hydrogen_isnil(L, 2))  /* no function? */
+    return hydrogen_compare(L, a, b, HYDROGEN_OPLT);  /* a < b */
   else {  /* function */
     int res;
-    nebula_pushvalue(L, 2);    /* push function */
-    nebula_pushvalue(L, a-1);  /* -1 to compensate function */
-    nebula_pushvalue(L, b-2);  /* -2 to compensate function and 'a' */
-    nebula_call(L, 2, 1);      /* call function */
-    res = nebula_toboolean(L, -1);  /* get result */
-    nebula_pop(L, 1);          /* pop result */
+    hydrogen_pushvalue(L, 2);    /* push function */
+    hydrogen_pushvalue(L, a-1);  /* -1 to compensate function */
+    hydrogen_pushvalue(L, b-2);  /* -2 to compensate function and 'a' */
+    hydrogen_call(L, 2, 1);      /* call function */
+    res = hydrogen_toboolean(L, -1);  /* get result */
+    hydrogen_pop(L, 1);          /* pop result */
     return res;
   }
 }
@@ -295,28 +295,28 @@ static int sort_comp (nebula_State *L, int a, int b) {
 ** Pos-condition: a[lo .. i - 1] <= a[i] == P <= a[i + 1 .. up]
 ** returns 'i'.
 */
-static IdxT partition (nebula_State *L, IdxT lo, IdxT up) {
+static IdxT partition (hydrogen_State *L, IdxT lo, IdxT up) {
   IdxT i = lo;  /* will be incremented before first use */
   IdxT j = up - 1;  /* will be decremented before first use */
   /* loop invariant: a[lo .. i] <= P <= a[j .. up] */
   for (;;) {
     /* next loop: repeat ++i while a[i] < P */
-    while ((void)nebula_geti(L, 1, ++i), sort_comp(L, -1, -2)) {
+    while ((void)hydrogen_geti(L, 1, ++i), sort_comp(L, -1, -2)) {
       if (l_unlikely(i == up - 1))  /* a[i] < P  but a[up - 1] == P  ?? */
-        nebulaL_error(L, "invalid order function for sorting");
-      nebula_pop(L, 1);  /* remove a[i] */
+        hydrogenL_error(L, "invalid order function for sorting");
+      hydrogen_pop(L, 1);  /* remove a[i] */
     }
     /* after the loop, a[i] >= P and a[lo .. i - 1] < P */
     /* next loop: repeat --j while P < a[j] */
-    while ((void)nebula_geti(L, 1, --j), sort_comp(L, -3, -1)) {
+    while ((void)hydrogen_geti(L, 1, --j), sort_comp(L, -3, -1)) {
       if (l_unlikely(j < i))  /* j < i  but  a[j] > P ?? */
-        nebulaL_error(L, "invalid order function for sorting");
-      nebula_pop(L, 1);  /* remove a[j] */
+        hydrogenL_error(L, "invalid order function for sorting");
+      hydrogen_pop(L, 1);  /* remove a[j] */
     }
     /* after the loop, a[j] <= P and a[j + 1 .. up] >= P */
     if (j < i) {  /* no elements out of place? */
       /* a[lo .. i - 1] <= P <= a[j + 1 .. i .. up] */
-      nebula_pop(L, 1);  /* pop a[j] */
+      hydrogen_pop(L, 1);  /* pop a[j] */
       /* swap pivot (a[up - 1]) with a[i] to satisfy pos-condition */
       set2(L, up - 1, i);
       return i;
@@ -334,49 +334,49 @@ static IdxT partition (nebula_State *L, IdxT lo, IdxT up) {
 static IdxT choosePivot (IdxT lo, IdxT up, unsigned int rnd) {
   IdxT r4 = (up - lo) / 4;  /* range/4 */
   IdxT p = rnd % (r4 * 2) + (lo + r4);
-  nebula_assert(lo + r4 <= p && p <= up - r4);
+  hydrogen_assert(lo + r4 <= p && p <= up - r4);
   return p;
 }
 
 
 /*
-** Quicksort alNebularithm (recursive function)
+** Quicksort alHydrogenrithm (recursive function)
 */
-static void auxsort (nebula_State *L, IdxT lo, IdxT up,
+static void auxsort (hydrogen_State *L, IdxT lo, IdxT up,
                                    unsigned int rnd) {
   while (lo < up) {  /* loop for tail recursion */
     IdxT p;  /* Pivot index */
     IdxT n;  /* to be used later */
     /* sort elements 'lo', 'p', and 'up' */
-    nebula_geti(L, 1, lo);
-    nebula_geti(L, 1, up);
+    hydrogen_geti(L, 1, lo);
+    hydrogen_geti(L, 1, up);
     if (sort_comp(L, -1, -2))  /* a[up] < a[lo]? */
       set2(L, lo, up);  /* swap a[lo] - a[up] */
     else
-      nebula_pop(L, 2);  /* remove both values */
+      hydrogen_pop(L, 2);  /* remove both values */
     if (up - lo == 1)  /* only 2 elements? */
       return;  /* already sorted */
     if (up - lo < RANLIMIT || rnd == 0)  /* small interval or no randomize? */
-      p = (lo + up)/2;  /* middle element is a Nebulaod pivot */
+      p = (lo + up)/2;  /* middle element is a Hydrogenod pivot */
     else  /* for larger intervals, it is worth a random pivot */
       p = choosePivot(lo, up, rnd);
-    nebula_geti(L, 1, p);
-    nebula_geti(L, 1, lo);
+    hydrogen_geti(L, 1, p);
+    hydrogen_geti(L, 1, lo);
     if (sort_comp(L, -2, -1))  /* a[p] < a[lo]? */
       set2(L, p, lo);  /* swap a[p] - a[lo] */
     else {
-      nebula_pop(L, 1);  /* remove a[lo] */
-      nebula_geti(L, 1, up);
+      hydrogen_pop(L, 1);  /* remove a[lo] */
+      hydrogen_geti(L, 1, up);
       if (sort_comp(L, -1, -2))  /* a[up] < a[p]? */
         set2(L, p, up);  /* swap a[up] - a[p] */
       else
-        nebula_pop(L, 2);
+        hydrogen_pop(L, 2);
     }
     if (up - lo == 2)  /* only 3 elements? */
       return;  /* already sorted */
-    nebula_geti(L, 1, p);  /* get middle element (Pivot) */
-    nebula_pushvalue(L, -1);  /* push Pivot */
-    nebula_geti(L, 1, up - 1);  /* push a[up - 1] */
+    hydrogen_geti(L, 1, p);  /* get middle element (Pivot) */
+    hydrogen_pushvalue(L, -1);  /* push Pivot */
+    hydrogen_geti(L, 1, up - 1);  /* push a[up - 1] */
     set2(L, p, up - 1);  /* swap Pivot (a[p]) with a[up - 1] */
     p = partition(L, lo, up);
     /* a[lo .. p - 1] <= a[p] == P <= a[p + 1 .. up] */
@@ -396,13 +396,13 @@ static void auxsort (nebula_State *L, IdxT lo, IdxT up,
 }
 
 
-static int sort (nebula_State *L) {
-  nebula_Integer n = aux_getn(L, 1, TAB_RW);
+static int sort (hydrogen_State *L) {
+  hydrogen_Integer n = aux_getn(L, 1, TAB_RW);
   if (n > 1) {  /* non-trivial interval? */
-    nebulaL_argcheck(L, n < INT_MAX, 1, "array too big");
-    if (!nebula_isnoneornil(L, 2))  /* is there a 2nd argument? */
-      nebulaL_checktype(L, 2, NEBULA_TFUNCTION);  /* must be a function */
-    nebula_settop(L, 2);  /* make sure there are two arguments */
+    hydrogenL_argcheck(L, n < INT_MAX, 1, "array too big");
+    if (!hydrogen_isnoneornil(L, 2))  /* is there a 2nd argument? */
+      hydrogenL_checktype(L, 2, HYDROGEN_TFUNCTION);  /* must be a function */
+    hydrogen_settop(L, 2);  /* make sure there are two arguments */
     auxsort(L, 1, (IdxT)n, 0);
   }
   return 0;
@@ -411,7 +411,7 @@ static int sort (nebula_State *L) {
 /* }====================================================== */
 
 
-static const nebulaL_Reg tab_funcs[] = {
+static const hydrogenL_Reg tab_funcs[] = {
   {"concat", tconcat},
   {"insert", tinsert},
   {"pack", tpack},
@@ -423,7 +423,7 @@ static const nebulaL_Reg tab_funcs[] = {
 };
 
 
-NEBULAMOD_API int nebulaopen_table (nebula_State *L) {
-  nebulaL_newlib(L, tab_funcs);
+HYDROGENMOD_API int hydrogenopen_table (hydrogen_State *L) {
+  hydrogenL_newlib(L, tab_funcs);
   return 1;
 }

@@ -1,7 +1,7 @@
 /*
 ** $Id: opnames.h $
 ** Opcode names
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #if !defined(opnames_h)

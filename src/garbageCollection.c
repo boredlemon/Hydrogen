@@ -1,11 +1,11 @@
 /*
 ** $Id: garbageCollection.c $
 ** Garbage Collector
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #define garbageCollection_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -13,7 +13,7 @@
 #include <string.h>
 
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "debug.h"
 #include "do.h"
@@ -69,7 +69,7 @@
 
 /* macro to erase all color bits then set only the current white bit */
 #define makewhite(g,x)	\
-  (x->marked = cast_byte((x->marked & ~maskcolors) | nebulaC_white(g)))
+  (x->marked = cast_byte((x->marked & ~maskcolors) | hydrogenC_white(g)))
 
 /* make an object gray (neither white nor black) */
 #define set2gray(x)	resetbits(x->marked, maskcolors)
@@ -105,8 +105,8 @@
 #define markobjectN(g,t)	{ if (t) markobject(g,t); }
 
 static void reallymarkobject (global_State *g, GCObject *o);
-static lu_mem atomic (nebula_State *L);
-static void entersweep (nebula_State *L);
+static lu_mem atomic (hydrogen_State *L);
+static void entersweep (hydrogen_State *L);
 
 
 /*
@@ -124,17 +124,17 @@ static void entersweep (nebula_State *L);
 
 static GCObject **getgclist (GCObject *o) {
   switch (o->tt) {
-    case NEBULA_VTABLE: return &gco2t(o)->gclist;
-    case NEBULA_VLCL: return &gco2lcl(o)->gclist;
-    case NEBULA_VCCL: return &gco2ccl(o)->gclist;
-    case NEBULA_VTHREAD: return &gco2th(o)->gclist;
-    case NEBULA_VPROTO: return &gco2p(o)->gclist;
-    case NEBULA_VUSERDATA: {
+    case HYDROGEN_VTABLE: return &gco2t(o)->gclist;
+    case HYDROGEN_VLCL: return &gco2lcl(o)->gclist;
+    case HYDROGEN_VCCL: return &gco2ccl(o)->gclist;
+    case HYDROGEN_VTHREAD: return &gco2th(o)->gclist;
+    case HYDROGEN_VPROTO: return &gco2p(o)->gclist;
+    case HYDROGEN_VUSERDATA: {
       Udata *u = gco2u(o);
-      nebula_assert(u->nuvalue > 0);
+      hydrogen_assert(u->nuvalue > 0);
       return &u->gclist;
     }
-    default: nebula_assert(0); return 0;
+    default: hydrogen_assert(0); return 0;
   }
 }
 
@@ -146,7 +146,7 @@ static GCObject **getgclist (GCObject *o) {
 #define linkgclist(o,p)	linkgclist_(obj2gco(o), &(o)->gclist, &(p))
 
 static void linkgclist_ (GCObject *o, GCObject **pnext, GCObject **list) {
-  nebula_assert(!isgray(o));  /* cannot be in a gray list */
+  hydrogen_assert(!isgray(o));  /* cannot be in a gray list */
   *pnext = *list;
   *list = o;
   set2gray(o);  /* now it is */
@@ -169,7 +169,7 @@ static void linkgclist_ (GCObject *o, GCObject **pnext, GCObject **list) {
 ** logically empty.
 */
 static void clearkey (Node *n) {
-  nebula_assert(isempty(gval(n)));
+  hydrogen_assert(isempty(gval(n)));
   if (keyiscollectable(n))
     setdeadkey(n);  /* unused key; remove it */
 }
@@ -184,7 +184,7 @@ static void clearkey (Node *n) {
 */
 static int iscleared (global_State *g, const GCObject *o) {
   if (o == NULL) return 0;  /* non-collectable value */
-  else if (novariant(o->tt) == NEBULA_TSTRING) {
+  else if (novariant(o->tt) == HYDROGEN_TSTRING) {
     markobject(g, o);  /* strings are 'values', so are never weak */
     return 0;
   }
@@ -205,18 +205,18 @@ static int iscleared (global_State *g, const GCObject *o) {
 ** be done is generational mode, as its sweep does not distinguish
 ** whites from deads.)
 */
-void nebulaC_barrier_ (nebula_State *L, GCObject *o, GCObject *v) {
+void hydrogenC_barrier_ (hydrogen_State *L, GCObject *o, GCObject *v) {
   global_State *g = G(L);
-  nebula_assert(isblack(o) && iswhite(v) && !isdead(g, v) && !isdead(g, o));
+  hydrogen_assert(isblack(o) && iswhite(v) && !isdead(g, v) && !isdead(g, o));
   if (keepinvariant(g)) {  /* must keep invariant? */
     reallymarkobject(g, v);  /* restore invariant */
     if (isold(o)) {
-      nebula_assert(!isold(v));  /* white object could not be old */
+      hydrogen_assert(!isold(v));  /* white object could not be old */
       setage(v, G_OLD0);  /* restore generational invariant */
     }
   }
   else {  /* sweep phase */
-    nebula_assert(issweepphase(g));
+    hydrogen_assert(issweepphase(g));
     if (g->gckind == KGC_INC)  /* incremental mode? */
       makewhite(g, o);  /* mark 'o' as white to avoid other barriers */
   }
@@ -227,10 +227,10 @@ void nebulaC_barrier_ (nebula_State *L, GCObject *o, GCObject *v) {
 ** barrier that moves collector backward, that is, mark the black object
 ** pointing to a white object as gray again.
 */
-void nebulaC_barrierback_ (nebula_State *L, GCObject *o) {
+void hydrogenC_barrierback_ (hydrogen_State *L, GCObject *o) {
   global_State *g = G(L);
-  nebula_assert(isblack(o) && !isdead(g, o));
-  nebula_assert((g->gckind == KGC_GEN) == (isold(o) && getage(o) != G_TOUCHED1));
+  hydrogen_assert(isblack(o) && !isdead(g, o));
+  hydrogen_assert((g->gckind == KGC_GEN) == (isold(o) && getage(o) != G_TOUCHED1));
   if (getage(o) == G_TOUCHED2)  /* already in gray list? */
     set2gray(o);  /* make it gray to become touched1 */
   else  /* link it in 'grayagain' and paint it gray */
@@ -240,9 +240,9 @@ void nebulaC_barrierback_ (nebula_State *L, GCObject *o) {
 }
 
 
-void nebulaC_fix (nebula_State *L, GCObject *o) {
+void hydrogenC_fix (hydrogen_State *L, GCObject *o) {
   global_State *g = G(L);
-  nebula_assert(g->allgarbageCollection == o);  /* object must be 1st in 'allgarbageCollection' list! */
+  hydrogen_assert(g->allgarbageCollection == o);  /* object must be 1st in 'allgarbageCollection' list! */
   set2gray(o);  /* they will be gray forever */
   setage(o, G_OLD);  /* and old forever */
   g->allgarbageCollection = o->next;  /* remove object from 'allgarbageCollection' list */
@@ -255,10 +255,10 @@ void nebulaC_fix (nebula_State *L, GCObject *o) {
 ** create a new collectable object (with given type and size) and link
 ** it to 'allgarbageCollection' list.
 */
-GCObject *nebulaC_newobj (nebula_State *L, int tt, size_t sz) {
+GCObject *hydrogenC_newobj (hydrogen_State *L, int tt, size_t sz) {
   global_State *g = G(L);
-  GCObject *o = cast(GCObject *, nebulaM_newobject(L, novariant(tt), sz));
-  o->marked = nebulaC_white(g);
+  GCObject *o = cast(GCObject *, hydrogenM_newobject(L, novariant(tt), sz));
+  o->marked = hydrogenC_white(g);
   o->tt = tt;
   o->next = g->allgarbageCollection;
   g->allgarbageCollection = o;
@@ -280,22 +280,22 @@ GCObject *nebulaC_newobj (nebula_State *L, int tt, size_t sz) {
 ** Mark an object.  Userdata with no user values, strings, and closed
 ** upvalues are visited and turned black here.  Open upvalues are
 ** already indirectly linked through their respective threads in the
-** 'twups' list, so they don't Nebula to the gray list; nevertheless, they
+** 'twups' list, so they don't Hydrogen to the gray list; nevertheless, they
 ** are kept gray to avoid barriers, as their values will be revisited
 ** by the thread or by 'remarkupvals'.  Other objects are added to the
 ** gray list to be visited (and turned black) later.  Both userdata and
-** upvalues can call this function recursively, but this recursion Nebulaes
+** upvalues can call this function recursively, but this recursion Hydrogenes
 ** for at most two levels: An upvalue cannot refer to another upvalue
 ** (only closures can), and a userdata's metatable must be a table.
 */
 static void reallymarkobject (global_State *g, GCObject *o) {
   switch (o->tt) {
-    case NEBULA_VSHRSTR:
-    case NEBULA_VLNGSTR: {
+    case HYDROGEN_VSHRSTR:
+    case HYDROGEN_VLNGSTR: {
       set2black(o);  /* nothing to visit */
       break;
     }
-    case NEBULA_VUPVAL: {
+    case HYDROGEN_VUPVAL: {
       UpVal *uv = gco2upv(o);
       if (upisopen(uv))
         set2gray(uv);  /* open upvalues are kept gray */
@@ -304,7 +304,7 @@ static void reallymarkobject (global_State *g, GCObject *o) {
       markvalue(g, uv->v);  /* mark its content */
       break;
     }
-    case NEBULA_VUSERDATA: {
+    case HYDROGEN_VUSERDATA: {
       Udata *u = gco2u(o);
       if (u->nuvalue == 0) {  /* no user values? */
         markobjectN(g, u->metatable);  /* mark its metatable */
@@ -313,12 +313,12 @@ static void reallymarkobject (global_State *g, GCObject *o) {
       }
       /* else... */
     }  /* FALLTHROUGH */
-    case NEBULA_VLCL: case NEBULA_VCCL: case NEBULA_VTABLE:
-    case NEBULA_VTHREAD: case NEBULA_VPROTO: {
+    case HYDROGEN_VLCL: case HYDROGEN_VCCL: case HYDROGEN_VTABLE:
+    case HYDROGEN_VTHREAD: case HYDROGEN_VPROTO: {
       linkobjgclist(o, g->gray);  /* to be visited later */
       break;
     }
-    default: nebula_assert(0); break;
+    default: hydrogen_assert(0); break;
   }
 }
 
@@ -328,7 +328,7 @@ static void reallymarkobject (global_State *g, GCObject *o) {
 */
 static void markmt (global_State *g) {
   int i;
-  for (i=0; i < NEBULA_NUMTAGS; i++)
+  for (i=0; i < HYDROGEN_NUMTAGS; i++)
     markobjectN(g, g->mt[i]);
 }
 
@@ -359,8 +359,8 @@ static lu_mem markbeingfnz (global_State *g) {
 ** upvalue later, it will be linked in the list again.)
 */
 static int remarkupvals (global_State *g) {
-  nebula_State *thread;
-  nebula_State **p = &g->twups;
+  hydrogen_State *thread;
+  hydrogen_State **p = &g->twups;
   int work = 0;  /* estimate of how much work was done here */
   while ((thread = *p) != NULL) {
     work++;
@@ -368,14 +368,14 @@ static int remarkupvals (global_State *g) {
       p = &thread->twups;  /* keep marked thread with upvalues in the list */
     else {  /* thread is not marked or without upvalues */
       UpVal *uv;
-      nebula_assert(!isold(thread) || thread->openupval == NULL);
+      hydrogen_assert(!isold(thread) || thread->openupval == NULL);
       *p = thread->twups;  /* remove thread from the list */
       thread->twups = thread;  /* mark that it is out of list */
       for (uv = thread->openupval; uv != NULL; uv = uv->u.open.next) {
-        nebula_assert(getage(uv) <= getage(thread));
+        hydrogen_assert(getage(uv) <= getage(thread));
         work++;
         if (!iswhite(uv)) {  /* upvalue already visited? */
-          nebula_assert(upisopen(uv) && isgray(uv));
+          hydrogen_assert(upisopen(uv) && isgray(uv));
           markvalue(g, uv->v);  /* mark its value */
         }
       }
@@ -417,12 +417,12 @@ static void restartcollection (global_State *g) {
 ** post-processing by 'correctgraylist'. (It could put all old objects
 ** in the list and leave all the work to 'correctgraylist', but it is
 ** more efficient to avoid adding elements that will be removed.) Only
-** TOUCHED1 objects need to be in the list. TOUCHED2 doesn't need to Nebula
+** TOUCHED1 objects need to be in the list. TOUCHED2 doesn't need to Hydrogen
 ** back to a gray list, but then it must become OLD. (That is what
 ** 'correctgraylist' does when it finds a TOUCHED2 object.)
 */
 static void genlink (global_State *g, GCObject *o) {
-  nebula_assert(isblack(o));
+  hydrogen_assert(isblack(o));
   if (getage(o) == G_TOUCHED1) {  /* touched in this cycle? */
     linkobjgclist(o, g->grayagain);  /* link it back in 'grayagain' */
   }  /* everything else do not need to be linked back */
@@ -446,7 +446,7 @@ static void traverseweakvalue (global_State *g, Table *h) {
     if (isempty(gval(n)))  /* entry is empty? */
       clearkey(n);  /* clear its key */
     else {
-      nebula_assert(!keyisnil(n));
+      hydrogen_assert(!keyisnil(n));
       markkey(g, n);
       if (!hasclears && iscleared(g, gcvalueN(gval(n))))  /* a white value? */
         hasclears = 1;  /* table will have to be cleared */
@@ -476,7 +476,7 @@ static int traverseephemeron (global_State *g, Table *h, int inv) {
   int hasclears = 0;  /* true if table has white keys */
   int hasww = 0;  /* true if table has entry "white-key -> white-value" */
   unsigned int i;
-  unsigned int asize = nebulaH_realasize(h);
+  unsigned int asize = hydrogenH_realasize(h);
   unsigned int nsize = sizenode(h);
   /* traverse array part */
   for (i = 0; i < asize; i++) {
@@ -517,14 +517,14 @@ static int traverseephemeron (global_State *g, Table *h, int inv) {
 static void traversestrongtable (global_State *g, Table *h) {
   Node *n, *limit = gnodelast(h);
   unsigned int i;
-  unsigned int asize = nebulaH_realasize(h);
+  unsigned int asize = hydrogenH_realasize(h);
   for (i = 0; i < asize; i++)  /* traverse array part */
     markvalue(g, &h->array[i]);
   for (n = gnode(h, 0); n < limit; n++) {  /* traverse hash part */
     if (isempty(gval(n)))  /* entry is empty? */
       clearkey(n);  /* clear its key */
     else {
-      nebula_assert(!keyisnil(n));
+      hydrogen_assert(!keyisnil(n));
       markkey(g, n);
       markvalue(g, gval(n));
     }
@@ -592,7 +592,7 @@ static int traverseCclosure (global_State *g, CClosure *cl) {
 }
 
 /*
-** Traverse a Nebula closure, marking its prototype and its upvalues.
+** Traverse a Hydrogen closure, marking its prototype and its upvalues.
 ** (Both can be NULL while closure is being created.)
 */
 static int traverseLclosure (global_State *g, LClosure *cl) {
@@ -618,14 +618,14 @@ static int traverseLclosure (global_State *g, LClosure *cl) {
 ** (which can only happen in generational mode) or if the traverse is in
 ** the propagate phase (which can only happen in incremental mode).
 */
-static int traversethread (global_State *g, nebula_State *th) {
+static int traversethread (global_State *g, hydrogen_State *th) {
   UpVal *uv;
   StkId o = th->stack;
   if (isold(th) || g->gcstate == GCSpropagate)
     linkgclist(th, g->grayagain);  /* insert into 'grayagain' list */
   if (o == NULL)
     return 1;  /* stack not completely built yet */
-  nebula_assert(g->gcstate == GCSatomic ||
+  hydrogen_assert(g->gcstate == GCSatomic ||
              th->openupval == NULL || isintwups(th));
   for (; o < th->top; o++)  /* mark live elements in the stack */
     markvalue(g, s2v(o));
@@ -641,7 +641,7 @@ static int traversethread (global_State *g, nebula_State *th) {
     }
   }
   else if (!g->gcemergency)
-    nebulaD_shrinkstack(th); /* do not change stack in emergency cycle */
+    hydrogenD_shrinkstack(th); /* do not change stack in emergency cycle */
   return 1 + stacksize(th);
 }
 
@@ -654,13 +654,13 @@ static lu_mem propagatemark (global_State *g) {
   nw2black(o);
   g->gray = *getgclist(o);  /* remove from 'gray' list */
   switch (o->tt) {
-    case NEBULA_VTABLE: return traversetable(g, gco2t(o));
-    case NEBULA_VUSERDATA: return traverseudata(g, gco2u(o));
-    case NEBULA_VLCL: return traverseLclosure(g, gco2lcl(o));
-    case NEBULA_VCCL: return traverseCclosure(g, gco2ccl(o));
-    case NEBULA_VPROTO: return traverseproto(g, gco2p(o));
-    case NEBULA_VTHREAD: return traversethread(g, gco2th(o));
-    default: nebula_assert(0); return 0;
+    case HYDROGEN_VTABLE: return traversetable(g, gco2t(o));
+    case HYDROGEN_VUSERDATA: return traverseudata(g, gco2u(o));
+    case HYDROGEN_VLCL: return traverseLclosure(g, gco2lcl(o));
+    case HYDROGEN_VCCL: return traverseCclosure(g, gco2ccl(o));
+    case HYDROGEN_VPROTO: return traverseproto(g, gco2p(o));
+    case HYDROGEN_VTHREAD: return traversethread(g, gco2th(o));
+    default: hydrogen_assert(0); return 0;
   }
 }
 
@@ -738,7 +738,7 @@ static void clearbyvalues (global_State *g, GCObject *l, GCObject *f) {
     Table *h = gco2t(l);
     Node *n, *limit = gnodelast(h);
     unsigned int i;
-    unsigned int asize = nebulaH_realasize(h);
+    unsigned int asize = hydrogenH_realasize(h);
     for (i = 0; i < asize; i++) {
       TValue *o = &h->array[i];
       if (iscleared(g, gcvalueN(o)))  /* value was collected? */
@@ -754,54 +754,54 @@ static void clearbyvalues (global_State *g, GCObject *l, GCObject *f) {
 }
 
 
-static void freeupval (nebula_State *L, UpVal *uv) {
+static void freeupval (hydrogen_State *L, UpVal *uv) {
   if (upisopen(uv))
-    nebulaF_unlinkupval(uv);
-  nebulaM_free(L, uv);
+    hydrogenF_unlinkupval(uv);
+  hydrogenM_free(L, uv);
 }
 
 
-static void freeobj (nebula_State *L, GCObject *o) {
+static void freeobj (hydrogen_State *L, GCObject *o) {
   switch (o->tt) {
-    case NEBULA_VPROTO:
-      nebulaF_freeproto(L, gco2p(o));
+    case HYDROGEN_VPROTO:
+      hydrogenF_freeproto(L, gco2p(o));
       break;
-    case NEBULA_VUPVAL:
+    case HYDROGEN_VUPVAL:
       freeupval(L, gco2upv(o));
       break;
-    case NEBULA_VLCL: {
+    case HYDROGEN_VLCL: {
       LClosure *cl = gco2lcl(o);
-      nebulaM_freemem(L, cl, sizeLclosure(cl->nupvalues));
+      hydrogenM_freemem(L, cl, sizeLclosure(cl->nupvalues));
       break;
     }
-    case NEBULA_VCCL: {
+    case HYDROGEN_VCCL: {
       CClosure *cl = gco2ccl(o);
-      nebulaM_freemem(L, cl, sizeCclosure(cl->nupvalues));
+      hydrogenM_freemem(L, cl, sizeCclosure(cl->nupvalues));
       break;
     }
-    case NEBULA_VTABLE:
-      nebulaH_free(L, gco2t(o));
+    case HYDROGEN_VTABLE:
+      hydrogenH_free(L, gco2t(o));
       break;
-    case NEBULA_VTHREAD:
-      nebulaE_freethread(L, gco2th(o));
+    case HYDROGEN_VTHREAD:
+      hydrogenE_freethread(L, gco2th(o));
       break;
-    case NEBULA_VUSERDATA: {
+    case HYDROGEN_VUSERDATA: {
       Udata *u = gco2u(o);
-      nebulaM_freemem(L, o, sizeudata(u->nuvalue, u->len));
+      hydrogenM_freemem(L, o, sizeudata(u->nuvalue, u->len));
       break;
     }
-    case NEBULA_VSHRSTR: {
+    case HYDROGEN_VSHRSTR: {
       TString *ts = gco2ts(o);
-      nebulaS_remove(L, ts);  /* remove it from hash table */
-      nebulaM_freemem(L, ts, sizestring(ts->shrlen));
+      hydrogenS_remove(L, ts);  /* remove it from hash table */
+      hydrogenM_freemem(L, ts, sizestring(ts->shrlen));
       break;
     }
-    case NEBULA_VLNGSTR: {
+    case HYDROGEN_VLNGSTR: {
       TString *ts = gco2ts(o);
-      nebulaM_freemem(L, ts, sizestring(ts->u.lnglen));
+      hydrogenM_freemem(L, ts, sizestring(ts->u.lnglen));
       break;
     }
-    default: nebula_assert(0);
+    default: hydrogen_assert(0);
   }
 }
 
@@ -813,12 +813,12 @@ static void freeobj (nebula_State *L, GCObject *o) {
 ** collection cycle. Return where to continue the traversal or NULL if
 ** list is finished. ('*countout' gets the number of elements traversed.)
 */
-static GCObject **sweeplist (nebula_State *L, GCObject **p, int countin,
+static GCObject **sweeplist (hydrogen_State *L, GCObject **p, int countin,
                              int *countout) {
   global_State *g = G(L);
   int ow = otherwhite(g);
   int i;
-  int white = nebulaC_white(g);  /* current white */
+  int white = hydrogenC_white(g);  /* current white */
   for (i = 0; *p != NULL && i < countin; i++) {
     GCObject *curr = *p;
     int marked = curr->marked;
@@ -828,7 +828,7 @@ static GCObject **sweeplist (nebula_State *L, GCObject **p, int countin,
     }
     else {  /* change mark to 'white' */
       curr->marked = cast_byte((marked & ~maskgcbits) | white);
-      p = &curr->next;  /* Nebula to next element */
+      p = &curr->next;  /* Hydrogen to next element */
     }
   }
   if (countout)
@@ -840,7 +840,7 @@ static GCObject **sweeplist (nebula_State *L, GCObject **p, int countin,
 /*
 ** sweep a list until a live object (or end of list)
 */
-static GCObject **sweeptolive (nebula_State *L, GCObject **p) {
+static GCObject **sweeptolive (hydrogen_State *L, GCObject **p) {
   GCObject **old = p;
   do {
     p = sweeplist(L, p, 1, NULL);
@@ -860,11 +860,11 @@ static GCObject **sweeptolive (nebula_State *L, GCObject **p) {
 /*
 ** If possible, shrink string table.
 */
-static void checkSizes (nebula_State *L, global_State *g) {
+static void checkSizes (hydrogen_State *L, global_State *g) {
   if (!g->gcemergency) {
     if (g->strt.nuse < g->strt.size / 4) {  /* string table too big? */
       l_mem olddebt = g->GCdebt;
-      nebulaS_resize(L, g->strt.size / 2);
+      hydrogenS_resize(L, g->strt.size / 2);
       g->GCestimate += g->GCdebt - olddebt;  /* correct estimate */
     }
   }
@@ -877,7 +877,7 @@ static void checkSizes (nebula_State *L, global_State *g) {
 */
 static GCObject *udata2finalize (global_State *g) {
   GCObject *o = g->tobefnz;  /* get first element */
-  nebula_assert(tofinalize(o));
+  hydrogen_assert(tofinalize(o));
   g->tobefnz = o->next;  /* remove it from 'tobefnz' list */
   o->next = g->allgarbageCollection;  /* return it to 'allgarbageCollection' list */
   g->allgarbageCollection = o;
@@ -890,19 +890,19 @@ static GCObject *udata2finalize (global_State *g) {
 }
 
 
-static void dothecall (nebula_State *L, void *ud) {
+static void dothecall (hydrogen_State *L, void *ud) {
   UNUSED(ud);
-  nebulaD_callnoyield(L, L->top - 2, 0);
+  hydrogenD_callnoyield(L, L->top - 2, 0);
 }
 
 
-static void GCTM (nebula_State *L) {
+static void GCTM (hydrogen_State *L) {
   global_State *g = G(L);
   const TValue *tm;
   TValue v;
-  nebula_assert(!g->gcemergency);
+  hydrogen_assert(!g->gcemergency);
   setgcovalue(L, &v, udata2finalize(g));
-  tm = nebulaT_gettmbyobj(L, &v, TM_GC);
+  tm = hydrogenT_gettmbyobj(L, &v, TM_GC);
   if (!notm(tm)) {  /* is there a finalizer? */
     int status;
     lu_byte oldah = L->allowhook;
@@ -912,12 +912,12 @@ static void GCTM (nebula_State *L) {
     setobj2s(L, L->top++, tm);  /* push finalizer... */
     setobj2s(L, L->top++, &v);  /* ... and its argument */
     L->ci->callstatus |= CIST_FIN;  /* will run a finalizer */
-    status = nebulaD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
+    status = hydrogenD_pcall(L, dothecall, NULL, savestack(L, L->top - 2), 0);
     L->ci->callstatus &= ~CIST_FIN;  /* not running a finalizer anymore */
     L->allowhook = oldah;  /* restore hooks */
     g->gcstp = oldgcstp;  /* restore state */
-    if (l_unlikely(status != NEBULA_OK)) {  /* error while running __gc? */
-      nebulaE_warnerror(L, "__gc");
+    if (l_unlikely(status != HYDROGEN_OK)) {  /* error while running __gc? */
+      hydrogenE_warnerror(L, "__gc");
       L->top--;  /* pops error object */
     }
   }
@@ -927,7 +927,7 @@ static void GCTM (nebula_State *L) {
 /*
 ** Call a few finalizers
 */
-static int runafewfinalizers (nebula_State *L, int n) {
+static int runafewfinalizers (hydrogen_State *L, int n) {
   global_State *g = G(L);
   int i;
   for (i = 0; i < n && g->tobefnz; i++)
@@ -939,7 +939,7 @@ static int runafewfinalizers (nebula_State *L, int n) {
 /*
 ** call all pending finalizers
 */
-static void callallpendingfinalizers (nebula_State *L) {
+static void callallpendingfinalizers (hydrogen_State *L) {
   global_State *g = G(L);
   while (g->tobefnz)
     GCTM(L);
@@ -968,7 +968,7 @@ static void separatetobefnz (global_State *g, int all) {
   GCObject **p = &g->finobj;
   GCObject **lastnext = findlast(&g->tobefnz);
   while ((curr = *p) != g->finobjold1) {  /* traverse all finalizable objects */
-    nebula_assert(tofinalize(curr));
+    hydrogen_assert(tofinalize(curr));
     if (!(iswhite(curr) || all))  /* not being collected? */
       p = &curr->next;  /* don't bother with it */
     else {
@@ -1008,7 +1008,7 @@ static void correctpointers (global_State *g, GCObject *o) {
 ** if object 'o' has a finalizer, remove it from 'allgarbageCollection' list (must
 ** search the list to find it) and link it in 'finobj' list.
 */
-void nebulaC_checkfinalizer (nebula_State *L, GCObject *o, Table *mt) {
+void hydrogenC_checkfinalizer (hydrogen_State *L, GCObject *o, Table *mt) {
   global_State *g = G(L);
   if (tofinalize(o) ||                 /* obj. is already marked... */
       gfasttm(g, mt, TM_GC) == NULL ||    /* or has no finalizer... */
@@ -1050,26 +1050,26 @@ static void setpause (global_State *g);
 ** are now old---must be in a gray list. Everything else is not in a
 ** gray list. Open upvalues are also kept gray.
 */
-static void sweep2old (nebula_State *L, GCObject **p) {
+static void sweep2old (hydrogen_State *L, GCObject **p) {
   GCObject *curr;
   global_State *g = G(L);
   while ((curr = *p) != NULL) {
     if (iswhite(curr)) {  /* is 'curr' dead? */
-      nebula_assert(isdead(g, curr));
+      hydrogen_assert(isdead(g, curr));
       *p = curr->next;  /* remove 'curr' from list */
       freeobj(L, curr);  /* erase 'curr' */
     }
     else {  /* all surviving objects become old */
       setage(curr, G_OLD);
-      if (curr->tt == NEBULA_VTHREAD) {  /* threads must be watched */
-        nebula_State *th = gco2th(curr);
+      if (curr->tt == HYDROGEN_VTHREAD) {  /* threads must be watched */
+        hydrogen_State *th = gco2th(curr);
         linkgclist(th, g->grayagain);  /* insert into 'grayagain' list */
       }
-      else if (curr->tt == NEBULA_VUPVAL && upisopen(gco2upv(curr)))
+      else if (curr->tt == HYDROGEN_VUPVAL && upisopen(gco2upv(curr)))
         set2gray(curr);  /* open upvalues are always gray */
       else  /* everything else is black */
         nw2black(curr);
-      p = &curr->next;  /* Nebula to next element */
+      p = &curr->next;  /* Hydrogen to next element */
     }
   }
 }
@@ -1086,7 +1086,7 @@ static void sweep2old (nebula_State *L, GCObject **p) {
 ** here.  They will all be advanced in 'correctgraylist'. That function
 ** will also remove objects turned white here from any gray list.
 */
-static GCObject **sweepgen (nebula_State *L, global_State *g, GCObject **p,
+static GCObject **sweepgen (hydrogen_State *L, global_State *g, GCObject **p,
                             GCObject *limit, GCObject **pfirstold1) {
   static const lu_byte nextage[] = {
     G_SURVIVAL,  /* from G_NEW */
@@ -1097,16 +1097,16 @@ static GCObject **sweepgen (nebula_State *L, global_State *g, GCObject **p,
     G_TOUCHED1,  /* from G_TOUCHED1 (do not change) */
     G_TOUCHED2   /* from G_TOUCHED2 (do not change) */
   };
-  int white = nebulaC_white(g);
+  int white = hydrogenC_white(g);
   GCObject *curr;
   while ((curr = *p) != limit) {
     if (iswhite(curr)) {  /* is 'curr' dead? */
-      nebula_assert(!isold(curr) && isdead(g, curr));
+      hydrogen_assert(!isold(curr) && isdead(g, curr));
       *p = curr->next;  /* remove 'curr' from list */
       freeobj(L, curr);  /* erase 'curr' */
     }
     else {  /* correct mark and age */
-      if (getage(curr) == G_NEW) {  /* new objects Nebula back to white */
+      if (getage(curr) == G_NEW) {  /* new objects Hydrogen back to white */
         int marked = curr->marked & ~maskgcbits;  /* erase GC bits */
         curr->marked = cast_byte(marked | G_SURVIVAL | white);
       }
@@ -1115,7 +1115,7 @@ static GCObject **sweepgen (nebula_State *L, global_State *g, GCObject **p,
         if (getage(curr) == G_OLD1 && *pfirstold1 == NULL)
           *pfirstold1 = curr;  /* first OLD1 object in the list */
       }
-      p = &curr->next;  /* Nebula to next element */
+      p = &curr->next;  /* Hydrogen to next element */
     }
   }
   return p;
@@ -1128,7 +1128,7 @@ static GCObject **sweepgen (nebula_State *L, global_State *g, GCObject **p,
 ** except for fixed strings (which are always old).
 */
 static void whitelist (global_State *g, GCObject *p) {
-  int white = nebulaC_white(g);
+  int white = hydrogenC_white(g);
   for (; p != NULL; p = p->next)
     p->marked = cast_byte((p->marked & ~maskgcbits) | white);
 }
@@ -1150,17 +1150,17 @@ static GCObject **correctgraylist (GCObject **p) {
     if (iswhite(curr))
       goto remove;  /* remove all white objects */
     else if (getage(curr) == G_TOUCHED1) {  /* touched in this cycle? */
-      nebula_assert(isgray(curr));
+      hydrogen_assert(isgray(curr));
       nw2black(curr);  /* make it black, for next barrier */
       changeage(curr, G_TOUCHED1, G_TOUCHED2);
       goto remain;  /* keep it in the list and go to next element */
     }
-    else if (curr->tt == NEBULA_VTHREAD) {
-      nebula_assert(isgray(curr));
+    else if (curr->tt == HYDROGEN_VTHREAD) {
+      hydrogen_assert(isgray(curr));
       goto remain;  /* keep non-white threads on the list */
     }
     else {  /* everything else is removed */
-      nebula_assert(isold(curr));  /* young objects should be white here */
+      hydrogen_assert(isold(curr));  /* young objects should be white here */
       if (getage(curr) == G_TOUCHED2)  /* advance from TOUCHED2... */
         changeage(curr, G_TOUCHED2, G_OLD);  /* ... to OLD */
       nw2black(curr);  /* make object black (to be removed) */
@@ -1196,7 +1196,7 @@ static void markold (global_State *g, GCObject *from, GCObject *to) {
   GCObject *p;
   for (p = from; p != to; p = p->next) {
     if (getage(p) == G_OLD1) {
-      nebula_assert(!iswhite(p));
+      hydrogen_assert(!iswhite(p));
       changeage(p, G_OLD1, G_OLD);  /* now they are old */
       if (isblack(p))
         reallymarkobject(g, p);
@@ -1208,7 +1208,7 @@ static void markold (global_State *g, GCObject *from, GCObject *to) {
 /*
 ** Finish a young-generation collection.
 */
-static void finishgencycle (nebula_State *L, global_State *g) {
+static void finishgencycle (hydrogen_State *L, global_State *g) {
   correctgraylists(g);
   checkSizes(L, g);
   g->gcstate = GCSpropagate;  /* skip restart */
@@ -1222,10 +1222,10 @@ static void finishgencycle (nebula_State *L, global_State *g) {
 ** atomic step. Then, sweep all lists and advance pointers. Finally,
 ** finish the collection.
 */
-static void youngcollection (nebula_State *L, global_State *g) {
+static void youngcollection (hydrogen_State *L, global_State *g) {
   GCObject **psurvival;  /* to point to first non-dead survival object */
   GCObject *dummy;  /* dummy out parameter to 'sweepgen' */
-  nebula_assert(g->gcstate == GCSpropagate);
+  hydrogen_assert(g->gcstate == GCSpropagate);
   if (g->firstold1) {  /* are there regular OLD1 objects? */
     markold(g, g->firstold1, g->reallyold);  /* mark them */
     g->firstold1 = NULL;  /* no more OLD1 objects (for now) */
@@ -1260,10 +1260,10 @@ static void youngcollection (nebula_State *L, global_State *g) {
 /*
 ** Clears all gray lists, sweeps objects, and prepare sublists to enter
 ** generational mode. The sweeps remove dead objects and turn all
-** surviving objects to old. Threads Nebula back to 'grayagain'; everything
+** surviving objects to old. Threads Hydrogen back to 'grayagain'; everything
 ** else is turned black (not in any gray list).
 */
-static void atomic2gen (nebula_State *L, global_State *g) {
+static void atomic2gen (hydrogen_State *L, global_State *g) {
   cleargraylists(g);
   /* sweep all elements making them old */
   g->gcstate = GCSswpallgarbageCollection;
@@ -1286,15 +1286,15 @@ static void atomic2gen (nebula_State *L, global_State *g) {
 
 
 /*
-** Enter generational mode. Must Nebula until the end of an atomic cycle
+** Enter generational mode. Must Hydrogen until the end of an atomic cycle
 ** to ensure that all objects are correctly marked and weak tables
 ** are cleared. Then, turn all objects into old and finishes the
 ** collection.
 */
-static lu_mem entergen (nebula_State *L, global_State *g) {
+static lu_mem entergen (hydrogen_State *L, global_State *g) {
   lu_mem numobjs;
-  nebulaC_runtistate(L, bitmask(GCSpause));  /* prepare to start a new cycle */
-  nebulaC_runtistate(L, bitmask(GCSpropagate));  /* start new cycle */
+  hydrogenC_runtistate(L, bitmask(GCSpause));  /* prepare to start a new cycle */
+  hydrogenC_runtistate(L, bitmask(GCSpropagate));  /* start new cycle */
   numobjs = atomic(L);  /* propagates all and then do the atomic stuff */
   atomic2gen(L, g);
   return numobjs;
@@ -1304,7 +1304,7 @@ static lu_mem entergen (nebula_State *L, global_State *g) {
 /*
 ** Enter incremental mode. Turn all objects white, make all
 ** intermediate lists point to NULL (to avoid invalid pointers),
-** and Nebula to the pause state.
+** and Hydrogen to the pause state.
 */
 static void enterinc (global_State *g) {
   whitelist(g, g->allgarbageCollection);
@@ -1321,7 +1321,7 @@ static void enterinc (global_State *g) {
 /*
 ** Change collector mode to 'newmode'.
 */
-void nebulaC_changemode (nebula_State *L, int newmode) {
+void hydrogenC_changemode (hydrogen_State *L, int newmode) {
   global_State *g = G(L);
   if (newmode != g->gckind) {
     if (newmode == KGC_GEN)  /* entering generational mode? */
@@ -1336,7 +1336,7 @@ void nebulaC_changemode (nebula_State *L, int newmode) {
 /*
 ** Does a full collection in generational mode.
 */
-static lu_mem fullgen (nebula_State *L, global_State *g) {
+static lu_mem fullgen (hydrogen_State *L, global_State *g) {
   enterinc(g);
   return entergen(L, g);
 }
@@ -1347,7 +1347,7 @@ static lu_mem fullgen (nebula_State *L, global_State *g) {
 ** memory grows 'genminormul'%.
 */
 static void setminordebt (global_State *g) {
-  nebulaE_setdebt(g, -(cast(l_mem, (gettotalbytes(g) / 100)) * g->genminormul));
+  hydrogenE_setdebt(g, -(cast(l_mem, (gettotalbytes(g) / 100)) * g->genminormul));
 }
 
 
@@ -1362,7 +1362,7 @@ static void setminordebt (global_State *g) {
 ** between generational mode and the incremental mode needed for full
 ** (major) collections, the collector tries to stay in incremental mode
 ** after a bad collection, and to switch back to generational mode only
-** after a "Nebulaod" collection (one that traverses less than 9/8 objects
+** after a "Hydrogenod" collection (one that traverses less than 9/8 objects
 ** of the previous one).
 ** The collector must choose whether to stay in incremental mode or to
 ** switch back to generational mode before sweeping. At this point, it
@@ -1372,21 +1372,21 @@ static void setminordebt (global_State *g) {
 ** field 'g->lastatomic' keeps this count from the last collection.
 ** ('g->lastatomic != 0' also means that the last collection was bad.)
 */
-static void stepgenfull (nebula_State *L, global_State *g) {
+static void stepgenfull (hydrogen_State *L, global_State *g) {
   lu_mem newatomic;  /* count of traversed objects */
   lu_mem lastatomic = g->lastatomic;  /* count from last collection */
   if (g->gckind == KGC_GEN)  /* still in generational mode? */
     enterinc(g);  /* enter incremental mode */
-  nebulaC_runtistate(L, bitmask(GCSpropagate));  /* start new cycle */
+  hydrogenC_runtistate(L, bitmask(GCSpropagate));  /* start new cycle */
   newatomic = atomic(L);  /* mark everybody */
-  if (newatomic < lastatomic + (lastatomic >> 3)) {  /* Nebulaod collection? */
+  if (newatomic < lastatomic + (lastatomic >> 3)) {  /* Hydrogenod collection? */
     atomic2gen(L, g);  /* return to generational mode */
     setminordebt(g);
   }
   else {  /* another bad collection; stay in incremental mode */
     g->GCestimate = gettotalbytes(g);  /* first estimate */;
     entersweep(L);
-    nebulaC_runtistate(L, bitmask(GCSpause));  /* finish collection */
+    hydrogenC_runtistate(L, bitmask(GCSpause));  /* finish collection */
     setpause(g);
     g->lastatomic = newatomic;
   }
@@ -1407,12 +1407,12 @@ static void stepgenfull (nebula_State *L, global_State *g) {
 ** and the next collection will probably be minor again. Otherwise,
 ** we have what we call a "bad collection". In that case, set the field
 ** 'g->lastatomic' to signal that fact, so that the next collection will
-** Nebula to 'stepgenfull'.
+** Hydrogen to 'stepgenfull'.
 **
 ** 'GCdebt <= 0' means an explicit call to GC step with "size" zero;
 ** in that case, do a minor collection.
 */
-static void genstep (nebula_State *L, global_State *g) {
+static void genstep (hydrogen_State *L, global_State *g) {
   if (g->lastatomic != 0)  /* last collection was a bad one? */
     stepgenfull(L, g);  /* do a full step */
   else {
@@ -1436,7 +1436,7 @@ static void genstep (nebula_State *L, global_State *g) {
       g->GCestimate = majorbase;  /* preserve base value */
     }
   }
-  nebula_assert(isdecGCmodegen(g));
+  hydrogen_assert(isdecGCmodegen(g));
 }
 
 /* }====================================================== */
@@ -1453,19 +1453,19 @@ static void genstep (nebula_State *L, global_State *g) {
 ** Set the "time" to wait before starting a new GC cycle; cycle will
 ** start when memory use hits the threshold of ('estimate' * pause /
 ** PAUSEADJ). (Division by 'estimate' should be OK: it cannot be zero,
-** because Nebula cannot even start with less than PAUSEADJ bytes).
+** because Hydrogen cannot even start with less than PAUSEADJ bytes).
 */
 static void setpause (global_State *g) {
   l_mem threshold, debt;
   int pause = getgcparam(g->gcpause);
   l_mem estimate = g->GCestimate / PAUSEADJ;  /* adjust 'estimate' */
-  nebula_assert(estimate > 0);
+  hydrogen_assert(estimate > 0);
   threshold = (pause < MAX_memory / estimate)  /* overflow? */
             ? estimate * pause  /* no overflow */
             : MAX_memory;  /* overflow; truncate to maximum */
   debt = gettotalbytes(g) - threshold;
   if (debt > 0) debt = 0;
-  nebulaE_setdebt(g, debt);
+  hydrogenE_setdebt(g, debt);
 }
 
 
@@ -1476,10 +1476,10 @@ static void setpause (global_State *g) {
 ** not need to skip objects created between "now" and the start of the
 ** real sweep.
 */
-static void entersweep (nebula_State *L) {
+static void entersweep (hydrogen_State *L) {
   global_State *g = G(L);
   g->gcstate = GCSswpallgarbageCollection;
-  nebula_assert(g->sweepgc == NULL);
+  hydrogen_assert(g->sweepgc == NULL);
   g->sweepgc = sweeptolive(L, &g->allgarbageCollection);
 }
 
@@ -1488,7 +1488,7 @@ static void entersweep (nebula_State *L) {
 ** Delete all objects in list 'p' until (but not including) object
 ** 'limit'.
 */
-static void deletelist (nebula_State *L, GCObject *p, GCObject *limit) {
+static void deletelist (hydrogen_State *L, GCObject *p, GCObject *limit) {
   while (p != limit) {
     GCObject *next = p->next;
     freeobj(L, p);
@@ -1498,31 +1498,31 @@ static void deletelist (nebula_State *L, GCObject *p, GCObject *limit) {
 
 
 /*
-** Call all finalizers of the objects in the given Nebula state, and
+** Call all finalizers of the objects in the given Hydrogen state, and
 ** then free all objects, except for the main thread.
 */
-void nebulaC_freealobjects (nebula_State *L) {
+void hydrogenC_freealobjects (hydrogen_State *L) {
   global_State *g = G(L);
   g->gcstp = GCSTPCLS;  /* no extra finalizers after here */
-  nebulaC_changemode(L, KGC_INC);
+  hydrogenC_changemode(L, KGC_INC);
   separatetobefnz(g, 1);  /* separate all objects with finalizers */
-  nebula_assert(g->finobj == NULL);
+  hydrogen_assert(g->finobj == NULL);
   callallpendingfinalizers(L);
   deletelist(L, g->allgarbageCollection, obj2gco(g->mainthread));
-  nebula_assert(g->finobj == NULL);  /* no new finalizers */
+  hydrogen_assert(g->finobj == NULL);  /* no new finalizers */
   deletelist(L, g->fixedgc, NULL);  /* collect fixed objects */
-  nebula_assert(g->strt.nuse == 0);
+  hydrogen_assert(g->strt.nuse == 0);
 }
 
 
-static lu_mem atomic (nebula_State *L) {
+static lu_mem atomic (hydrogen_State *L) {
   global_State *g = G(L);
   lu_mem work = 0;
   GCObject *origweak, *origall;
   GCObject *grayagain = g->grayagain;  /* save original list */
   g->grayagain = NULL;
-  nebula_assert(g->ephemeron == NULL && g->weak == NULL);
-  nebula_assert(!iswhite(g->mainthread));
+  hydrogen_assert(g->ephemeron == NULL && g->weak == NULL);
+  hydrogen_assert(!iswhite(g->mainthread));
   g->gcstate = GCSatomic;
   markobject(g, L);  /* mark running thread */
   /* registry and global metatables may be changed by API */
@@ -1551,14 +1551,14 @@ static lu_mem atomic (nebula_State *L) {
   /* clear values from resurrected weak tables */
   clearbyvalues(g, g->weak, origweak);
   clearbyvalues(g, g->allweak, origall);
-  nebulaS_clearcache(g);
+  hydrogenS_clearcache(g);
   g->currentwhite = cast_byte(otherwhite(g));  /* flip current white */
-  nebula_assert(g->gray == NULL);
+  hydrogen_assert(g->gray == NULL);
   return work;  /* estimate of slots marked by 'atomic' */
 }
 
 
-static int sweepstep (nebula_State *L, global_State *g,
+static int sweepstep (hydrogen_State *L, global_State *g,
                       int nextstate, GCObject **nextlist) {
   if (g->sweepgc) {
     l_mem olddebt = g->GCdebt;
@@ -1575,10 +1575,10 @@ static int sweepstep (nebula_State *L, global_State *g,
 }
 
 
-static lu_mem singlestep (nebula_State *L) {
+static lu_mem singlestep (hydrogen_State *L) {
   global_State *g = G(L);
   lu_mem work;
-  nebula_assert(!g->gcstopem);  /* collector is not reentrant */
+  hydrogen_assert(!g->gcstopem);  /* collector is not reentrant */
   g->gcstopem = 1;  /* no emergency collections while collecting */
   switch (g->gcstate) {
     case GCSpause: {
@@ -1631,7 +1631,7 @@ static lu_mem singlestep (nebula_State *L) {
       }
       break;
     }
-    default: nebula_assert(0); return 0;
+    default: hydrogen_assert(0); return 0;
   }
   g->gcstopem = 0;
   return work;
@@ -1642,7 +1642,7 @@ static lu_mem singlestep (nebula_State *L) {
 ** advances the garbage collector until it reaches a state allowed
 ** by 'statemask'
 */
-void nebulaC_runtistate (nebula_State *L, int statesmask) {
+void hydrogenC_runtistate (hydrogen_State *L, int statesmask) {
   global_State *g = G(L);
   while (!testbit(statesmask, g->gcstate))
     singlestep(L);
@@ -1657,7 +1657,7 @@ void nebulaC_runtistate (nebula_State *L, int statesmask) {
 ** finishing a cycle (pause state). Finally, it sets the debt that
 ** controls when next step will be performed.
 */
-static void incstep (nebula_State *L, global_State *g) {
+static void incstep (hydrogen_State *L, global_State *g) {
   int stepmul = (getgcparam(g->gcstepmul) | 1);  /* avoid division by 0 */
   l_mem debt = (g->GCdebt / WORK2MEM) * stepmul;
   l_mem stepsize = (g->gcstepsize <= log2maxs(l_mem))
@@ -1671,16 +1671,16 @@ static void incstep (nebula_State *L, global_State *g) {
     setpause(g);  /* pause until next cycle */
   else {
     debt = (debt / stepmul) * WORK2MEM;  /* convert 'work units' to bytes */
-    nebulaE_setdebt(g, debt);
+    hydrogenE_setdebt(g, debt);
   }
 }
 
 /*
 ** performs a basic GC step if collector is running
 */
-void nebulaC_step (nebula_State *L) {
+void hydrogenC_step (hydrogen_State *L) {
   global_State *g = G(L);
-  nebula_assert(!g->gcemergency);
+  hydrogen_assert(!g->gcemergency);
   if (gcrunning(g)) {  /* running? */
     if(isdecGCmodegen(g))
       genstep(L, g);
@@ -1697,15 +1697,15 @@ void nebulaC_step (nebula_State *L) {
 ** to sweep all objects to turn them back to white (as white has not
 ** changed, nothing will be collected).
 */
-static void fullinc (nebula_State *L, global_State *g) {
+static void fullinc (hydrogen_State *L, global_State *g) {
   if (keepinvariant(g))  /* black objects? */
     entersweep(L); /* sweep everything to turn them back to white */
   /* finish any pending sweep phase to start a new cycle */
-  nebulaC_runtistate(L, bitmask(GCSpause));
-  nebulaC_runtistate(L, bitmask(GCScallfin));  /* run up to finalizers */
+  hydrogenC_runtistate(L, bitmask(GCSpause));
+  hydrogenC_runtistate(L, bitmask(GCScallfin));  /* run up to finalizers */
   /* estimate must be correct after a full GC cycle */
-  nebula_assert(g->GCestimate == gettotalbytes(g));
-  nebulaC_runtistate(L, bitmask(GCSpause));  /* finish collection */
+  hydrogen_assert(g->GCestimate == gettotalbytes(g));
+  hydrogenC_runtistate(L, bitmask(GCSpause));  /* finish collection */
   setpause(g);
 }
 
@@ -1715,9 +1715,9 @@ static void fullinc (nebula_State *L, global_State *g) {
 ** some operations which could change the interpreter state in some
 ** unexpected ways (running finalizers and shrinking some structures).
 */
-void nebulaC_fulgarbageCollection (nebula_State *L, int isemergency) {
+void hydrogenC_fulgarbageCollection (hydrogen_State *L, int isemergency) {
   global_State *g = G(L);
-  nebula_assert(!g->gcemergency);
+  hydrogen_assert(!g->gcemergency);
   g->gcemergency = isemergency;  /* set flag */
   if (g->gckind == KGC_INC)
     fullinc(L, g);

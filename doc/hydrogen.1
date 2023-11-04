@@ -1,9 +1,9 @@
-.\" $Id: nebula.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
-.TH NEBULA 1 "$Date: 2020/05/21 19:31:21 $"
+.\" $Id: hydrogen.man,v 1.14 2020/05/21 19:31:21 lhf Exp $
+.TH HYDROGEN 1 "$Date: 2020/05/21 19:31:21 $"
 .SH NAME
-nebula \- Nebula interpreter
+hydrogen \- Hydrogen interpreter
 .SH SYNOPSIS
-.B nebula
+.B hydrogen
 [
 .I options
 ]
@@ -14,20 +14,20 @@ nebula \- Nebula interpreter
 ]
 ]
 .SH DESCRIPTION
-.B nebula
-is the standalone Nebula interpreter.
-It loads and executes Nebula programs,
+.B hydrogen
+is the standalone Hydrogen interpreter.
+It loads and executes Hydrogen programs,
 either in textual source form or
 in precompiled binary form.
 (Precompiled binaries are output by
-.BR nebulac ,
-the Nebula compiler.)
-.B nebula
+.BR hydrogenc ,
+the Hydrogen compiler.)
+.B hydrogen
 can be used as a batch interpreter and also interactively.
 .LP
 After handling the
 .IR options ,
-the Nebula program in file
+the Hydrogen program in file
 .I script
 is loaded and executed.
 The
@@ -38,43 +38,43 @@ as strings in a global table named
 .B arg
 and also as arguments to its main function.
 When called without arguments,
-.B nebula
+.B hydrogen
 behaves as
-.B "nebula \-v \-i"
+.B "hydrogen \-v \-i"
 if the standard input is a terminal,
 and as
-.B "nebula \-"
+.B "hydrogen \-"
 otherwise.
 .LP
 In interactive mode,
-.B nebula
+.B hydrogen
 prompts the user,
 reads lines from the standard input,
 and executes them as they are read.
 If the line contains an expression,
-then the line is evanebulated and the result is printed.
+then the line is evahydrogented and the result is printed.
 If a line does not contain a complete statement,
 then a secondary prompt is displayed and
 lines are read until a complete statement is formed or
 a syntax error is found.
 .LP
 Before handling command line options and scripts,
-.B nebula
+.B hydrogen
 checks the contents of the environment variables
-.B NEBULA_INIT_5_4
+.B HYDROGEN_INIT_5_4
 and
-.BR NEBULA_INIT ,
+.BR HYDROGEN_INIT ,
 in that order.
 If the contents are of the form
 .RI '@ filename ',
 then
 .I filename
 is executed.
-Otherwise, the contents are assumed to be a Nebula statement and is executed.
+Otherwise, the contents are assumed to be a Hydrogen statement and is executed.
 When
-.B NEBULA_INIT_5_4
+.B HYDROGEN_INIT_5_4
 is defined,
-.B NEBULA_INIT
+.B HYDROGEN_INIT
 is ignored.
 .SH OPTIONS
 .TP
@@ -108,28 +108,28 @@ stop handling options.
 stop handling options and execute the standard input as a file.
 .SH ENVIRONMENT VARIABLES
 The following environment variables affect the execution of
-.BR nebula .
+.BR hydrogen .
 When defined,
 the version-specific variants take priority
 and the version-neutral variants are ignored.
 .TP
-.B NEBULA_INIT, NEBULA_INIT_5_4
+.B HYDROGEN_INIT, HYDROGEN_INIT_5_4
 Code to be executed before command line options and scripts.
 .TP
-.B NEBULA_PATH, NEBULA_PATH_5_4
+.B HYDROGEN_PATH, HYDROGEN_PATH_5_4
 Initial value of package.cpath,
-the path used by require to search for Nebula loaders.
+the path used by require to search for Hydrogen loaders.
 .TP
-.B NEBULA_CPATH, NEBULA_CPATH_5_4
+.B HYDROGEN_CPATH, HYDROGEN_CPATH_5_4
 Initial value of package.cpath,
 the path used by require to search for C loaders.
 .SH EXIT STATUS
 If a script calls os.exit,
 then
-.B nebula
+.B hydrogen
 exits with the given exit status.
 Otherwise,
-.B nebula
+.B hydrogen
 exits
 with EXIT_SUCCESS (0 on POSIX systems) if there were no errors
 and
@@ -138,9 +138,9 @@ Errors raised in interactive mode do not cause exits.
 .SH DIAGNOSTICS
 Error messages should be self explanatory.
 .SH "SEE ALSO"
-.BR nebulac (1)
+.BR hydrogenc (1)
 .br
-The documentation at nebula.org,
+The documentation at hydrogen.org,
 especially section 7 of the reference manual.
 .SH AUTHORS
 R. Ierusalimschy,

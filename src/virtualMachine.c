@@ -1,11 +1,11 @@
 /*
 ** $Id: virtualMachine.c $
-** Nebula virtual machine
-** See Copyright Notice in nebula.h
+** Hydrogen virtual machine
+** See Copyright Notice in hydrogen.h
 */
 
 #define virtualMachine_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "debug.h"
 #include "do.h"
@@ -35,11 +35,11 @@
 ** By default, use jump tables in the main interpreter loop on gcc
 ** and compatible compilers.
 */
-#if !defined(NEBULA_USE_JUMPTABLE)
+#if !defined(HYDROGEN_USE_JUMPTABLE)
 #if defined(__GNUC__)
-#define NEBULA_USE_JUMPTABLE	1
+#define HYDROGEN_USE_JUMPTABLE	1
 #else
-#define NEBULA_USE_JUMPTABLE	0
+#define HYDROGEN_USE_JUMPTABLE	0
 #endif
 #endif
 
@@ -64,11 +64,11 @@
 ** of an integer. In a worst case, NBM == 113 for long double and
 ** sizeof(long) == 32.)
 */
-#if ((((NEBULA_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
+#if ((((HYDROGEN_MAXINTEGER >> (NBM / 4)) >> (NBM / 4)) >> (NBM / 4)) \
 	>> (NBM - (3 * (NBM / 4))))  >  0
 
 /* limit for integers that fit in a float */
-#define MAXINTFITSF	((nebula_Unsigned)1 << NBM)
+#define MAXINTFITSF	((hydrogen_Unsigned)1 << NBM)
 
 /* check whether 'i' is in the interval [-MAXINTFITSF, MAXINTFITSF] */
 #define l_intfitsf(i)	((MAXINTFITSF + l_castS2U(i)) <= (2 * MAXINTFITSF))
@@ -88,11 +88,11 @@
 ** and return 0.
 */
 static int l_strton (const TValue *obj, TValue *result) {
-  nebula_assert(obj != result);
+  hydrogen_assert(obj != result);
   if (!cvt2num(obj))  /* is object not a string? */
     return 0;
   else
-    return (nebulaO_str2num(svalue(obj), result) == vslen(obj) + 1);
+    return (hydrogenO_str2num(svalue(obj), result) == vslen(obj) + 1);
 }
 
 
@@ -100,14 +100,14 @@ static int l_strton (const TValue *obj, TValue *result) {
 ** Try to convert a value to a float. The float case is already handled
 ** by the macro 'tonumber'.
 */
-int nebulaV_tonumber_ (const TValue *obj, nebula_Number *n) {
+int hydrogenV_tonumber_ (const TValue *obj, hydrogen_Number *n) {
   TValue v;
   if (ttisinteger(obj)) {
     *n = cast_num(ivalue(obj));
     return 1;
   }
   else if (l_strton(obj, &v)) {  /* string coercible to number? */
-    *n = nvalue(&v);  /* convert result of 'nebulaO_str2num' to a float */
+    *n = nvalue(&v);  /* convert result of 'hydrogenO_str2num' to a float */
     return 1;
   }
   else
@@ -118,14 +118,14 @@ int nebulaV_tonumber_ (const TValue *obj, nebula_Number *n) {
 /*
 ** try to convert a float to an integer, rounding according to 'mode'.
 */
-int nebulaV_flttointeger (nebula_Number n, nebula_Integer *p, F2Imod mode) {
-  nebula_Number f = l_floor(n);
+int hydrogenV_flttointeger (hydrogen_Number n, hydrogen_Integer *p, F2Imod mode) {
+  hydrogen_Number f = l_floor(n);
   if (n != f) {  /* not an integral value? */
     if (mode == F2Ieq) return 0;  /* fails if mode demands integral value */
     else if (mode == F2Iceil)  /* needs ceil? */
       f += 1;  /* convert floor to ceil (remember: n != f) */
   }
-  return nebula_numbertointeger(f, p);
+  return hydrogen_numbertointeger(f, p);
 }
 
 
@@ -134,9 +134,9 @@ int nebulaV_flttointeger (nebula_Number n, nebula_Integer *p, F2Imod mode) {
 ** without string coercion.
 ** ("Fast track" handled by macro 'tointegerns'.)
 */
-int nebulaV_tointegerns (const TValue *obj, nebula_Integer *p, F2Imod mode) {
+int hydrogenV_tointegerns (const TValue *obj, hydrogen_Integer *p, F2Imod mode) {
   if (ttisfloat(obj))
-    return nebulaV_flttointeger(fltvalue(obj), p, mode);
+    return hydrogenV_flttointeger(fltvalue(obj), p, mode);
   else if (ttisinteger(obj)) {
     *p = ivalue(obj);
     return 1;
@@ -149,11 +149,11 @@ int nebulaV_tointegerns (const TValue *obj, nebula_Integer *p, F2Imod mode) {
 /*
 ** try to convert a value to an integer.
 */
-int nebulaV_tointeger (const TValue *obj, nebula_Integer *p, F2Imod mode) {
+int hydrogenV_tointeger (const TValue *obj, hydrogen_Integer *p, F2Imod mode) {
   TValue v;
   if (l_strton(obj, &v))  /* does 'obj' point to a numerical string? */
     obj = &v;  /* change it to point to its corresponding number */
-  return nebulaV_tointegerns(obj, p, mode);
+  return hydrogenV_tointegerns(obj, p, mode);
 }
 
 
@@ -166,28 +166,28 @@ int nebulaV_tointeger (const TValue *obj, nebula_Integer *p, F2Imod mode) {
 ** If the limit is an integer or can be converted to an integer,
 ** rounding down, that is the limit.
 ** Otherwise, check whether the limit can be converted to a float. If
-** the float is too large, clip it to NEBULA_MAXINTEGER.  If the float
+** the float is too large, clip it to HYDROGEN_MAXINTEGER.  If the float
 ** is too negative, the loop should not run, because any initial
 ** integer value is greater than such limit; so, the function returns
 ** true to signal that. (For this latter case, no integer limit would be
-** correct; even a limit of NEBULA_MININTEGER would run the loop once for
-** an initial value equal to NEBULA_MININTEGER.)
+** correct; even a limit of HYDROGEN_MININTEGER would run the loop once for
+** an initial value equal to HYDROGEN_MININTEGER.)
 */
-static int forlimit (nebula_State *L, nebula_Integer init, const TValue *lim,
-                                   nebula_Integer *p, nebula_Integer step) {
-  if (!nebulaV_tointeger(lim, p, (step < 0 ? F2Iceil : F2Ifloor))) {
+static int forlimit (hydrogen_State *L, hydrogen_Integer init, const TValue *lim,
+                                   hydrogen_Integer *p, hydrogen_Integer step) {
+  if (!hydrogenV_tointeger(lim, p, (step < 0 ? F2Iceil : F2Ifloor))) {
     /* not coercible to in integer */
-    nebula_Number flim;  /* try to convert to float */
+    hydrogen_Number flim;  /* try to convert to float */
     if (!tonumber(lim, &flim)) /* cannot convert to float? */
-      nebulaG_forerror(L, lim, "limit");
+      hydrogenG_forerror(L, lim, "limit");
     /* else 'flim' is a float out of integer bounds */
-    if (nebulai_numlt(0, flim)) {  /* if it is positive, it is too large */
+    if (hydrogeni_numlt(0, flim)) {  /* if it is positive, it is too large */
       if (step < 0) return 1;  /* initial value must be less than it */
-      *p = NEBULA_MAXINTEGER;  /* truncate */
+      *p = HYDROGEN_MAXINTEGER;  /* truncate */
     }
     else {  /* it is less than min integer */
       if (step > 0) return 1;  /* initial value must be greater than it */
-      *p = NEBULA_MININTEGER;  /* truncate */
+      *p = HYDROGEN_MININTEGER;  /* truncate */
     }
   }
   return (step > 0 ? init > *p : init < *p);  /* not to run? */
@@ -203,21 +203,21 @@ static int forlimit (nebula_State *L, nebula_Integer init, const TValue *lim,
 **   ra + 2 : step
 **   ra + 3 : control variable
 */
-static int forprep (nebula_State *L, StkId ra) {
+static int forprep (hydrogen_State *L, StkId ra) {
   TValue *pinit = s2v(ra);
   TValue *plimit = s2v(ra + 1);
   TValue *pstep = s2v(ra + 2);
   if (ttisinteger(pinit) && ttisinteger(pstep)) { /* integer loop? */
-    nebula_Integer init = ivalue(pinit);
-    nebula_Integer step = ivalue(pstep);
-    nebula_Integer limit;
+    hydrogen_Integer init = ivalue(pinit);
+    hydrogen_Integer step = ivalue(pstep);
+    hydrogen_Integer limit;
     if (step == 0)
-      nebulaG_runerror(L, "'for' step is zero");
+      hydrogenG_runerror(L, "'for' step is zero");
     setivalue(s2v(ra + 3), init);  /* control variable */
     if (forlimit(L, init, plimit, &limit, step))
       return 1;  /* skip the loop */
     else {  /* prepare loop counter */
-      nebula_Unsigned count;
+      hydrogen_Unsigned count;
       if (step > 0) {  /* ascending loop? */
         count = l_castS2U(limit) - l_castS2U(init);
         if (step != 1)  /* avoid division in the too common case */
@@ -234,17 +234,17 @@ static int forprep (nebula_State *L, StkId ra) {
     }
   }
   else {  /* try making all values floats */
-    nebula_Number init; nebula_Number limit; nebula_Number step;
+    hydrogen_Number init; hydrogen_Number limit; hydrogen_Number step;
     if (l_unlikely(!tonumber(plimit, &limit)))
-      nebulaG_forerror(L, plimit, "limit");
+      hydrogenG_forerror(L, plimit, "limit");
     if (l_unlikely(!tonumber(pstep, &step)))
-      nebulaG_forerror(L, pstep, "step");
+      hydrogenG_forerror(L, pstep, "step");
     if (l_unlikely(!tonumber(pinit, &init)))
-      nebulaG_forerror(L, pinit, "initial value");
+      hydrogenG_forerror(L, pinit, "initial value");
     if (step == 0)
-      nebulaG_runerror(L, "'for' step is zero");
-    if (nebulai_numlt(0, step) ? nebulai_numlt(limit, init)
-                            : nebulai_numlt(init, limit))
+      hydrogenG_runerror(L, "'for' step is zero");
+    if (hydrogeni_numlt(0, step) ? hydrogeni_numlt(limit, init)
+                            : hydrogeni_numlt(init, limit))
       return 1;  /* skip the loop */
     else {
       /* make sure internal values are all floats */
@@ -264,12 +264,12 @@ static int forprep (nebula_State *L, StkId ra) {
 ** written online with opcode OP_FORLOOP, for performance.)
 */
 static int floatforloop (StkId ra) {
-  nebula_Number step = fltvalue(s2v(ra + 2));
-  nebula_Number limit = fltvalue(s2v(ra + 1));
-  nebula_Number idx = fltvalue(s2v(ra));  /* internal index */
-  idx = nebulai_numadd(L, idx, step);  /* increment index */
-  if (nebulai_numlt(0, step) ? nebulai_numle(idx, limit)
-                          : nebulai_numle(limit, idx)) {
+  hydrogen_Number step = fltvalue(s2v(ra + 2));
+  hydrogen_Number limit = fltvalue(s2v(ra + 1));
+  hydrogen_Number idx = fltvalue(s2v(ra));  /* internal index */
+  idx = hydrogeni_numadd(L, idx, step);  /* increment index */
+  if (hydrogeni_numlt(0, step) ? hydrogeni_numle(idx, limit)
+                          : hydrogeni_numle(limit, idx)) {
     chgfltvalue(s2v(ra), idx);  /* update internal index */
     setfltvalue(s2v(ra + 3), idx);  /* and control variable */
     return 1;  /* jump back */
@@ -284,20 +284,20 @@ static int floatforloop (StkId ra) {
 ** if 'slot' is NULL, 't' is not a table; otherwise, 'slot' points to
 ** t[k] entry (which must be empty).
 */
-void nebulaV_finishget (nebula_State *L, const TValue *t, TValue *key, StkId val,
+void hydrogenV_finishget (hydrogen_State *L, const TValue *t, TValue *key, StkId val,
                       const TValue *slot) {
   int loop;  /* counter to avoid infinite loops */
   const TValue *tm;  /* metamethod */
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     if (slot == NULL) {  /* 't' is not a table? */
-      nebula_assert(!ttistable(t));
-      tm = nebulaT_gettmbyobj(L, t, TM_INDEX);
+      hydrogen_assert(!ttistable(t));
+      tm = hydrogenT_gettmbyobj(L, t, TM_INDEX);
       if (l_unlikely(notm(tm)))
-        nebulaG_typeerror(L, t, "index");  /* no metamethod */
+        hydrogenG_typeerror(L, t, "index");  /* no metamethod */
       /* else will try the metamethod */
     }
     else {  /* 't' is a table */
-      nebula_assert(isempty(slot));
+      hydrogen_assert(isempty(slot));
       tm = fasttm(L, hvalue(t)->metatable, TM_INDEX);  /* table's metamethod */
       if (tm == NULL) {  /* no metamethod? */
         setnilvalue(s2v(val));  /* result is nil */
@@ -306,17 +306,17 @@ void nebulaV_finishget (nebula_State *L, const TValue *t, TValue *key, StkId val
       /* else will try the metamethod */
     }
     if (ttisfunction(tm)) {  /* is metamethod a function? */
-      nebulaT_caltagMethodsres(L, tm, t, key, val);  /* call it */
+      hydrogenT_caltagMethodsres(L, tm, t, key, val);  /* call it */
       return;
     }
     t = tm;  /* else try to access 'tm[key]' */
-    if (nebulaV_fastget(L, t, key, slot, nebulaH_get)) {  /* fast track? */
+    if (hydrogenV_fastget(L, t, key, slot, hydrogenH_get)) {  /* fast track? */
       setobj2s(L, val, slot);  /* done */
       return;
     }
-    /* else repeat (tail call 'nebulaV_finishget') */
+    /* else repeat (tail call 'hydrogenV_finishget') */
   }
-  nebulaG_runerror(L, "'__index' chain too long; possible loop");
+  hydrogenG_runerror(L, "'__index' chain too long; possible loop");
 }
 
 
@@ -325,43 +325,43 @@ void nebulaV_finishget (nebula_State *L, const TValue *t, TValue *key, StkId val
 ** If 'slot' is NULL, 't' is not a table.  Otherwise, 'slot' points
 ** to the entry 't[key]', or to a value with an absent key if there
 ** is no such entry.  (The value at 'slot' must be empty, otherwise
-** 'nebulaV_fastget' would have done the job.)
+** 'hydrogenV_fastget' would have done the job.)
 */
-void nebulaV_finishset (nebula_State *L, const TValue *t, TValue *key,
+void hydrogenV_finishset (hydrogen_State *L, const TValue *t, TValue *key,
                      TValue *val, const TValue *slot) {
   int loop;  /* counter to avoid infinite loops */
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;  /* '__newindex' metamethod */
     if (slot != NULL) {  /* is 't' a table? */
       Table *h = hvalue(t);  /* save 't' table */
-      nebula_assert(isempty(slot));  /* slot must be empty */
+      hydrogen_assert(isempty(slot));  /* slot must be empty */
       tm = fasttm(L, h->metatable, TM_NEWINDEX);  /* get metamethod */
       if (tm == NULL) {  /* no metamethod? */
-        nebulaH_finishset(L, h, key, slot, val);  /* set new value */
+        hydrogenH_finishset(L, h, key, slot, val);  /* set new value */
         invalidateTMcache(h);
-        nebulaC_barrierback(L, obj2gco(h), val);
+        hydrogenC_barrierback(L, obj2gco(h), val);
         return;
       }
       /* else will try the metamethod */
     }
     else {  /* not a table; check metamethod */
-      tm = nebulaT_gettmbyobj(L, t, TM_NEWINDEX);
+      tm = hydrogenT_gettmbyobj(L, t, TM_NEWINDEX);
       if (l_unlikely(notm(tm)))
-        nebulaG_typeerror(L, t, "index");
+        hydrogenG_typeerror(L, t, "index");
     }
     /* try the metamethod */
     if (ttisfunction(tm)) {
-      nebulaT_caltagMethods(L, tm, t, key, val);
+      hydrogenT_caltagMethods(L, tm, t, key, val);
       return;
     }
     t = tm;  /* else repeat assignment over 'tm' */
-    if (nebulaV_fastget(L, t, key, slot, nebulaH_get)) {
-      nebulaV_finishfastset(L, t, slot, val);
+    if (hydrogenV_fastget(L, t, key, slot, hydrogenH_get)) {
+      hydrogenV_finishfastset(L, t, slot, val);
       return;  /* done */
     }
-    /* else 'return nebulaV_finishset(L, t, key, val, slot)' (loop) */
+    /* else 'return hydrogenV_finishset(L, t, key, val, slot)' (loop) */
   }
-  nebulaG_runerror(L, "'__newindex' chain too long; possible loop");
+  hydrogenG_runerror(L, "'__newindex' chain too long; possible loop");
 }
 
 
@@ -387,7 +387,7 @@ static int l_strcmp (const TString *ls, const TString *rs) {
         return (len == ll) ? 0 : 1;  /* check 'ls' */
       else if (len == ll)  /* 'ls' is finished? */
         return -1;  /* 'ls' is less than 'rs' ('rs' is not finished) */
-      /* both strings longer than 'len'; Nebula on comparing after the '\0' */
+      /* both strings longer than 'len'; Hydrogen on comparing after the '\0' */
       len++;
       l += len; ll -= len; r += len; lr -= len;
     }
@@ -406,12 +406,12 @@ static int l_strcmp (const TString *ls, const TString *rs) {
 ** from float to int.)
 ** When 'f' is NaN, comparisons must result in false.
 */
-l_sinline int LTintfloat (nebula_Integer i, nebula_Number f) {
+l_sinline int LTintfloat (hydrogen_Integer i, hydrogen_Number f) {
   if (l_intfitsf(i))
-    return nebulai_numlt(cast_num(i), f);  /* compare them as floats */
+    return hydrogeni_numlt(cast_num(i), f);  /* compare them as floats */
   else {  /* i < f <=> i < ceil(f) */
-    nebula_Integer fi;
-    if (nebulaV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
+    hydrogen_Integer fi;
+    if (hydrogenV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
       return i < fi;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f > 0;  /* greater? */
@@ -423,12 +423,12 @@ l_sinline int LTintfloat (nebula_Integer i, nebula_Number f) {
 ** Check whether integer 'i' is less than or equal to float 'f'.
 ** See comments on previous function.
 */
-l_sinline int LEintfloat (nebula_Integer i, nebula_Number f) {
+l_sinline int LEintfloat (hydrogen_Integer i, hydrogen_Number f) {
   if (l_intfitsf(i))
-    return nebulai_numle(cast_num(i), f);  /* compare them as floats */
+    return hydrogeni_numle(cast_num(i), f);  /* compare them as floats */
   else {  /* i <= f <=> i <= floor(f) */
-    nebula_Integer fi;
-    if (nebulaV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
+    hydrogen_Integer fi;
+    if (hydrogenV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
       return i <= fi;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f > 0;  /* greater? */
@@ -440,12 +440,12 @@ l_sinline int LEintfloat (nebula_Integer i, nebula_Number f) {
 ** Check whether float 'f' is less than integer 'i'.
 ** See comments on previous function.
 */
-l_sinline int LTfloatint (nebula_Number f, nebula_Integer i) {
+l_sinline int LTfloatint (hydrogen_Number f, hydrogen_Integer i) {
   if (l_intfitsf(i))
-    return nebulai_numlt(f, cast_num(i));  /* compare them as floats */
+    return hydrogeni_numlt(f, cast_num(i));  /* compare them as floats */
   else {  /* f < i <=> floor(f) < i */
-    nebula_Integer fi;
-    if (nebulaV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
+    hydrogen_Integer fi;
+    if (hydrogenV_flttointeger(f, &fi, F2Ifloor))  /* fi = floor(f) */
       return fi < i;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f < 0;  /* less? */
@@ -457,12 +457,12 @@ l_sinline int LTfloatint (nebula_Number f, nebula_Integer i) {
 ** Check whether float 'f' is less than or equal to integer 'i'.
 ** See comments on previous function.
 */
-l_sinline int LEfloatint (nebula_Number f, nebula_Integer i) {
+l_sinline int LEfloatint (hydrogen_Number f, hydrogen_Integer i) {
   if (l_intfitsf(i))
-    return nebulai_numle(f, cast_num(i));  /* compare them as floats */
+    return hydrogeni_numle(f, cast_num(i));  /* compare them as floats */
   else {  /* f <= i <=> ceil(f) <= i */
-    nebula_Integer fi;
-    if (nebulaV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
+    hydrogen_Integer fi;
+    if (hydrogenV_flttointeger(f, &fi, F2Iceil))  /* fi = ceil(f) */
       return fi <= i;   /* compare them as integers */
     else  /* 'f' is either greater or less than all integers */
       return f < 0;  /* less? */
@@ -474,18 +474,18 @@ l_sinline int LEfloatint (nebula_Number f, nebula_Integer i) {
 ** Return 'l < r', for numbers.
 */
 l_sinline int LTnum (const TValue *l, const TValue *r) {
-  nebula_assert(ttisnumber(l) && ttisnumber(r));
+  hydrogen_assert(ttisnumber(l) && ttisnumber(r));
   if (ttisinteger(l)) {
-    nebula_Integer li = ivalue(l);
+    hydrogen_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li < ivalue(r);  /* both are integers */
     else  /* 'l' is int and 'r' is float */
       return LTintfloat(li, fltvalue(r));  /* l < r ? */
   }
   else {
-    nebula_Number lf = fltvalue(l);  /* 'l' must be float */
+    hydrogen_Number lf = fltvalue(l);  /* 'l' must be float */
     if (ttisfloat(r))
-      return nebulai_numlt(lf, fltvalue(r));  /* both are float */
+      return hydrogeni_numlt(lf, fltvalue(r));  /* both are float */
     else  /* 'l' is float and 'r' is int */
       return LTfloatint(lf, ivalue(r));
   }
@@ -496,18 +496,18 @@ l_sinline int LTnum (const TValue *l, const TValue *r) {
 ** Return 'l <= r', for numbers.
 */
 l_sinline int LEnum (const TValue *l, const TValue *r) {
-  nebula_assert(ttisnumber(l) && ttisnumber(r));
+  hydrogen_assert(ttisnumber(l) && ttisnumber(r));
   if (ttisinteger(l)) {
-    nebula_Integer li = ivalue(l);
+    hydrogen_Integer li = ivalue(l);
     if (ttisinteger(r))
       return li <= ivalue(r);  /* both are integers */
     else  /* 'l' is int and 'r' is float */
       return LEintfloat(li, fltvalue(r));  /* l <= r ? */
   }
   else {
-    nebula_Number lf = fltvalue(l);  /* 'l' must be float */
+    hydrogen_Number lf = fltvalue(l);  /* 'l' must be float */
     if (ttisfloat(r))
-      return nebulai_numle(lf, fltvalue(r));  /* both are float */
+      return hydrogeni_numle(lf, fltvalue(r));  /* both are float */
     else  /* 'l' is float and 'r' is int */
       return LEfloatint(lf, ivalue(r));
   }
@@ -517,19 +517,19 @@ l_sinline int LEnum (const TValue *l, const TValue *r) {
 /*
 ** return 'l < r' for non-numbers.
 */
-static int lessthanothers (nebula_State *L, const TValue *l, const TValue *r) {
-  nebula_assert(!ttisnumber(l) || !ttisnumber(r));
+static int lessthanothers (hydrogen_State *L, const TValue *l, const TValue *r) {
+  hydrogen_assert(!ttisnumber(l) || !ttisnumber(r));
   if (ttisstring(l) && ttisstring(r))  /* both are strings? */
     return l_strcmp(tsvalue(l), tsvalue(r)) < 0;
   else
-    return nebulaT_callorderTM(L, l, r, TM_LT);
+    return hydrogenT_callorderTM(L, l, r, TM_LT);
 }
 
 
 /*
 ** Main operation less than; return 'l < r'.
 */
-int nebulaV_lessthan (nebula_State *L, const TValue *l, const TValue *r) {
+int hydrogenV_lessthan (hydrogen_State *L, const TValue *l, const TValue *r) {
   if (ttisnumber(l) && ttisnumber(r))  /* both operands are numbers? */
     return LTnum(l, r);
   else return lessthanothers(L, l, r);
@@ -539,19 +539,19 @@ int nebulaV_lessthan (nebula_State *L, const TValue *l, const TValue *r) {
 /*
 ** return 'l <= r' for non-numbers.
 */
-static int lessequalothers (nebula_State *L, const TValue *l, const TValue *r) {
-  nebula_assert(!ttisnumber(l) || !ttisnumber(r));
+static int lessequalothers (hydrogen_State *L, const TValue *l, const TValue *r) {
+  hydrogen_assert(!ttisnumber(l) || !ttisnumber(r));
   if (ttisstring(l) && ttisstring(r))  /* both are strings? */
     return l_strcmp(tsvalue(l), tsvalue(r)) <= 0;
   else
-    return nebulaT_callorderTM(L, l, r, TM_LE);
+    return hydrogenT_callorderTM(L, l, r, TM_LE);
 }
 
 
 /*
 ** Main operation less than or equal to; return 'l <= r'.
 */
-int nebulaV_lessequal (nebula_State *L, const TValue *l, const TValue *r) {
+int hydrogenV_lessequal (hydrogen_State *L, const TValue *l, const TValue *r) {
   if (ttisnumber(l) && ttisnumber(r))  /* both operands are numbers? */
     return LEnum(l, r);
   else return lessequalothers(L, l, r);
@@ -559,34 +559,34 @@ int nebulaV_lessequal (nebula_State *L, const TValue *l, const TValue *r) {
 
 
 /*
-** Main operation for equality of Nebula values; return 't1 == t2'.
+** Main operation for equality of Hydrogen values; return 't1 == t2'.
 ** L == NULL means raw equality (no metamethods)
 */
-int nebulaV_equalobj (nebula_State *L, const TValue *t1, const TValue *t2) {
+int hydrogenV_equalobj (hydrogen_State *L, const TValue *t1, const TValue *t2) {
   const TValue *tm;
   if (ttypetag(t1) != ttypetag(t2)) {  /* not the same variant? */
-    if (ttype(t1) != ttype(t2) || ttype(t1) != NEBULA_TNUMBER)
+    if (ttype(t1) != ttype(t2) || ttype(t1) != HYDROGEN_TNUMBER)
       return 0;  /* only numbers can be equal with different variants */
     else {  /* two numbers with different variants */
       /* One of them is an integer. If the other does not have an
          integer value, they cannot be equal; otherwise, compare their
          integer values. */
-      nebula_Integer i1, i2;
-      return (nebulaV_tointegerns(t1, &i1, F2Ieq) &&
-              nebulaV_tointegerns(t2, &i2, F2Ieq) &&
+      hydrogen_Integer i1, i2;
+      return (hydrogenV_tointegerns(t1, &i1, F2Ieq) &&
+              hydrogenV_tointegerns(t2, &i2, F2Ieq) &&
               i1 == i2);
     }
   }
   /* values have same type and same variant */
   switch (ttypetag(t1)) {
-    case NEBULA_VNIL: case NEBULA_VFALSE: case NEBULA_VTRUE: return 1;
-    case NEBULA_VNUMINT: return (ivalue(t1) == ivalue(t2));
-    case NEBULA_VNUMFLT: return nebulai_numeq(fltvalue(t1), fltvalue(t2));
-    case NEBULA_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
-    case NEBULA_VLCF: return fvalue(t1) == fvalue(t2);
-    case NEBULA_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
-    case NEBULA_VLNGSTR: return nebulaS_eqlngstr(tsvalue(t1), tsvalue(t2));
-    case NEBULA_VUSERDATA: {
+    case HYDROGEN_VNIL: case HYDROGEN_VFALSE: case HYDROGEN_VTRUE: return 1;
+    case HYDROGEN_VNUMINT: return (ivalue(t1) == ivalue(t2));
+    case HYDROGEN_VNUMFLT: return hydrogeni_numeq(fltvalue(t1), fltvalue(t2));
+    case HYDROGEN_VLIGHTUSERDATA: return pvalue(t1) == pvalue(t2);
+    case HYDROGEN_VLCF: return fvalue(t1) == fvalue(t2);
+    case HYDROGEN_VSHRSTR: return eqshrstr(tsvalue(t1), tsvalue(t2));
+    case HYDROGEN_VLNGSTR: return hydrogenS_eqlngstr(tsvalue(t1), tsvalue(t2));
+    case HYDROGEN_VUSERDATA: {
       if (uvalue(t1) == uvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, uvalue(t1)->metatable, TM_EQ);
@@ -594,7 +594,7 @@ int nebulaV_equalobj (nebula_State *L, const TValue *t1, const TValue *t2) {
         tm = fasttm(L, uvalue(t2)->metatable, TM_EQ);
       break;  /* will try TM */
     }
-    case NEBULA_VTABLE: {
+    case HYDROGEN_VTABLE: {
       if (hvalue(t1) == hvalue(t2)) return 1;
       else if (L == NULL) return 0;
       tm = fasttm(L, hvalue(t1)->metatable, TM_EQ);
@@ -608,15 +608,15 @@ int nebulaV_equalobj (nebula_State *L, const TValue *t1, const TValue *t2) {
   if (tm == NULL)  /* no TM? */
     return 0;  /* objects are different */
   else {
-    nebulaT_caltagMethodsres(L, tm, t1, t2, L->top);  /* call TM */
+    hydrogenT_caltagMethodsres(L, tm, t1, t2, L->top);  /* call TM */
     return !l_isfalse(s2v(L->top));
   }
 }
 
 
-/* macro used by 'nebulaV_concat' to ensure that element at 'o' is a string */
+/* macro used by 'hydrogenV_concat' to ensure that element at 'o' is a string */
 #define tostring(L,o)  \
-	(ttisstring(o) || (cvt2str(o) && (nebulaO_tostring(L, o), 1)))
+	(ttisstring(o) || (cvt2str(o) && (hydrogenO_tostring(L, o), 1)))
 
 #define isemptystr(o)	(ttisshrstring(o) && tsvalue(o)->shrlen == 0)
 
@@ -635,7 +635,7 @@ static void copy2buff (StkId top, int n, char *buff) {
 ** Main operation for concatenation: concat 'total' values in the stack,
 ** from 'L->top - total' up to 'L->top - 1'.
 */
-void nebulaV_concat (nebula_State *L, int total) {
+void hydrogenV_concat (hydrogen_State *L, int total) {
   if (total == 1)
     return;  /* "all" values already concatenated */
   do {
@@ -643,7 +643,7 @@ void nebulaV_concat (nebula_State *L, int total) {
     int n = 2;  /* number of elements handled in this pass (at least 2) */
     if (!(ttisstring(s2v(top - 2)) || cvt2str(s2v(top - 2))) ||
         !tostring(L, s2v(top - 1)))
-      nebulaT_tryconcatTM(L);
+      hydrogenT_tryconcatTM(L);
     else if (isemptystr(s2v(top - 1)))  /* second operand is empty? */
       cast_void(tostring(L, s2v(top - 2)));  /* result is first operand */
     else if (isemptystr(s2v(top - 2))) {  /* first operand is empty string? */
@@ -657,21 +657,21 @@ void nebulaV_concat (nebula_State *L, int total) {
       for (n = 1; n < total && tostring(L, s2v(top - n - 1)); n++) {
         size_t l = vslen(s2v(top - n - 1));
         if (l_unlikely(l >= (MAX_SIZE/sizeof(char)) - tl))
-          nebulaG_runerror(L, "string length overflow");
+          hydrogenG_runerror(L, "string length overflow");
         tl += l;
       }
-      if (tl <= NEBULAI_MAXSHORTLEN) {  /* is result a short string? */
-        char buff[NEBULAI_MAXSHORTLEN];
+      if (tl <= HYDROGENI_MAXSHORTLEN) {  /* is result a short string? */
+        char buff[HYDROGENI_MAXSHORTLEN];
         copy2buff(top, n, buff);  /* copy strings to buffer */
-        ts = nebulaS_newlstr(L, buff, tl);
+        ts = hydrogenS_newlstr(L, buff, tl);
       }
       else {  /* long string; copy strings directly to final result */
-        ts = nebulaS_createlngstrobj(L, tl);
+        ts = hydrogenS_createlngstrobj(L, tl);
         copy2buff(top, n, getstr(ts));
       }
       setsvalue2s(L, top - n, ts);  /* create result */
     }
-    total -= n-1;  /* Nebulat 'n' strings to create 1 new */
+    total -= n-1;  /* Hydrogent 'n' strings to create 1 new */
     L->top -= n-1;  /* popped 'n' strings and pushed one */
   } while (total > 1);  /* repeat until only 1 result left */
 }
@@ -680,32 +680,32 @@ void nebulaV_concat (nebula_State *L, int total) {
 /*
 ** Main operation 'ra = #rb'.
 */
-void nebulaV_objlen (nebula_State *L, StkId ra, const TValue *rb) {
+void hydrogenV_objlen (hydrogen_State *L, StkId ra, const TValue *rb) {
   const TValue *tm;
   switch (ttypetag(rb)) {
-    case NEBULA_VTABLE: {
+    case HYDROGEN_VTABLE: {
       Table *h = hvalue(rb);
       tm = fasttm(L, h->metatable, TM_LEN);
       if (tm) break;  /* metamethod? break switch to call it */
-      setivalue(s2v(ra), nebulaH_getn(h));  /* else primitive len */
+      setivalue(s2v(ra), hydrogenH_getn(h));  /* else primitive len */
       return;
     }
-    case NEBULA_VSHRSTR: {
+    case HYDROGEN_VSHRSTR: {
       setivalue(s2v(ra), tsvalue(rb)->shrlen);
       return;
     }
-    case NEBULA_VLNGSTR: {
+    case HYDROGEN_VLNGSTR: {
       setivalue(s2v(ra), tsvalue(rb)->u.lnglen);
       return;
     }
     default: {  /* try metamethod */
-      tm = nebulaT_gettmbyobj(L, rb, TM_LEN);
+      tm = hydrogenT_gettmbyobj(L, rb, TM_LEN);
       if (l_unlikely(notm(tm)))  /* no metamethod? */
-        nebulaG_typeerror(L, rb, "get length of");
+        hydrogenG_typeerror(L, rb, "get length of");
       break;
     }
   }
-  nebulaT_caltagMethodsres(L, tm, rb, rb, ra);
+  hydrogenT_caltagMethodsres(L, tm, rb, rb, ra);
 }
 
 
@@ -715,14 +715,14 @@ void nebulaV_objlen (nebula_State *L, StkId ra, const TValue *rb) {
 ** 'floor(q) == trunc(q)' when 'q >= 0' or when 'q' is integer,
 ** otherwise 'floor(q) == trunc(q) - 1'.
 */
-nebula_Integer nebulaV_idiv (nebula_State *L, nebula_Integer m, nebula_Integer n) {
+hydrogen_Integer hydrogenV_idiv (hydrogen_State *L, hydrogen_Integer m, hydrogen_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      nebulaG_runerror(L, "attempt to divide by zero");
+      hydrogenG_runerror(L, "attempt to divide by zero");
     return intop(-, 0, m);   /* n==-1; avoid overflow with 0x80000...//-1 */
   }
   else {
-    nebula_Integer q = m / n;  /* perform C division */
+    hydrogen_Integer q = m / n;  /* perform C division */
     if ((m ^ n) < 0 && m % n != 0)  /* 'm/n' would be negative non-integer? */
       q -= 1;  /* correct result for different rounding */
     return q;
@@ -733,16 +733,16 @@ nebula_Integer nebulaV_idiv (nebula_State *L, nebula_Integer m, nebula_Integer n
 /*
 ** Integer modulus; return 'm % n'. (Assume that C '%' with
 ** negative operands follows C99 behavior. See previous comment
-** about nebulaV_idiv.)
+** about hydrogenV_idiv.)
 */
-nebula_Integer nebulaV_mod (nebula_State *L, nebula_Integer m, nebula_Integer n) {
+hydrogen_Integer hydrogenV_mod (hydrogen_State *L, hydrogen_Integer m, hydrogen_Integer n) {
   if (l_unlikely(l_castS2U(n) + 1u <= 1u)) {  /* special cases: -1 or 0 */
     if (n == 0)
-      nebulaG_runerror(L, "attempt to perform 'n%%0'");
+      hydrogenG_runerror(L, "attempt to perform 'n%%0'");
     return 0;   /* m % -1 == 0; avoid overflow with 0x80000...%-1 */
   }
   else {
-    nebula_Integer r = m % n;
+    hydrogen_Integer r = m % n;
     if (r != 0 && (r ^ n) < 0)  /* 'm/n' would be non-integer negative? */
       r += n;  /* correct result for different rounding */
     return r;
@@ -753,23 +753,23 @@ nebula_Integer nebulaV_mod (nebula_State *L, nebula_Integer m, nebula_Integer n)
 /*
 ** Float modulus
 */
-nebula_Number nebulaV_modf (nebula_State *L, nebula_Number m, nebula_Number n) {
-  nebula_Number r;
-  nebulai_nummod(L, m, n, r);
+hydrogen_Number hydrogenV_modf (hydrogen_State *L, hydrogen_Number m, hydrogen_Number n) {
+  hydrogen_Number r;
+  hydrogeni_nummod(L, m, n, r);
   return r;
 }
 
 
 /* number of bits in an integer */
-#define NBITS	cast_int(sizeof(nebula_Integer) * CHAR_BIT)
+#define NBITS	cast_int(sizeof(hydrogen_Integer) * CHAR_BIT)
 
 /*
 ** Shift left operation. (Shift right just negates 'y'.)
 */
-#define nebulaV_shiftr(x,y)	nebulaV_shiftl(x,intop(-, 0, y))
+#define hydrogenV_shiftr(x,y)	hydrogenV_shiftl(x,intop(-, 0, y))
 
 
-nebula_Integer nebulaV_shiftl (nebula_Integer x, nebula_Integer y) {
+hydrogen_Integer hydrogenV_shiftl (hydrogen_Integer x, hydrogen_Integer y) {
   if (y < 0) {  /* shift right? */
     if (y <= -NBITS) return 0;
     else return intop(>>, x, -y);
@@ -782,23 +782,23 @@ nebula_Integer nebulaV_shiftl (nebula_Integer x, nebula_Integer y) {
 
 
 /*
-** create a new Nebula closure, push it in the stack, and initialize
+** create a new Hydrogen closure, push it in the stack, and initialize
 ** its upvalues.
 */
-static void pushclosure (nebula_State *L, Proto *p, UpVal **ennebula, StkId base,
+static void pushclosure (hydrogen_State *L, Proto *p, UpVal **enhydrogen, StkId base,
                          StkId ra) {
   int nup = p->sizeupvalues;
   Upvaldesc *uv = p->upvalues;
   int i;
-  LClosure *ncl = nebulaF_newLclosure(L, nup);
+  LClosure *ncl = hydrogenF_newLclosure(L, nup);
   ncl->p = p;
   setclLvalue2s(L, ra, ncl);  /* anchor new closure in stack */
   for (i = 0; i < nup; i++) {  /* fill in its upvalues */
     if (uv[i].instack)  /* upvalue refers to local variable? */
-      ncl->upvals[i] = nebulaF_findupval(L, base + uv[i].idx);
+      ncl->upvals[i] = hydrogenF_findupval(L, base + uv[i].idx);
     else  /* get upvalue from enclosing function */
-      ncl->upvals[i] = ennebula[uv[i].idx];
-    nebulaC_objbarrier(L, ncl, ncl->upvals[i]);
+      ncl->upvals[i] = enhydrogen[uv[i].idx];
+    hydrogenC_objbarrier(L, ncl, ncl->upvals[i]);
   }
 }
 
@@ -806,7 +806,7 @@ static void pushclosure (nebula_State *L, Proto *p, UpVal **ennebula, StkId base
 /*
 ** finish execution of an opcode interrupted by a yield
 */
-void nebulaV_finishOp (nebula_State *L) {
+void hydrogenV_finishOp (hydrogen_State *L) {
   CallInfo *ci = L->ci;
   StkId base = ci->func + 1;
   Instruction inst = *(ci->u.l.savedpc - 1);  /* interrupted instruction */
@@ -828,24 +828,24 @@ void nebulaV_finishOp (nebula_State *L) {
     case OP_EQ: {  /* note that 'OP_EQI'/'OP_EQK' cannot yield */
       int res = !l_isfalse(s2v(L->top - 1));
       L->top--;
-#if defined(NEBULA_COMPAT_LT_LE)
+#if defined(HYDROGEN_COMPAT_LT_LE)
       if (ci->callstatus & CIST_LEQ) {  /* "<=" using "<" instead? */
         ci->callstatus ^= CIST_LEQ;  /* clear mark */
         res = !res;  /* negate result */
       }
 #endif
-      nebula_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_JMP);
+      hydrogen_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_JMP);
       if (res != GETARG_k(inst))  /* condition failed? */
         ci->u.l.savedpc++;  /* skip jump instruction */
       break;
     }
     case OP_CONCAT: {
-      StkId top = L->top - 1;  /* top when 'nebulaT_tryconcatTM' was called */
+      StkId top = L->top - 1;  /* top when 'hydrogenT_tryconcatTM' was called */
       int a = GETARG_A(inst);      /* first element to concatenate */
       int total = cast_int(top - 1 - (base + a));  /* yet to concatenate */
       setobjs2s(L, top - 2, top);  /* put TM result in proper position */
       L->top = top - 1;  /* top is one after last element (at top-2) */
-      nebulaV_concat(L, total);  /* concat them (may yield again) */
+      hydrogenV_concat(L, total);  /* concat them (may yield again) */
       break;
     }
     case OP_CLOSE: {  /* yielded closing variables */
@@ -863,7 +863,7 @@ void nebulaV_finishOp (nebula_State *L) {
     }
     default: {
       /* only these other opcodes can yield */
-      nebula_assert(op == OP_TFORCALL || op == OP_CALL ||
+      hydrogen_assert(op == OP_TFORCALL || op == OP_CALL ||
            op == OP_TAILCALL || op == OP_SETTABUP || op == OP_SETTABLE ||
            op == OP_SETI || op == OP_SETFIELD);
       break;
@@ -876,7 +876,7 @@ void nebulaV_finishOp (nebula_State *L) {
 
 /*
 ** {==================================================================
-** Macros for arithmetic/bitwise/comparison opcodes in 'nebulaV_execute'
+** Macros for arithmetic/bitwise/comparison opcodes in 'hydrogenV_execute'
 ** ===================================================================
 */
 
@@ -901,12 +901,12 @@ void nebulaV_finishOp (nebula_State *L) {
   TValue *v1 = vRB(i);  \
   int imm = GETARG_sC(i);  \
   if (ttisinteger(v1)) {  \
-    nebula_Integer iv1 = ivalue(v1);  \
+    hydrogen_Integer iv1 = ivalue(v1);  \
     pc++; setivalue(s2v(ra), iop(L, iv1, imm));  \
   }  \
   else if (ttisfloat(v1)) {  \
-    nebula_Number nb = fltvalue(v1);  \
-    nebula_Number fimm = cast_num(imm);  \
+    hydrogen_Number nb = fltvalue(v1);  \
+    hydrogen_Number fimm = cast_num(imm);  \
     pc++; setfltvalue(s2v(ra), fop(L, nb, fimm)); \
   }}
 
@@ -916,7 +916,7 @@ void nebulaV_finishOp (nebula_State *L) {
 ** with two register operands.
 */
 #define op_arithf_aux(L,v1,v2,fop) {  \
-  nebula_Number n1; nebula_Number n2;  \
+  hydrogen_Number n1; hydrogen_Number n2;  \
   if (tonumberns(v1, n1) && tonumberns(v2, n2)) {  \
     pc++; setfltvalue(s2v(ra), fop(L, n1, n2));  \
   }}
@@ -936,7 +936,7 @@ void nebulaV_finishOp (nebula_State *L) {
 */
 #define op_arithfK(L,fop) {  \
   TValue *v1 = vRB(i);  \
-  TValue *v2 = KC(i); nebula_assert(ttisnumber(v2));  \
+  TValue *v2 = KC(i); hydrogen_assert(ttisnumber(v2));  \
   op_arithf_aux(L, v1, v2, fop); }
 
 
@@ -945,7 +945,7 @@ void nebulaV_finishOp (nebula_State *L) {
 */
 #define op_arith_aux(L,v1,v2,iop,fop) {  \
   if (ttisinteger(v1) && ttisinteger(v2)) {  \
-    nebula_Integer i1 = ivalue(v1); nebula_Integer i2 = ivalue(v2);  \
+    hydrogen_Integer i1 = ivalue(v1); hydrogen_Integer i2 = ivalue(v2);  \
     pc++; setivalue(s2v(ra), iop(L, i1, i2));  \
   }  \
   else op_arithf_aux(L, v1, v2, fop); }
@@ -965,7 +965,7 @@ void nebulaV_finishOp (nebula_State *L) {
 */
 #define op_arithK(L,iop,fop) {  \
   TValue *v1 = vRB(i);  \
-  TValue *v2 = KC(i); nebula_assert(ttisnumber(v2));  \
+  TValue *v2 = KC(i); hydrogen_assert(ttisnumber(v2));  \
   op_arith_aux(L, v1, v2, iop, fop); }
 
 
@@ -975,8 +975,8 @@ void nebulaV_finishOp (nebula_State *L) {
 #define op_bitwiseK(L,op) {  \
   TValue *v1 = vRB(i);  \
   TValue *v2 = KC(i);  \
-  nebula_Integer i1;  \
-  nebula_Integer i2 = ivalue(v2);  \
+  hydrogen_Integer i1;  \
+  hydrogen_Integer i2 = ivalue(v2);  \
   if (tointegerns(v1, &i1)) {  \
     pc++; setivalue(s2v(ra), op(i1, i2));  \
   }}
@@ -988,7 +988,7 @@ void nebulaV_finishOp (nebula_State *L) {
 #define op_bitwise(L,op) {  \
   TValue *v1 = vRB(i);  \
   TValue *v2 = vRC(i);  \
-  nebula_Integer i1; nebula_Integer i2;  \
+  hydrogen_Integer i1; hydrogen_Integer i2;  \
   if (tointegerns(v1, &i1) && tointegerns(v2, &i2)) {  \
     pc++; setivalue(s2v(ra), op(i1, i2));  \
   }}
@@ -1003,8 +1003,8 @@ void nebulaV_finishOp (nebula_State *L) {
         int cond;  \
         TValue *rb = vRB(i);  \
         if (ttisinteger(s2v(ra)) && ttisinteger(rb)) {  \
-          nebula_Integer ia = ivalue(s2v(ra));  \
-          nebula_Integer ib = ivalue(rb);  \
+          hydrogen_Integer ia = ivalue(s2v(ra));  \
+          hydrogen_Integer ib = ivalue(rb);  \
           cond = opi(ia, ib);  \
         }  \
         else if (ttisnumber(s2v(ra)) && ttisnumber(rb))  \
@@ -1024,13 +1024,13 @@ void nebulaV_finishOp (nebula_State *L) {
         if (ttisinteger(s2v(ra)))  \
           cond = opi(ivalue(s2v(ra)), im);  \
         else if (ttisfloat(s2v(ra))) {  \
-          nebula_Number fa = fltvalue(s2v(ra));  \
-          nebula_Number fim = cast_num(im);  \
+          hydrogen_Number fa = fltvalue(s2v(ra));  \
+          hydrogen_Number fim = cast_num(im);  \
           cond = opf(fa, fim);  \
         }  \
         else {  \
           int isf = GETARG_C(i);  \
-          Protect(cond = nebulaT_callorderiTM(L, s2v(ra), im, inv, isf, tm));  \
+          Protect(cond = hydrogenT_callorderiTM(L, s2v(ra), im, inv, isf, tm));  \
         }  \
         docondjump(); }
 
@@ -1039,12 +1039,12 @@ void nebulaV_finishOp (nebula_State *L) {
 
 /*
 ** {==================================================================
-** Function 'nebulaV_execute': main interpreter loop
+** Function 'hydrogenV_execute': main interpreter loop
 ** ===================================================================
 */
 
 /*
-** some macros for common tasks in 'nebulaV_execute'
+** some macros for common tasks in 'hydrogenV_execute'
 */
 
 
@@ -1116,15 +1116,15 @@ void nebulaV_finishOp (nebula_State *L) {
 
 /* 'c' is the limit of live values in the stack */
 #define checkGC(L,c)  \
-	{ nebulaC_condGC(L, (savepc(L), L->top = (c)), \
+	{ hydrogenC_condGC(L, (savepc(L), L->top = (c)), \
                          updatetrap(ci)); \
-           nebulai_threadyield(L); }
+           hydrogeni_threadyield(L); }
 
 
 /* fetch an instruction and prepare its execution */
 #define vmfetch()	{ \
   if (l_unlikely(trap)) {  /* stack reallocation or hooks? */ \
-    trap = nebulaG_traceexec(L, pc);  /* handle hooks */ \
+    trap = hydrogenG_traceexec(L, pc);  /* handle hooks */ \
     updatebase(ci);  /* correct stack */ \
   } \
   i = *(pc++); \
@@ -1136,13 +1136,13 @@ void nebulaV_finishOp (nebula_State *L) {
 #define vmbreak		break
 
 
-void nebulaV_execute (nebula_State *L, CallInfo *ci) {
+void hydrogenV_execute (hydrogen_State *L, CallInfo *ci) {
   LClosure *cl;
   TValue *k;
   StkId base;
   const Instruction *pc;
   int trap;
-#if NEBULA_USE_JUMPTABLE
+#if HYDROGEN_USE_JUMPTABLE
 #include "jumptab.h"
 #endif
  startfunc:
@@ -1156,7 +1156,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       if (cl->p->is_vararg)
         trap = 0;  /* hooks will start after VARARGPREP instruction */
       else  /* check 'call' hook */
-        nebulaD_hookcall(L, ci);
+        hydrogenD_hookcall(L, ci);
     }
     ci->u.l.trap = 1;  /* assume trap is on, for now */
   }
@@ -1167,20 +1167,20 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
     StkId ra;  /* instruction's A register */
     vmfetch();
     #if 0
-      /* low-level line tracing for debugging Nebula */
-      printf("line: %d\n", nebulaG_getfuncline(cl->p, pcRel(pc, cl->p)));
+      /* low-level line tracing for debugging Hydrogen */
+      printf("line: %d\n", hydrogenG_getfuncline(cl->p, pcRel(pc, cl->p)));
     #endif
-    nebula_assert(base == ci->func + 1);
-    nebula_assert(base <= L->top && L->top < L->stack_last);
+    hydrogen_assert(base == ci->func + 1);
+    hydrogen_assert(base <= L->top && L->top < L->stack_last);
     /* invalidate top for instructions not expecting it */
-    nebula_assert(isIT(i) || (cast_void(L->top = base), 1));
+    hydrogen_assert(isIT(i) || (cast_void(L->top = base), 1));
     vmdispatch (GET_OPCODE(i)) {
       vmcase(OP_MOVE) {
         setobjs2s(L, ra, RB(i));
         vmbreak;
       }
       vmcase(OP_LOADI) {
-        nebula_Integer b = GETARG_sBx(i);
+        hydrogen_Integer b = GETARG_sBx(i);
         setivalue(s2v(ra), b);
         vmbreak;
       }
@@ -1228,7 +1228,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       vmcase(OP_SETUPVAL) {
         UpVal *uv = cl->upvals[GETARG_B(i)];
         setobj(L, uv->v, s2v(ra));
-        nebulaC_barrier(L, uv, s2v(ra));
+        hydrogenC_barrier(L, uv, s2v(ra));
         vmbreak;
       }
       vmcase(OP_GETTABUP) {
@@ -1236,38 +1236,38 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *upval = cl->upvals[GETARG_B(i)]->v;
         TValue *rc = KC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
-        if (nebulaV_fastget(L, upval, key, slot, nebulaH_getshortstr)) {
+        if (hydrogenV_fastget(L, upval, key, slot, hydrogenH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(nebulaV_finishget(L, upval, rc, ra, slot));
+          Protect(hydrogenV_finishget(L, upval, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_GETTABLE) {
         const TValue *slot;
         TValue *rb = vRB(i);
         TValue *rc = vRC(i);
-        nebula_Unsigned n;
+        hydrogen_Unsigned n;
         if (ttisinteger(rc)  /* fast track for integers? */
-            ? (cast_void(n = ivalue(rc)), nebulaV_fastgeti(L, rb, n, slot))
-            : nebulaV_fastget(L, rb, rc, slot, nebulaH_get)) {
+            ? (cast_void(n = ivalue(rc)), hydrogenV_fastgeti(L, rb, n, slot))
+            : hydrogenV_fastget(L, rb, rc, slot, hydrogenH_get)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(nebulaV_finishget(L, rb, rc, ra, slot));
+          Protect(hydrogenV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_GETI) {
         const TValue *slot;
         TValue *rb = vRB(i);
         int c = GETARG_C(i);
-        if (nebulaV_fastgeti(L, rb, c, slot)) {
+        if (hydrogenV_fastgeti(L, rb, c, slot)) {
           setobj2s(L, ra, slot);
         }
         else {
           TValue key;
           setivalue(&key, c);
-          Protect(nebulaV_finishget(L, rb, &key, ra, slot));
+          Protect(hydrogenV_finishget(L, rb, &key, ra, slot));
         }
         vmbreak;
       }
@@ -1276,11 +1276,11 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *rb = vRB(i);
         TValue *rc = KC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
-        if (nebulaV_fastget(L, rb, key, slot, nebulaH_getshortstr)) {
+        if (hydrogenV_fastget(L, rb, key, slot, hydrogenH_getshortstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(nebulaV_finishget(L, rb, rc, ra, slot));
+          Protect(hydrogenV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_SETTABUP) {
@@ -1289,38 +1289,38 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
         TString *key = tsvalue(rb);  /* key must be a string */
-        if (nebulaV_fastget(L, upval, key, slot, nebulaH_getshortstr)) {
-          nebulaV_finishfastset(L, upval, slot, rc);
+        if (hydrogenV_fastget(L, upval, key, slot, hydrogenH_getshortstr)) {
+          hydrogenV_finishfastset(L, upval, slot, rc);
         }
         else
-          Protect(nebulaV_finishset(L, upval, rb, rc, slot));
+          Protect(hydrogenV_finishset(L, upval, rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_SETTABLE) {
         const TValue *slot;
         TValue *rb = vRB(i);  /* key (table is in 'ra') */
         TValue *rc = RKC(i);  /* value */
-        nebula_Unsigned n;
+        hydrogen_Unsigned n;
         if (ttisinteger(rb)  /* fast track for integers? */
-            ? (cast_void(n = ivalue(rb)), nebulaV_fastgeti(L, s2v(ra), n, slot))
-            : nebulaV_fastget(L, s2v(ra), rb, slot, nebulaH_get)) {
-          nebulaV_finishfastset(L, s2v(ra), slot, rc);
+            ? (cast_void(n = ivalue(rb)), hydrogenV_fastgeti(L, s2v(ra), n, slot))
+            : hydrogenV_fastget(L, s2v(ra), rb, slot, hydrogenH_get)) {
+          hydrogenV_finishfastset(L, s2v(ra), slot, rc);
         }
         else
-          Protect(nebulaV_finishset(L, s2v(ra), rb, rc, slot));
+          Protect(hydrogenV_finishset(L, s2v(ra), rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_SETI) {
         const TValue *slot;
         int c = GETARG_B(i);
         TValue *rc = RKC(i);
-        if (nebulaV_fastgeti(L, s2v(ra), c, slot)) {
-          nebulaV_finishfastset(L, s2v(ra), slot, rc);
+        if (hydrogenV_fastgeti(L, s2v(ra), c, slot)) {
+          hydrogenV_finishfastset(L, s2v(ra), slot, rc);
         }
         else {
           TValue key;
           setivalue(&key, c);
-          Protect(nebulaV_finishset(L, s2v(ra), &key, rc, slot));
+          Protect(hydrogenV_finishset(L, s2v(ra), &key, rc, slot));
         }
         vmbreak;
       }
@@ -1329,11 +1329,11 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *rb = KB(i);
         TValue *rc = RKC(i);
         TString *key = tsvalue(rb);  /* key must be a string */
-        if (nebulaV_fastget(L, s2v(ra), key, slot, nebulaH_getshortstr)) {
-          nebulaV_finishfastset(L, s2v(ra), slot, rc);
+        if (hydrogenV_fastget(L, s2v(ra), key, slot, hydrogenH_getshortstr)) {
+          hydrogenV_finishfastset(L, s2v(ra), slot, rc);
         }
         else
-          Protect(nebulaV_finishset(L, s2v(ra), rb, rc, slot));
+          Protect(hydrogenV_finishset(L, s2v(ra), rb, rc, slot));
         vmbreak;
       }
       vmcase(OP_NEWTABLE) {
@@ -1342,15 +1342,15 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         Table *t;
         if (b > 0)
           b = 1 << (b - 1);  /* size is 2^(b - 1) */
-        nebula_assert((!TESTARG_k(i)) == (GETARG_Ax(*pc) == 0));
+        hydrogen_assert((!TESTARG_k(i)) == (GETARG_Ax(*pc) == 0));
         if (TESTARG_k(i))  /* non-zero extra argument? */
           c += GETARG_Ax(*pc) * (MAXARG_C + 1);  /* add it to size */
         pc++;  /* skip extra argument */
         L->top = ra + 1;  /* correct top in case of emergency GC */
-        t = nebulaH_new(L);  /* memory allocation */
+        t = hydrogenH_new(L);  /* memory allocation */
         sethvalue2s(L, ra, t);
         if (b != 0 || c != 0)
-          nebulaH_resize(L, t, c, b);  /* idem */
+          hydrogenH_resize(L, t, c, b);  /* idem */
         checkGC(L, ra + 1);
         vmbreak;
       }
@@ -1360,43 +1360,43 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *rc = RKC(i);
         TString *key = tsvalue(rc);  /* key must be a string */
         setobj2s(L, ra + 1, rb);
-        if (nebulaV_fastget(L, rb, key, slot, nebulaH_getstr)) {
+        if (hydrogenV_fastget(L, rb, key, slot, hydrogenH_getstr)) {
           setobj2s(L, ra, slot);
         }
         else
-          Protect(nebulaV_finishget(L, rb, rc, ra, slot));
+          Protect(hydrogenV_finishget(L, rb, rc, ra, slot));
         vmbreak;
       }
       vmcase(OP_ADDI) {
-        op_arithI(L, l_addi, nebulai_numadd);
+        op_arithI(L, l_addi, hydrogeni_numadd);
         vmbreak;
       }
       vmcase(OP_ADDK) {
-        op_arithK(L, l_addi, nebulai_numadd);
+        op_arithK(L, l_addi, hydrogeni_numadd);
         vmbreak;
       }
       vmcase(OP_SUBK) {
-        op_arithK(L, l_subi, nebulai_numsub);
+        op_arithK(L, l_subi, hydrogeni_numsub);
         vmbreak;
       }
       vmcase(OP_MULK) {
-        op_arithK(L, l_muli, nebulai_nummul);
+        op_arithK(L, l_muli, hydrogeni_nummul);
         vmbreak;
       }
       vmcase(OP_MODK) {
-        op_arithK(L, nebulaV_mod, nebulaV_modf);
+        op_arithK(L, hydrogenV_mod, hydrogenV_modf);
         vmbreak;
       }
       vmcase(OP_POWK) {
-        op_arithfK(L, nebulai_numpow);
+        op_arithfK(L, hydrogeni_numpow);
         vmbreak;
       }
       vmcase(OP_DIVK) {
-        op_arithfK(L, nebulai_numdiv);
+        op_arithfK(L, hydrogeni_numdiv);
         vmbreak;
       }
       vmcase(OP_IDIVK) {
-        op_arithK(L, nebulaV_idiv, nebulai_numidiv);
+        op_arithK(L, hydrogenV_idiv, hydrogeni_numidiv);
         vmbreak;
       }
       vmcase(OP_BANDK) {
@@ -1414,47 +1414,47 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       vmcase(OP_SHRI) {
         TValue *rb = vRB(i);
         int ic = GETARG_sC(i);
-        nebula_Integer ib;
+        hydrogen_Integer ib;
         if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), nebulaV_shiftl(ib, -ic));
+          pc++; setivalue(s2v(ra), hydrogenV_shiftl(ib, -ic));
         }
         vmbreak;
       }
       vmcase(OP_SHLI) {
         TValue *rb = vRB(i);
         int ic = GETARG_sC(i);
-        nebula_Integer ib;
+        hydrogen_Integer ib;
         if (tointegerns(rb, &ib)) {
-          pc++; setivalue(s2v(ra), nebulaV_shiftl(ic, ib));
+          pc++; setivalue(s2v(ra), hydrogenV_shiftl(ic, ib));
         }
         vmbreak;
       }
       vmcase(OP_ADD) {
-        op_arith(L, l_addi, nebulai_numadd);
+        op_arith(L, l_addi, hydrogeni_numadd);
         vmbreak;
       }
       vmcase(OP_SUB) {
-        op_arith(L, l_subi, nebulai_numsub);
+        op_arith(L, l_subi, hydrogeni_numsub);
         vmbreak;
       }
       vmcase(OP_MUL) {
-        op_arith(L, l_muli, nebulai_nummul);
+        op_arith(L, l_muli, hydrogeni_nummul);
         vmbreak;
       }
       vmcase(OP_MOD) {
-        op_arith(L, nebulaV_mod, nebulaV_modf);
+        op_arith(L, hydrogenV_mod, hydrogenV_modf);
         vmbreak;
       }
       vmcase(OP_POW) {
-        op_arithf(L, nebulai_numpow);
+        op_arithf(L, hydrogeni_numpow);
         vmbreak;
       }
       vmcase(OP_DIV) {  /* float division (always with floats) */
-        op_arithf(L, nebulai_numdiv);
+        op_arithf(L, hydrogeni_numdiv);
         vmbreak;
       }
       vmcase(OP_IDIV) {  /* floor division */
-        op_arith(L, nebulaV_idiv, nebulai_numidiv);
+        op_arith(L, hydrogenV_idiv, hydrogeni_numidiv);
         vmbreak;
       }
       vmcase(OP_BAND) {
@@ -1470,11 +1470,11 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_SHR) {
-        op_bitwise(L, nebulaV_shiftr);
+        op_bitwise(L, hydrogenV_shiftr);
         vmbreak;
       }
       vmcase(OP_SHL) {
-        op_bitwise(L, nebulaV_shiftl);
+        op_bitwise(L, hydrogenV_shiftl);
         vmbreak;
       }
       vmcase(OP_MMBIN) {
@@ -1482,8 +1482,8 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TValue *rb = vRB(i);
         TMS tm = (TMS)GETARG_C(i);
         StkId result = RA(pi);
-        nebula_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_SHR);
-        Protect(nebulaT_trybinTM(L, s2v(ra), rb, result, tm));
+        hydrogen_assert(OP_ADD <= GET_OPCODE(pi) && GET_OPCODE(pi) <= OP_SHR);
+        Protect(hydrogenT_trybinTM(L, s2v(ra), rb, result, tm));
         vmbreak;
       }
       vmcase(OP_MMBINI) {
@@ -1492,7 +1492,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TMS tm = (TMS)GETARG_C(i);
         int flip = GETARG_k(i);
         StkId result = RA(pi);
-        Protect(nebulaT_trybiniTM(L, s2v(ra), imm, flip, result, tm));
+        Protect(hydrogenT_trybiniTM(L, s2v(ra), imm, flip, result, tm));
         vmbreak;
       }
       vmcase(OP_MMBINK) {
@@ -1501,31 +1501,31 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         TMS tm = (TMS)GETARG_C(i);
         int flip = GETARG_k(i);
         StkId result = RA(pi);
-        Protect(nebulaT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
+        Protect(hydrogenT_trybinassocTM(L, s2v(ra), imm, flip, result, tm));
         vmbreak;
       }
       vmcase(OP_UNM) {
         TValue *rb = vRB(i);
-        nebula_Number nb;
+        hydrogen_Number nb;
         if (ttisinteger(rb)) {
-          nebula_Integer ib = ivalue(rb);
+          hydrogen_Integer ib = ivalue(rb);
           setivalue(s2v(ra), intop(-, 0, ib));
         }
         else if (tonumberns(rb, nb)) {
-          setfltvalue(s2v(ra), nebulai_numunm(L, nb));
+          setfltvalue(s2v(ra), hydrogeni_numunm(L, nb));
         }
         else
-          Protect(nebulaT_trybinTM(L, rb, rb, ra, TM_UNM));
+          Protect(hydrogenT_trybinTM(L, rb, rb, ra, TM_UNM));
         vmbreak;
       }
       vmcase(OP_BNOT) {
         TValue *rb = vRB(i);
-        nebula_Integer ib;
+        hydrogen_Integer ib;
         if (tointegerns(rb, &ib)) {
           setivalue(s2v(ra), intop(^, ~l_castS2U(0), ib));
         }
         else
-          Protect(nebulaT_trybinTM(L, rb, rb, ra, TM_BNOT));
+          Protect(hydrogenT_trybinTM(L, rb, rb, ra, TM_BNOT));
         vmbreak;
       }
       vmcase(OP_NOT) {
@@ -1537,23 +1537,23 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_LEN) {
-        Protect(nebulaV_objlen(L, ra, vRB(i)));
+        Protect(hydrogenV_objlen(L, ra, vRB(i)));
         vmbreak;
       }
       vmcase(OP_CONCAT) {
         int n = GETARG_B(i);  /* number of elements to concatenate */
         L->top = ra + n;  /* mark the end of concat operands */
-        ProtectNT(nebulaV_concat(L, n));
-        checkGC(L, L->top); /* 'nebulaV_concat' ensures correct top */
+        ProtectNT(hydrogenV_concat(L, n));
+        checkGC(L, L->top); /* 'hydrogenV_concat' ensures correct top */
         vmbreak;
       }
       vmcase(OP_CLOSE) {
-        Protect(nebulaF_close(L, ra, NEBULA_OK, 1));
+        Protect(hydrogenF_close(L, ra, HYDROGEN_OK, 1));
         vmbreak;
       }
       vmcase(OP_TBC) {
         /* create new to-be-closed upvalue */
-        halfProtect(nebulaF_newtbnebulaval(L, ra));
+        halfProtect(hydrogenF_newtbhydrogenval(L, ra));
         vmbreak;
       }
       vmcase(OP_JMP) {
@@ -1563,7 +1563,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       vmcase(OP_EQ) {
         int cond;
         TValue *rb = vRB(i);
-        Protect(cond = nebulaV_equalobj(L, s2v(ra), rb));
+        Protect(cond = hydrogenV_equalobj(L, s2v(ra), rb));
         docondjump();
         vmbreak;
       }
@@ -1578,7 +1578,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       vmcase(OP_EQK) {
         TValue *rb = KB(i);
         /* basic types do not use '__eq'; we can use raw equality */
-        int cond = nebulaV_rawequalobj(s2v(ra), rb);
+        int cond = hydrogenV_rawequalobj(s2v(ra), rb);
         docondjump();
         vmbreak;
       }
@@ -1588,26 +1588,26 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         if (ttisinteger(s2v(ra)))
           cond = (ivalue(s2v(ra)) == im);
         else if (ttisfloat(s2v(ra)))
-          cond = nebulai_numeq(fltvalue(s2v(ra)), cast_num(im));
+          cond = hydrogeni_numeq(fltvalue(s2v(ra)), cast_num(im));
         else
           cond = 0;  /* other types cannot be equal to a number */
         docondjump();
         vmbreak;
       }
       vmcase(OP_LTI) {
-        op_orderI(L, l_lti, nebulai_numlt, 0, TM_LT);
+        op_orderI(L, l_lti, hydrogeni_numlt, 0, TM_LT);
         vmbreak;
       }
       vmcase(OP_LEI) {
-        op_orderI(L, l_lei, nebulai_numle, 0, TM_LE);
+        op_orderI(L, l_lei, hydrogeni_numle, 0, TM_LE);
         vmbreak;
       }
       vmcase(OP_GTI) {
-        op_orderI(L, l_gti, nebulai_numgt, 1, TM_LT);
+        op_orderI(L, l_gti, hydrogeni_numgt, 1, TM_LT);
         vmbreak;
       }
       vmcase(OP_GEI) {
-        op_orderI(L, l_gei, nebulai_numge, 1, TM_LE);
+        op_orderI(L, l_gei, hydrogeni_numge, 1, TM_LE);
         vmbreak;
       }
       vmcase(OP_TEST) {
@@ -1633,9 +1633,9 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
           L->top = ra + b;  /* top signals number of arguments */
         /* else previous instruction set top */
         savepc(L);  /* in case of errors */
-        if ((newci = nebulaD_precall(L, ra, nresults)) == NULL)
+        if ((newci = hydrogenD_precall(L, ra, nresults)) == NULL)
           updatetrap(ci);  /* C call; nothing else to be done */
-        else {  /* Nebula call: run function in this same C frame */
+        else {  /* Hydrogen call: run function in this same C frame */
           ci = newci;
           goto startfunc;
         }
@@ -1653,16 +1653,16 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
           b = cast_int(L->top - ra);
         savepc(ci);  /* several calls here can raise errors */
         if (TESTARG_k(i)) {
-          nebulaF_closeupval(L, base);  /* close upvalues from current call */
-          nebula_assert(L->tbclist < base);  /* no pending tbc variables */
-          nebula_assert(base == ci->func + 1);
+          hydrogenF_closeupval(L, base);  /* close upvalues from current call */
+          hydrogen_assert(L->tbclist < base);  /* no pending tbc variables */
+          hydrogen_assert(base == ci->func + 1);
         }
-        if ((n = nebulaD_pretailcall(L, ci, ra, b, delta)) < 0)  /* Nebula function? */
+        if ((n = hydrogenD_pretailcall(L, ci, ra, b, delta)) < 0)  /* Hydrogen function? */
           goto startfunc;  /* execute the callee */
         else {  /* C function? */
           ci->func -= delta;  /* restore 'func' (if vararg) */
-          nebulaD_poscall(L, ci, n);  /* finish caller */
-          updatetrap(ci);  /* 'nebulaD_poscall' can change hooks */
+          hydrogenD_poscall(L, ci, n);  /* finish caller */
+          updatetrap(ci);  /* 'hydrogenD_poscall' can change hooks */
           goto ret;  /* caller returns after the tail call */
         }
       }
@@ -1676,22 +1676,22 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
           ci->u2.nres = n;  /* save number of returns */
           if (L->top < ci->top)
             L->top = ci->top;
-          nebulaF_close(L, base, CLOSEKTOP, 1);
+          hydrogenF_close(L, base, CLOSEKTOP, 1);
           updatetrap(ci);
           updatestack(ci);
         }
         if (nparams1)  /* vararg function? */
           ci->func -= ci->u.l.nextraargs + nparams1;
-        L->top = ra + n;  /* set call for 'nebulaD_poscall' */
-        nebulaD_poscall(L, ci, n);
-        updatetrap(ci);  /* 'nebulaD_poscall' can change hooks */
+        L->top = ra + n;  /* set call for 'hydrogenD_poscall' */
+        hydrogenD_poscall(L, ci, n);
+        updatetrap(ci);  /* 'hydrogenD_poscall' can change hooks */
         goto ret;
       }
       vmcase(OP_RETURN0) {
         if (l_unlikely(L->hookmask)) {
           L->top = ra;
           savepc(ci);
-          nebulaD_poscall(L, ci, 0);  /* no hurry... */
+          hydrogenD_poscall(L, ci, 0);  /* no hurry... */
           trap = 1;
         }
         else {  /* do the 'poscall' here */
@@ -1707,7 +1707,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         if (l_unlikely(L->hookmask)) {
           L->top = ra + 1;
           savepc(ci);
-          nebulaD_poscall(L, ci, 1);  /* no hurry... */
+          hydrogenD_poscall(L, ci, 1);  /* no hurry... */
           trap = 1;
         }
         else {  /* do the 'poscall' here */
@@ -1722,7 +1722,7 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
               setnilvalue(s2v(L->top++));  /* complete missing results */
           }
         }
-       ret:  /* return from a Nebula function */
+       ret:  /* return from a Hydrogen function */
         if (ci->callstatus & CIST_FRESH)
           return;  /* end this frame */
         else {
@@ -1732,10 +1732,10 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       }
       vmcase(OP_FORLOOP) {
         if (ttisinteger(s2v(ra + 2))) {  /* integer loop? */
-          nebula_Unsigned count = l_castS2U(ivalue(s2v(ra + 1)));
+          hydrogen_Unsigned count = l_castS2U(ivalue(s2v(ra + 1)));
           if (count > 0) {  /* still more iterations? */
-            nebula_Integer step = ivalue(s2v(ra + 2));
-            nebula_Integer idx = ivalue(s2v(ra));  /* internal index */
+            hydrogen_Integer step = ivalue(s2v(ra + 2));
+            hydrogen_Integer idx = ivalue(s2v(ra));  /* internal index */
             chgivalue(s2v(ra + 1), count - 1);  /* update counter */
             idx = intop(+, idx, step);  /* add step to index */
             chgivalue(s2v(ra), idx);  /* update internal index */
@@ -1756,10 +1756,10 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       }
       vmcase(OP_TFORPREP) {
         /* create to-be-closed upvalue (if needed) */
-        halfProtect(nebulaF_newtbnebulaval(L, ra + 3));
+        halfProtect(hydrogenF_newtbhydrogenval(L, ra + 3));
         pc += GETARG_Bx(i);
-        i = *(pc++);  /* Nebula to next instruction */
-        nebula_assert(GET_OPCODE(i) == OP_TFORCALL && ra == RA(i));
+        i = *(pc++);  /* Hydrogen to next instruction */
+        hydrogen_assert(GET_OPCODE(i) == OP_TFORCALL && ra == RA(i));
         goto l_tforcall;
       }
       vmcase(OP_TFORCALL) {
@@ -1772,10 +1772,10 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
         /* push function, state, and control variable */
         memcpy(ra + 4, ra, 3 * sizeof(*ra));
         L->top = ra + 4 + 3;
-        ProtectNT(nebulaD_call(L, ra + 4, GETARG_C(i)));  /* do the call */
+        ProtectNT(hydrogenD_call(L, ra + 4, GETARG_C(i)));  /* do the call */
         updatestack(ci);  /* stack may have changed */
-        i = *(pc++);  /* Nebula to next instruction */
-        nebula_assert(GET_OPCODE(i) == OP_TFORLOOP && ra == RA(i));
+        i = *(pc++);  /* Hydrogen to next instruction */
+        hydrogen_assert(GET_OPCODE(i) == OP_TFORLOOP && ra == RA(i));
         goto l_tforloop;
       }
       vmcase(OP_TFORLOOP) {
@@ -1799,13 +1799,13 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
           last += GETARG_Ax(*pc) * (MAXARG_C + 1);
           pc++;
         }
-        if (last > nebulaH_realasize(h))  /* needs more space? */
-          nebulaH_resizearray(L, h, last);  /* preallocate it at once */
+        if (last > hydrogenH_realasize(h))  /* needs more space? */
+          hydrogenH_resizearray(L, h, last);  /* preallocate it at once */
         for (; n > 0; n--) {
           TValue *val = s2v(ra + n);
           setobj2t(L, &h->array[last - 1], val);
           last--;
-          nebulaC_barrierback(L, obj2gco(h), val);
+          hydrogenC_barrierback(L, obj2gco(h), val);
         }
         vmbreak;
       }
@@ -1817,20 +1817,20 @@ void nebulaV_execute (nebula_State *L, CallInfo *ci) {
       }
       vmcase(OP_VARARG) {
         int n = GETARG_C(i) - 1;  /* required results */
-        Protect(nebulaT_getvarargs(L, ci, ra, n));
+        Protect(hydrogenT_getvarargs(L, ci, ra, n));
         vmbreak;
       }
       vmcase(OP_VARARGPREP) {
-        ProtectNT(nebulaT_adjustvarargs(L, GETARG_A(i), ci, cl->p));
+        ProtectNT(hydrogenT_adjustvarargs(L, GETARG_A(i), ci, cl->p));
         if (l_unlikely(trap)) {  /* previous "Protect" updated trap */
-          nebulaD_hookcall(L, ci);
+          hydrogenD_hookcall(L, ci);
           L->oldpc = 1;  /* next opcode will be seen as a "new" line */
         }
         updatebase(ci);  /* function has new base after adjustment */
         vmbreak;
       }
       vmcase(OP_EXTRAARG) {
-        nebula_assert(0);
+        hydrogen_assert(0);
         vmbreak;
       }
     }

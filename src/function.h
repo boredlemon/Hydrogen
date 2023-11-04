@@ -1,7 +1,7 @@
 /*
 ** $Id: function.h $
 ** Auxiliary functions to manipulate prototypes and closures
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef function_h
@@ -23,7 +23,7 @@
 
 
 /*
-** maximum number of upvalues in a closure (both C and Nebula). (Value
+** maximum number of upvalues in a closure (both C and Hydrogen). (Value
 ** must fit in a VM register.)
 */
 #define MAXUPVAL	255
@@ -47,17 +47,17 @@
 #define CLOSEKTOP	(-1)
 
 
-NEBULAI_FUNC Proto *nebulaF_newproto (nebula_State *L);
-NEBULAI_FUNC CClosure *nebulaF_newCclosure (nebula_State *L, int nupvals);
-NEBULAI_FUNC LClosure *nebulaF_newLclosure (nebula_State *L, int nupvals);
-NEBULAI_FUNC void nebulaF_initupvals (nebula_State *L, LClosure *cl);
-NEBULAI_FUNC UpVal *nebulaF_findupval (nebula_State *L, StkId level);
-NEBULAI_FUNC void nebulaF_newtbnebulaval (nebula_State *L, StkId level);
-NEBULAI_FUNC void nebulaF_closeupval (nebula_State *L, StkId level);
-NEBULAI_FUNC void nebulaF_close (nebula_State *L, StkId level, int status, int yy);
-NEBULAI_FUNC void nebulaF_unlinkupval (UpVal *uv);
-NEBULAI_FUNC void nebulaF_freeproto (nebula_State *L, Proto *f);
-NEBULAI_FUNC const char *nebulaF_getlocalname (const Proto *func, int local_number,
+HYDROGENI_FUNC Proto *hydrogenF_newproto (hydrogen_State *L);
+HYDROGENI_FUNC CClosure *hydrogenF_newCclosure (hydrogen_State *L, int nupvals);
+HYDROGENI_FUNC LClosure *hydrogenF_newLclosure (hydrogen_State *L, int nupvals);
+HYDROGENI_FUNC void hydrogenF_initupvals (hydrogen_State *L, LClosure *cl);
+HYDROGENI_FUNC UpVal *hydrogenF_findupval (hydrogen_State *L, StkId level);
+HYDROGENI_FUNC void hydrogenF_newtbhydrogenval (hydrogen_State *L, StkId level);
+HYDROGENI_FUNC void hydrogenF_closeupval (hydrogen_State *L, StkId level);
+HYDROGENI_FUNC void hydrogenF_close (hydrogen_State *L, StkId level, int status, int yy);
+HYDROGENI_FUNC void hydrogenF_unlinkupval (UpVal *uv);
+HYDROGENI_FUNC void hydrogenF_freeproto (hydrogen_State *L, Proto *f);
+HYDROGENI_FUNC const char *hydrogenF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
 

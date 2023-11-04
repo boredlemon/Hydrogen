@@ -1,7 +1,7 @@
 /*
 ** $Id: opcodes.h $
-** Opcodes for Nebula virtual machine
-** See Copyright Notice in nebula.h
+** Opcodes for Hydrogen virtual machine
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef opcodes_h
@@ -200,7 +200,7 @@ typedef enum {
 ------------------------------------------------------------------------*/
 OP_MOVE,/*	A B	R[A] := R[B]					*/
 OP_LOADI,/*	A sBx	R[A] := sBx					*/
-OP_LOADF,/*	A sBx	R[A] := (nebula_Number)sBx				*/
+OP_LOADF,/*	A sBx	R[A] := (hydrogen_Number)sBx				*/
 OP_LOADK,/*	A Bx	R[A] := K[Bx]					*/
 OP_LOADKX,/*	A	R[A] := K[extra arg]				*/
 OP_LOADFALSE,/*	A	R[A] := false					*/
@@ -378,14 +378,14 @@ OP_EXTRAARG/*	Ax	extra (larger) argument for previous opcode	*/
 ** bit 7: instruction is an MM instruction (call a metamethod)
 */
 
-NEBULAI_DDEC(const lu_byte nebulaP_opmodes[NUM_OPCODES];)
+HYDROGENI_DDEC(const lu_byte hydrogenP_opmodes[NUM_OPCODES];)
 
-#define getOpMode(m)	(cast(enum OpMode, nebulaP_opmodes[m] & 7))
-#define testAMode(m)	(nebulaP_opmodes[m] & (1 << 3))
-#define testTMode(m)	(nebulaP_opmodes[m] & (1 << 4))
-#define testITMode(m)	(nebulaP_opmodes[m] & (1 << 5))
-#define testOTMode(m)	(nebulaP_opmodes[m] & (1 << 6))
-#define testMMMode(m)	(nebulaP_opmodes[m] & (1 << 7))
+#define getOpMode(m)	(cast(enum OpMode, hydrogenP_opmodes[m] & 7))
+#define testAMode(m)	(hydrogenP_opmodes[m] & (1 << 3))
+#define testTMode(m)	(hydrogenP_opmodes[m] & (1 << 4))
+#define testITMode(m)	(hydrogenP_opmodes[m] & (1 << 5))
+#define testOTMode(m)	(hydrogenP_opmodes[m] & (1 << 6))
+#define testMMMode(m)	(hydrogenP_opmodes[m] & (1 << 7))
 
 /* "out top" (set top for next instruction) */
 #define isOT(i)  \

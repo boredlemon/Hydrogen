@@ -1,7 +1,7 @@
 /*
 ** $Id: table.h $
-** Nebula tables (hash)
-** See Copyright Notice in nebula.h
+** Hydrogen tables (hash)
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef table_h
@@ -35,31 +35,31 @@
 #define nodefromval(v)	cast(Node *, (v))
 
 
-NEBULAI_FUNC const TValue *nebulaH_getint (Table *t, nebula_Integer key);
-NEBULAI_FUNC void nebulaH_setint (nebula_State *L, Table *t, nebula_Integer key,
+HYDROGENI_FUNC const TValue *hydrogenH_getint (Table *t, hydrogen_Integer key);
+HYDROGENI_FUNC void hydrogenH_setint (hydrogen_State *L, Table *t, hydrogen_Integer key,
                                                     TValue *value);
-NEBULAI_FUNC const TValue *nebulaH_getshortstr (Table *t, TString *key);
-NEBULAI_FUNC const TValue *nebulaH_getstr (Table *t, TString *key);
-NEBULAI_FUNC const TValue *nebulaH_get (Table *t, const TValue *key);
-NEBULAI_FUNC void nebulaH_newkey (nebula_State *L, Table *t, const TValue *key,
+HYDROGENI_FUNC const TValue *hydrogenH_getshortstr (Table *t, TString *key);
+HYDROGENI_FUNC const TValue *hydrogenH_getstr (Table *t, TString *key);
+HYDROGENI_FUNC const TValue *hydrogenH_get (Table *t, const TValue *key);
+HYDROGENI_FUNC void hydrogenH_newkey (hydrogen_State *L, Table *t, const TValue *key,
                                                     TValue *value);
-NEBULAI_FUNC void nebulaH_set (nebula_State *L, Table *t, const TValue *key,
+HYDROGENI_FUNC void hydrogenH_set (hydrogen_State *L, Table *t, const TValue *key,
                                                  TValue *value);
-NEBULAI_FUNC void nebulaH_finishset (nebula_State *L, Table *t, const TValue *key,
+HYDROGENI_FUNC void hydrogenH_finishset (hydrogen_State *L, Table *t, const TValue *key,
                                        const TValue *slot, TValue *value);
-NEBULAI_FUNC Table *nebulaH_new (nebula_State *L);
-NEBULAI_FUNC void nebulaH_resize (nebula_State *L, Table *t, unsigned int nasize,
+HYDROGENI_FUNC Table *hydrogenH_new (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenH_resize (hydrogen_State *L, Table *t, unsigned int nasize,
                                                     unsigned int nhsize);
-NEBULAI_FUNC void nebulaH_resizearray (nebula_State *L, Table *t, unsigned int nasize);
-NEBULAI_FUNC void nebulaH_free (nebula_State *L, Table *t);
-NEBULAI_FUNC int nebulaH_next (nebula_State *L, Table *t, StkId key);
-NEBULAI_FUNC nebula_Unsigned nebulaH_getn (Table *t);
-NEBULAI_FUNC unsigned int nebulaH_realasize (const Table *t);
+HYDROGENI_FUNC void hydrogenH_resizearray (hydrogen_State *L, Table *t, unsigned int nasize);
+HYDROGENI_FUNC void hydrogenH_free (hydrogen_State *L, Table *t);
+HYDROGENI_FUNC int hydrogenH_next (hydrogen_State *L, Table *t, StkId key);
+HYDROGENI_FUNC hydrogen_Unsigned hydrogenH_getn (Table *t);
+HYDROGENI_FUNC unsigned int hydrogenH_realasize (const Table *t);
 
 
-#if defined(NEBULA_DEBUG)
-NEBULAI_FUNC Node *nebulaH_mainposition (const Table *t, const TValue *key);
-NEBULAI_FUNC int nebulaH_isdummy (const Table *t);
+#if defined(HYDROGEN_DEBUG)
+HYDROGENI_FUNC Node *hydrogenH_mainposition (const Table *t, const TValue *key);
+HYDROGENI_FUNC int hydrogenH_isdummy (const Table *t);
 #endif
 
 

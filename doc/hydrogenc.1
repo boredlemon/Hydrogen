@@ -1,18 +1,18 @@
-.\" $Id: nebulac.man,v 1.29 2011/11/16 13:53:40 lhf Exp $
-.TH NEBULAC 1 "$Date: 2011/11/16 13:53:40 $"
+.\" $Id: hydrogenc.man,v 1.29 2011/11/16 13:53:40 lhf Exp $
+.TH HYDROGENC 1 "$Date: 2011/11/16 13:53:40 $"
 .SH NAME
-nebulac \- Nebula compiler
+hydrogenc \- Hydrogen compiler
 .SH SYNOPSIS
-.B nebulac
+.B hydrogenc
 [
 .I options
 ] [
 .I filenames
 ]
 .SH DESCRIPTION
-.B nebulac
-is the Nebula compiler.
-It translates programs written in the Nebula programming language
+.B hydrogenc
+is the Hydrogen compiler.
+It translates programs written in the Hydrogen programming language
 into binary files containing precompiled chunks
 that can be later loaded and executed.
 .LP
@@ -22,23 +22,23 @@ protecting source code from accidental user changes,
 and
 off-line syntax checking.
 Precompiling does not imply faster execution
-because in Nebula chunks are always compiled into bytecodes before being executed.
-.B nebulac
+because in Hydrogen chunks are always compiled into bytecodes before being executed.
+.B hydrogenc
 simply allows those bytecodes to be saved in a file for later execution.
 Precompiled chunks are not necessarily smaller than the corresponding source.
-The main Nebulaal in precompiling is faster loading.
+The main Hydrogenal in precompiling is faster loading.
 .LP
 In the command line,
 you can mix
-text files containing Nebula source and
+text files containing Hydrogen source and
 binary files containing precompiled chunks.
-.B nebulac
+.B hydrogenc
 produces a single output file containing the combined bytecodes
 for all files given.
 Executing the combined file is equivalent to executing the given files.
 By default,
 the output file is named
-.BR nebulac.out ,
+.BR hydrogenc.out ,
 but you can change this with the
 .B \-o
 option.
@@ -48,18 +48,18 @@ Precompiled chunks are
 portable across different architectures.
 Moreover,
 the internal format of precompiled chunks
-is likely to change when a new version of Nebula is released.
-Make sure you save the source files of all Nebula programs that you precompile.
+is likely to change when a new version of Hydrogen is released.
+Make sure you save the source files of all Hydrogen programs that you precompile.
 .LP
 .SH OPTIONS
 .TP
 .B \-l
-produce a listing of the compiled bytecode for Nebula's virtual machine.
-Listing bytecodes is useful to learn about Nebula's virtual machine.
+produce a listing of the compiled bytecode for Hydrogen's virtual machine.
+Listing bytecodes is useful to learn about Hydrogen's virtual machine.
 If no files are given, then
-.B nebulac
+.B hydrogenc
 loads
-.B nebulac.out
+.B hydrogenc.out
 and lists its contents.
 Use
 .B \-l \-l
@@ -69,7 +69,7 @@ for a full listing.
 output to
 .IR file ,
 instead of the default
-.BR nebulac.out .
+.BR hydrogenc.out .
 (You can use
 .B "'\-'"
 for standard output,
@@ -83,9 +83,9 @@ load files but do not generate any output file.
 Used mainly for syntax checking and for testing precompiled chunks:
 corrupted files will probably generate errors when loaded.
 If no files are given, then
-.B nebulac
+.B hydrogenc
 loads
-.B nebulac.out
+.B hydrogenc.out
 and tests its contents.
 No messages are displayed if the file loads without errors.
 .TP
@@ -106,9 +106,9 @@ stop handling options.
 .B \-
 stop handling options and process standard input.
 .SH "SEE ALSO"
-.BR nebula (1)
+.BR hydrogen (1)
 .br
-The documentation at nebula.org.
+The documentation at hydrogen.org.
 .SH DIAGNOSTICS
 Error messages should be self explanatory.
 .SH AUTHORS

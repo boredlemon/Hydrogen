@@ -1,7 +1,7 @@
 /*
 ** $Id: code.h $
-** Code generator for Nebula
-** See Copyright Notice in nebula.h
+** Code generator for Hydrogen
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef code_h
@@ -45,7 +45,7 @@ typedef enum BinOpr {
 #define foldbinop(op)	((op) <= OPR_SHR)
 
 
-#define nebulaK_codeABC(fs,o,a,b,c)	nebulaK_codeABCk(fs,o,a,b,c,0)
+#define hydrogenK_codeABC(fs,o,a,b,c)	hydrogenK_codeABCk(fs,o,a,b,c,0)
 
 
 typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
@@ -55,50 +55,50 @@ typedef enum UnOpr { OPR_MINUS, OPR_BNOT, OPR_NOT, OPR_LEN, OPR_NOUNOPR } UnOpr;
 #define getinstruction(fs,e)	((fs)->f->code[(e)->u.info])
 
 
-#define nebulaK_setmultret(fs,e)	nebulaK_setreturns(fs, e, NEBULA_MULTRET)
+#define hydrogenK_setmultret(fs,e)	hydrogenK_setreturns(fs, e, HYDROGEN_MULTRET)
 
-#define nebulaK_jumpto(fs,t)	nebulaK_patchlist(fs, nebulaK_jump(fs), t)
+#define hydrogenK_jumpto(fs,t)	hydrogenK_patchlist(fs, hydrogenK_jump(fs), t)
 
-NEBULAI_FUNC int nebulaK_code (FuncState *fs, Instruction i);
-NEBULAI_FUNC int nebulaK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
-NEBULAI_FUNC int nebulaK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
-NEBULAI_FUNC int nebulaK_codeABCk (FuncState *fs, OpCode o, int A,
+HYDROGENI_FUNC int hydrogenK_code (FuncState *fs, Instruction i);
+HYDROGENI_FUNC int hydrogenK_codeABx (FuncState *fs, OpCode o, int A, unsigned int Bx);
+HYDROGENI_FUNC int hydrogenK_codeAsBx (FuncState *fs, OpCode o, int A, int Bx);
+HYDROGENI_FUNC int hydrogenK_codeABCk (FuncState *fs, OpCode o, int A,
                                             int B, int C, int k);
-NEBULAI_FUNC int nebulaK_isKint (expdesc *e);
-NEBULAI_FUNC int nebulaK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
-NEBULAI_FUNC void nebulaK_fixline (FuncState *fs, int line);
-NEBULAI_FUNC void nebulaK_nil (FuncState *fs, int from, int n);
-NEBULAI_FUNC void nebulaK_reserveregs (FuncState *fs, int n);
-NEBULAI_FUNC void nebulaK_checkstack (FuncState *fs, int n);
-NEBULAI_FUNC void nebulaK_int (FuncState *fs, int reg, nebula_Integer n);
-NEBULAI_FUNC void nebulaK_dischargevars (FuncState *fs, expdesc *e);
-NEBULAI_FUNC int nebulaK_exp2anyreg (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_exp2anyregup (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_exp2nextreg (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_exp2val (FuncState *fs, expdesc *e);
-NEBULAI_FUNC int nebulaK_exp2RK (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_self (FuncState *fs, expdesc *e, expdesc *key);
-NEBULAI_FUNC void nebulaK_indexed (FuncState *fs, expdesc *t, expdesc *k);
-NEBULAI_FUNC void nebulaK_Nebulaiftrue (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_Nebulaiffalse (FuncState *fs, expdesc *e);
-NEBULAI_FUNC void nebulaK_storevar (FuncState *fs, expdesc *var, expdesc *e);
-NEBULAI_FUNC void nebulaK_setreturns (FuncState *fs, expdesc *e, int nresults);
-NEBULAI_FUNC void nebulaK_setoneret (FuncState *fs, expdesc *e);
-NEBULAI_FUNC int nebulaK_jump (FuncState *fs);
-NEBULAI_FUNC void nebulaK_ret (FuncState *fs, int first, int nret);
-NEBULAI_FUNC void nebulaK_patchlist (FuncState *fs, int list, int target);
-NEBULAI_FUNC void nebulaK_patchtohere (FuncState *fs, int list);
-NEBULAI_FUNC void nebulaK_concat (FuncState *fs, int *l1, int l2);
-NEBULAI_FUNC int nebulaK_getlabel (FuncState *fs);
-NEBULAI_FUNC void nebulaK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
-NEBULAI_FUNC void nebulaK_infix (FuncState *fs, BinOpr op, expdesc *v);
-NEBULAI_FUNC void nebulaK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
+HYDROGENI_FUNC int hydrogenK_isKint (expdesc *e);
+HYDROGENI_FUNC int hydrogenK_exp2const (FuncState *fs, const expdesc *e, TValue *v);
+HYDROGENI_FUNC void hydrogenK_fixline (FuncState *fs, int line);
+HYDROGENI_FUNC void hydrogenK_nil (FuncState *fs, int from, int n);
+HYDROGENI_FUNC void hydrogenK_reserveregs (FuncState *fs, int n);
+HYDROGENI_FUNC void hydrogenK_checkstack (FuncState *fs, int n);
+HYDROGENI_FUNC void hydrogenK_int (FuncState *fs, int reg, hydrogen_Integer n);
+HYDROGENI_FUNC void hydrogenK_dischargevars (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC int hydrogenK_exp2anyreg (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_exp2anyregup (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_exp2nextreg (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_exp2val (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC int hydrogenK_exp2RK (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_self (FuncState *fs, expdesc *e, expdesc *key);
+HYDROGENI_FUNC void hydrogenK_indexed (FuncState *fs, expdesc *t, expdesc *k);
+HYDROGENI_FUNC void hydrogenK_Hydrogeniftrue (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_Hydrogeniffalse (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_storevar (FuncState *fs, expdesc *var, expdesc *e);
+HYDROGENI_FUNC void hydrogenK_setreturns (FuncState *fs, expdesc *e, int nresults);
+HYDROGENI_FUNC void hydrogenK_setoneret (FuncState *fs, expdesc *e);
+HYDROGENI_FUNC int hydrogenK_jump (FuncState *fs);
+HYDROGENI_FUNC void hydrogenK_ret (FuncState *fs, int first, int nret);
+HYDROGENI_FUNC void hydrogenK_patchlist (FuncState *fs, int list, int target);
+HYDROGENI_FUNC void hydrogenK_patchtohere (FuncState *fs, int list);
+HYDROGENI_FUNC void hydrogenK_concat (FuncState *fs, int *l1, int l2);
+HYDROGENI_FUNC int hydrogenK_getlabel (FuncState *fs);
+HYDROGENI_FUNC void hydrogenK_prefix (FuncState *fs, UnOpr op, expdesc *v, int line);
+HYDROGENI_FUNC void hydrogenK_infix (FuncState *fs, BinOpr op, expdesc *v);
+HYDROGENI_FUNC void hydrogenK_posfix (FuncState *fs, BinOpr op, expdesc *v1,
                             expdesc *v2, int line);
-NEBULAI_FUNC void nebulaK_settablesize (FuncState *fs, int pc,
+HYDROGENI_FUNC void hydrogenK_settablesize (FuncState *fs, int pc,
                                   int ra, int asize, int hsize);
-NEBULAI_FUNC void nebulaK_setlist (FuncState *fs, int base, int nelems, int tostore);
-NEBULAI_FUNC void nebulaK_finish (FuncState *fs);
-NEBULAI_FUNC l_noret nebulaK_semerror (LexState *ls, const char *msg);
+HYDROGENI_FUNC void hydrogenK_setlist (FuncState *fs, int base, int nelems, int tostore);
+HYDROGENI_FUNC void hydrogenK_finish (FuncState *fs);
+HYDROGENI_FUNC l_noret hydrogenK_semerror (LexState *ls, const char *msg);
 
 
 #endif

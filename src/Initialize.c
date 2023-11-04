@@ -1,16 +1,16 @@
 /*
 ** $Id: Initialize.c $
-** Initialization of libraries for nebula.c and other clients
-** See Copyright Notice in nebula.h
+** Initialization of libraries for hydrogen.c and other clients
+** See Copyright Notice in hydrogen.h
 */
 
 
 #define Initialize_c
-#define NEBULA_LIB
+#define HYDROGEN_LIB
 
 /*
-** If you embed Nebula in your program and need to open the standard
-** libraries, call nebulaL_openlibs in your program. If you need a
+** If you embed Hydrogen in your program and need to open the standard
+** libraries, call hydrogenL_openlibs in your program. If you need a
 ** different set of libraries, copy this file to your project and edit
 ** it to suit your needs.
 **
@@ -18,10 +18,10 @@
 ** open the library, which is already linked to the application.
 ** For that, do the following code:
 **
-**  nebulaL_getsubtable(L, NEBULA_REGISTRYINDEX, NEBULA_PRELOAD_TABLE);
-**  nebula_pushcfunction(L, nebulaopen_modname);
-**  nebula_setfield(L, -2, modname);
-**  nebula_pop(L, 1);  // remove PRELOAD table
+**  hydrogenL_getsubtable(L, HYDROGEN_REGISTRYINDEX, HYDROGEN_PRELOAD_TABLE);
+**  hydrogen_pushcfunction(L, hydrogenopen_modname);
+**  hydrogen_setfield(L, -2, modname);
+**  hydrogen_pop(L, 1);  // remove PRELOAD table
 */
 
 #include "prefix.h"
@@ -29,37 +29,37 @@
 
 #include <stddef.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
-#include "nebulalib.h"
+#include "hydrogenlib.h"
 #include "auxlib.h"
 
 
 /*
-** these libs are loaded by nebula.c and are readily available to any Nebula
+** these libs are loaded by hydrogen.c and are readily available to any Hydrogen
 ** program
 */
-static const nebulaL_Reg loadedlibs[] = {
-  {NEBULA_GNAME, nebulaopen_base},
-  {NEBULA_LOADLIBNAME, nebulaopen_package},
-  {NEBULA_COLIBNAME, nebulaopen_coroutine},
-  {NEBULA_TABLIBNAME, nebulaopen_table},
-  {NEBULA_IOLIBNAME, nebulaopen_io},
-  {NEBULA_OSLIBNAME, nebulaopen_os},
-  {NEBULA_STRLIBNAME, nebulaopen_string},
-  {NEBULA_MATHLIBNAME, nebulaopen_math},
-  {NEBULA_UTF8LIBNAME, nebulaopen_utf8},
-  {NEBULA_DBLIBNAME, nebulaopen_debug},
+static const hydrogenL_Reg loadedlibs[] = {
+  {HYDROGEN_GNAME, hydrogenopen_base},
+  {HYDROGEN_LOADLIBNAME, hydrogenopen_package},
+  {HYDROGEN_COLIBNAME, hydrogenopen_coroutine},
+  {HYDROGEN_TABLIBNAME, hydrogenopen_table},
+  {HYDROGEN_IOLIBNAME, hydrogenopen_io},
+  {HYDROGEN_OSLIBNAME, hydrogenopen_os},
+  {HYDROGEN_STRLIBNAME, hydrogenopen_string},
+  {HYDROGEN_MATHLIBNAME, hydrogenopen_math},
+  {HYDROGEN_UTF8LIBNAME, hydrogenopen_utf8},
+  {HYDROGEN_DBLIBNAME, hydrogenopen_debug},
   {NULL, NULL}
 };
 
 
-NEBULALIB_API void nebulaL_openlibs (nebula_State *L) {
-  const nebulaL_Reg *lib;
+HYDROGENLIB_API void hydrogenL_openlibs (hydrogen_State *L) {
+  const hydrogenL_Reg *lib;
   /* "require" functions from 'loadedlibs' and set results to global table */
   for (lib = loadedlibs; lib->func; lib++) {
-    nebulaL_requiref(L, lib->name, lib->func, 1);
-    nebula_pop(L, 1);  /* remove lib */
+    hydrogenL_requiref(L, lib->name, lib->func, 1);
+    hydrogen_pop(L, 1);  /* remove lib */
   }
 }
 

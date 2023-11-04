@@ -1,7 +1,7 @@
 /*
 ** $Id: auxlib.h $
-** Auxiliary functions for building Nebula libraries
-** See Copyright Notice in nebula.h
+** Auxiliary functions for building Hydrogen libraries
+** See Copyright Notice in hydrogen.h
 */
 
 
@@ -12,110 +12,110 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "nebulaconf.h"
-#include "nebula.h"
+#include "hydrogenconf.h"
+#include "hydrogen.h"
 
 
 /* global table */
-#define NEBULA_GNAME	"_G"
+#define HYDROGEN_GNAME	"_G"
 
 
-typedef struct nebulaL_Buffer nebulaL_Buffer;
+typedef struct hydrogenL_Buffer hydrogenL_Buffer;
 
 
-/* extra error code for 'nebulaL_loadfilex' */
-#define NEBULA_ERRFILE     (NEBULA_ERRERR+1)
+/* extra error code for 'hydrogenL_loadfilex' */
+#define HYDROGEN_ERRFILE     (HYDROGEN_ERRERR+1)
 
 
 /* key, in the registry, for table of loaded modules */
-#define NEBULA_LOADED_TABLE	"_LOADED"
+#define HYDROGEN_LOADED_TABLE	"_LOADED"
 
 
 /* key, in the registry, for table of preloaded loaders */
-#define NEBULA_PRELOAD_TABLE	"_PRELOAD"
+#define HYDROGEN_PRELOAD_TABLE	"_PRELOAD"
 
 
-typedef struct nebulaL_Reg {
+typedef struct hydrogenL_Reg {
   const char *name;
-  nebula_CFunction func;
-} nebulaL_Reg;
+  hydrogen_CFunction func;
+} hydrogenL_Reg;
 
 
-#define NEBULAL_NUMSIZES	(sizeof(nebula_Integer)*16 + sizeof(nebula_Number))
+#define HYDROGENL_NUMSIZES	(sizeof(hydrogen_Integer)*16 + sizeof(hydrogen_Number))
 
-NEBULALIB_API void (nebulaL_checkversion_) (nebula_State *L, nebula_Number ver, size_t sz);
-#define nebulaL_checkversion(L)  \
-	  nebulaL_checkversion_(L, NEBULA_VERSION_NUM, NEBULAL_NUMSIZES)
+HYDROGENLIB_API void (hydrogenL_checkversion_) (hydrogen_State *L, hydrogen_Number ver, size_t sz);
+#define hydrogenL_checkversion(L)  \
+	  hydrogenL_checkversion_(L, HYDROGEN_VERSION_NUM, HYDROGENL_NUMSIZES)
 
-NEBULALIB_API int (nebulaL_getmetafield) (nebula_State *L, int obj, const char *e);
-NEBULALIB_API int (nebulaL_callmeta) (nebula_State *L, int obj, const char *e);
-NEBULALIB_API const char *(nebulaL_tolstring) (nebula_State *L, int idx, size_t *len);
-NEBULALIB_API int (nebulaL_argerror) (nebula_State *L, int arg, const char *extramsg);
-NEBULALIB_API int (nebulaL_typeerror) (nebula_State *L, int arg, const char *tname);
-NEBULALIB_API const char *(nebulaL_checklstring) (nebula_State *L, int arg,
+HYDROGENLIB_API int (hydrogenL_getmetafield) (hydrogen_State *L, int obj, const char *e);
+HYDROGENLIB_API int (hydrogenL_callmeta) (hydrogen_State *L, int obj, const char *e);
+HYDROGENLIB_API const char *(hydrogenL_tolstring) (hydrogen_State *L, int idx, size_t *len);
+HYDROGENLIB_API int (hydrogenL_argerror) (hydrogen_State *L, int arg, const char *extramsg);
+HYDROGENLIB_API int (hydrogenL_typeerror) (hydrogen_State *L, int arg, const char *tname);
+HYDROGENLIB_API const char *(hydrogenL_checklstring) (hydrogen_State *L, int arg,
                                                           size_t *l);
-NEBULALIB_API const char *(nebulaL_optlstring) (nebula_State *L, int arg,
+HYDROGENLIB_API const char *(hydrogenL_optlstring) (hydrogen_State *L, int arg,
                                           const char *def, size_t *l);
-NEBULALIB_API nebula_Number (nebulaL_checknumber) (nebula_State *L, int arg);
-NEBULALIB_API nebula_Number (nebulaL_optnumber) (nebula_State *L, int arg, nebula_Number def);
+HYDROGENLIB_API hydrogen_Number (hydrogenL_checknumber) (hydrogen_State *L, int arg);
+HYDROGENLIB_API hydrogen_Number (hydrogenL_optnumber) (hydrogen_State *L, int arg, hydrogen_Number def);
 
-NEBULALIB_API nebula_Integer (nebulaL_checkinteger) (nebula_State *L, int arg);
-NEBULALIB_API nebula_Integer (nebulaL_optinteger) (nebula_State *L, int arg,
-                                          nebula_Integer def);
+HYDROGENLIB_API hydrogen_Integer (hydrogenL_checkinteger) (hydrogen_State *L, int arg);
+HYDROGENLIB_API hydrogen_Integer (hydrogenL_optinteger) (hydrogen_State *L, int arg,
+                                          hydrogen_Integer def);
 
-NEBULALIB_API void (nebulaL_checkstack) (nebula_State *L, int sz, const char *msg);
-NEBULALIB_API void (nebulaL_checktype) (nebula_State *L, int arg, int t);
-NEBULALIB_API void (nebulaL_checkany) (nebula_State *L, int arg);
+HYDROGENLIB_API void (hydrogenL_checkstack) (hydrogen_State *L, int sz, const char *msg);
+HYDROGENLIB_API void (hydrogenL_checktype) (hydrogen_State *L, int arg, int t);
+HYDROGENLIB_API void (hydrogenL_checkany) (hydrogen_State *L, int arg);
 
-NEBULALIB_API int   (nebulaL_newmetatable) (nebula_State *L, const char *tname);
-NEBULALIB_API void  (nebulaL_setmetatable) (nebula_State *L, const char *tname);
-NEBULALIB_API void *(nebulaL_testudata) (nebula_State *L, int ud, const char *tname);
-NEBULALIB_API void *(nebulaL_checkudata) (nebula_State *L, int ud, const char *tname);
+HYDROGENLIB_API int   (hydrogenL_newmetatable) (hydrogen_State *L, const char *tname);
+HYDROGENLIB_API void  (hydrogenL_setmetatable) (hydrogen_State *L, const char *tname);
+HYDROGENLIB_API void *(hydrogenL_testudata) (hydrogen_State *L, int ud, const char *tname);
+HYDROGENLIB_API void *(hydrogenL_checkudata) (hydrogen_State *L, int ud, const char *tname);
 
-NEBULALIB_API void (nebulaL_where) (nebula_State *L, int lvl);
-NEBULALIB_API int (nebulaL_error) (nebula_State *L, const char *fmt, ...);
+HYDROGENLIB_API void (hydrogenL_where) (hydrogen_State *L, int lvl);
+HYDROGENLIB_API int (hydrogenL_error) (hydrogen_State *L, const char *fmt, ...);
 
-NEBULALIB_API int (nebulaL_checkoption) (nebula_State *L, int arg, const char *def,
+HYDROGENLIB_API int (hydrogenL_checkoption) (hydrogen_State *L, int arg, const char *def,
                                    const char *const lst[]);
 
-NEBULALIB_API int (nebulaL_fileresult) (nebula_State *L, int stat, const char *fname);
-NEBULALIB_API int (nebulaL_execresult) (nebula_State *L, int stat);
+HYDROGENLIB_API int (hydrogenL_fileresult) (hydrogen_State *L, int stat, const char *fname);
+HYDROGENLIB_API int (hydrogenL_execresult) (hydrogen_State *L, int stat);
 
 
 /* predefined references */
-#define NEBULA_NOREF       (-2)
-#define NEBULA_REFNIL      (-1)
+#define HYDROGEN_NOREF       (-2)
+#define HYDROGEN_REFNIL      (-1)
 
-NEBULALIB_API int (nebulaL_ref) (nebula_State *L, int t);
-NEBULALIB_API void (nebulaL_unref) (nebula_State *L, int t, int ref);
+HYDROGENLIB_API int (hydrogenL_ref) (hydrogen_State *L, int t);
+HYDROGENLIB_API void (hydrogenL_unref) (hydrogen_State *L, int t, int ref);
 
-NEBULALIB_API int (nebulaL_loadfilex) (nebula_State *L, const char *filename,
+HYDROGENLIB_API int (hydrogenL_loadfilex) (hydrogen_State *L, const char *filename,
                                                const char *mode);
 
-#define nebulaL_loadfile(L,f)	nebulaL_loadfilex(L,f,NULL)
+#define hydrogenL_loadfile(L,f)	hydrogenL_loadfilex(L,f,NULL)
 
-NEBULALIB_API int (nebulaL_loadbufferx) (nebula_State *L, const char *buff, size_t sz,
+HYDROGENLIB_API int (hydrogenL_loadbufferx) (hydrogen_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
-NEBULALIB_API int (nebulaL_loadstring) (nebula_State *L, const char *s);
+HYDROGENLIB_API int (hydrogenL_loadstring) (hydrogen_State *L, const char *s);
 
-NEBULALIB_API nebula_State *(nebulaL_newstate) (void);
+HYDROGENLIB_API hydrogen_State *(hydrogenL_newstate) (void);
 
-NEBULALIB_API nebula_Integer (nebulaL_len) (nebula_State *L, int idx);
+HYDROGENLIB_API hydrogen_Integer (hydrogenL_len) (hydrogen_State *L, int idx);
 
-NEBULALIB_API void (nebulaL_addgsub) (nebulaL_Buffer *b, const char *s,
+HYDROGENLIB_API void (hydrogenL_addgsub) (hydrogenL_Buffer *b, const char *s,
                                      const char *p, const char *r);
-NEBULALIB_API const char *(nebulaL_gsub) (nebula_State *L, const char *s,
+HYDROGENLIB_API const char *(hydrogenL_gsub) (hydrogen_State *L, const char *s,
                                     const char *p, const char *r);
 
-NEBULALIB_API void (nebulaL_setfuncs) (nebula_State *L, const nebulaL_Reg *l, int nup);
+HYDROGENLIB_API void (hydrogenL_setfuncs) (hydrogen_State *L, const hydrogenL_Reg *l, int nup);
 
-NEBULALIB_API int (nebulaL_getsubtable) (nebula_State *L, int idx, const char *fname);
+HYDROGENLIB_API int (hydrogenL_getsubtable) (hydrogen_State *L, int idx, const char *fname);
 
-NEBULALIB_API void (nebulaL_traceback) (nebula_State *L, nebula_State *L1,
+HYDROGENLIB_API void (hydrogenL_traceback) (hydrogen_State *L, hydrogen_State *L1,
                                   const char *msg, int level);
 
-NEBULALIB_API void (nebulaL_requiref) (nebula_State *L, const char *modname,
-                                 nebula_CFunction openf, int glb);
+HYDROGENLIB_API void (hydrogenL_requiref) (hydrogen_State *L, const char *modname,
+                                 hydrogen_CFunction openf, int glb);
 
 /*
 ** ===============================================================
@@ -124,58 +124,58 @@ NEBULALIB_API void (nebulaL_requiref) (nebula_State *L, const char *modname,
 */
 
 
-#define nebulaL_newlibtable(L,l)	\
-  nebula_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#define hydrogenL_newlibtable(L,l)	\
+  hydrogen_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
 
-#define nebulaL_newlib(L,l)  \
-  (nebulaL_checkversion(L), nebulaL_newlibtable(L,l), nebulaL_setfuncs(L,l,0))
+#define hydrogenL_newlib(L,l)  \
+  (hydrogenL_checkversion(L), hydrogenL_newlibtable(L,l), hydrogenL_setfuncs(L,l,0))
 
-#define nebulaL_argcheck(L, cond,arg,extramsg)	\
-	((void)(nebulai_likely(cond) || nebulaL_argerror(L, (arg), (extramsg))))
+#define hydrogenL_argcheck(L, cond,arg,extramsg)	\
+	((void)(hydrogeni_likely(cond) || hydrogenL_argerror(L, (arg), (extramsg))))
 
-#define nebulaL_argexpected(L,cond,arg,tname)	\
-	((void)(nebulai_likely(cond) || nebulaL_typeerror(L, (arg), (tname))))
+#define hydrogenL_argexpected(L,cond,arg,tname)	\
+	((void)(hydrogeni_likely(cond) || hydrogenL_typeerror(L, (arg), (tname))))
 
-#define nebulaL_checkstring(L,n)	(nebulaL_checklstring(L, (n), NULL))
-#define nebulaL_optstring(L,n,d)	(nebulaL_optlstring(L, (n), (d), NULL))
+#define hydrogenL_checkstring(L,n)	(hydrogenL_checklstring(L, (n), NULL))
+#define hydrogenL_optstring(L,n,d)	(hydrogenL_optlstring(L, (n), (d), NULL))
 
-#define nebulaL_typename(L,i)	nebula_typename(L, nebula_type(L,(i)))
+#define hydrogenL_typename(L,i)	hydrogen_typename(L, hydrogen_type(L,(i)))
 
-#define nebulaL_dofile(L, fn) \
-	(nebulaL_loadfile(L, fn) || nebula_pcall(L, 0, NEBULA_MULTRET, 0))
+#define hydrogenL_dofile(L, fn) \
+	(hydrogenL_loadfile(L, fn) || hydrogen_pcall(L, 0, HYDROGEN_MULTRET, 0))
 
-#define nebulaL_dostring(L, s) \
-	(nebulaL_loadstring(L, s) || nebula_pcall(L, 0, NEBULA_MULTRET, 0))
+#define hydrogenL_dostring(L, s) \
+	(hydrogenL_loadstring(L, s) || hydrogen_pcall(L, 0, HYDROGEN_MULTRET, 0))
 
-#define nebulaL_getmetatable(L,n)	(nebula_getfield(L, NEBULA_REGISTRYINDEX, (n)))
+#define hydrogenL_getmetatable(L,n)	(hydrogen_getfield(L, HYDROGEN_REGISTRYINDEX, (n)))
 
-#define nebulaL_opt(L,f,n,d)	(nebula_isnoneornil(L,(n)) ? (d) : f(L,(n)))
+#define hydrogenL_opt(L,f,n,d)	(hydrogen_isnoneornil(L,(n)) ? (d) : f(L,(n)))
 
-#define nebulaL_loadbuffer(L,s,sz,n)	nebulaL_loadbufferx(L,s,sz,n,NULL)
+#define hydrogenL_loadbuffer(L,s,sz,n)	hydrogenL_loadbufferx(L,s,sz,n,NULL)
 
 
 /*
-** Perform arithmetic operations on nebula_Integer values with wrap-around
-** semantics, as the Nebula core does.
+** Perform arithmetic operations on hydrogen_Integer values with wrap-around
+** semantics, as the Hydrogen core does.
 */
-#define nebulaL_intop(op,v1,v2)  \
-	((nebula_Integer)((nebula_Unsigned)(v1) op (nebula_Unsigned)(v2)))
+#define hydrogenL_intop(op,v1,v2)  \
+	((hydrogen_Integer)((hydrogen_Unsigned)(v1) op (hydrogen_Unsigned)(v2)))
 
 
 /* push the value used to represent failure/error */
-#define nebulaL_pushfail(L)	nebula_pushnil(L)
+#define hydrogenL_pushfail(L)	hydrogen_pushnil(L)
 
 
 /*
 ** Internal assertions for in-house debugging
 */
-#if !defined(nebula_assert)
+#if !defined(hydrogen_assert)
 
-#if defined NEBULAI_ASSERT
+#if defined HYDROGENI_ASSERT
   #include <assert.h>
-  #define nebula_assert(c)		assert(c)
+  #define hydrogen_assert(c)		assert(c)
 #else
-  #define nebula_assert(c)		((void)0)
+  #define hydrogen_assert(c)		((void)0)
 #endif
 
 #endif
@@ -188,40 +188,40 @@ NEBULALIB_API void (nebulaL_requiref) (nebula_State *L, const char *modname,
 ** =======================================================
 */
 
-struct nebulaL_Buffer {
+struct hydrogenL_Buffer {
   char *b;  /* buffer address */
   size_t size;  /* buffer size */
   size_t n;  /* number of characters in buffer */
-  nebula_State *L;
+  hydrogen_State *L;
   union {
-    NEBULAI_MAXALIGN;  /* ensure maximum alignment for buffer */
-    char b[NEBULAL_BUFFERSIZE];  /* initial buffer */
+    HYDROGENI_MAXALIGN;  /* ensure maximum alignment for buffer */
+    char b[HYDROGENL_BUFFERSIZE];  /* initial buffer */
   } init;
 };
 
 
-#define nebulaL_bufflen(bf)	((bf)->n)
-#define nebulaL_buffaddr(bf)	((bf)->b)
+#define hydrogenL_bufflen(bf)	((bf)->n)
+#define hydrogenL_buffaddr(bf)	((bf)->b)
 
 
-#define nebulaL_addchar(B,c) \
-  ((void)((B)->n < (B)->size || nebulaL_prepbuffsize((B), 1)), \
+#define hydrogenL_addchar(B,c) \
+  ((void)((B)->n < (B)->size || hydrogenL_prepbuffsize((B), 1)), \
    ((B)->b[(B)->n++] = (c)))
 
-#define nebulaL_addsize(B,s)	((B)->n += (s))
+#define hydrogenL_addsize(B,s)	((B)->n += (s))
 
-#define nebulaL_buffsub(B,s)	((B)->n -= (s))
+#define hydrogenL_buffsub(B,s)	((B)->n -= (s))
 
-NEBULALIB_API void (nebulaL_buffinit) (nebula_State *L, nebulaL_Buffer *B);
-NEBULALIB_API char *(nebulaL_prepbuffsize) (nebulaL_Buffer *B, size_t sz);
-NEBULALIB_API void (nebulaL_addlstring) (nebulaL_Buffer *B, const char *s, size_t l);
-NEBULALIB_API void (nebulaL_addstring) (nebulaL_Buffer *B, const char *s);
-NEBULALIB_API void (nebulaL_addvalue) (nebulaL_Buffer *B);
-NEBULALIB_API void (nebulaL_pushresult) (nebulaL_Buffer *B);
-NEBULALIB_API void (nebulaL_pushresultsize) (nebulaL_Buffer *B, size_t sz);
-NEBULALIB_API char *(nebulaL_buffinitsize) (nebula_State *L, nebulaL_Buffer *B, size_t sz);
+HYDROGENLIB_API void (hydrogenL_buffinit) (hydrogen_State *L, hydrogenL_Buffer *B);
+HYDROGENLIB_API char *(hydrogenL_prepbuffsize) (hydrogenL_Buffer *B, size_t sz);
+HYDROGENLIB_API void (hydrogenL_addlstring) (hydrogenL_Buffer *B, const char *s, size_t l);
+HYDROGENLIB_API void (hydrogenL_addstring) (hydrogenL_Buffer *B, const char *s);
+HYDROGENLIB_API void (hydrogenL_addvalue) (hydrogenL_Buffer *B);
+HYDROGENLIB_API void (hydrogenL_pushresult) (hydrogenL_Buffer *B);
+HYDROGENLIB_API void (hydrogenL_pushresultsize) (hydrogenL_Buffer *B, size_t sz);
+HYDROGENLIB_API char *(hydrogenL_buffinitsize) (hydrogen_State *L, hydrogenL_Buffer *B, size_t sz);
 
-#define nebulaL_prepbuffer(B)	nebulaL_prepbuffsize(B, NEBULAL_BUFFERSIZE)
+#define hydrogenL_prepbuffer(B)	hydrogenL_prepbuffsize(B, HYDROGENL_BUFFERSIZE)
 
 /* }====================================================== */
 
@@ -234,18 +234,18 @@ NEBULALIB_API char *(nebulaL_buffinitsize) (nebula_State *L, nebulaL_Buffer *B, 
 */
 
 /*
-** A file handle is a userdata with metatable 'NEBULA_FILEHANDLE' and
-** initial structure 'nebulaL_Stream' (it may contain other fields
+** A file handle is a userdata with metatable 'HYDROGEN_FILEHANDLE' and
+** initial structure 'hydrogenL_Stream' (it may contain other fields
 ** after that initial structure).
 */
 
-#define NEBULA_FILEHANDLE          "FILE*"
+#define HYDROGEN_FILEHANDLE          "FILE*"
 
 
-typedef struct nebulaL_Stream {
+typedef struct hydrogenL_Stream {
   FILE *f;  /* stream (NULL for incompletely created streams) */
-  nebula_CFunction closef;  /* to close stream (NULL for closed streams) */
-} nebulaL_Stream;
+  hydrogen_CFunction closef;  /* to close stream (NULL for closed streams) */
+} hydrogenL_Stream;
 
 /* }====================================================== */
 
@@ -256,18 +256,18 @@ typedef struct nebulaL_Stream {
 */
 
 /* print a string */
-#if !defined(nebula_writestring)
-#define nebula_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+#if !defined(hydrogen_writestring)
+#define hydrogen_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #endif
 
 /* print a newline and flush the output */
-#if !defined(nebula_writeline)
-#define nebula_writeline()        (nebula_writestring("\n", 1), fflush(stdout))
+#if !defined(hydrogen_writeline)
+#define hydrogen_writeline()        (hydrogen_writestring("\n", 1), fflush(stdout))
 #endif
 
 /* print an error message */
-#if !defined(nebula_writestringerror)
-#define nebula_writestringerror(s,p) \
+#if !defined(hydrogen_writestringerror)
+#define hydrogen_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
 #endif
 
@@ -279,17 +279,17 @@ typedef struct nebulaL_Stream {
 ** Compatibility with deprecated conversions
 ** =============================================================
 */
-#if defined(NEBULA_COMPAT_APIINTCASTS)
+#if defined(HYDROGEN_COMPAT_APIINTCASTS)
 
-#define nebulaL_checkunsigned(L,a)	((nebula_Unsigned)nebulaL_checkinteger(L,a))
-#define nebulaL_optunsigned(L,a,d)	\
-	((nebula_Unsigned)nebulaL_optinteger(L,a,(nebula_Integer)(d)))
+#define hydrogenL_checkunsigned(L,a)	((hydrogen_Unsigned)hydrogenL_checkinteger(L,a))
+#define hydrogenL_optunsigned(L,a,d)	\
+	((hydrogen_Unsigned)hydrogenL_optinteger(L,a,(hydrogen_Integer)(d)))
 
-#define nebulaL_checkint(L,n)	((int)nebulaL_checkinteger(L, (n)))
-#define nebulaL_optint(L,n,d)	((int)nebulaL_optinteger(L, (n), (d)))
+#define hydrogenL_checkint(L,n)	((int)hydrogenL_checkinteger(L, (n)))
+#define hydrogenL_optint(L,n,d)	((int)hydrogenL_optinteger(L, (n), (d)))
 
-#define nebulaL_checklong(L,n)	((long)nebulaL_checkinteger(L, (n)))
-#define nebulaL_optlong(L,n,d)	((long)nebulaL_optinteger(L, (n), (d)))
+#define hydrogenL_checklong(L,n)	((long)hydrogenL_checkinteger(L, (n)))
+#define hydrogenL_optlong(L,n,d)	((long)hydrogenL_optinteger(L, (n), (d)))
 
 #endif
 /* }============================================================ */

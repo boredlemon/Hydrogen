@@ -1,7 +1,7 @@
 /*
 ** $Id: tagMethods.h $
 ** Tag methods
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef tagMethods_h
@@ -62,41 +62,41 @@ typedef enum {
 
 
 #define gfasttm(g,et,e) ((et) == NULL ? NULL : \
-  ((et)->flags & (1u<<(e))) ? NULL : nebulaT_gettm(et, e, (g)->tmname[e]))
+  ((et)->flags & (1u<<(e))) ? NULL : hydrogenT_gettm(et, e, (g)->tmname[e]))
 
 #define fasttm(l,et,e)	gfasttm(G(l), et, e)
 
-#define ttypename(x)	nebulaT_typenames_[(x) + 1]
+#define ttypename(x)	hydrogenT_typenames_[(x) + 1]
 
-NEBULAI_DDEC(const char *const nebulaT_typenames_[NEBULA_TOTALTYPES];)
+HYDROGENI_DDEC(const char *const hydrogenT_typenames_[HYDROGEN_TOTALTYPES];)
 
 
-NEBULAI_FUNC const char *nebulaT_objtypename (nebula_State *L, const TValue *o);
+HYDROGENI_FUNC const char *hydrogenT_objtypename (hydrogen_State *L, const TValue *o);
 
-NEBULAI_FUNC const TValue *nebulaT_gettm (Table *events, TMS event, TString *ename);
-NEBULAI_FUNC const TValue *nebulaT_gettmbyobj (nebula_State *L, const TValue *o,
+HYDROGENI_FUNC const TValue *hydrogenT_gettm (Table *events, TMS event, TString *ename);
+HYDROGENI_FUNC const TValue *hydrogenT_gettmbyobj (hydrogen_State *L, const TValue *o,
                                                        TMS event);
-NEBULAI_FUNC void nebulaT_init (nebula_State *L);
+HYDROGENI_FUNC void hydrogenT_init (hydrogen_State *L);
 
-NEBULAI_FUNC void nebulaT_caltagMethods (nebula_State *L, const TValue *f, const TValue *p1,
+HYDROGENI_FUNC void hydrogenT_caltagMethods (hydrogen_State *L, const TValue *f, const TValue *p1,
                             const TValue *p2, const TValue *p3);
-NEBULAI_FUNC void nebulaT_caltagMethodsres (nebula_State *L, const TValue *f,
+HYDROGENI_FUNC void hydrogenT_caltagMethodsres (hydrogen_State *L, const TValue *f,
                             const TValue *p1, const TValue *p2, StkId p3);
-NEBULAI_FUNC void nebulaT_trybinTM (nebula_State *L, const TValue *p1, const TValue *p2,
+HYDROGENI_FUNC void hydrogenT_trybinTM (hydrogen_State *L, const TValue *p1, const TValue *p2,
                               StkId res, TMS event);
-NEBULAI_FUNC void nebulaT_tryconcatTM (nebula_State *L);
-NEBULAI_FUNC void nebulaT_trybinassocTM (nebula_State *L, const TValue *p1,
+HYDROGENI_FUNC void hydrogenT_tryconcatTM (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenT_trybinassocTM (hydrogen_State *L, const TValue *p1,
        const TValue *p2, int inv, StkId res, TMS event);
-NEBULAI_FUNC void nebulaT_trybiniTM (nebula_State *L, const TValue *p1, nebula_Integer i2,
+HYDROGENI_FUNC void hydrogenT_trybiniTM (hydrogen_State *L, const TValue *p1, hydrogen_Integer i2,
                                int inv, StkId res, TMS event);
-NEBULAI_FUNC int nebulaT_callorderTM (nebula_State *L, const TValue *p1,
+HYDROGENI_FUNC int hydrogenT_callorderTM (hydrogen_State *L, const TValue *p1,
                                 const TValue *p2, TMS event);
-NEBULAI_FUNC int nebulaT_callorderiTM (nebula_State *L, const TValue *p1, int v2,
+HYDROGENI_FUNC int hydrogenT_callorderiTM (hydrogen_State *L, const TValue *p1, int v2,
                                  int inv, int isfloat, TMS event);
 
-NEBULAI_FUNC void nebulaT_adjustvarargs (nebula_State *L, int nfixparams,
+HYDROGENI_FUNC void hydrogenT_adjustvarargs (hydrogen_State *L, int nfixparams,
                                    struct CallInfo *ci, const Proto *p);
-NEBULAI_FUNC void nebulaT_getvarargs (nebula_State *L, struct CallInfo *ci,
+HYDROGENI_FUNC void hydrogenT_getvarargs (hydrogen_State *L, struct CallInfo *ci,
                                               StkId where, int wanted);
 
 

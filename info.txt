@@ -6,7 +6,7 @@ find . -type f -name "*-e*" -exec rm {} \;
 
 cd examples/bot
 ---------------------------------------------
-nebula pkg manager
+hydrogen pkg manager
 tpm
 
 if its not working on mac you do
@@ -29,9 +29,9 @@ sed -i '' 's/lit/tpm/g' Makefile
 
 
 change it for the whole project
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/nebula/nebula/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/NEBULA/NEBULA/g' {} +
-find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Nebula/Nebula/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/hydrogen/hydrogen/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/HYDROGEN/HYDROGEN/g' {} +
+find . -type f -exec grep -Iq . {} \; -exec sed -i -e 's/Hydrogen/Hydrogen/g' {} +
 ___________________
 project map
 

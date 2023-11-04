@@ -1,11 +1,11 @@
 /*
 ** $Id: debug.c $
 ** Debug Interface
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #define debug_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "api.h"
 #include "code.h"
@@ -31,15 +31,15 @@
 
 
 
-#define noNebulaClosure(f)		((f) == NULL || (f)->c.tt == NEBULA_VCCL)
+#define noHydrogenClosure(f)		((f) == NULL || (f)->c.tt == HYDROGEN_VCCL)
 
 
-static const char *funcnamefromcall (nebula_State *L, CallInfo *ci,
+static const char *funcnamefromcall (hydrogen_State *L, CallInfo *ci,
                                                    const char **name);
 
 
 static int currentpc (CallInfo *ci) {
-  nebula_assert(isNebula(ci));
+  hydrogen_assert(isHydrogen(ci));
   return pcRel(ci->u.l.savedpc, ci_func(ci)->p);
 }
 
@@ -65,7 +65,7 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
   else {
     int i = cast_uint(pc) / MAXIWTHABS - 1;  /* get an estimate */
     /* estimate must be a lower bound of the correct base */
-    nebula_assert(i < 0 ||
+    hydrogen_assert(i < 0 ||
               (i < f->sizeabslineinfo && f->abslineinfo[i].pc <= pc));
     while (i + 1 < f->sizeabslineinfo && pc >= f->abslineinfo[i + 1].pc)
       i++;  /* low estimate; adjust it */
@@ -80,14 +80,14 @@ static int getbaseline (const Proto *f, int pc, int *basepc) {
 ** first gets a base line and from there does the increments until
 ** the desired instruction.
 */
-int nebulaG_getfuncline (const Proto *f, int pc) {
+int hydrogenG_getfuncline (const Proto *f, int pc) {
   if (f->lineinfo == NULL)  /* no debug information? */
     return -1;
   else {
     int basepc;
     int baseline = getbaseline(f, pc, &basepc);
     while (basepc++ < pc) {  /* walk until given instruction */
-      nebula_assert(f->lineinfo[basepc] != ABSLINEINFO);
+      hydrogen_assert(f->lineinfo[basepc] != ABSLINEINFO);
       baseline += f->lineinfo[basepc];  /* correct line */
     }
     return baseline;
@@ -96,12 +96,12 @@ int nebulaG_getfuncline (const Proto *f, int pc) {
 
 
 static int getcurrentline (CallInfo *ci) {
-  return nebulaG_getfuncline(ci_func(ci)->p, currentpc(ci));
+  return hydrogenG_getfuncline(ci_func(ci)->p, currentpc(ci));
 }
 
 
 /*
-** Set 'trap' for all active Nebula frames.
+** Set 'trap' for all active Hydrogen frames.
 ** This function can be called during a signal, under "reasonable"
 ** assumptions. A new 'ci' is completely linked in the list before it
 ** becomes part of the "active" list, and we assume that pointers are
@@ -109,11 +109,11 @@ static int getcurrentline (CallInfo *ci) {
 ** (A compiler doing interprocedural optimizations could, theoretically,
 ** reorder memory writes in such a way that the list could be
 ** temporarily broken while inserting a new element. We simply assume it
-** has no Nebulaod reasons to do that.)
+** has no Hydrogenod reasons to do that.)
 */
 static void settraps (CallInfo *ci) {
   for (; ci != NULL; ci = ci->previous)
-    if (isNebula(ci))
+    if (isHydrogen(ci))
       ci->u.l.trap = 1;
 }
 
@@ -126,9 +126,9 @@ static void settraps (CallInfo *ci) {
 ** values (causes at most one wrong hook call). 'hookmask' is an atomic
 ** value. We assume that pointers are atomic too (e.g., gcc ensures that
 ** for all platforms where it runs). Moreover, 'hook' is always checked
-** before being called (see 'nebulaD_hook').
+** before being called (see 'hydrogenD_hook').
 */
-NEBULA_API void nebula_sethook (nebula_State *L, nebula_Hook func, int mask, int count) {
+HYDROGEN_API void hydrogen_sethook (hydrogen_State *L, hydrogen_Hook func, int mask, int count) {
   if (func == NULL || mask == 0) {  /* turn off hooks? */
     mask = 0;
     func = NULL;
@@ -138,30 +138,30 @@ NEBULA_API void nebula_sethook (nebula_State *L, nebula_Hook func, int mask, int
   resethookcount(L);
   L->hookmask = cast_byte(mask);
   if (mask)
-    settraps(L->ci);  /* to trace inside 'nebulaV_execute' */
+    settraps(L->ci);  /* to trace inside 'hydrogenV_execute' */
 }
 
 
-NEBULA_API nebula_Hook nebula_gethook (nebula_State *L) {
+HYDROGEN_API hydrogen_Hook hydrogen_gethook (hydrogen_State *L) {
   return L->hook;
 }
 
 
-NEBULA_API int nebula_gethookmask (nebula_State *L) {
+HYDROGEN_API int hydrogen_gethookmask (hydrogen_State *L) {
   return L->hookmask;
 }
 
 
-NEBULA_API int nebula_gethookcount (nebula_State *L) {
+HYDROGEN_API int hydrogen_gethookcount (hydrogen_State *L) {
   return L->basehookcount;
 }
 
 
-NEBULA_API int nebula_getstack (nebula_State *L, int level, nebula_Debug *ar) {
+HYDROGEN_API int hydrogen_getstack (hydrogen_State *L, int level, hydrogen_Debug *ar) {
   int status;
   CallInfo *ci;
   if (level < 0) return 0;  /* invalid (negative) level */
-  nebula_lock(L);
+  hydrogen_lock(L);
   for (ci = L->ci; level > 0 && ci != &L->base_ci; ci = ci->previous)
     level--;
   if (level == 0 && ci != &L->base_ci) {  /* level found? */
@@ -169,7 +169,7 @@ NEBULA_API int nebula_getstack (nebula_State *L, int level, nebula_Debug *ar) {
     ar->i_ci = ci;
   }
   else status = 0;  /* no such level */
-  nebula_unlock(L);
+  hydrogen_unlock(L);
   return status;
 }
 
@@ -193,20 +193,20 @@ static const char *findvararg (CallInfo *ci, int n, StkId *pos) {
 }
 
 
-const char *nebulaG_findlocal (nebula_State *L, CallInfo *ci, int n, StkId *pos) {
+const char *hydrogenG_findlocal (hydrogen_State *L, CallInfo *ci, int n, StkId *pos) {
   StkId base = ci->func + 1;
   const char *name = NULL;
-  if (isNebula(ci)) {
+  if (isHydrogen(ci)) {
     if (n < 0)  /* access to vararg values? */
       return findvararg(ci, n, pos);
     else
-      name = nebulaF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
+      name = hydrogenF_getlocalname(ci_func(ci)->p, n, currentpc(ci));
   }
   if (name == NULL) {  /* no 'standard' name? */
     StkId limit = (ci == L->ci) ? L->top : ci->next->func;
     if (limit - base >= n && n > 0) {  /* is 'n' inside 'ci' stack? */
       /* generic name for any valid slot */
-      name = isNebula(ci) ? "(temporary)" : "(C temporary)";
+      name = isHydrogen(ci) ? "(temporary)" : "(C temporary)";
     }
     else
       return NULL;  /* no name */
@@ -217,44 +217,44 @@ const char *nebulaG_findlocal (nebula_State *L, CallInfo *ci, int n, StkId *pos)
 }
 
 
-NEBULA_API const char *nebula_getlocal (nebula_State *L, const nebula_Debug *ar, int n) {
+HYDROGEN_API const char *hydrogen_getlocal (hydrogen_State *L, const hydrogen_Debug *ar, int n) {
   const char *name;
-  nebula_lock(L);
+  hydrogen_lock(L);
   if (ar == NULL) {  /* information about non-active function? */
-    if (!isfunctiontion(s2v(L->top - 1)))  /* not a Nebula function? */
+    if (!isfunctiontion(s2v(L->top - 1)))  /* not a Hydrogen function? */
       name = NULL;
     else  /* consider live variables at function start (parameters) */
-      name = nebulaF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
+      name = hydrogenF_getlocalname(clLvalue(s2v(L->top - 1))->p, n, 0);
   }
   else {  /* active function; get information through 'ar' */
     StkId pos = NULL;  /* to avoid warnings */
-    name = nebulaG_findlocal(L, ar->i_ci, n, &pos);
+    name = hydrogenG_findlocal(L, ar->i_ci, n, &pos);
     if (name) {
       setobjs2s(L, L->top, pos);
       api_incr_top(L);
     }
   }
-  nebula_unlock(L);
+  hydrogen_unlock(L);
   return name;
 }
 
 
-NEBULA_API const char *nebula_setlocal (nebula_State *L, const nebula_Debug *ar, int n) {
+HYDROGEN_API const char *hydrogen_setlocal (hydrogen_State *L, const hydrogen_Debug *ar, int n) {
   StkId pos = NULL;  /* to avoid warnings */
   const char *name;
-  nebula_lock(L);
-  name = nebulaG_findlocal(L, ar->i_ci, n, &pos);
+  hydrogen_lock(L);
+  name = hydrogenG_findlocal(L, ar->i_ci, n, &pos);
   if (name) {
     setobjs2s(L, pos, L->top - 1);
     L->top--;  /* pop value */
   }
-  nebula_unlock(L);
+  hydrogen_unlock(L);
   return name;
 }
 
 
-static void funcinfo (nebula_Debug *ar, Closure *cl) {
-  if (noNebulaClosure(cl)) {
+static void funcinfo (hydrogen_Debug *ar, Closure *cl) {
+  if (noHydrogenClosure(cl)) {
     ar->source = "=[C]";
     ar->srclen = LL("=[C]");
     ar->linedefined = -1;
@@ -273,9 +273,9 @@ static void funcinfo (nebula_Debug *ar, Closure *cl) {
     }
     ar->linedefined = p->linedefined;
     ar->lastlinedefined = p->lastlinedefined;
-    ar->what = (ar->linedefined == 0) ? "main" : "Nebula";
+    ar->what = (ar->linedefined == 0) ? "main" : "Hydrogen";
   }
-  nebulaO_chunkid(ar->short_src, ar->source, ar->srclen);
+  hydrogenO_chunkid(ar->short_src, ar->source, ar->srclen);
 }
 
 
@@ -283,12 +283,12 @@ static int nextline (const Proto *p, int currentline, int pc) {
   if (p->lineinfo[pc] != ABSLINEINFO)
     return currentline + p->lineinfo[pc];
   else
-    return nebulaG_getfuncline(p, pc);
+    return hydrogenG_getfuncline(p, pc);
 }
 
 
-static void collectvalidlines (nebula_State *L, Closure *f) {
-  if (noNebulaClosure(f)) {
+static void collectvalidlines (hydrogen_State *L, Closure *f) {
+  if (noHydrogenClosure(f)) {
     setnilvalue(s2v(L->top));
     api_incr_top(L);
   }
@@ -297,26 +297,26 @@ static void collectvalidlines (nebula_State *L, Closure *f) {
     TValue v;
     const Proto *p = f->l.p;
     int currentline = p->linedefined;
-    Table *t = nebulaH_new(L);  /* new table to store active lines */
+    Table *t = hydrogenH_new(L);  /* new table to store active lines */
     sethvalue2s(L, L->top, t);  /* push it on stack */
     api_incr_top(L);
     setbtvalue(&v);  /* boolean 'true' to be the value of all indices */
     if (!p->is_vararg)  /* regular function? */
       i = 0;  /* consider all instructions */
     else {  /* vararg function */
-      nebula_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
+      hydrogen_assert(GET_OPCODE(p->code[0]) == OP_VARARGPREP);
       currentline = nextline(p, currentline, 0);
       i = 1;  /* skip first instruction (OP_VARARGPREP) */
     }
     for (; i < p->sizelineinfo; i++) {  /* for each instruction */
       currentline = nextline(p, currentline, i);  /* get its line */
-      nebulaH_setint(L, t, currentline, &v);  /* table[line] = true */
+      hydrogenH_setint(L, t, currentline, &v);  /* table[line] = true */
     }
   }
 }
 
 
-static const char *getfuncname (nebula_State *L, CallInfo *ci, const char **name) {
+static const char *getfuncname (hydrogen_State *L, CallInfo *ci, const char **name) {
   /* calling function is a known function? */
   if (ci != NULL && !(ci->callstatus & CIST_TAIL))
     return funcnamefromcall(L, ci->previous, name);
@@ -324,7 +324,7 @@ static const char *getfuncname (nebula_State *L, CallInfo *ci, const char **name
 }
 
 
-static int auxgetinfo (nebula_State *L, const char *what, nebula_Debug *ar,
+static int auxgetinfo (hydrogen_State *L, const char *what, hydrogen_Debug *ar,
                        Closure *f, CallInfo *ci) {
   int status = 1;
   for (; *what; what++) {
@@ -334,12 +334,12 @@ static int auxgetinfo (nebula_State *L, const char *what, nebula_Debug *ar,
         break;
       }
       case 'l': {
-        ar->currentline = (ci && isNebula(ci)) ? getcurrentline(ci) : -1;
+        ar->currentline = (ci && isHydrogen(ci)) ? getcurrentline(ci) : -1;
         break;
       }
       case 'u': {
         ar->nups = (f == NULL) ? 0 : f->c.nupvalues;
-        if (noNebulaClosure(f)) {
+        if (noHydrogenClosure(f)) {
           ar->isvararg = 1;
           ar->nparams = 0;
         }
@@ -371,7 +371,7 @@ static int auxgetinfo (nebula_State *L, const char *what, nebula_Debug *ar,
         break;
       }
       case 'L':
-      case 'f':  /* handled by nebula_getinfo */
+      case 'f':  /* handled by hydrogen_getinfo */
         break;
       default: status = 0;  /* invalid option */
     }
@@ -380,12 +380,12 @@ static int auxgetinfo (nebula_State *L, const char *what, nebula_Debug *ar,
 }
 
 
-NEBULA_API int nebula_getinfo (nebula_State *L, const char *what, nebula_Debug *ar) {
+HYDROGEN_API int hydrogen_getinfo (hydrogen_State *L, const char *what, hydrogen_Debug *ar) {
   int status;
   Closure *cl;
   CallInfo *ci;
   TValue *func;
-  nebula_lock(L);
+  hydrogen_lock(L);
   if (*what == '>') {
     ci = NULL;
     func = s2v(L->top - 1);
@@ -396,7 +396,7 @@ NEBULA_API int nebula_getinfo (nebula_State *L, const char *what, nebula_Debug *
   else {
     ci = ar->i_ci;
     func = s2v(ci->func);
-    nebula_assert(ttisfunction(func));
+    hydrogen_assert(ttisfunction(func));
   }
   cl = ttisclosure(func) ? clvalue(func) : NULL;
   status = auxgetinfo(L, what, ar, cl, ci);
@@ -406,7 +406,7 @@ NEBULA_API int nebula_getinfo (nebula_State *L, const char *what, nebula_Debug *
   }
   if (strchr(what, 'L'))
     collectvalidlines(L, cl);
-  nebula_unlock(L);
+  hydrogen_unlock(L);
   return status;
 }
 
@@ -519,14 +519,14 @@ static const char *gxf (const Proto *p, int pc, Instruction i, int isup) {
     name = upvalname(p, t);
   else
     getobjname(p, pc, t, &name);
-  return (name && strcmp(name, NEBULA_ENV) == 0) ? "global" : "field";
+  return (name && strcmp(name, HYDROGEN_ENV) == 0) ? "global" : "field";
 }
 
 
 static const char *getobjname (const Proto *p, int lastpc, int reg,
                                const char **name) {
   int pc;
-  *name = nebulaF_getlocalname(p, reg + 1, lastpc);
+  *name = hydrogenF_getlocalname(p, reg + 1, lastpc);
   if (*name)  /* is a local? */
     return "local";
   /* else try symbolic execution */
@@ -578,7 +578,7 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
         rkname(p, pc, i, name);
         return "method";
       }
-      default: break;  /* Nebula through to return NULL */
+      default: break;  /* Hydrogen through to return NULL */
     }
   }
   return NULL;  /* could not find reasonable name */
@@ -587,11 +587,11 @@ static const char *getobjname (const Proto *p, int lastpc, int reg,
 
 /*
 ** Try to find a name for a function based on the code that called it.
-** (Only works when function was called by a Nebula function.)
+** (Only works when function was called by a Hydrogen function.)
 ** Returns what the name is (e.g., "for iterator", "method",
 ** "metamethod") and sets '*name' to point to the name.
 */
-static const char *funcnamefromcode (nebula_State *L, const Proto *p,
+static const char *funcnamefromcode (hydrogen_State *L, const Proto *p,
                                      int pc, const char **name) {
   TMS tm = (TMS)0;  /* (initial value avoids warnings) */
   Instruction i = p->code[pc];  /* calling instruction */
@@ -635,7 +635,7 @@ static const char *funcnamefromcode (nebula_State *L, const Proto *p,
 /*
 ** Try to find a name for a function based on how it was called.
 */
-static const char *funcnamefromcall (nebula_State *L, CallInfo *ci,
+static const char *funcnamefromcall (hydrogen_State *L, CallInfo *ci,
                                                    const char **name) {
   if (ci->callstatus & CIST_HOOKED) {  /* was it called inside a hook? */
     *name = "?";
@@ -645,7 +645,7 @@ static const char *funcnamefromcall (nebula_State *L, CallInfo *ci,
     *name = "__gc";
     return "metamethod";  /* report it as such */
   }
-  else if (isNebula(ci))
+  else if (isHydrogen(ci))
     return funcnamefromcode(L, ci_func(ci)->p, currentpc(ci), name);
   else
     return NULL;
@@ -690,23 +690,23 @@ static const char *getupvalname (CallInfo *ci, const TValue *o,
 }
 
 
-static const char *formatvarinfo (nebula_State *L, const char *kind,
+static const char *formatvarinfo (hydrogen_State *L, const char *kind,
                                                 const char *name) {
   if (kind == NULL)
     return "";  /* no information */
   else
-    return nebulaO_pushfstring(L, " (%s '%s')", kind, name);
+    return hydrogenO_pushfstring(L, " (%s '%s')", kind, name);
 }
 
 /*
 ** Build a string with a "description" for the value 'o', such as
 ** "variable 'x'" or "upvalue 'y'".
 */
-static const char *varinfo (nebula_State *L, const TValue *o) {
+static const char *varinfo (hydrogen_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = NULL;
-  if (isNebula(ci)) {
+  if (isHydrogen(ci)) {
     kind = getupvalname(ci, o, &name);  /* check whether 'o' is an upvalue */
     if (!kind && isinstack(ci, o))  /* no? try a register */
       kind = getobjname(ci_func(ci)->p, currentpc(ci),
@@ -719,10 +719,10 @@ static const char *varinfo (nebula_State *L, const TValue *o) {
 /*
 ** Raise a type error
 */
-static l_noret typeerror (nebula_State *L, const TValue *o, const char *op,
+static l_noret typeerror (hydrogen_State *L, const TValue *o, const char *op,
                           const char *extra) {
-  const char *t = nebulaT_objtypename(L, o);
-  nebulaG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
+  const char *t = hydrogenT_objtypename(L, o);
+  hydrogenG_runerror(L, "attempt to %s a %s value%s", op, t, extra);
 }
 
 
@@ -730,7 +730,7 @@ static l_noret typeerror (nebula_State *L, const TValue *o, const char *op,
 ** Raise a type error with "standard" information about the faulty
 ** object 'o' (using 'varinfo').
 */
-l_noret nebulaG_typeerror (nebula_State *L, const TValue *o, const char *op) {
+l_noret hydrogenG_typeerror (hydrogen_State *L, const TValue *o, const char *op) {
   typeerror(L, o, op, varinfo(L, o));
 }
 
@@ -740,7 +740,7 @@ l_noret nebulaG_typeerror (nebula_State *L, const TValue *o, const char *op) {
 ** for the object based on how it was called ('funcnamefromcall'); if it
 ** cannot get a name there, try 'varinfo'.
 */
-l_noret nebulaG_callerror (nebula_State *L, const TValue *o) {
+l_noret hydrogenG_callerror (hydrogen_State *L, const TValue *o) {
   CallInfo *ci = L->ci;
   const char *name = NULL;  /* to avoid warnings */
   const char *kind = funcnamefromcall(L, ci, &name);
@@ -749,84 +749,84 @@ l_noret nebulaG_callerror (nebula_State *L, const TValue *o) {
 }
 
 
-l_noret nebulaG_forerror (nebula_State *L, const TValue *o, const char *what) {
-  nebulaG_runerror(L, "bad 'for' %s (number expected, Nebulat %s)",
-                   what, nebulaT_objtypename(L, o));
+l_noret hydrogenG_forerror (hydrogen_State *L, const TValue *o, const char *what) {
+  hydrogenG_runerror(L, "bad 'for' %s (number expected, Hydrogent %s)",
+                   what, hydrogenT_objtypename(L, o));
 }
 
 
-l_noret nebulaG_concaterror (nebula_State *L, const TValue *p1, const TValue *p2) {
+l_noret hydrogenG_concaterror (hydrogen_State *L, const TValue *p1, const TValue *p2) {
   if (ttisstring(p1) || cvt2str(p1)) p1 = p2;
-  nebulaG_typeerror(L, p1, "concatenate");
+  hydrogenG_typeerror(L, p1, "concatenate");
 }
 
 
-l_noret nebulaG_opinterror (nebula_State *L, const TValue *p1,
+l_noret hydrogenG_opinterror (hydrogen_State *L, const TValue *p1,
                          const TValue *p2, const char *msg) {
   if (!ttisnumber(p1))  /* first operand is wrong? */
     p2 = p1;  /* now second is wrong */
-  nebulaG_typeerror(L, p2, msg);
+  hydrogenG_typeerror(L, p2, msg);
 }
 
 
 /*
 ** Error when both values are convertible to numbers, but not to integers
 */
-l_noret nebulaG_tointerror (nebula_State *L, const TValue *p1, const TValue *p2) {
-  nebula_Integer temp;
-  if (!nebulaV_tointegerns(p1, &temp, NEBULA_FLOORN2I))
+l_noret hydrogenG_tointerror (hydrogen_State *L, const TValue *p1, const TValue *p2) {
+  hydrogen_Integer temp;
+  if (!hydrogenV_tointegerns(p1, &temp, HYDROGEN_FLOORN2I))
     p2 = p1;
-  nebulaG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
+  hydrogenG_runerror(L, "number%s has no integer representation", varinfo(L, p2));
 }
 
 
-l_noret nebulaG_ordererror (nebula_State *L, const TValue *p1, const TValue *p2) {
-  const char *t1 = nebulaT_objtypename(L, p1);
-  const char *t2 = nebulaT_objtypename(L, p2);
+l_noret hydrogenG_ordererror (hydrogen_State *L, const TValue *p1, const TValue *p2) {
+  const char *t1 = hydrogenT_objtypename(L, p1);
+  const char *t2 = hydrogenT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
-    nebulaG_runerror(L, "attempt to compare two %s values", t1);
+    hydrogenG_runerror(L, "attempt to compare two %s values", t1);
   else
-    nebulaG_runerror(L, "attempt to compare %s with %s", t1, t2);
+    hydrogenG_runerror(L, "attempt to compare %s with %s", t1, t2);
 }
 
 
 /* add src:line information to 'msg' */
-const char *nebulaG_addinfo (nebula_State *L, const char *msg, TString *src,
+const char *hydrogenG_addinfo (hydrogen_State *L, const char *msg, TString *src,
                                         int line) {
-  char buff[NEBULA_IDSIZE];
+  char buff[HYDROGEN_IDSIZE];
   if (src)
-    nebulaO_chunkid(buff, getstr(src), tsslen(src));
+    hydrogenO_chunkid(buff, getstr(src), tsslen(src));
   else {  /* no source available; use "?" instead */
     buff[0] = '?'; buff[1] = '\0';
   }
-  return nebulaO_pushfstring(L, "%s:%d: %s", buff, line, msg);
+  return hydrogenO_pushfstring(L, "%s:%d: %s", buff, line, msg);
 }
 
 
-l_noret nebulaG_errormsg (nebula_State *L) {
+l_noret hydrogenG_errormsg (hydrogen_State *L) {
   if (L->errfunc != 0) {  /* is there an error handling function? */
     StkId errfunc = restorestack(L, L->errfunc);
-    nebula_assert(ttisfunction(s2v(errfunc)));
+    hydrogen_assert(ttisfunction(s2v(errfunc)));
     setobjs2s(L, L->top, L->top - 1);  /* move argument */
     setobjs2s(L, L->top - 1, errfunc);  /* push function */
     L->top++;  /* assume EXTRA_STACK */
-    nebulaD_callnoyield(L, L->top - 2, 1);  /* call it */
+    hydrogenD_callnoyield(L, L->top - 2, 1);  /* call it */
   }
-  nebulaD_throw(L, NEBULA_ERRRUN);
+  hydrogenD_throw(L, HYDROGEN_ERRRUN);
 }
 
 
-l_noret nebulaG_runerror (nebula_State *L, const char *fmt, ...) {
+l_noret hydrogenG_runerror (hydrogen_State *L, const char *fmt, ...) {
   CallInfo *ci = L->ci;
   const char *msg;
   va_list argp;
-  nebulaC_checkGC(L);  /* error message uses memory */
+  hydrogenC_checkGC(L);  /* error message uses memory */
   va_start(argp, fmt);
-  msg = nebulaO_pushvfstring(L, fmt, argp);  /* format message */
+  msg = hydrogenO_pushvfstring(L, fmt, argp);  /* format message */
   va_end(argp);
-  if (isNebula(ci))  /* if Nebula function, add source:line information */
-    nebulaG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
-  nebulaG_errormsg(L);
+  if (isHydrogen(ci))  /* if Hydrogen function, add source:line information */
+    hydrogenG_addinfo(L, msg, ci_func(ci)->p->source, getcurrentline(ci));
+  hydrogenG_errormsg(L);
 }
 
 
@@ -834,9 +834,9 @@ l_noret nebulaG_runerror (nebula_State *L, const char *fmt, ...) {
 ** Check whether new instruction 'newpc' is in a different line from
 ** previous instruction 'oldpc'. More often than not, 'newpc' is only
 ** one or a few instructions after 'oldpc' (it must be after, see
-** caller), so try to avoid calling 'nebulaG_getfuncline'. If they are
-** too far apart, there is a Nebulaod chance of a ABSLINEINFO in the way,
-** so it Nebulaes directly to 'nebulaG_getfuncline'.
+** caller), so try to avoid calling 'hydrogenG_getfuncline'. If they are
+** too far apart, there is a Hydrogenod chance of a ABSLINEINFO in the way,
+** so it Hydrogenes directly to 'hydrogenG_getfuncline'.
 */
 static int changedline (const Proto *p, int oldpc, int newpc) {
   if (p->lineinfo == NULL)  /* no debug information? */
@@ -855,12 +855,12 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
   }
   /* either instructions are too far apart or there is an absolute line
      info in the way; compute line difference explicitly */
-  return (nebulaG_getfuncline(p, oldpc) != nebulaG_getfuncline(p, newpc));
+  return (hydrogenG_getfuncline(p, oldpc) != hydrogenG_getfuncline(p, newpc));
 }
 
 
 /*
-** Traces the execution of a Nebula function. Called before the execution
+** Traces the execution of a Hydrogen function. Called before the execution
 ** of each opcode, when debug is on. 'L->oldpc' stores the last
 ** instruction traced, to detect line changes. When entering a new
 ** function, 'npci' will be zero and will test as a new line whatever
@@ -871,21 +871,21 @@ static int changedline (const Proto *p, int oldpc, int newpc) {
 ** This function is not "Protected" when called, so it should correct
 ** 'L->top' before calling anything that can run the GC.
 */
-int nebulaG_traceexec (nebula_State *L, const Instruction *pc) {
+int hydrogenG_traceexec (hydrogen_State *L, const Instruction *pc) {
   CallInfo *ci = L->ci;
   lu_byte mask = L->hookmask;
   const Proto *p = ci_func(ci)->p;
   int counthook;
-  if (!(mask & (NEBULA_MASKLINE | NEBULA_MASKCOUNT))) {  /* no hooks? */
+  if (!(mask & (HYDROGEN_MASKLINE | HYDROGEN_MASKCOUNT))) {  /* no hooks? */
     ci->u.l.trap = 0;  /* don't need to stop again */
     return 0;  /* turn off 'trap' */
   }
   pc++;  /* reference is always next instruction */
   ci->u.l.savedpc = pc;  /* save 'pc' */
-  counthook = (--L->hookcount == 0 && (mask & NEBULA_MASKCOUNT));
+  counthook = (--L->hookcount == 0 && (mask & HYDROGEN_MASKCOUNT));
   if (counthook)
     resethookcount(L);  /* reset count */
-  else if (!(mask & NEBULA_MASKLINE))
+  else if (!(mask & HYDROGEN_MASKLINE))
     return 1;  /* no line hook and count != 0; nothing to be done now */
   if (ci->callstatus & CIST_HOOKYIELD) {  /* called hook last time? */
     ci->callstatus &= ~CIST_HOOKYIELD;  /* erase mark */
@@ -894,24 +894,24 @@ int nebulaG_traceexec (nebula_State *L, const Instruction *pc) {
   if (!isIT(*(ci->u.l.savedpc - 1)))  /* top not being used? */
     L->top = ci->top;  /* correct top */
   if (counthook)
-    nebulaD_hook(L, NEBULA_HOOKCOUNT, -1, 0, 0);  /* call count hook */
-  if (mask & NEBULA_MASKLINE) {
+    hydrogenD_hook(L, HYDROGEN_HOOKCOUNT, -1, 0, 0);  /* call count hook */
+  if (mask & HYDROGEN_MASKLINE) {
     /* 'L->oldpc' may be invalid; use zero in this case */
     int oldpc = (L->oldpc < p->sizecode) ? L->oldpc : 0;
     int npci = pcRel(pc, p);
     if (npci <= oldpc ||  /* call hook when jump back (loop), */
         changedline(p, oldpc, npci)) {  /* or when enter new line */
-      int newline = nebulaG_getfuncline(p, npci);
-      nebulaD_hook(L, NEBULA_HOOKLINE, newline, 0, 0);  /* call line hook */
+      int newline = hydrogenG_getfuncline(p, npci);
+      hydrogenD_hook(L, HYDROGEN_HOOKLINE, newline, 0, 0);  /* call line hook */
     }
     L->oldpc = npci;  /* 'pc' of last call to line hook */
   }
-  if (L->status == NEBULA_YIELD) {  /* did hook yield? */
+  if (L->status == HYDROGEN_YIELD) {  /* did hook yield? */
     if (counthook)
       L->hookcount = 1;  /* undo decrement to zero */
     ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */
     ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yielded */
-    nebulaD_throw(L, NEBULA_YIELD);
+    hydrogenD_throw(L, HYDROGEN_YIELD);
   }
   return 1;  /* keep 'trap' on */
 }

@@ -1,18 +1,18 @@
 /*
 ** $Id: dump.c $
-** save precompiled Nebula chunks
-** See Copyright Notice in nebula.h
+** save precompiled Hydrogen chunks
+** See Copyright Notice in hydrogen.h
 */
 
 #define dump_c
-#define NEBULA_CORE
+#define HYDROGEN_CORE
 
 #include "prefix.h"
 
 
 #include <stddef.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "object.h"
 #include "state.h"
@@ -20,8 +20,8 @@
 
 
 typedef struct {
-  nebula_State *L;
-  nebula_Writer writer;
+  hydrogen_State *L;
+  hydrogen_Writer writer;
   void *data;
   int strip;
   int status;
@@ -29,7 +29,7 @@ typedef struct {
 
 
 /*
-** All high-level dumps Nebula through dumpVector; you can change it to
+** All high-level dumps Hydrogen through dumpVector; you can change it to
 ** change the endianness of the result
 */
 #define dumpVector(D,v,n)	dumpBlock(D,v,(n)*sizeof((v)[0]))
@@ -39,9 +39,9 @@ typedef struct {
 
 static void dumpBlock (DumpState *D, const void *b, size_t size) {
   if (D->status == 0 && size > 0) {
-    nebula_unlock(D->L);
+    hydrogen_unlock(D->L);
     D->status = (*D->writer)(D->L, b, size, D->data);
-    nebula_lock(D->L);
+    hydrogen_lock(D->L);
   }
 }
 
@@ -75,12 +75,12 @@ static void dumpInt (DumpState *D, int x) {
 }
 
 
-static void dumpNumber (DumpState *D, nebula_Number x) {
+static void dumpNumber (DumpState *D, hydrogen_Number x) {
   dumpVar(D, x);
 }
 
 
-static void dumpInteger (DumpState *D, nebula_Integer x) {
+static void dumpInteger (DumpState *D, hydrogen_Integer x) {
   dumpVar(D, x);
 }
 
@@ -114,18 +114,18 @@ static void dumpConstants (DumpState *D, const Proto *f) {
     int tt = ttypetag(o);
     dumpByte(D, tt);
     switch (tt) {
-      case NEBULA_VNUMFLT:
+      case HYDROGEN_VNUMFLT:
         dumpNumber(D, fltvalue(o));
         break;
-      case NEBULA_VNUMINT:
+      case HYDROGEN_VNUMINT:
         dumpInteger(D, ivalue(o));
         break;
-      case NEBULA_VSHRSTR:
-      case NEBULA_VLNGSTR:
+      case HYDROGEN_VSHRSTR:
+      case HYDROGEN_VLNGSTR:
         dumpString(D, tsvalue(o));
         break;
       default:
-        nebula_assert(tt == NEBULA_VNIL || tt == NEBULA_VFALSE || tt == NEBULA_VTRUE);
+        hydrogen_assert(tt == HYDROGEN_VNIL || tt == HYDROGEN_VFALSE || tt == HYDROGEN_VTRUE);
     }
   }
 }
@@ -195,22 +195,22 @@ static void dumpFunction (DumpState *D, const Proto *f, TString *psource) {
 
 
 static void dumpHeader (DumpState *D) {
-  dumpLiteral(D, NEBULA_SIGNATURE);
-  dumpByte(D, NEBULAC_VERSION);
-  dumpByte(D, NEBULAC_FORMAT);
-  dumpLiteral(D, NEBULAC_DATA);
+  dumpLiteral(D, HYDROGEN_SIGNATURE);
+  dumpByte(D, HYDROGENC_VERSION);
+  dumpByte(D, HYDROGENC_FORMAT);
+  dumpLiteral(D, HYDROGENC_DATA);
   dumpByte(D, sizeof(Instruction));
-  dumpByte(D, sizeof(nebula_Integer));
-  dumpByte(D, sizeof(nebula_Number));
-  dumpInteger(D, NEBULAC_INT);
-  dumpNumber(D, NEBULAC_NUM);
+  dumpByte(D, sizeof(hydrogen_Integer));
+  dumpByte(D, sizeof(hydrogen_Number));
+  dumpInteger(D, HYDROGENC_INT);
+  dumpNumber(D, HYDROGENC_NUM);
 }
 
 
 /*
-** dump Nebula function as precompiled chunk
+** dump Hydrogen function as precompiled chunk
 */
-int nebulaU_dump(nebula_State *L, const Proto *f, nebula_Writer w, void *data,
+int hydrogenU_dump(hydrogen_State *L, const Proto *f, hydrogen_Writer w, void *data,
               int strip) {
   DumpState D;
   D.L = L;

@@ -1,11 +1,11 @@
 /*
 ** $Id: mathlib.c $
 ** Standard mathematical library
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #define mathlib_c
-#define NEBULA_LIB
+#define HYDROGEN_LIB
 
 #include "prefix.h"
 
@@ -16,164 +16,164 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "auxlib.h"
-#include "nebulalib.h"
+#include "hydrogenlib.h"
 
 
 #undef PI
 #define PI	(l_mathop(3.141592653589793238462643383279502884))
 
 
-static int math_abs (nebula_State *L) {
-  if (nebula_isinteger(L, 1)) {
-    nebula_Integer n = nebula_tointeger(L, 1);
-    if (n < 0) n = (nebula_Integer)(0u - (nebula_Unsigned)n);
-    nebula_pushinteger(L, n);
+static int math_abs (hydrogen_State *L) {
+  if (hydrogen_isinteger(L, 1)) {
+    hydrogen_Integer n = hydrogen_tointeger(L, 1);
+    if (n < 0) n = (hydrogen_Integer)(0u - (hydrogen_Unsigned)n);
+    hydrogen_pushinteger(L, n);
   }
   else
-    nebula_pushnumber(L, l_mathop(fabs)(nebulaL_checknumber(L, 1)));
+    hydrogen_pushnumber(L, l_mathop(fabs)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sin (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(sin)(nebulaL_checknumber(L, 1)));
+static int math_sin (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(sin)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_cos (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(cos)(nebulaL_checknumber(L, 1)));
+static int math_cos (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(cos)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tan (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(tan)(nebulaL_checknumber(L, 1)));
+static int math_tan (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(tan)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_asin (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(asin)(nebulaL_checknumber(L, 1)));
+static int math_asin (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(asin)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_acos (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(acos)(nebulaL_checknumber(L, 1)));
+static int math_acos (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(acos)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_atan (nebula_State *L) {
-  nebula_Number y = nebulaL_checknumber(L, 1);
-  nebula_Number x = nebulaL_optnumber(L, 2, 1);
-  nebula_pushnumber(L, l_mathop(atan2)(y, x));
+static int math_atan (hydrogen_State *L) {
+  hydrogen_Number y = hydrogenL_checknumber(L, 1);
+  hydrogen_Number x = hydrogenL_optnumber(L, 2, 1);
+  hydrogen_pushnumber(L, l_mathop(atan2)(y, x));
   return 1;
 }
 
 
-static int math_toint (nebula_State *L) {
+static int math_toint (hydrogen_State *L) {
   int valid;
-  nebula_Integer n = nebula_tointegerx(L, 1, &valid);
+  hydrogen_Integer n = hydrogen_tointegerx(L, 1, &valid);
   if (l_likely(valid))
-    nebula_pushinteger(L, n);
+    hydrogen_pushinteger(L, n);
   else {
-    nebulaL_checkany(L, 1);
-    nebulaL_pushfail(L);  /* value is not convertible to integer */
+    hydrogenL_checkany(L, 1);
+    hydrogenL_pushfail(L);  /* value is not convertible to integer */
   }
   return 1;
 }
 
 
-static void pushnumint (nebula_State *L, nebula_Number d) {
-  nebula_Integer n;
-  if (nebula_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
-    nebula_pushinteger(L, n);  /* result is integer */
+static void pushnumint (hydrogen_State *L, hydrogen_Number d) {
+  hydrogen_Integer n;
+  if (hydrogen_numbertointeger(d, &n))  /* does 'd' fit in an integer? */
+    hydrogen_pushinteger(L, n);  /* result is integer */
   else
-    nebula_pushnumber(L, d);  /* result is float */
+    hydrogen_pushnumber(L, d);  /* result is float */
 }
 
 
-static int math_floor (nebula_State *L) {
-  if (nebula_isinteger(L, 1))
-    nebula_settop(L, 1);  /* integer is its own floor */
+static int math_floor (hydrogen_State *L) {
+  if (hydrogen_isinteger(L, 1))
+    hydrogen_settop(L, 1);  /* integer is its own floor */
   else {
-    nebula_Number d = l_mathop(floor)(nebulaL_checknumber(L, 1));
+    hydrogen_Number d = l_mathop(floor)(hydrogenL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_ceil (nebula_State *L) {
-  if (nebula_isinteger(L, 1))
-    nebula_settop(L, 1);  /* integer is its own ceil */
+static int math_ceil (hydrogen_State *L) {
+  if (hydrogen_isinteger(L, 1))
+    hydrogen_settop(L, 1);  /* integer is its own ceil */
   else {
-    nebula_Number d = l_mathop(ceil)(nebulaL_checknumber(L, 1));
+    hydrogen_Number d = l_mathop(ceil)(hydrogenL_checknumber(L, 1));
     pushnumint(L, d);
   }
   return 1;
 }
 
 
-static int math_fmod (nebula_State *L) {
-  if (nebula_isinteger(L, 1) && nebula_isinteger(L, 2)) {
-    nebula_Integer d = nebula_tointeger(L, 2);
-    if ((nebula_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
-      nebulaL_argcheck(L, d != 0, 2, "zero");
-      nebula_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
+static int math_fmod (hydrogen_State *L) {
+  if (hydrogen_isinteger(L, 1) && hydrogen_isinteger(L, 2)) {
+    hydrogen_Integer d = hydrogen_tointeger(L, 2);
+    if ((hydrogen_Unsigned)d + 1u <= 1u) {  /* special cases: -1 or 0 */
+      hydrogenL_argcheck(L, d != 0, 2, "zero");
+      hydrogen_pushinteger(L, 0);  /* avoid overflow with 0x80000... / -1 */
     }
     else
-      nebula_pushinteger(L, nebula_tointeger(L, 1) % d);
+      hydrogen_pushinteger(L, hydrogen_tointeger(L, 1) % d);
   }
   else
-    nebula_pushnumber(L, l_mathop(fmod)(nebulaL_checknumber(L, 1),
-                                     nebulaL_checknumber(L, 2)));
+    hydrogen_pushnumber(L, l_mathop(fmod)(hydrogenL_checknumber(L, 1),
+                                     hydrogenL_checknumber(L, 2)));
   return 1;
 }
 
 
 /*
 ** next function does not use 'modf', avoiding problems with 'double*'
-** (which is not compatible with 'float*') when nebula_Number is not
+** (which is not compatible with 'float*') when hydrogen_Number is not
 ** 'double'.
 */
-static int math_modf (nebula_State *L) {
-  if (nebula_isinteger(L ,1)) {
-    nebula_settop(L, 1);  /* number is its own integer part */
-    nebula_pushnumber(L, 0);  /* no fractional part */
+static int math_modf (hydrogen_State *L) {
+  if (hydrogen_isinteger(L ,1)) {
+    hydrogen_settop(L, 1);  /* number is its own integer part */
+    hydrogen_pushnumber(L, 0);  /* no fractional part */
   }
   else {
-    nebula_Number n = nebulaL_checknumber(L, 1);
+    hydrogen_Number n = hydrogenL_checknumber(L, 1);
     /* integer part (rounds toward zero) */
-    nebula_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
+    hydrogen_Number ip = (n < 0) ? l_mathop(ceil)(n) : l_mathop(floor)(n);
     pushnumint(L, ip);
     /* fractional part (test needed for inf/-inf) */
-    nebula_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
+    hydrogen_pushnumber(L, (n == ip) ? l_mathop(0.0) : (n - ip));
   }
   return 2;
 }
 
 
-static int math_sqrt (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(sqrt)(nebulaL_checknumber(L, 1)));
+static int math_sqrt (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(sqrt)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
 
-static int math_ult (nebula_State *L) {
-  nebula_Integer a = nebulaL_checkinteger(L, 1);
-  nebula_Integer b = nebulaL_checkinteger(L, 2);
-  nebula_pushboolean(L, (nebula_Unsigned)a < (nebula_Unsigned)b);
+static int math_ult (hydrogen_State *L) {
+  hydrogen_Integer a = hydrogenL_checkinteger(L, 1);
+  hydrogen_Integer b = hydrogenL_checkinteger(L, 2);
+  hydrogen_pushboolean(L, (hydrogen_Unsigned)a < (hydrogen_Unsigned)b);
   return 1;
 }
 
-static int math_log (nebula_State *L) {
-  nebula_Number x = nebulaL_checknumber(L, 1);
-  nebula_Number res;
-  if (nebula_isnoneornil(L, 2))
+static int math_log (hydrogen_State *L) {
+  hydrogen_Number x = hydrogenL_checknumber(L, 1);
+  hydrogen_Number res;
+  if (hydrogen_isnoneornil(L, 2))
     res = l_mathop(log)(x);
   else {
-    nebula_Number base = nebulaL_checknumber(L, 2);
-#if !defined(NEBULA_USE_C89)
+    hydrogen_Number base = hydrogenL_checknumber(L, 2);
+#if !defined(HYDROGEN_USE_C89)
     if (base == l_mathop(2.0))
       res = l_mathop(log2)(x);
     else
@@ -183,60 +183,60 @@ static int math_log (nebula_State *L) {
     else
       res = l_mathop(log)(x)/l_mathop(log)(base);
   }
-  nebula_pushnumber(L, res);
+  hydrogen_pushnumber(L, res);
   return 1;
 }
 
-static int math_exp (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(exp)(nebulaL_checknumber(L, 1)));
+static int math_exp (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(exp)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_deg (nebula_State *L) {
-  nebula_pushnumber(L, nebulaL_checknumber(L, 1) * (l_mathop(180.0) / PI));
+static int math_deg (hydrogen_State *L) {
+  hydrogen_pushnumber(L, hydrogenL_checknumber(L, 1) * (l_mathop(180.0) / PI));
   return 1;
 }
 
-static int math_rad (nebula_State *L) {
-  nebula_pushnumber(L, nebulaL_checknumber(L, 1) * (PI / l_mathop(180.0)));
+static int math_rad (hydrogen_State *L) {
+  hydrogen_pushnumber(L, hydrogenL_checknumber(L, 1) * (PI / l_mathop(180.0)));
   return 1;
 }
 
 
-static int math_min (nebula_State *L) {
-  int n = nebula_gettop(L);  /* number of arguments */
+static int math_min (hydrogen_State *L) {
+  int n = hydrogen_gettop(L);  /* number of arguments */
   int imin = 1;  /* index of current minimum value */
   int i;
-  nebulaL_argcheck(L, n >= 1, 1, "value expected");
+  hydrogenL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (nebula_compare(L, i, imin, NEBULA_OPLT))
+    if (hydrogen_compare(L, i, imin, HYDROGEN_OPLT))
       imin = i;
   }
-  nebula_pushvalue(L, imin);
+  hydrogen_pushvalue(L, imin);
   return 1;
 }
 
 
-static int math_max (nebula_State *L) {
-  int n = nebula_gettop(L);  /* number of arguments */
+static int math_max (hydrogen_State *L) {
+  int n = hydrogen_gettop(L);  /* number of arguments */
   int imax = 1;  /* index of current maximum value */
   int i;
-  nebulaL_argcheck(L, n >= 1, 1, "value expected");
+  hydrogenL_argcheck(L, n >= 1, 1, "value expected");
   for (i = 2; i <= n; i++) {
-    if (nebula_compare(L, imax, i, NEBULA_OPLT))
+    if (hydrogen_compare(L, imax, i, HYDROGEN_OPLT))
       imax = i;
   }
-  nebula_pushvalue(L, imax);
+  hydrogen_pushvalue(L, imax);
   return 1;
 }
 
 
-static int math_type (nebula_State *L) {
-  if (nebula_type(L, 1) == NEBULA_TNUMBER)
-    nebula_pushstring(L, (nebula_isinteger(L, 1)) ? "integer" : "float");
+static int math_type (hydrogen_State *L) {
+  if (hydrogen_type(L, 1) == HYDROGEN_TNUMBER)
+    hydrogen_pushstring(L, (hydrogen_isinteger(L, 1)) ? "integer" : "float");
   else {
-    nebulaL_checkany(L, 1);
-    nebulaL_pushfail(L);
+    hydrogenL_checkany(L, 1);
+    hydrogenL_pushfail(L);
   }
   return 1;
 }
@@ -260,10 +260,10 @@ static int math_type (nebula_State *L) {
 
 
 /*
-** NEBULA_RAND32 forces the use of 32-bit integers in the implementation
+** HYDROGEN_RAND32 forces the use of 32-bit integers in the implementation
 ** of the PRN generator (mainly for testing).
 */
-#if !defined(NEBULA_RAND32) && !defined(Rand64)
+#if !defined(HYDROGEN_RAND32) && !defined(Rand64)
 
 /* try to find an integer type with at least 64 bits */
 
@@ -272,15 +272,15 @@ static int math_type (nebula_State *L) {
 /* 'long' has at least 64 bits */
 #define Rand64		unsigned long
 
-#elif !defined(NEBULA_USE_C89) && defined(LLONG_MAX)
+#elif !defined(HYDROGEN_USE_C89) && defined(LLONG_MAX)
 
 /* there is a 'long long' type (which must have at least 64 bits) */
 #define Rand64		unsigned long long
 
-#elif (NEBULA_MAXUNSIGNED >> 31 >> 31) >= 3
+#elif (HYDROGEN_MAXUNSIGNED >> 31 >> 31) >= 3
 
-/* 'nebula_Integer' has at least 64 bits */
-#define Rand64		nebula_Unsigned
+/* 'hydrogen_Integer' has at least 64 bits */
+#define Rand64		hydrogen_Unsigned
 
 #endif
 
@@ -334,21 +334,21 @@ static Rand64 nextrand (Rand64 *state) {
 /* to scale to [0, 1), multiply by scaleFIG = 2^(-FIGS) */
 #define scaleFIG	(l_mathop(0.5) / ((Rand64)1 << (FIGS - 1)))
 
-static nebula_Number I2d (Rand64 x) {
-  return (nebula_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
+static hydrogen_Number I2d (Rand64 x) {
+  return (hydrogen_Number)(trim64(x) >> shift64_FIG) * scaleFIG;
 }
 
-/* convert a 'Rand64' to a 'nebula_Unsigned' */
-#define I2UInt(x)	((nebula_Unsigned)trim64(x))
+/* convert a 'Rand64' to a 'hydrogen_Unsigned' */
+#define I2UInt(x)	((hydrogen_Unsigned)trim64(x))
 
-/* convert a 'nebula_Unsigned' to a 'Rand64' */
+/* convert a 'hydrogen_Unsigned' to a 'Rand64' */
 #define Int2I(x)	((Rand64)(x))
 
 
 #else	/* no 'Rand64'   }{ */
 
 /* get an integer with at least 32 bits */
-#if NEBULAI_IS32INT
+#if HYDROGENI_IS32INT
 typedef unsigned int lu_int32;
 #else
 typedef unsigned long lu_int32;
@@ -388,7 +388,7 @@ static Rand64 packI (lu_int32 h, lu_int32 l) {
 
 /* return i << n */
 static Rand64 Ishl (Rand64 i, int n) {
-  nebula_assert(n > 0 && n < 32);
+  hydrogen_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)), i.l << n);
 }
 
@@ -418,21 +418,21 @@ static Rand64 times9 (Rand64 i) {
 
 /* return 'i' rotated left 'n' bits */
 static Rand64 rotl (Rand64 i, int n) {
-  nebula_assert(n > 0 && n < 32);
+  hydrogen_assert(n > 0 && n < 32);
   return packI((i.h << n) | (trim32(i.l) >> (32 - n)),
                (trim32(i.h) >> (32 - n)) | (i.l << n));
 }
 
 /* for offsets larger than 32, rotate right by 64 - offset */
 static Rand64 rotl1 (Rand64 i, int n) {
-  nebula_assert(n > 32 && n < 64);
+  hydrogen_assert(n > 32 && n < 64);
   n = 64 - n;
   return packI((trim32(i.h) >> n) | (i.l << (32 - n)),
                (i.h << (32 - n)) | (trim32(i.l) >> n));
 }
 
 /*
-** implementation of 'xoshiro256**' alNebularithm on 'Rand64' values
+** implementation of 'xoshiro256**' alHydrogenrithm on 'Rand64' values
 */
 static Rand64 nextrand (Rand64 *state) {
   Rand64 res = times9(rotl(times5(state[1]), 7));
@@ -464,8 +464,8 @@ static Rand64 nextrand (Rand64 *state) {
 ** get up to 32 bits from higher half, shifting right to
 ** throw out the extra bits.
 */
-static nebula_Number I2d (Rand64 x) {
-  nebula_Number h = (nebula_Number)(trim32(x.h) >> (32 - FIGS));
+static hydrogen_Number I2d (Rand64 x) {
+  hydrogen_Number h = (hydrogen_Number)(trim32(x.h) >> (32 - FIGS));
   return h * scaleFIG;
 }
 
@@ -484,27 +484,27 @@ static nebula_Number I2d (Rand64 x) {
 #define shiftLOW	(64 - FIGS)
 
 /*
-** higher 32 bits Nebula after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
+** higher 32 bits Hydrogen after those (FIGS - 32) bits: shiftHI = 2^(FIGS - 32)
 */
-#define shiftHI		((nebula_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
+#define shiftHI		((hydrogen_Number)(UONE << (FIGS - 33)) * l_mathop(2.0))
 
 
-static nebula_Number I2d (Rand64 x) {
-  nebula_Number h = (nebula_Number)trim32(x.h) * shiftHI;
-  nebula_Number l = (nebula_Number)(trim32(x.l) >> shiftLOW);
+static hydrogen_Number I2d (Rand64 x) {
+  hydrogen_Number h = (hydrogen_Number)trim32(x.h) * shiftHI;
+  hydrogen_Number l = (hydrogen_Number)(trim32(x.l) >> shiftLOW);
   return (h + l) * scaleFIG;
 }
 
 #endif
 
 
-/* convert a 'Rand64' to a 'nebula_Unsigned' */
-static nebula_Unsigned I2UInt (Rand64 x) {
-  return ((nebula_Unsigned)trim32(x.h) << 31 << 1) | (nebula_Unsigned)trim32(x.l);
+/* convert a 'Rand64' to a 'hydrogen_Unsigned' */
+static hydrogen_Unsigned I2UInt (Rand64 x) {
+  return ((hydrogen_Unsigned)trim32(x.h) << 31 << 1) | (hydrogen_Unsigned)trim32(x.l);
 }
 
-/* convert a 'nebula_Unsigned' to a 'Rand64' */
-static Rand64 Int2I (nebula_Unsigned n) {
+/* convert a 'hydrogen_Unsigned' to a 'Rand64' */
+static Rand64 Int2I (hydrogen_Unsigned n) {
   return packI((lu_int32)(n >> 31 >> 1), (lu_int32)n);
 }
 
@@ -529,22 +529,22 @@ typedef struct {
 ** is inside [0, n], we are done. Otherwise, we try with another 'ran',
 ** until we have a result inside the interval.
 */
-static nebula_Unsigned project (nebula_Unsigned ran, nebula_Unsigned n,
+static hydrogen_Unsigned project (hydrogen_Unsigned ran, hydrogen_Unsigned n,
                              RanState *state) {
   if ((n & (n + 1)) == 0)  /* is 'n + 1' a power of 2? */
     return ran & n;  /* no bias */
   else {
-    nebula_Unsigned lim = n;
+    hydrogen_Unsigned lim = n;
     /* compute the smallest (2^b - 1) not smaller than 'n' */
     lim |= (lim >> 1);
     lim |= (lim >> 2);
     lim |= (lim >> 4);
     lim |= (lim >> 8);
     lim |= (lim >> 16);
-#if (NEBULA_MAXUNSIGNED >> 31) >= 3
+#if (HYDROGEN_MAXUNSIGNED >> 31) >= 3
     lim |= (lim >> 32);  /* integer type has more than 32 bits */
 #endif
-    nebula_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
+    hydrogen_assert((lim & (lim + 1)) == 0  /* 'lim + 1' is a power of 2, */
       && lim >= n  /* not smaller than 'n', */
       && (lim >> 1) < n);  /* and it is the smallest one */
     while ((ran &= lim) > n)  /* project 'ran' into [0..lim] */
@@ -554,43 +554,43 @@ static nebula_Unsigned project (nebula_Unsigned ran, nebula_Unsigned n,
 }
 
 
-static int math_random (nebula_State *L) {
-  nebula_Integer low, up;
-  nebula_Unsigned p;
-  RanState *state = (RanState *)nebula_touserdata(L, nebula_upvalueindex(1));
+static int math_random (hydrogen_State *L) {
+  hydrogen_Integer low, up;
+  hydrogen_Unsigned p;
+  RanState *state = (RanState *)hydrogen_touserdata(L, hydrogen_upvalueindex(1));
   Rand64 rv = nextrand(state->s);  /* next pseudo-random value */
-  switch (nebula_gettop(L)) {  /* check number of arguments */
+  switch (hydrogen_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
-      nebula_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
+      hydrogen_pushnumber(L, I2d(rv));  /* float between 0 and 1 */
       return 1;
     }
     case 1: {  /* only upper limit */
       low = 1;
-      up = nebulaL_checkinteger(L, 1);
+      up = hydrogenL_checkinteger(L, 1);
       if (up == 0) {  /* single 0 as argument? */
-        nebula_pushinteger(L, I2UInt(rv));  /* full random integer */
+        hydrogen_pushinteger(L, I2UInt(rv));  /* full random integer */
         return 1;
       }
       break;
     }
     case 2: {  /* lower and upper limits */
-      low = nebulaL_checkinteger(L, 1);
-      up = nebulaL_checkinteger(L, 2);
+      low = hydrogenL_checkinteger(L, 1);
+      up = hydrogenL_checkinteger(L, 2);
       break;
     }
-    default: return nebulaL_error(L, "wrong number of arguments");
+    default: return hydrogenL_error(L, "wrong number of arguments");
   }
   /* random integer in the interval [low, up] */
-  nebulaL_argcheck(L, low <= up, 1, "interval is empty");
+  hydrogenL_argcheck(L, low <= up, 1, "interval is empty");
   /* project random integer into the interval [0, up - low] */
-  p = project(I2UInt(rv), (nebula_Unsigned)up - (nebula_Unsigned)low, state);
-  nebula_pushinteger(L, p + (nebula_Unsigned)low);
+  p = project(I2UInt(rv), (hydrogen_Unsigned)up - (hydrogen_Unsigned)low, state);
+  hydrogen_pushinteger(L, p + (hydrogen_Unsigned)low);
   return 1;
 }
 
 
-static void setseed (nebula_State *L, Rand64 *state,
-                     nebula_Unsigned n1, nebula_Unsigned n2) {
+static void setseed (hydrogen_State *L, Rand64 *state,
+                     hydrogen_Unsigned n1, hydrogen_Unsigned n2) {
   int i;
   state[0] = Int2I(n1);
   state[1] = Int2I(0xff);  /* avoid a zero state */
@@ -598,8 +598,8 @@ static void setseed (nebula_State *L, Rand64 *state,
   state[3] = Int2I(0);
   for (i = 0; i < 16; i++)
     nextrand(state);  /* discard initial values to "spread" seed */
-  nebula_pushinteger(L, n1);
-  nebula_pushinteger(L, n2);
+  hydrogen_pushinteger(L, n1);
+  hydrogen_pushinteger(L, n2);
 }
 
 
@@ -608,28 +608,28 @@ static void setseed (nebula_State *L, Rand64 *state,
 ** and the address of 'L' (in case the machine does address space layout
 ** randomization).
 */
-static void randseed (nebula_State *L, RanState *state) {
-  nebula_Unsigned seed1 = (nebula_Unsigned)time(NULL);
-  nebula_Unsigned seed2 = (nebula_Unsigned)(size_t)L;
+static void randseed (hydrogen_State *L, RanState *state) {
+  hydrogen_Unsigned seed1 = (hydrogen_Unsigned)time(NULL);
+  hydrogen_Unsigned seed2 = (hydrogen_Unsigned)(size_t)L;
   setseed(L, state->s, seed1, seed2);
 }
 
 
-static int math_randomseed (nebula_State *L) {
-  RanState *state = (RanState *)nebula_touserdata(L, nebula_upvalueindex(1));
-  if (nebula_isnone(L, 1)) {
+static int math_randomseed (hydrogen_State *L) {
+  RanState *state = (RanState *)hydrogen_touserdata(L, hydrogen_upvalueindex(1));
+  if (hydrogen_isnone(L, 1)) {
     randseed(L, state);
   }
   else {
-    nebula_Integer n1 = nebulaL_checkinteger(L, 1);
-    nebula_Integer n2 = nebulaL_optinteger(L, 2, 0);
+    hydrogen_Integer n1 = hydrogenL_checkinteger(L, 1);
+    hydrogen_Integer n2 = hydrogenL_optinteger(L, 2, 0);
     setseed(L, state->s, n1, n2);
   }
   return 2;  /* return seeds */
 }
 
 
-static const nebulaL_Reg randfuncs[] = {
+static const hydrogenL_Reg randfuncs[] = {
   {"random", math_random},
   {"randomseed", math_randomseed},
   {NULL, NULL}
@@ -639,11 +639,11 @@ static const nebulaL_Reg randfuncs[] = {
 /*
 ** Register the random functions and initialize their state.
 */
-static void setrandfunc (nebula_State *L) {
-  RanState *state = (RanState *)nebula_newuserdatauv(L, sizeof(RanState), 0);
+static void setrandfunc (hydrogen_State *L) {
+  RanState *state = (RanState *)hydrogen_newuserdatauv(L, sizeof(RanState), 0);
   randseed(L, state);  /* initialize with a "random" seed */
-  nebula_pop(L, 2);  /* remove pushed seeds */
-  nebulaL_setfuncs(L, randfuncs, 1);
+  hydrogen_pop(L, 2);  /* remove pushed seeds */
+  hydrogenL_setfuncs(L, randfuncs, 1);
 }
 
 /* }================================================================== */
@@ -654,46 +654,46 @@ static void setrandfunc (nebula_State *L) {
 ** Deprecated functions (for compatibility only)
 ** ===================================================================
 */
-#if defined(NEBULA_COMPAT_MATHLIB)
+#if defined(HYDROGEN_COMPAT_MATHLIB)
 
-static int math_cosh (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(cosh)(nebulaL_checknumber(L, 1)));
+static int math_cosh (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(cosh)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_sinh (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(sinh)(nebulaL_checknumber(L, 1)));
+static int math_sinh (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(sinh)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_tanh (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(tanh)(nebulaL_checknumber(L, 1)));
+static int math_tanh (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(tanh)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
-static int math_pow (nebula_State *L) {
-  nebula_Number x = nebulaL_checknumber(L, 1);
-  nebula_Number y = nebulaL_checknumber(L, 2);
-  nebula_pushnumber(L, l_mathop(pow)(x, y));
+static int math_pow (hydrogen_State *L) {
+  hydrogen_Number x = hydrogenL_checknumber(L, 1);
+  hydrogen_Number y = hydrogenL_checknumber(L, 2);
+  hydrogen_pushnumber(L, l_mathop(pow)(x, y));
   return 1;
 }
 
-static int math_frexp (nebula_State *L) {
+static int math_frexp (hydrogen_State *L) {
   int e;
-  nebula_pushnumber(L, l_mathop(frexp)(nebulaL_checknumber(L, 1), &e));
-  nebula_pushinteger(L, e);
+  hydrogen_pushnumber(L, l_mathop(frexp)(hydrogenL_checknumber(L, 1), &e));
+  hydrogen_pushinteger(L, e);
   return 2;
 }
 
-static int math_ldexp (nebula_State *L) {
-  nebula_Number x = nebulaL_checknumber(L, 1);
-  int ep = (int)nebulaL_checkinteger(L, 2);
-  nebula_pushnumber(L, l_mathop(ldexp)(x, ep));
+static int math_ldexp (hydrogen_State *L) {
+  hydrogen_Number x = hydrogenL_checknumber(L, 1);
+  int ep = (int)hydrogenL_checkinteger(L, 2);
+  hydrogen_pushnumber(L, l_mathop(ldexp)(x, ep));
   return 1;
 }
 
-static int math_log10 (nebula_State *L) {
-  nebula_pushnumber(L, l_mathop(log10)(nebulaL_checknumber(L, 1)));
+static int math_log10 (hydrogen_State *L) {
+  hydrogen_pushnumber(L, l_mathop(log10)(hydrogenL_checknumber(L, 1)));
   return 1;
 }
 
@@ -702,7 +702,7 @@ static int math_log10 (nebula_State *L) {
 
 
 
-static const nebulaL_Reg mathlib[] = {
+static const hydrogenL_Reg mathlib[] = {
   {"abs",   math_abs},
   {"acos",  math_acos},
   {"asin",  math_asin},
@@ -724,7 +724,7 @@ static const nebulaL_Reg mathlib[] = {
   {"sqrt",  math_sqrt},
   {"tan",   math_tan},
   {"type", math_type},
-#if defined(NEBULA_COMPAT_MATHLIB)
+#if defined(HYDROGEN_COMPAT_MATHLIB)
   {"atan2", math_atan},
   {"cosh",   math_cosh},
   {"sinh",   math_sinh},
@@ -748,16 +748,16 @@ static const nebulaL_Reg mathlib[] = {
 /*
 ** Open math library
 */
-NEBULAMOD_API int nebulaopen_math (nebula_State *L) {
-  nebulaL_newlib(L, mathlib);
-  nebula_pushnumber(L, PI);
-  nebula_setfield(L, -2, "pi");
-  nebula_pushnumber(L, (nebula_Number)HUGE_VAL);
-  nebula_setfield(L, -2, "huge");
-  nebula_pushinteger(L, NEBULA_MAXINTEGER);
-  nebula_setfield(L, -2, "maxinteger");
-  nebula_pushinteger(L, NEBULA_MININTEGER);
-  nebula_setfield(L, -2, "mininteger");
+HYDROGENMOD_API int hydrogenopen_math (hydrogen_State *L) {
+  hydrogenL_newlib(L, mathlib);
+  hydrogen_pushnumber(L, PI);
+  hydrogen_setfield(L, -2, "pi");
+  hydrogen_pushnumber(L, (hydrogen_Number)HUGE_VAL);
+  hydrogen_setfield(L, -2, "huge");
+  hydrogen_pushinteger(L, HYDROGEN_MAXINTEGER);
+  hydrogen_setfield(L, -2, "maxinteger");
+  hydrogen_pushinteger(L, HYDROGEN_MININTEGER);
+  hydrogen_setfield(L, -2, "mininteger");
   setrandfunc(L);
   return 1;
 }

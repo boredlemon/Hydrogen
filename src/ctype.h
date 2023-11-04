@@ -1,35 +1,35 @@
 /*
 ** $Id: ctype.h $
-** 'ctype' functions for Nebula
-** See Copyright Notice in nebula.h
+** 'ctype' functions for Hydrogen
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef ctype_h
 #define ctype_h
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 
 /*
 ** WARNING: the functions defined here do not necessarily correspond
 ** to the similar functions in the standard C ctype.h. They are
-** optimized for the specific needs of Nebula.
+** optimized for the specific needs of Hydrogen.
 */
 
-#if !defined(NEBULA_USE_CTYPE)
+#if !defined(HYDROGEN_USE_CTYPE)
 
 #if 'A' == 65 && '0' == 48
 /* ASCII case: can use its own tables; faster and fixed */
-#define NEBULA_USE_CTYPE	0
+#define HYDROGEN_USE_CTYPE	0
 #else
 /* must use standard C ctype */
-#define NEBULA_USE_CTYPE	1
+#define HYDROGEN_USE_CTYPE	1
 #endif
 
 #endif
 
 
-#if !NEBULA_USE_CTYPE	/* { */
+#if !HYDROGEN_USE_CTYPE	/* { */
 
 #include <limits.h>
 
@@ -49,10 +49,10 @@
 /*
 ** add 1 to char to allow index -1 (EOZ)
 */
-#define testprop(c,p)	(nebulai_ctype_[(c)+1] & (p))
+#define testprop(c,p)	(hydrogeni_ctype_[(c)+1] & (p))
 
 /*
-** 'lalpha' (Nebula alphabetic) and 'lalnum' (Nebula alphanumeric) both include '_'
+** 'lalpha' (Hydrogen alphabetic) and 'lalnum' (Hydrogen alphanumeric) both include '_'
 */
 #define lislalpha(c)	testprop(c, MASK(ALPHABIT))
 #define lislalnum(c)	testprop(c, (MASK(ALPHABIT) | MASK(DIGITBIT)))
@@ -64,7 +64,7 @@
 
 /*
 ** In ASCII, this 'ltolower' is correct for alphabetic characters and
-** for '.'. That is enough for Nebula needs. ('check_exp' ensures that
+** for '.'. That is enough for Hydrogen needs. ('check_exp' ensures that
 ** the character either is an upper-case letter or is unchanged by
 ** the transformation, which holds for lower-case letters and '.'.)
 */
@@ -74,7 +74,7 @@
 
 
 /* one entry for each character and for -1 (EOZ) */
-NEBULAI_DDEC(const lu_byte nebulai_ctype_[UCHAR_MAX + 2];)
+HYDROGENI_DDEC(const lu_byte hydrogeni_ctype_[UCHAR_MAX + 2];)
 
 
 #else			/* }{ */

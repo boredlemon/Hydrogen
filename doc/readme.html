@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Nebula 5.4 readme</TITLE>
-<LINK REL="stylesheet" TYPE="text/css" HREF="css/nebula.css">
+<TITLE>Hydrogen 5.4 readme</TITLE>
+<LINK REL="stylesheet" TYPE="text/css" HREF="css/hydrogen.css">
 <META HTTP-EQUIV="content-type" CONTENT="text/html; charset=iso-8859-1">
 <STYLE TYPE="text/css">
 blockquote, .display {
@@ -29,8 +29,8 @@ tt, kbd, code {
 <BODY>
 
 <H1>
-<A HREF="http://www.nebula.org/"><IMG SRC="img/nebulascript.png" ALT="Nebula"></A>
-Welcome to Nebula 5.4
+<A HREF="http://www.hydrogen.org/"><IMG SRC="img/hydrogenscript.png" ALT="Hydrogen"></A>
+Welcome to Hydrogen 5.4
 </H1>
 
 <DIV CLASS="menubar">
@@ -45,49 +45,49 @@ Welcome to Nebula 5.4
 <A HREF="contents.html">reference manual</A>
 </DIV>
 
-<H2><A NAME="about">About Nebula</A></H2>
+<H2><A NAME="about">About Hydrogen</A></H2>
 <P>
-Nebula is a powerful, efficient, lightweight, embeddable scripting language
+Hydrogen is a powerful, efficient, lightweight, embeddable scripting language
 developed by a
-<A HREF="http://www.nebula.org/authors.html">team</A>
+<A HREF="http://www.hydrogen.org/authors.html">team</A>
 at
 <A HREF="http://www.puc-rio.br/">PUC-Rio</A>,
 the Pontifical Catholic University of Rio de Janeiro in Brazil.
-Nebula is
+Hydrogen is
 <A HREF="#license">free software</A>
 used in
-<A HREF="http://www.nebula.org/uses.html">many products and projects</A>
+<A HREF="http://www.hydrogen.org/uses.html">many products and projects</A>
 around the world.
 
 <P>
-Nebula's
-<A HREF="http://www.nebula.org/">official web site</A>
+Hydrogen's
+<A HREF="http://www.hydrogen.org/">official web site</A>
 provides complete information
-about Nebula,
+about Hydrogen,
 including
 an
-<A HREF="http://www.nebula.org/about.html">executive summary</A>
+<A HREF="http://www.hydrogen.org/about.html">executive summary</A>
 and
 updated
-<A HREF="http://www.nebula.org/docs.html">documentation</A>,
+<A HREF="http://www.hydrogen.org/docs.html">documentation</A>,
 especially the
-<A HREF="http://www.nebula.org/manual/5.4/">reference manual</A>,
+<A HREF="http://www.hydrogen.org/manual/5.4/">reference manual</A>,
 which may differ slightly from the
 <A HREF="contents.html">local copy</A>
 distributed in this package.
 
-<H2><A NAME="install">Installing Nebula</A></H2>
+<H2><A NAME="install">Installing Hydrogen</A></H2>
 <P>
-Nebula is distributed in
-<A HREF="http://www.nebula.org/ftp/">source</A>
+Hydrogen is distributed in
+<A HREF="http://www.hydrogen.org/ftp/">source</A>
 form.
 You need to build it before using it.
-Building Nebula should be straightforward
+Building Hydrogen should be straightforward
 because
-Nebula is implemented in pure ANSI C and compiles unmodified in all known
+Hydrogen is implemented in pure ANSI C and compiles unmodified in all known
 platforms that have an ANSI C compiler.
-Nebula also compiles unmodified as C++.
-The instructions given below for building Nebula are for Unix-like platforms,
+Hydrogen also compiles unmodified as C++.
+The instructions given below for building Hydrogen are for Unix-like platforms,
 such as Linux and Mac OS X.
 See also
 <A HREF="#other">instructions for other systems</A>
@@ -95,14 +95,14 @@ and
 <A HREF="#customization">customization options</A>.
 
 <P>
-If you don't have the time or the inclination to compile Nebula yourself,
+If you don't have the time or the inclination to compile Hydrogen yourself,
 get a binary from
-<A HREF="http://nebula-users.org/wiki/NebulaBinaries">NebulaBinaries</A>.
+<A HREF="http://hydrogen-users.org/wiki/HydrogenBinaries">HydrogenBinaries</A>.
 Try also
-<A HREF="http://nebuladist.org/">NebulaDist</A>,
-a multi-platform distribution of Nebula that includes batteries.
+<A HREF="http://hydrogendist.org/">HydrogenDist</A>,
+a multi-platform distribution of Hydrogen that includes batteries.
 
-<H3>Building Nebula</H3>
+<H3>Building Hydrogen</H3>
 <P>
 In most common Unix-like platforms, simply do "<KBD>make</KBD>".
 Here are the details.
@@ -110,11 +110,11 @@ Here are the details.
 <OL>
 <LI>
 Open a terminal window and move to
-the top-level directory, which is named <TT>nebula-5.4.4</TT>.
+the top-level directory, which is named <TT>hydrogen-5.4.4</TT>.
 The <TT>Makefile</TT> there controls both the build process and the installation process.
 <P>
 <LI>
-  Do "<KBD>make</KBD>". The <TT>Makefile</TT> will guess your platform and build Nebula for it.
+  Do "<KBD>make</KBD>". The <TT>Makefile</TT> will guess your platform and build Hydrogen for it.
 <P>
 <LI>
   If the guess failed, do "<KBD>make help</KBD>" and see if your platform is listed.
@@ -133,41 +133,41 @@ The <TT>Makefile</TT> there controls both the build process and the installation
 <LI>
 The compilation takes only a few moments
 and produces three files in the <TT>src</TT> directory:
-nebula (the interpreter),
-nebulac (the compiler),
-and libnebula.a (the library).
+hydrogen (the interpreter),
+hydrogenc (the compiler),
+and libhydrogen.a (the library).
 <P>
 <LI>
-  To check that Nebula has been built correctly, do "<KBD>make test</KBD>"
-  after building Nebula. This will run the interpreter and print its version.
+  To check that Hydrogen has been built correctly, do "<KBD>make test</KBD>"
+  after building Hydrogen. This will run the interpreter and print its version.
 </OL>
 <P>
-If you're running Linux, try "<KBD>make linux-readline</KBD>" to build the interactive Nebula interpreter with handy line-editing and history capabilities.
+If you're running Linux, try "<KBD>make linux-readline</KBD>" to build the interactive Hydrogen interpreter with handy line-editing and history capabilities.
 If you get compilation errors,
 make sure you have installed the <TT>readline</TT> development package
 (which is probably named <TT>libreadline-dev</TT> or <TT>readline-devel</TT>).
 If you get link errors after that,
 then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
 
-<H3>Installing Nebula</H3>
+<H3>Installing Hydrogen</H3>
 <P>
-  Once you have built Nebula, you may want to install it in an official
+  Once you have built Hydrogen, you may want to install it in an official
   place in your system. In this case, do "<KBD>make install</KBD>". The official
   place and the way to install files are defined in the <TT>Makefile</TT>. You'll
   probably need the right permissions to install files, and so may need to do "<KBD>sudo make install</KBD>".
 
 <P>
-  To build and install Nebula in one step, do "<KBD>make all install</KBD>",
+  To build and install Hydrogen in one step, do "<KBD>make all install</KBD>",
   or "<KBD>make xxx install</KBD>",
   where xxx is your platform name.
 
 <P>
-  To install Nebula locally after building it, do "<KBD>make local</KBD>".
+  To install Hydrogen locally after building it, do "<KBD>make local</KBD>".
   This will create a directory <TT>install</TT> with subdirectories
   <TT>bin</TT>, <TT>include</TT>, <TT>lib</TT>, <TT>man</TT>, <TT>share</TT>,
-  and install Nebula as listed below.
+  and install Hydrogen as listed below.
 
-  To install Nebula locally, but in some other directory, do
+  To install Hydrogen locally, but in some other directory, do
   "<KBD>make install INSTALL_TOP=xxx</KBD>", where xxx is your chosen directory.
   The installation starts in the <TT>src</TT> and <TT>doc</TT> directories,
   so take care if <TT>INSTALL_TOP</TT> is not an absolute path.
@@ -176,35 +176,35 @@ then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
 <DT>
     bin:
 <DD>
-    nebula nebulac
+    hydrogen hydrogenc
 <DT>
     include:
 <DD>
-    nebula.h nebulaconf.h nebulalib.h auxlib.h nebula.hpp
+    hydrogen.h hydrogenconf.h hydrogenlib.h auxlib.h hydrogen.hpp
 <DT>
     lib:
 <DD>
-    libnebula.a
+    libhydrogen.a
 <DT>
     man/man1:
 <DD>
-    nebula.1 nebulac.1
+    hydrogen.1 hydrogenc.1
 </DL>
 
 <P>
   These are the only directories you need for development.
-  If you only want to run Nebula programs,
+  If you only want to run Hydrogen programs,
   you only need the files in <TT>bin</TT> and <TT>man</TT>.
   The files in <TT>include</TT> and <TT>lib</TT> are needed for
-  embedding Nebula in C or C++ programs.
+  embedding Hydrogen in C or C++ programs.
 
 <H3><A NAME="customization">Customization</A></H3>
 <P>
   Three kinds of things can be customized by editing a file:
 <UL>
-    <LI> Where and how to install Nebula &mnebula; edit <TT>Makefile</TT>.
-    <LI> How to build Nebula &mnebula; edit <TT>src/Makefile</TT>.
-    <LI> Nebula features &mnebula; edit <TT>src/nebulaconf.h</TT>.
+    <LI> Where and how to install Hydrogen &mhydrogen; edit <TT>Makefile</TT>.
+    <LI> How to build Hydrogen &mhydrogen; edit <TT>src/Makefile</TT>.
+    <LI> Hydrogen features &mhydrogen; edit <TT>src/hydrogenconf.h</TT>.
 </UL>
 
 <P>
@@ -214,16 +214,16 @@ then try "<KBD>make linux-readline MYLIBS=-ltermcap</KBD>".
   record the changes you've made.
 
 <P>
-  On the other hand, if you need to customize some Nebula features, you'll need
-  to edit <TT>src/nebulaconf.h</TT> before building and installing Nebula.
+  On the other hand, if you need to customize some Hydrogen features, you'll need
+  to edit <TT>src/hydrogenconf.h</TT> before building and installing Hydrogen.
   The edited file will be the one installed, and
-  it will be used by any Nebula clients that you build, to ensure consistency.
-  Further customization is available to experts by editing the Nebula sources.
+  it will be used by any Hydrogen clients that you build, to ensure consistency.
+  Further customization is available to experts by editing the Hydrogen sources.
 
-<H3><A NAME="other">Building Nebula on other systems</A></H3>
+<H3><A NAME="other">Building Hydrogen on other systems</A></H3>
 <P>
   If you're not using the usual Unix tools, then the instructions for
-  building Nebula depend on the compiler you use. You'll need to create
+  building Hydrogen depend on the compiler you use. You'll need to create
   projects (or whatever your compiler uses) for building the library,
   the interpreter, and the compiler, as follows:
 
@@ -236,32 +236,32 @@ auxlib.c baselib.c corolib.c dblib.c iolib.c mathlib.c loadlib.c oslib.c strlib.
 <DT>
 interpreter:
 <DD>
-  library, nebula.c
+  library, hydrogen.c
 <DT>
 compiler:
 <DD>
-  library, nebulac.c
+  library, hydrogenc.c
 </DL>
 
 <P>
-  To use Nebula as a library in your own programs, you'll need to know how to
+  To use Hydrogen as a library in your own programs, you'll need to know how to
   create and use libraries with your compiler. Moreover, to dynamically load
-  C libraries for Nebula, you'll need to know how to create dynamic libraries
-  and you'll need to make sure that the Nebula API functions are accessible to
-  those dynamic libraries &mnebula; but <EM>don't</EM> link the Nebula library
-  into each dynamic library. For Unix, we recommend that the Nebula library
+  C libraries for Hydrogen, you'll need to know how to create dynamic libraries
+  and you'll need to make sure that the Hydrogen API functions are accessible to
+  those dynamic libraries &mhydrogen; but <EM>don't</EM> link the Hydrogen library
+  into each dynamic library. For Unix, we recommend that the Hydrogen library
   be linked statically into the host program and its symbols exported for
-  dynamic linking; <TT>src/Makefile</TT> does this for the Nebula interpreter.
-  For Windows, we recommend that the Nebula library be a DLL.
-  In all cases, the compiler nebulac should be linked statically.
+  dynamic linking; <TT>src/Makefile</TT> does this for the Hydrogen interpreter.
+  For Windows, we recommend that the Hydrogen library be a DLL.
+  In all cases, the compiler hydrogenc should be linked statically.
 
 <P>
-  As mentioned above, you may edit <TT>src/nebulaconf.h</TT> to customize
-  some features before building Nebula.
+  As mentioned above, you may edit <TT>src/hydrogenconf.h</TT> to customize
+  some features before building Hydrogen.
 
-<H2><A NAME="changes">Changes since Nebula 5.3</A></H2>
+<H2><A NAME="changes">Changes since Hydrogen 5.3</A></H2>
 <P>
-Here are the main changes introduced in Nebula 5.4.
+Here are the main changes introduced in Hydrogen 5.4.
 The
 <A HREF="contents.html">reference manual</A>
 lists the
@@ -278,7 +278,7 @@ lists the
 <LI> debug information about function arguments and returns
 <LI> new semantics for the integer 'for' loop
 <LI> optional 'init' argument to 'string.gmatch'
-<LI> new functions 'nebula_resetthread' and 'coroutine.close'
+<LI> new functions 'hydrogen_resetthread' and 'coroutine.close'
 <LI> string-to-number coercions moved to the string library
 <LI> allocation function allowed to fail when shrinking a memory block
 <LI> new format '%p' in 'string.format'
@@ -290,20 +290,20 @@ lists the
 <A HREF="http://www.opensource.org/docs/definition.php">
 <IMG SRC="img/module.png" ALIGN="right" ALT="[osi certified]" STYLE="padding-left: 30px ;">
 </A>
-Nebula is free software distributed under the terms of the
+Hydrogen is free software distributed under the terms of the
 <A HREF="http://www.opensource.org/licenses/mit-license.html">MIT license</A>
 reproduced below;
 it may be used for any purpose, including commercial purposes,
 at absolutely no cost without having to ask us.
 
-The only requirement is that if you do use Nebula,
+The only requirement is that if you do use Hydrogen,
 then you should give us credit by including the appropriate copyright notice somewhere in your product or its documentation.
 
 For details, see
-<A HREF="http://www.nebula.org/license.html">this</A>.
+<A HREF="http://www.hydrogen.org/license.html">this</A>.
 
 <BLOCKQUOTE STYLE="padding-bottom: 0em">
-Copyright &copy; 1994&nnebula;2022 Nebula.org, PUC-Rio.
+Copyright &copy; 1994&nhydrogen;2022 Hydrogen.org, PUC-Rio.
 
 <P>
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -333,7 +333,7 @@ Last update:
 Mon Jan  3 09:54:18 UTC 2022
 </P>
 <!--
-Last change: revised for Nebula 5.4.4
+Last change: revised for Hydrogen 5.4.4
 -->
 
 </BODY>

@@ -1,7 +1,7 @@
 /*
 ** $Id: garbageCollection.h $
 ** Garbage Collector
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #ifndef garbageCollection_h
@@ -99,7 +99,7 @@
 #define nw2black(x)  \
 	check_exp(!iswhite(x), l_setbit((x)->marked, BLACKBIT))
 
-#define nebulaC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
+#define hydrogenC_white(g)	cast_byte((g)->currentwhite & WHITEBITS)
 
 
 /* object age in generational mode */
@@ -122,11 +122,11 @@
 
 
 /* Default Values for GC parameters */
-#define NEBULAI_GENMAJORMUL         100
-#define NEBULAI_GENMINORMUL         20
+#define HYDROGENI_GENMAJORMUL         100
+#define HYDROGENI_GENMINORMUL         20
 
 /* wait memory to double before starting new cycle */
-#define NEBULAI_GCPAUSE    200
+#define HYDROGENI_GCPAUSE    200
 
 /*
 ** some gc parameters are stored divided by 4 to allow a maximum value
@@ -135,15 +135,15 @@
 #define getgcparam(p)	((p) * 4)
 #define setgcparam(p,v)	((p) = (v) / 4)
 
-#define NEBULAI_GCMUL      100
+#define HYDROGENI_GCMUL      100
 
 /* how much to allocate before next GC step (log2) */
-#define NEBULAI_GCSTEPSIZE 13      /* 8 KB */
+#define HYDROGENI_GCSTEPSIZE 13      /* 8 KB */
 
 
 /*
 ** Check whether the declared GC mode is generational. While in
-** generational mode, the collector can Nebula temporarily to incremental
+** generational mode, the collector can Hydrogen temporarily to incremental
 ** mode to improve performance. This is signaled by 'g->lastatomic != 0'.
 */
 #define isdecGCmodegen(g)	(g->gckind == KGC_GEN || g->lastatomic != 0)
@@ -154,7 +154,7 @@
 */
 #define GCSTPUSR	1  /* bit true when GC stopped by user */
 #define GCSTPGC		2  /* bit true when GC stopped by itself */
-#define GCSTPCLS	4  /* bit true when closing Nebula state */
+#define GCSTPCLS	4  /* bit true when closing Hydrogen state */
 #define gcrunning(g)	((g)->gcstp == 0)
 
 
@@ -164,36 +164,36 @@
 ** 'condchangemem' is used only for heavy tests (forcing a full
 ** GC cycle on every opportunity)
 */
-#define nebulaC_condGC(L,pre,pos) \
-	{ if (G(L)->GCdebt > 0) { pre; nebulaC_step(L); pos;}; \
+#define hydrogenC_condGC(L,pre,pos) \
+	{ if (G(L)->GCdebt > 0) { pre; hydrogenC_step(L); pos;}; \
 	  condchangemem(L,pre,pos); }
 
 /* more often than not, 'pre'/'pos' are empty */
-#define nebulaC_checkGC(L)		nebulaC_condGC(L,(void)0,(void)0)
+#define hydrogenC_checkGC(L)		hydrogenC_condGC(L,(void)0,(void)0)
 
 
-#define nebulaC_barrier(L,p,v) (  \
+#define hydrogenC_barrier(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ?  \
-	nebulaC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
+	hydrogenC_barrier_(L,obj2gco(p),gcvalue(v)) : cast_void(0))
 
-#define nebulaC_barrierback(L,p,v) (  \
+#define hydrogenC_barrierback(L,p,v) (  \
 	(iscollectable(v) && isblack(p) && iswhite(gcvalue(v))) ? \
-	nebulaC_barrierback_(L,p) : cast_void(0))
+	hydrogenC_barrierback_(L,p) : cast_void(0))
 
-#define nebulaC_objbarrier(L,p,o) (  \
+#define hydrogenC_objbarrier(L,p,o) (  \
 	(isblack(p) && iswhite(o)) ? \
-	nebulaC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
+	hydrogenC_barrier_(L,obj2gco(p),obj2gco(o)) : cast_void(0))
 
-NEBULAI_FUNC void nebulaC_fix (nebula_State *L, GCObject *o);
-NEBULAI_FUNC void nebulaC_freealobjects (nebula_State *L);
-NEBULAI_FUNC void nebulaC_step (nebula_State *L);
-NEBULAI_FUNC void nebulaC_runtistate (nebula_State *L, int statesmask);
-NEBULAI_FUNC void nebulaC_fulgarbageCollection (nebula_State *L, int isemergency);
-NEBULAI_FUNC GCObject *nebulaC_newobj (nebula_State *L, int tt, size_t sz);
-NEBULAI_FUNC void nebulaC_barrier_ (nebula_State *L, GCObject *o, GCObject *v);
-NEBULAI_FUNC void nebulaC_barrierback_ (nebula_State *L, GCObject *o);
-NEBULAI_FUNC void nebulaC_checkfinalizer (nebula_State *L, GCObject *o, Table *mt);
-NEBULAI_FUNC void nebulaC_changemode (nebula_State *L, int newmode);
+HYDROGENI_FUNC void hydrogenC_fix (hydrogen_State *L, GCObject *o);
+HYDROGENI_FUNC void hydrogenC_freealobjects (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenC_step (hydrogen_State *L);
+HYDROGENI_FUNC void hydrogenC_runtistate (hydrogen_State *L, int statesmask);
+HYDROGENI_FUNC void hydrogenC_fulgarbageCollection (hydrogen_State *L, int isemergency);
+HYDROGENI_FUNC GCObject *hydrogenC_newobj (hydrogen_State *L, int tt, size_t sz);
+HYDROGENI_FUNC void hydrogenC_barrier_ (hydrogen_State *L, GCObject *o, GCObject *v);
+HYDROGENI_FUNC void hydrogenC_barrierback_ (hydrogen_State *L, GCObject *o);
+HYDROGENI_FUNC void hydrogenC_checkfinalizer (hydrogen_State *L, GCObject *o, Table *mt);
+HYDROGENI_FUNC void hydrogenC_changemode (hydrogen_State *L, int newmode);
 
 
 #endif

@@ -1,11 +1,11 @@
 /*
 ** $Id: utf8lib.c $
 ** Standard library for UTF-8 manipulation
-** See Copyright Notice in nebula.h
+** See Copyright Notice in hydrogen.h
 */
 
 #define utf8lib_c
-#define NEBULA_LIB
+#define HYDROGEN_LIB
 
 #include "prefix.h"
 
@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "nebula.h"
+#include "hydrogen.h"
 
 #include "auxlib.h"
-#include "nebulalib.h"
+#include "hydrogenlib.h"
 
 
 #define MAXUNICODE	0x10FFFFu
@@ -40,10 +40,10 @@ typedef unsigned long utfint;
 
 /* from strlib */
 /* translate a relative string position: negative means back from end */
-static nebula_Integer u_posrelat (nebula_Integer pos, size_t len) {
+static hydrogen_Integer u_posrelat (hydrogen_Integer pos, size_t len) {
   if (pos >= 0) return pos;
   else if (0u - (size_t)pos > len) return 0;
-  else return (nebula_Integer)len + pos + 1;
+  else return (hydrogen_Integer)len + pos + 1;
 }
 
 
@@ -89,28 +89,28 @@ static const char *utf8_decode (const char *s, utfint *val, int strict) {
 ** start in the range [i,j], or nil + current position if 's' is not
 ** well formed in that interval
 */
-static int utflen (nebula_State *L) {
-  nebula_Integer n = 0;  /* counter for the number of characters */
+static int utflen (hydrogen_State *L) {
+  hydrogen_Integer n = 0;  /* counter for the number of characters */
   size_t len;  /* string length in bytes */
-  const char *s = nebulaL_checklstring(L, 1, &len);
-  nebula_Integer posi = u_posrelat(nebulaL_optinteger(L, 2, 1), len);
-  nebula_Integer posj = u_posrelat(nebulaL_optinteger(L, 3, -1), len);
-  int lax = nebula_toboolean(L, 4);
-  nebulaL_argcheck(L, 1 <= posi && --posi <= (nebula_Integer)len, 2,
+  const char *s = hydrogenL_checklstring(L, 1, &len);
+  hydrogen_Integer posi = u_posrelat(hydrogenL_optinteger(L, 2, 1), len);
+  hydrogen_Integer posj = u_posrelat(hydrogenL_optinteger(L, 3, -1), len);
+  int lax = hydrogen_toboolean(L, 4);
+  hydrogenL_argcheck(L, 1 <= posi && --posi <= (hydrogen_Integer)len, 2,
                    "initial position out of bounds");
-  nebulaL_argcheck(L, --posj < (nebula_Integer)len, 3,
+  hydrogenL_argcheck(L, --posj < (hydrogen_Integer)len, 3,
                    "final position out of bounds");
   while (posi <= posj) {
     const char *s1 = utf8_decode(s + posi, NULL, !lax);
     if (s1 == NULL) {  /* conversion error? */
-      nebulaL_pushfail(L);  /* return fail ... */
-      nebula_pushinteger(L, posi + 1);  /* ... and current position */
+      hydrogenL_pushfail(L);  /* return fail ... */
+      hydrogen_pushinteger(L, posi + 1);  /* ... and current position */
       return 2;
     }
     posi = s1 - s;
     n++;
   }
-  nebula_pushinteger(L, n);
+  hydrogen_pushinteger(L, n);
   return 1;
 }
 
@@ -119,58 +119,58 @@ static int utflen (nebula_State *L) {
 ** codepoint(s, [i, [j [, lax]]]) -> returns codepoints for all
 ** characters that start in the range [i,j]
 */
-static int codepoint (nebula_State *L) {
+static int codepoint (hydrogen_State *L) {
   size_t len;
-  const char *s = nebulaL_checklstring(L, 1, &len);
-  nebula_Integer posi = u_posrelat(nebulaL_optinteger(L, 2, 1), len);
-  nebula_Integer pose = u_posrelat(nebulaL_optinteger(L, 3, posi), len);
-  int lax = nebula_toboolean(L, 4);
+  const char *s = hydrogenL_checklstring(L, 1, &len);
+  hydrogen_Integer posi = u_posrelat(hydrogenL_optinteger(L, 2, 1), len);
+  hydrogen_Integer pose = u_posrelat(hydrogenL_optinteger(L, 3, posi), len);
+  int lax = hydrogen_toboolean(L, 4);
   int n;
   const char *se;
-  nebulaL_argcheck(L, posi >= 1, 2, "out of bounds");
-  nebulaL_argcheck(L, pose <= (nebula_Integer)len, 3, "out of bounds");
+  hydrogenL_argcheck(L, posi >= 1, 2, "out of bounds");
+  hydrogenL_argcheck(L, pose <= (hydrogen_Integer)len, 3, "out of bounds");
   if (posi > pose) return 0;  /* empty interval; return no values */
-  if (pose - posi >= INT_MAX)  /* (nebula_Integer -> int) overflow? */
-    return nebulaL_error(L, "string slice too long");
+  if (pose - posi >= INT_MAX)  /* (hydrogen_Integer -> int) overflow? */
+    return hydrogenL_error(L, "string slice too long");
   n = (int)(pose -  posi) + 1;  /* upper bound for number of returns */
-  nebulaL_checkstack(L, n, "string slice too long");
+  hydrogenL_checkstack(L, n, "string slice too long");
   n = 0;  /* count the number of returns */
   se = s + pose;  /* string end */
   for (s += posi - 1; s < se;) {
     utfint code;
     s = utf8_decode(s, &code, !lax);
     if (s == NULL)
-      return nebulaL_error(L, "invalid UTF-8 code");
-    nebula_pushinteger(L, code);
+      return hydrogenL_error(L, "invalid UTF-8 code");
+    hydrogen_pushinteger(L, code);
     n++;
   }
   return n;
 }
 
 
-static void pushutfchar (nebula_State *L, int arg) {
-  nebula_Unsigned code = (nebula_Unsigned)nebulaL_checkinteger(L, arg);
-  nebulaL_argcheck(L, code <= MAXUTF, arg, "value out of range");
-  nebula_pushfstring(L, "%U", (long)code);
+static void pushutfchar (hydrogen_State *L, int arg) {
+  hydrogen_Unsigned code = (hydrogen_Unsigned)hydrogenL_checkinteger(L, arg);
+  hydrogenL_argcheck(L, code <= MAXUTF, arg, "value out of range");
+  hydrogen_pushfstring(L, "%U", (long)code);
 }
 
 
 /*
 ** utfchar(n1, n2, ...)  -> char(n1)..char(n2)...
 */
-static int utfchar (nebula_State *L) {
-  int n = nebula_gettop(L);  /* number of arguments */
+static int utfchar (hydrogen_State *L) {
+  int n = hydrogen_gettop(L);  /* number of arguments */
   if (n == 1)  /* optimize common case of single char */
     pushutfchar(L, 1);
   else {
     int i;
-    nebulaL_Buffer b;
-    nebulaL_buffinit(L, &b);
+    hydrogenL_Buffer b;
+    hydrogenL_buffinit(L, &b);
     for (i = 1; i <= n; i++) {
       pushutfchar(L, i);
-      nebulaL_addvalue(&b);
+      hydrogenL_addvalue(&b);
     }
-    nebulaL_pushresult(&b);
+    hydrogenL_pushresult(&b);
   }
   return 1;
 }
@@ -180,13 +180,13 @@ static int utfchar (nebula_State *L) {
 ** offset(s, n, [i])  -> index where n-th character counting from
 **   position 'i' starts; 0 means character at 'i'.
 */
-static int byteoffset (nebula_State *L) {
+static int byteoffset (hydrogen_State *L) {
   size_t len;
-  const char *s = nebulaL_checklstring(L, 1, &len);
-  nebula_Integer n  = nebulaL_checkinteger(L, 2);
-  nebula_Integer posi = (n >= 0) ? 1 : len + 1;
-  posi = u_posrelat(nebulaL_optinteger(L, 3, posi), len);
-  nebulaL_argcheck(L, 1 <= posi && --posi <= (nebula_Integer)len, 3,
+  const char *s = hydrogenL_checklstring(L, 1, &len);
+  hydrogen_Integer n  = hydrogenL_checkinteger(L, 2);
+  hydrogen_Integer posi = (n >= 0) ? 1 : len + 1;
+  posi = u_posrelat(hydrogenL_optinteger(L, 3, posi), len);
+  hydrogenL_argcheck(L, 1 <= posi && --posi <= (hydrogen_Integer)len, 3,
                    "position out of bounds");
   if (n == 0) {
     /* find beginning of current byte sequence */
@@ -194,7 +194,7 @@ static int byteoffset (nebula_State *L) {
   }
   else {
     if (iscont(s + posi))
-      return nebulaL_error(L, "initial position is a continuation byte");
+      return hydrogenL_error(L, "initial position is a continuation byte");
     if (n < 0) {
        while (n < 0 && posi > 0) {  /* move back */
          do {  /* find beginning of previous character */
@@ -205,7 +205,7 @@ static int byteoffset (nebula_State *L) {
      }
      else {
        n--;  /* do not move for 1st character */
-       while (n > 0 && posi < (nebula_Integer)len) {
+       while (n > 0 && posi < (hydrogen_Integer)len) {
          do {  /* find beginning of next character */
            posi++;
          } while (iscont(s + posi));  /* (cannot pass final '\0') */
@@ -214,17 +214,17 @@ static int byteoffset (nebula_State *L) {
      }
   }
   if (n == 0)  /* did it find given character? */
-    nebula_pushinteger(L, posi + 1);
+    hydrogen_pushinteger(L, posi + 1);
   else  /* no such character */
-    nebulaL_pushfail(L);
+    hydrogenL_pushfail(L);
   return 1;
 }
 
 
-static int iter_aux (nebula_State *L, int strict) {
+static int iter_aux (hydrogen_State *L, int strict) {
   size_t len;
-  const char *s = nebulaL_checklstring(L, 1, &len);
-  nebula_Unsigned n = (nebula_Unsigned)nebula_tointeger(L, 2);
+  const char *s = hydrogenL_checklstring(L, 1, &len);
+  hydrogen_Unsigned n = (hydrogen_Unsigned)hydrogen_tointeger(L, 2);
   if (n < len) {
     while (iscont(s + n)) n++;  /* skip continuation bytes */
   }
@@ -234,29 +234,29 @@ static int iter_aux (nebula_State *L, int strict) {
     utfint code;
     const char *next = utf8_decode(s + n, &code, strict);
     if (next == NULL)
-      return nebulaL_error(L, "invalid UTF-8 code");
-    nebula_pushinteger(L, n + 1);
-    nebula_pushinteger(L, code);
+      return hydrogenL_error(L, "invalid UTF-8 code");
+    hydrogen_pushinteger(L, n + 1);
+    hydrogen_pushinteger(L, code);
     return 2;
   }
 }
 
 
-static int iter_auxstrict (nebula_State *L) {
+static int iter_auxstrict (hydrogen_State *L) {
   return iter_aux(L, 1);
 }
 
-static int iter_auxlax (nebula_State *L) {
+static int iter_auxlax (hydrogen_State *L) {
   return iter_aux(L, 0);
 }
 
 
-static int iter_codes (nebula_State *L) {
-  int lax = nebula_toboolean(L, 2);
-  nebulaL_checkstring(L, 1);
-  nebula_pushcfunction(L, lax ? iter_auxlax : iter_auxstrict);
-  nebula_pushvalue(L, 1);
-  nebula_pushinteger(L, 0);
+static int iter_codes (hydrogen_State *L) {
+  int lax = hydrogen_toboolean(L, 2);
+  hydrogenL_checkstring(L, 1);
+  hydrogen_pushcfunction(L, lax ? iter_auxlax : iter_auxstrict);
+  hydrogen_pushvalue(L, 1);
+  hydrogen_pushinteger(L, 0);
   return 3;
 }
 
@@ -265,7 +265,7 @@ static int iter_codes (nebula_State *L) {
 #define UTF8PATT	"[\0-\x7F\xC2-\xFD][\x80-\xBF]*"
 
 
-static const nebulaL_Reg funcs[] = {
+static const hydrogenL_Reg funcs[] = {
   {"offset", byteoffset},
   {"codepoint", codepoint},
   {"char", utfchar},
@@ -277,9 +277,9 @@ static const nebulaL_Reg funcs[] = {
 };
 
 
-NEBULAMOD_API int nebulaopen_utf8 (nebula_State *L) {
-  nebulaL_newlib(L, funcs);
-  nebula_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
-  nebula_setfield(L, -2, "charpattern");
+HYDROGENMOD_API int hydrogenopen_utf8 (hydrogen_State *L) {
+  hydrogenL_newlib(L, funcs);
+  hydrogen_pushlstring(L, UTF8PATT, sizeof(UTF8PATT)/sizeof(char) - 1);
+  hydrogen_setfield(L, -2, "charpattern");
   return 1;
 }
