@@ -1,4 +1,4 @@
-Make a pkg manager for Hydrogen called stardust
+Make a pkg manager for Hydrogen called Orca
 
 _____
 INFO
